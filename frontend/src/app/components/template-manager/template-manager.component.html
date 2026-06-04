@@ -1,0 +1,103 @@
+<div class="tm-overlay" (click)="close.emit()">
+  <div class="tm-card" (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="tm-header">
+      <h2><span class="material-symbols-outlined tm-header-icon">rate_review</span> {{ t9n.t('template_manager.title') || 'Gérer mes modèles personnalisés' }}</h2>
+      <button class="tm-close-btn" (click)="close.emit()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="tm-body">
+      
+      <!-- Left side: List of existing templates -->
+      <div class="tm-list-section">
+        <h3 class="tm-section-title">{{ t9n.t('template_manager.your_templates') || 'Vos modèles' }}</h3>
+        
+        <div *ngIf="templateService.templates().length === 0" class="tm-empty">
+          <span class="material-symbols-outlined tm-empty-icon">sticky_note_2</span>
+          <p>{{ t9n.t('template_manager.empty') || 'Aucun modèle personnalisé. Créez-en un à droite !' }}</p>
+        </div>
+
+        <div class="tm-scroll-list">
+          <div *ngFor="let t of templateService.templates()" class="tm-item-card">
+            <div class="tm-item-header">
+              <span class="tm-item-title">{{ t.title }}</span>
+              <span class="tm-badge" [class]="t.category">{{ getCategoryLabel(t.category) }}</span>
+            </div>
+            <p class="tm-item-content">{{ t.content }}</p>
+            <div class="tm-item-actions">
+              <button class="tm-action-btn edit" (click)="startEdit(t)">
+                <span class="material-symbols-outlined">edit</span> {{ t9n.t('template_manager.btn_edit') || 'Modifier' }}
+              </button>
+              <button class="tm-action-btn delete" (click)="onDelete(t.id!)">
+                <span class="material-symbols-outlined">delete</span> {{ t9n.t('template_manager.btn_delete') || 'Supprimer' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side: Form (Add or Edit) -->
+      <div class="tm-form-section">
+        <h3 class="tm-section-title">{{ isEditing() ? (t9n.t('template_manager.form_edit') || 'Modifier le modèle') : (t9n.t('template_manager.form_create') || 'Créer un modèle') }}</h3>
+        
+        <form (ngSubmit)="onSubmit()" class="tm-form">
+          <!-- Title -->
+          <div class="floating-group">
+            <input 
+              type="text" 
+              id="t-title" 
+              class="floating-input" 
+              [ngModel]="title()" 
+              (ngModelChange)="title.set($event)"
+              name="title" 
+              placeholder=" " 
+              required>
+            <label class="floating-label" for="t-title">{{ t9n.t('template_manager.label_title') || 'Titre / Nom' }}</label>
+          </div>
+
+          <!-- Category -->
+          <div class="floating-group">
+            <select 
+              id="t-category" 
+              class="floating-input tm-select-input" 
+              [ngModel]="category()" 
+              (ngModelChange)="category.set($event)"
+              name="category">
+              <option *ngFor="let cat of categories" [value]="cat">{{ getCategoryLabel(cat) }}</option>
+            </select>
+            <label class="floating-label tm-select-label" for="t-category">{{ t9n.t('template_manager.label_category') || 'Catégorie' }}</label>
+          </div>
+
+          <!-- Content -->
+          <div class="floating-group">
+            <textarea 
+              id="t-content" 
+              class="floating-input tm-content-textarea" 
+              rows="5"
+              [ngModel]="content()" 
+              (ngModelChange)="content.set($event)"
+              name="content" 
+              placeholder=" "
+              required></textarea>
+            <label class="floating-label" for="t-content">{{ t9n.t('template_manager.label_content') || 'Contenu du message (utilisez {name} pour le prénom)' }}</label>
+          </div>
+
+          <div class="tm-form-buttons">
+            <button type="button" *ngIf="isEditing()" class="btn-secondary" (click)="resetForm()">
+              {{ t9n.t('template_manager.btn_cancel') || 'Annuler' }}
+            </button>
+            <button type="submit" class="btn-premium">
+              <span class="material-symbols-outlined">save</span>
+              {{ isEditing() ? (t9n.t('template_manager.btn_update') || 'Mettre à jour') : (t9n.t('template_manager.btn_save') || 'Enregistrer') }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+</div>

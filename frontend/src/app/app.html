@@ -13,20 +13,17 @@
     <div class="toolbar-actions flex-center gap-sm">
       
       <!-- Language Selector -->
-      <div class="lang-selector">
-        <button
-          *ngFor="let lang of languages"
-          (click)="setLanguage(lang.code)"
-          [class.lang-active]="t9n.currentLang() === lang.code"
-          class="lang-btn"
-          [title]="lang.label"
-          [id]="'lang-btn-' + lang.code">
-          {{ lang.flag }} {{ lang.label }}
-        </button>
+      <div class="lang-selector month-selector-custom" style="position: relative; min-width: 140px;">
+        <select class="custom-select-control" [value]="t9n.currentLang()" (change)="setLanguage($any($event.target).value)">
+          <option *ngFor="let lang of languages" [value]="lang.code">
+            {{ lang.flag }} {{ lang.label }}
+          </option>
+        </select>
+        <span class="material-symbols-outlined select-chevron">expand_more</span>
       </div>
 
       <!-- Dark mode switch -->
-      <button (click)="toggleDarkMode()" class="icon-btn theme-toggle" [title]="isDarkMode() ? 'Passer au mode clair' : 'Passer au mode sombre'">
+      <button (click)="toggleDarkMode()" class="icon-btn theme-toggle" [title]="isDarkMode() ? (t9n.t('nav.light_mode') || 'Passer au mode clair') : (t9n.t('nav.dark_mode') || 'Passer au mode sombre')">
         <span class="material-symbols-outlined" *ngIf="!isDarkMode()">dark_mode</span>
         <span class="material-symbols-outlined" *ngIf="isDarkMode()">light_mode</span>
       </button>

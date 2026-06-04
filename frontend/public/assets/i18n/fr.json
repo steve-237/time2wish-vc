@@ -2,7 +2,9 @@
   "nav": {
     "dashboard": "Tableau de bord",
     "add": "Ajouter",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "light_mode": "Passer au mode clair",
+    "dark_mode": "Passer au mode sombre"
   },
   "footer": {
     "tagline": "Ne manquez plus jamais un anniversaire. 💖",
@@ -39,7 +41,15 @@
     "btn_test_reminders": "🔔 Tester les Rappels",
     "reminder_success": "Rappels envoyés !",
     "wish_message": "Joyeux anniversaire %s ! Passe une excellente journée ! 🎂🎉",
-    "confirm_delete": "Voulez-vous vraiment supprimer cet anniversaire ?",
+    "actions": "Actions",
+    "export_csv": "Exporter CSV",
+    "export_ical": "Exporter iCal",
+    "import_csv": "Importer CSV",
+    "confirm_delete_title": "Confirmer la suppression",
+    "confirm_delete_text": "Êtes-vous sûr de vouloir supprimer cet anniversaire ?",
+    "confirm_delete_subtext": "Cette action est irréversible.",
+    "btn_cancel": "Non, annuler",
+    "btn_confirm_delete": "Oui, supprimer",
     "months": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
   },
   "form": {
@@ -57,11 +67,15 @@
     "reminder_3": "3 jours avant",
     "reminder_7": "7 jours avant (Recommandé)",
     "reminder_14": "14 jours avant",
-    "photo_url": "URL de la Photo (Optionnel)",
+    "photo_url": "Photo de Profil (Optionnel)",
     "notes": "Notes & Idées Cadeaux",
     "btn_cancel": "Annuler",
     "btn_save": "Enregistrer",
-    "btn_update": "Mettre à jour"
+    "btn_update": "Mettre à jour",
+    "age_display": "Affichage de l'âge",
+    "age_visible": "Âge visible sur les cartes",
+    "age_hidden": "Âge masqué",
+    "contact_info": "Coordonnées (optionnel)"
   },
   "detail": {
     "back": "Retour au dashboard",
@@ -93,5 +107,50 @@
     "delete_success": "L'anniversaire de %s a été supprimé.",
     "import_success": "%d anniversaires importés avec succès !",
     "import_error": "Erreur lors de l'importation."
+  },
+  "wish": {
+    "title": "Souhaiter un anniversaire à",
+    "tab_ai": "Générateur IA",
+    "tab_custom": "Modèles enregistrés",
+    "step_1_ai": "1. Choisir le ton",
+    "step_2_ai": "2. Instructions pour l'IA (Optionnel)",
+    "step_1_custom": "1. Choisir un modèle enregistré",
+    "tone_friendly": "Amical",
+    "tone_funny": "Drôle",
+    "tone_formal": "Formel",
+    "tone_poetic": "Poétique",
+    "ai_placeholder": "ex: mentionne qu'il adore le football",
+    "btn_regenerate": "Régénérer",
+    "custom_placeholder": "-- Ou utiliser un modèle personnalisé --",
+    "btn_manage": "Gérer",
+    "step_2": "2. Canal de partage",
+    "no_number": "Non renseigné",
+    "no_email": "Non renseigné",
+    "step_3": "3. Personnaliser le message",
+    "message_placeholder": "Écrivez votre message...",
+    "loading_ai": "Génération par l'IA...",
+    "btn_cancel": "Annuler",
+    "btn_send": "Envoyer le souhait"
+  },
+  "template_manager": {
+    "title": "Gérer mes modèles personnalisés",
+    "your_templates": "Vos modèles",
+    "empty": "Aucun modèle personnalisé. Créez-en un à droite !",
+    "btn_edit": "Modifier",
+    "btn_delete": "Supprimer",
+    "form_edit": "Modifier le modèle",
+    "form_create": "Créer un modèle",
+    "label_title": "Titre / Nom",
+    "label_category": "Catégorie",
+    "label_content": "Contenu du message (utilisez {name} pour le prénom)",
+    "btn_cancel": "Annuler",
+    "btn_update": "Mettre à jour",
+    "btn_save": "Enregistrer"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "mark_all_read": "Tout marquer comme lu",
+    "clear_all": "Effacer",
+    "empty": "Aucune notification"
   }
 }

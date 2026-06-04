@@ -2,7 +2,9 @@
   "nav": {
     "dashboard": "Dashboard",
     "add": "Hinzufügen",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "light_mode": "In den hellen Modus wechseln",
+    "dark_mode": "In den dunklen Modus wechseln"
   },
   "footer": {
     "tagline": "Verpassen Sie nie wieder einen Geburtstag. 💖",
@@ -39,7 +41,15 @@
     "btn_test_reminders": "🔔 Erinnerungen testen",
     "reminder_success": "Erinnerungen gesendet!",
     "wish_message": "Herzlichen Glückwunsch zum Geburtstag, %s! Schönen Tag! 🎂🎉",
-    "confirm_delete": "Möchten Sie diesen Geburtstag wirklich löschen?",
+    "actions": "Aktionen",
+    "export_csv": "CSV exportieren",
+    "export_ical": "iCal exportieren",
+    "import_csv": "CSV importieren",
+    "confirm_delete_title": "Löschen bestätigen",
+    "confirm_delete_text": "Möchten Sie diesen Geburtstag wirklich löschen?",
+    "confirm_delete_subtext": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "btn_cancel": "Nein, abbrechen",
+    "btn_confirm_delete": "Ja, löschen",
     "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
   },
   "form": {
@@ -57,11 +67,15 @@
     "reminder_3": "3 Tage vorher",
     "reminder_7": "7 Tage vorher (Empfohlen)",
     "reminder_14": "14 Tage vorher",
-    "photo_url": "Foto-URL (Optional)",
+    "photo_url": "Profilbild (Optional)",
     "notes": "Notizen & Geschenkideen",
     "btn_cancel": "Abbrechen",
     "btn_save": "Speichern",
-    "btn_update": "Aktualisieren"
+    "btn_update": "Aktualisieren",
+    "age_display": "Altersanzeige",
+    "age_visible": "Alter auf Karten sichtbar",
+    "age_hidden": "Alter verborgen",
+    "contact_info": "Kontaktinformationen (optional)"
   },
   "detail": {
     "back": "Zurück zum Dashboard",
@@ -93,5 +107,50 @@
     "delete_success": "Der Geburtstag von %s wurde gelöscht.",
     "import_success": "%d Geburtstage erfolgreich importiert!",
     "import_error": "Fehler beim Importieren."
+  },
+  "wish": {
+    "title": "Geburtstagswunsch senden an",
+    "tab_ai": "KI-Generator",
+    "tab_custom": "Gespeicherte Vorlagen",
+    "step_1_ai": "1. Tonfall wählen",
+    "step_2_ai": "2. Anweisungen für die KI (Optional)",
+    "step_1_custom": "1. Gespeicherte Vorlage wählen",
+    "tone_friendly": "Freundlich",
+    "tone_funny": "Lustig",
+    "tone_formal": "Formell",
+    "tone_poetic": "Poetisch",
+    "ai_placeholder": "z.B. erwähne, dass er Fußball liebt",
+    "btn_regenerate": "Neu generieren",
+    "custom_placeholder": "-- Oder eine benutzerdefinierte Vorlage verwenden --",
+    "btn_manage": "Verwalten",
+    "step_2": "2. Teilen über",
+    "no_number": "Keine Nummer",
+    "no_email": "Keine E-Mail",
+    "step_3": "3. Nachricht anpassen",
+    "message_placeholder": "Schreibe deine Nachricht...",
+    "loading_ai": "Generiere mit KI...",
+    "btn_cancel": "Abbrechen",
+    "btn_send": "Wunsch senden"
+  },
+  "template_manager": {
+    "title": "Benutzerdefinierte Vorlagen verwalten",
+    "your_templates": "Ihre Vorlagen",
+    "empty": "Noch keine Vorlagen. Erstellen Sie Ihre erste Vorlage rechts!",
+    "btn_edit": "Bearbeiten",
+    "btn_delete": "Löschen",
+    "form_edit": "Vorlage bearbeiten",
+    "form_create": "Vorlage erstellen",
+    "label_title": "Titel / Name",
+    "label_category": "Kategorie",
+    "label_content": "Nachrichteninhalt (verwenden Sie {name} für den Namen)",
+    "btn_cancel": "Abbrechen",
+    "btn_update": "Aktualisieren",
+    "btn_save": "Speichern"
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "mark_all_read": "Alle als gelesen markieren",
+    "clear_all": "Alle löschen",
+    "empty": "Keine Benachrichtigungen"
   }
 }

@@ -35,6 +35,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   selectedCategory = signal<BirthdayCategory | 'All'>('All');
   selectedMonth = signal<number | -1>(-1); // -1 means All
   viewMode = signal<'grid' | 'list' | 'calendar'>('grid');
+  timeFilter = signal<'upcoming' | 'past'>('upcoming');
 
   // Reminder trigger state
   reminderStatus = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -55,15 +56,58 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     const query = this.searchQuery().toLowerCase().trim();
     const cat = this.selectedCategory();
     const month = this.selectedMonth();
+    const tf = this.timeFilter();
 
     return this.birthdayService.activeBirthdays().filter(b => {
       const matchesSearch = !query || b.name.toLowerCase().includes(query);
       const matchesCat = cat === 'All' || b.category === cat;
       const bMonth = new Date(b.birthdate).getMonth();
       const matchesMonth = month === -1 || bMonth === month;
-      return matchesSearch && matchesCat && matchesMonth;
+      
+      const isPast = this.isBirthdayPast(b.birthdate);
+      const matchesTime = tf === 'upcoming' ? !isPast : isPast;
+
+      return matchesSearch && matchesCat && matchesMonth && matchesTime;
     });
   });
+
+  /** Check if a birthday's occurrence this year has already passed */
+  isBirthdayPast(birthdateStr: string): boolean {
+    const birthdate = new Date(birthdateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const thisYearOccurrence = new Date(today.getFullYear(), birthdate.getMonth(), birthdate.getDate());
+    return thisYearOccurrence.getTime() < today.getTime();
+  }
+
+  /** Calculate current age from birthdate */
+  getAge(birthdateStr: string): number {
+    const birthdate = new Date(birthdateStr);
+    const today = new Date();
+    let age = today.getFullYear() - birthdate.getFullYear();
+    const monthDiff = today.getMonth() - birthdate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
+      age--;
+    }
+    return age;
+  }
+
+  onActionSelect(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const action = select.value;
+    select.value = ""; // Reset
+    
+    if (action === 'export-csv') {
+      this.exportToCSV();
+    } else if (action === 'export-ical') {
+      this.exportToICal();
+    } else if (action === 'import-csv') {
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.click();
+      }
+    }
+  }
 
   ngOnInit() {
     this.birthdayService.loadFromStorage();
@@ -112,12 +156,21 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     this.isWishModalOpen.set(true);
   }
 
+  isConfirmModalOpen = signal(false);
+  birthdayIdToDelete = signal<number | null>(null);
+
   deleteBirthday(id: number, event?: Event) {
     if (event) {
       event.preventDefault();
       event.stopPropagation();
     }
-    if (confirm(this.t9n.t('dashboard.confirm_delete'))) {
+    this.birthdayIdToDelete.set(id);
+    this.isConfirmModalOpen.set(true);
+  }
+
+  confirmDelete() {
+    const id = this.birthdayIdToDelete();
+    if (id !== null) {
       const birthdayToDel = this.filteredBirthdays().find(b => b.id === id);
       const name = birthdayToDel ? birthdayToDel.name : 'Inconnu';
       
@@ -125,6 +178,13 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       this.audioService.playDeleteSound();
       this.notifService.logAction('DELETE', `L'anniversaire de ${name} a été supprimé.`);
     }
+    this.isConfirmModalOpen.set(false);
+    this.birthdayIdToDelete.set(null);
+  }
+
+  cancelDelete() {
+    this.isConfirmModalOpen.set(false);
+    this.birthdayIdToDelete.set(null);
   }
 
   onTriggerReminders() {

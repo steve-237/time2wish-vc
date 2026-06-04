@@ -7,11 +7,12 @@ import { TranslationService } from '../../services/translation.service';
 import { BirthdayCategory } from '../../models/birthday.model';
 import { AudioService } from '../../services/audio.service';
 import { NotificationService } from '../../services/notification.service';
+import { ImageUploadComponent } from '../../components/image-upload/image-upload.component';
 
 @Component({
   selector: 'app-birthday-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ImageUploadComponent],
   templateUrl: './birthday-form.html',
   styleUrl: './birthday-form.css'
 })
@@ -33,6 +34,9 @@ export class BirthdayForm implements OnInit {
   notes = signal<string>('');
   reminderDays = signal<number>(7);
   photoUrl = signal<string>('');
+  showAge = signal<boolean>(true);
+  email = signal<string>('');
+  whatsapp = signal<string>('');
   errorMessage = signal<string>('');
 
   // Dropdown categories list
@@ -64,6 +68,9 @@ export class BirthdayForm implements OnInit {
         this.notes.set(b.notes || '');
         this.reminderDays.set(b.reminderDays);
         this.photoUrl.set(b.photoUrl || '');
+        this.showAge.set(b.showAge !== false);
+        this.email.set(b.email || '');
+        this.whatsapp.set(b.whatsapp || '');
       } else {
         this.router.navigate(['/dashboard']);
       }
@@ -95,7 +102,10 @@ export class BirthdayForm implements OnInit {
           this.category(),
           this.notes(),
           this.reminderDays(),
-          this.photoUrl()
+          this.photoUrl(),
+          this.showAge(),
+          this.email(),
+          this.whatsapp()
         );
         this.audioService.playSuccessSound();
         this.notifService.logAction('UPDATE', `L'anniversaire de ${this.name()} a été mis à jour.`);
@@ -107,7 +117,10 @@ export class BirthdayForm implements OnInit {
         this.category(),
         this.notes(),
         this.reminderDays(),
-        this.photoUrl()
+        this.photoUrl(),
+        this.showAge(),
+        this.email(),
+        this.whatsapp()
       );
       this.audioService.playSuccessSound();
       this.notifService.logAction('ADD', `L'anniversaire de ${this.name()} a été ajouté.`);

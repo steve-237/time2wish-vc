@@ -33,6 +33,17 @@ export class BirthdayGridComponent {
     return rawLabel;
   }
 
+  getAge(birthdateStr: string): number {
+    const birthdate = new Date(birthdateStr);
+    const today = new Date();
+    let age = today.getFullYear() - birthdate.getFullYear();
+    const monthDiff = today.getMonth() - birthdate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
+      age--;
+    }
+    return age;
+  }
+
   onSendWish(birthday: Birthday, event: Event) {
     this.sendWish.emit({ birthday, event });
   }

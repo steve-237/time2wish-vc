@@ -1,0 +1,48 @@
+<div class="upload-container" 
+     [class.drag-over]="isDragOver()"
+     (dragover)="onDragOver($event)"
+     (dragleave)="onDragLeave($event)"
+     (drop)="onDrop($event)">
+  
+  <input 
+    type="file" 
+    #fileInput 
+    (change)="onFileSelected($event)" 
+    accept="image/*" 
+    style="display: none;">
+
+  <!-- Preview state -->
+  <div *ngIf="currentImageUrl && !isUploading()" class="preview-wrapper">
+    <img [src]="currentImageUrl" alt="Preview" class="image-preview">
+    <div class="preview-overlay">
+      <button type="button" class="btn-icon-danger" (click)="removeImage($event)" title="Remove image">
+        <span class="material-symbols-outlined">delete</span>
+      </button>
+      <button type="button" class="btn-icon-primary" (click)="fileInput.click()" title="Change image">
+        <span class="material-symbols-outlined">cached</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty / Drop state -->
+  <div *ngIf="!currentImageUrl && !isUploading()" class="drop-zone" (click)="fileInput.click()">
+    <span class="material-symbols-outlined upload-icon">cloud_upload</span>
+    <span class="drop-text">
+      {{ t9n.currentLang() === 'en' ? 'Drag & drop image here or' : 'Glissez-déposez une image ici ou' }}
+      <strong class="browse-link">{{ t9n.currentLang() === 'en' ? 'browse' : 'parcourez' }}</strong>
+    </span>
+    <span class="drop-hint">{{ t9n.currentLang() === 'en' ? 'Supports JPG, PNG, GIF up to 5MB' : 'Supporte JPG, PNG, GIF jusqu\'à 5 Mo' }}</span>
+  </div>
+
+  <!-- Uploading state -->
+  <div *ngIf="isUploading()" class="uploading-zone">
+    <div class="spinner"></div>
+    <span class="uploading-text">{{ t9n.currentLang() === 'en' ? 'Uploading...' : 'Téléversement en cours...' }}</span>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="errorMessage()" class="error-banner">
+    <span class="material-symbols-outlined">error</span>
+    <span>{{ errorMessage() }}</span>
+  </div>
+</div>

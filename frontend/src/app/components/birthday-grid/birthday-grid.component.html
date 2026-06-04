@@ -2,7 +2,8 @@
   <div 
     *ngFor="let b of birthdays; trackBy: trackById" 
     [routerLink]="['/birthday', b.id]"
-    class="glass-card birthday-item glass-card-hover">
+    class="glass-card birthday-item glass-card-hover"
+    [class]="'card-' + b.category.toLowerCase()">
     
     <div class="birthday-card-main">
       <!-- Profile Photo -->
@@ -12,7 +13,10 @@
 
       <!-- User Info -->
       <div class="birthday-info">
-        <h3 class="birthday-name">{{ b.name }}</h3>
+        <h3 class="birthday-name">
+          {{ b.name }}
+          <span *ngIf="b.showAge !== false" class="age-badge">{{ getAge(b.birthdate) }} {{ t9n.currentLang() === 'en' ? 'yrs' : 'ans' }}</span>
+        </h3>
         <p class="birthday-date">
           <span class="material-symbols-outlined" style="font-size: 0.95rem; vertical-align: middle;">event</span>
           {{ b.birthdate | date:'dd MMMM yyyy' }}

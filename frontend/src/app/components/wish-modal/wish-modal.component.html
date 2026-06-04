@@ -3,46 +3,161 @@
     
     <!-- Header -->
     <div class="modal-header flex-between">
-      <h2>🎉 {{ t9n.t('dashboard.btn_wish') }} à {{ birthday.name }}</h2>
+      <h2>🎉 {{ t9n.t('wish.title') || 'Souhaiter un anniversaire à' }} {{ birthday.name }}</h2>
       <button class="icon-btn close-btn" (click)="close.emit()">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
 
-    <!-- Templates selector -->
-    <div class="form-group-section">
-      <label class="section-label">1. Choisir un modèle</label>
-      <div class="template-selector-grid">
-        <button 
-          type="button" 
-          class="template-card" 
-          [class.active]="templateType === 'friendly'" 
-          (click)="onTemplateChange('friendly')">
-          <span class="material-symbols-outlined card-icon">favorite</span>
-          <span class="card-title">Amical</span>
-        </button>
-        <button 
-          type="button" 
-          class="template-card" 
-          [class.active]="templateType === 'funny'" 
-          (click)="onTemplateChange('funny')">
-          <span class="material-symbols-outlined card-icon">sentiment_very_satisfied</span>
-          <span class="card-title">Drôle</span>
-        </button>
-        <button 
-          type="button" 
-          class="template-card" 
-          [class.active]="templateType === 'formal'" 
-          (click)="onTemplateChange('formal')">
-          <span class="material-symbols-outlined card-icon">business_center</span>
-          <span class="card-title">Formel</span>
-        </button>
+    <!-- Mode Selector Tabs -->
+    <div class="tabs-container">
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="selectedMode() === 'ai'"
+        (click)="selectedMode.set('ai')">
+        <span class="material-symbols-outlined tab-icon">auto_awesome</span>
+        <span>{{ t9n.t('wish.tab_ai') || 'Générateur IA' }}</span>
+      </button>
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="selectedMode() === 'custom'"
+        (click)="selectedMode.set('custom'); updateCustomTemplateMessage()">
+        <span class="material-symbols-outlined tab-icon">folder_open</span>
+        <span>{{ t9n.t('wish.tab_custom') || 'Modèles enregistrés' }}</span>
+      </button>
+    </div>
+
+    <!-- Mode 1: AI Generator -->
+    <div *ngIf="selectedMode() === 'ai'" class="tab-content animate-fade">
+      
+      <!-- Tone Selection -->
+      <div class="form-group-section">
+        <label class="section-label">{{ t9n.t('wish.step_1_ai') || '1. Choisir le ton' }}</label>
+        <div class="template-selector-grid">
+          <button 
+            type="button" 
+            class="template-card" 
+            [class.active]="aiTone() === 'friendly'" 
+            (click)="aiTone.set('friendly'); generateAiWish()">
+            <span class="material-symbols-outlined card-icon">favorite</span>
+            <span class="card-title">{{ t9n.t('wish.tone_friendly') || 'Amical' }}</span>
+          </button>
+          <button 
+            type="button" 
+            class="template-card" 
+            [class.active]="aiTone() === 'funny'" 
+            (click)="aiTone.set('funny'); generateAiWish()">
+            <span class="material-symbols-outlined card-icon">sentiment_very_satisfied</span>
+            <span class="card-title">{{ t9n.t('wish.tone_funny') || 'Drôle' }}</span>
+          </button>
+          <button 
+            type="button" 
+            class="template-card" 
+            [class.active]="aiTone() === 'formal'" 
+            (click)="aiTone.set('formal'); generateAiWish()">
+            <span class="material-symbols-outlined card-icon">business_center</span>
+            <span class="card-title">{{ t9n.t('wish.tone_formal') || 'Formel' }}</span>
+          </button>
+          <button 
+            type="button" 
+            class="template-card" 
+            [class.active]="aiTone() === 'poetic'" 
+            (click)="aiTone.set('poetic'); generateAiWish()">
+            <span class="material-symbols-outlined card-icon">auto_stories</span>
+            <span class="card-title">{{ t9n.t('wish.tone_poetic') || 'Poétique' }}</span>
+          </button>
+        </div>
       </div>
+
+      <!-- Extra Guidelines -->
+      <div class="form-group-section" style="margin-top: 16px;">
+        <label class="section-label">{{ t9n.t('wish.step_2_ai') || '2. Instructions pour l\\'IA (Optionnel)' }}</label>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <div style="flex: 1; position: relative;">
+            <input 
+              type="text" 
+              class="floating-input"
+              style="padding: 10px; border-radius: 10px; font-size: 0.88rem; width: 100%; border: 1px solid var(--border-card); background: transparent; color: var(--text-main); height: 42px;"
+              [placeholder]="t9n.t('wish.ai_placeholder') || 'ex: mentionne qu\'il adore le football'"
+              [ngModel]="aiInstructions()"
+              (ngModelChange)="aiInstructions.set($event)">
+          </div>
+          <button 
+            type="button" 
+            class="btn-premium" 
+            style="padding: 0 16px; border-radius: 10px; height: 42px; display: flex; align-items: center; gap: 6px;"
+            [disabled]="isGenerating()"
+            (click)="generateAiWish()">
+            <span class="material-symbols-outlined" style="font-size: 1.2rem;">refresh</span>
+            <span>{{ t9n.t('wish.btn_regenerate') || 'Régénérer' }}</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Mode 2: Custom Saved Templates -->
+    <div *ngIf="selectedMode() === 'custom'" class="tab-content animate-fade">
+      
+      <!-- Template select -->
+      <div class="form-group-section">
+        <label class="section-label">{{ t9n.t('wish.step_1_custom') || '1. Choisir un modèle enregistré' }}</label>
+        <div class="template-selector-grid">
+          <button 
+            type="button" 
+            class="template-card" 
+            [class.active]="selectedTemplateId() === 'friendly'" 
+            (click)="onTemplateChange('friendly')">
+            <span class="material-symbols-outlined card-icon">favorite</span>
+            <span class="card-title">{{ t9n.t('wish.tone_friendly') || 'Amical' }}</span>
+          </button>
+          <button 
+            type="button" 
+            class="template-card" 
+            [class.active]="selectedTemplateId() === 'funny'" 
+            (click)="onTemplateChange('funny')">
+            <span class="material-symbols-outlined card-icon">sentiment_very_satisfied</span>
+            <span class="card-title">{{ t9n.t('wish.tone_funny') || 'Drôle' }}</span>
+          </button>
+          <button 
+            type="button" 
+            class="template-card" 
+            [class.active]="selectedTemplateId() === 'formal'" 
+            (click)="onTemplateChange('formal')">
+            <span class="material-symbols-outlined card-icon">business_center</span>
+            <span class="card-title">{{ t9n.t('wish.tone_formal') || 'Formel' }}</span>
+          </button>
+        </div>
+
+        <div class="custom-templates-row" style="margin-top: 14px; display: flex; gap: 10px; align-items: center;">
+          <div style="flex: 1; position: relative;">
+            <select 
+              class="floating-input select-input" 
+              style="padding: 10px; border-radius: 10px; font-size: 0.88rem; width: 100%; border: 1px solid var(--border-card); background: transparent; color: var(--text-main); height: 42px;"
+              [ngModel]="selectedTemplateId().startsWith('custom-') ? selectedTemplateId() : ''" 
+              (ngModelChange)="onTemplateChange($event)">
+              <option value="" disabled>{{ t9n.t('wish.custom_placeholder') || '-- Ou utiliser un modèle personnalisé --' }}</option>
+              <option *ngFor="let t of templateService.templates()" [value]="'custom-' + t.id">{{ t.title }}</option>
+            </select>
+          </div>
+          <button 
+            type="button" 
+            class="btn-secondary" 
+            style="padding: 0 16px; border-radius: 10px; display: flex; align-items: center; gap: 6px; height: 42px;"
+            (click)="isTemplateManagerOpen.set(true)">
+            <span class="material-symbols-outlined" style="font-size: 1.2rem;">settings</span>
+            <span>{{ t9n.t('wish.btn_manage') || 'Gérer' }}</span>
+          </button>
+        </div>
+      </div>
+
     </div>
 
     <!-- Channels selector -->
-    <div class="form-group-section">
-      <label class="section-label">2. Canal de partage</label>
+    <div class="form-group-section" style="margin-top: 20px;">
+      <label class="section-label">{{ t9n.t('wish.step_2') || '2. Canal de partage' }}</label>
       <div class="channel-selector-grid">
         <label class="channel-card" [class.active]="channel === 'whatsapp'">
           <input 
@@ -53,6 +168,8 @@
             class="hidden-radio">
           <span class="material-symbols-outlined chan-icon">chat</span>
           <span class="chan-title">WhatsApp</span>
+          <span class="chan-info" *ngIf="birthday.whatsapp">{{ birthday.whatsapp }}</span>
+          <span class="chan-info empty" *ngIf="!birthday.whatsapp">{{ t9n.t('wish.no_number') || 'Non renseigné' }}</span>
         </label>
         <label class="channel-card" [class.active]="channel === 'email'">
           <input 
@@ -63,28 +180,48 @@
             class="hidden-radio">
           <span class="material-symbols-outlined chan-icon">mail</span>
           <span class="chan-title">Email</span>
+          <span class="chan-info" *ngIf="birthday.email">{{ birthday.email }}</span>
+          <span class="chan-info empty" *ngIf="!birthday.email">{{ t9n.t('wish.no_email') || 'Non renseigné' }}</span>
         </label>
       </div>
     </div>
 
-    <!-- Message customization -->
-    <div class="form-group-section">
-      <label class="section-label">3. Personnaliser le message</label>
-      <textarea 
-        class="floating-input message-textarea" 
-        [(ngModel)]="customMessage" 
-        rows="4" 
-        placeholder="Écrivez votre message personnalisé ici..."></textarea>
+    <!-- Message customization & AI Loading spinner overlay -->
+    <div class="form-group-section" style="margin-top: 20px; position: relative;">
+      <label class="section-label">{{ t9n.t('wish.step_3') || '3. Personnaliser le message' }}</label>
+      
+      <div class="textarea-wrapper" style="position: relative; width: 100%;">
+        <textarea 
+          class="floating-input message-textarea" 
+          [(ngModel)]="customMessage" 
+          rows="4" 
+          [disabled]="isGenerating()"
+          [placeholder]="t9n.t('wish.message_placeholder') || 'Écrivez votre message...'"></textarea>
+
+        <!-- Generation Loading Overlay -->
+        <div *ngIf="isGenerating()" class="loading-overlay flex-center">
+          <div class="loader-spinner"></div>
+          <span style="font-size: 0.88rem; font-weight: 600; color: #fff; margin-top: 8px;">
+            {{ t9n.t('wish.loading_ai') || 'Génération par l\'IA...' }}
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- Actions -->
     <div class="modal-actions flex-between" style="margin-top: 24px;">
-      <button class="btn-secondary" (click)="close.emit()">Annuler</button>
-      <button class="btn-premium send-btn" (click)="send()">
+      <button class="btn-secondary" (click)="close.emit()">{{ t9n.t('wish.btn_cancel') || 'Annuler' }}</button>
+      <button class="btn-premium send-btn" (click)="send()" [disabled]="isGenerating()">
         <span class="material-symbols-outlined">send</span>
-        Envoyer le souhait
+        {{ t9n.t('wish.btn_send') || 'Envoyer le souhait' }}
       </button>
     </div>
 
   </div>
 </div>
+
+<!-- Template Manager Modal Overlay -->
+<app-template-manager 
+  *ngIf="isTemplateManagerOpen()" 
+  (close)="isTemplateManagerOpen.set(false)">
+</app-template-manager>

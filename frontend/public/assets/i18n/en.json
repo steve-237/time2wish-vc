@@ -2,7 +2,9 @@
   "nav": {
     "dashboard": "Dashboard",
     "add": "Add",
-    "logout": "Logout"
+    "logout": "Logout",
+    "light_mode": "Switch to light mode",
+    "dark_mode": "Switch to dark mode"
   },
   "footer": {
     "tagline": "Never miss a birthday again. 💖",
@@ -39,7 +41,15 @@
     "btn_test_reminders": "🔔 Test Reminders",
     "reminder_success": "Reminders sent!",
     "wish_message": "Happy birthday %s! Have a wonderful day! 🎂🎉",
-    "confirm_delete": "Are you sure you want to delete this birthday?",
+    "actions": "Actions",
+    "export_csv": "Export CSV",
+    "export_ical": "Export iCal",
+    "import_csv": "Import CSV",
+    "confirm_delete_title": "Confirm deletion",
+    "confirm_delete_text": "Are you sure you want to delete this birthday?",
+    "confirm_delete_subtext": "This action cannot be undone.",
+    "btn_cancel": "No, cancel",
+    "btn_confirm_delete": "Yes, delete",
     "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
   },
   "form": {
@@ -57,11 +67,15 @@
     "reminder_3": "3 days before",
     "reminder_7": "7 days before (Recommended)",
     "reminder_14": "14 days before",
-    "photo_url": "Photo URL (Optional)",
+    "photo_url": "Photo (Optional)",
     "notes": "Notes & Gift Ideas",
     "btn_cancel": "Cancel",
     "btn_save": "Save",
-    "btn_update": "Update"
+    "btn_update": "Update",
+    "age_display": "Age Display",
+    "age_visible": "Age visible on cards",
+    "age_hidden": "Age hidden",
+    "contact_info": "Contact Info (optional)"
   },
   "detail": {
     "back": "Back to dashboard",
@@ -93,5 +107,50 @@
     "delete_success": "Birthday of %s has been deleted.",
     "import_success": "%d birthdays imported successfully!",
     "import_error": "Error during import."
+  },
+  "wish": {
+    "title": "Wish Birthday to",
+    "tab_ai": "AI Generator",
+    "tab_custom": "Saved Templates",
+    "step_1_ai": "1. Select tone",
+    "step_2_ai": "2. Instructions for the AI (Optional)",
+    "step_1_custom": "1. Choose a saved template",
+    "tone_friendly": "Friendly",
+    "tone_funny": "Funny",
+    "tone_formal": "Formal",
+    "tone_poetic": "Poetic",
+    "ai_placeholder": "e.g. mention he loves football",
+    "btn_regenerate": "Regenerate",
+    "custom_placeholder": "-- Or use a custom template --",
+    "btn_manage": "Manage",
+    "step_2": "2. Share channel",
+    "no_number": "No number",
+    "no_email": "No email",
+    "step_3": "3. Customize message",
+    "message_placeholder": "Write your message...",
+    "loading_ai": "Generating with AI...",
+    "btn_cancel": "Cancel",
+    "btn_send": "Send wish"
+  },
+  "template_manager": {
+    "title": "Manage Custom Templates",
+    "your_templates": "Your Templates",
+    "empty": "No custom templates yet. Create your first one on the right!",
+    "btn_edit": "Edit",
+    "btn_delete": "Delete",
+    "form_edit": "Edit Template",
+    "form_create": "Create Template",
+    "label_title": "Title / Name",
+    "label_category": "Category",
+    "label_content": "Message content (use {name} for dynamic birthday name)",
+    "btn_cancel": "Cancel",
+    "btn_update": "Update",
+    "btn_save": "Save"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "mark_all_read": "Mark all as read",
+    "clear_all": "Clear all",
+    "empty": "No notifications"
   }
 }

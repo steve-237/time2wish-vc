@@ -88,14 +88,17 @@ export class BirthdayService {
     return this.activeBirthdays().find(b => b.id === id);
   }
 
-  addBirthday(name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string): void {
+  addBirthday(name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string): void {
     const payload = {
       name,
       birthdate,
       category,
       notes,
       reminderDays,
-      photoUrl: photoUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(name)}`
+      photoUrl: photoUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(name)}`,
+      showAge,
+      email,
+      whatsapp
     };
 
     this.http.post<Birthday>(this.API_URL, payload).subscribe({
@@ -110,14 +113,17 @@ export class BirthdayService {
     });
   }
 
-  updateBirthday(id: number, name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string): void {
+  updateBirthday(id: number, name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string): void {
     const payload = {
       name,
       birthdate,
       category,
       notes,
       reminderDays,
-      photoUrl
+      photoUrl,
+      showAge,
+      email,
+      whatsapp
     };
 
     this.http.put<Birthday>(`${this.API_URL}/${id}`, payload).subscribe({

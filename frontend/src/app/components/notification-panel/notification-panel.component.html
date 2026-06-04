@@ -9,17 +9,17 @@
   <!-- Dropdown Panel -->
   <div *ngIf="isOpen()" class="notif-dropdown glass-card">
     <div class="notif-header flex-between">
-      <h3>Notifications</h3>
+      <h3>{{ t9n.t('notifications.title') || 'Notifications' }}</h3>
       <div class="flex-center gap-sm">
-        <button *ngIf="notifService.unreadCount() > 0" class="text-btn" (click)="notifService.markAllAsRead()">Tout marquer comme lu</button>
-        <button class="text-btn text-danger" (click)="notifService.clearAll()">Effacer</button>
+        <button *ngIf="notifService.unreadCount() > 0" class="text-btn" (click)="notifService.markAllAsRead()">{{ t9n.t('notifications.mark_all_read') || 'Tout marquer comme lu' }}</button>
+        <button class="text-btn text-danger" (click)="notifService.clearAll()">{{ t9n.t('notifications.clear_all') || 'Effacer' }}</button>
       </div>
     </div>
 
     <div class="notif-list">
       <div *ngIf="notifService.notifications().length === 0" class="empty-notifs">
         <span class="material-symbols-outlined">notifications_off</span>
-        <p>Aucune notification</p>
+        <p>{{ t9n.t('notifications.empty') || 'Aucune notification' }}</p>
       </div>
 
       <!-- Using trackBy (or Angular 17+ control flow tracking which is implicit with @for, but we use ngFor with trackBy for robust Angular < 17 compatibility if needed, or default implicit index. We'll use structural directive standard) -->

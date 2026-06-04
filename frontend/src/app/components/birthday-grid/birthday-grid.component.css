@@ -61,9 +61,25 @@
 }
 
 .birthday-name {
+  font-family: var(--font-title);
+  font-weight: 800;
   font-size: 1.15rem;
+  color: var(--text-main);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.age-badge {
+  font-size: 0.75rem;
   font-weight: 700;
-  line-height: 1.2;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--border-card);
+  font-family: var(--font-main);
 }
 
 .birthday-date {

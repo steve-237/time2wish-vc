@@ -48,17 +48,10 @@
           <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-date">{{ t9n.t('form.birthdate') }}</label>
         </div>
 
-        <!-- Photo URL (Optional) -->
-        <div class="floating-group" style="flex: 1; min-width: 200px;">
-          <input 
-            type="url" 
-            id="b-photo" 
-            class="floating-input" 
-            [ngModel]="photoUrl()" 
-            (ngModelChange)="photoUrl.set($event)"
-            name="photoUrl" 
-            placeholder=" ">
-          <label class="floating-label" for="b-photo">{{ t9n.t('form.photo_url') }}</label>
+        <!-- Photo (Optional) -->
+        <div style="flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px;">
+          <label class="form-section-title" style="margin-bottom: 2px; font-size: 0.8rem;">{{ t9n.t('form.photo_url') }}</label>
+          <app-image-upload [currentImageUrl]="photoUrl()" (imageUrlChange)="photoUrl.set($event)"></app-image-upload>
         </div>
       </div>
 
@@ -94,6 +87,61 @@
             <option [value]="14">{{ t9n.t('form.reminder_14') }}</option>
           </select>
           <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-reminders">{{ t9n.t('form.reminder_days') }}</label>
+        </div>
+      </div>
+
+      <!-- Show Age Toggle -->
+      <div class="toggle-group" style="margin-top: 20px;">
+        <label class="form-section-title" style="margin-bottom: 8px; display: block;">
+          {{ t9n.t('form.age_display') || 'Affichage de l\'âge' }}
+        </label>
+        <label class="toggle-switch">
+          <input 
+            type="checkbox" 
+            [ngModel]="showAge()" 
+            (ngModelChange)="showAge.set($event)"
+            name="showAge">
+          <span class="toggle-slider"></span>
+          <span class="toggle-label">
+            {{ showAge() 
+              ? (t9n.t('form.age_visible') || 'Âge visible sur les cartes') 
+              : (t9n.t('form.age_hidden') || 'Âge masqué') }}
+          </span>
+        </label>
+      </div>
+
+      <!-- Contact Info (Email & WhatsApp) -->
+      <div style="margin-top: 20px;">
+        <label class="form-section-title" style="margin-bottom: 12px; display: block;">
+          <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle; margin-right: 4px;">contact_mail</span>
+          {{ t9n.t('form.contact_info') || 'Coordonnées (optionnel)' }}
+        </label>
+        <div class="form-row">
+          <!-- Email -->
+          <div class="floating-group" style="flex: 1; min-width: 200px;">
+            <input 
+              type="email" 
+              id="b-email" 
+              class="floating-input" 
+              [ngModel]="email()" 
+              (ngModelChange)="email.set($event)"
+              name="email" 
+              placeholder=" ">
+            <label class="floating-label" for="b-email">Email</label>
+          </div>
+
+          <!-- WhatsApp -->
+          <div class="floating-group" style="flex: 1; min-width: 200px;">
+            <input 
+              type="tel" 
+              id="b-whatsapp" 
+              class="floating-input" 
+              [ngModel]="whatsapp()" 
+              (ngModelChange)="whatsapp.set($event)"
+              name="whatsapp" 
+              placeholder=" ">
+            <label class="floating-label" for="b-whatsapp">WhatsApp</label>
+          </div>
         </div>
       </div>
 

@@ -90,35 +90,7 @@
   pointer-events: none;
 }
 
-.category-pills {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
 
-.pill-btn {
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: 1px solid var(--border-card);
-  background: var(--bg-card);
-  color: var(--text-main);
-  font-family: var(--font-title);
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.pill-btn:hover {
-  border-color: hsl(var(--primary-hsl));
-}
-
-.pill-btn.active {
-  background: linear-gradient(135deg, hsl(var(--primary-hsl)) 0%, hsl(var(--accent-hsl)) 100%);
-  color: white;
-  border-color: transparent;
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15);
-}
 
 .month-selector-custom {
   min-width: 160px;
@@ -358,4 +330,104 @@ body.dark-theme .view-mode-toggle .icon-btn:hover:not(.active) {
   background: linear-gradient(135deg, hsl(var(--primary-hsl)) 0%, hsl(var(--accent-hsl)) 100%) !important;
   color: white !important;
   box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2) !important;
+}
+
+/* Time Filter Switch */
+.time-filter-switch {
+  display: flex;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 20px;
+  padding: 4px;
+  gap: 4px;
+  border: 1px solid var(--border-card);
+}
+
+body.dark-theme .time-filter-switch {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.switch-option {
+  flex: 1;
+  text-align: center;
+  padding: 6px 16px;
+  border-radius: 16px;
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.switch-option:hover:not(.active) {
+  color: var(--text-main);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+body.dark-theme .switch-option:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.switch-option.active {
+  background: var(--bg-card);
+  color: hsl(var(--primary-hsl));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+body.dark-theme .switch-option.active {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.switch-option span {
+  font-size: 1.1rem;
+}
+
+/* Delete Confirm Modal Overlay */
+.tm-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.tm-modal-content {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-card);
+  border-radius: 20px;
+  border: 1px solid var(--border-card);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

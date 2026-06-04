@@ -121,3 +121,23 @@ body.dark-theme .table-row-hover:hover {
   color: var(--color-today);
   background: rgba(220, 38, 38, 0.05);
 }
+
+.name-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-title);
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.age-badge-sm {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  padding: 1px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--border-card);
+  font-family: var(--font-main);
+}

@@ -253,6 +253,20 @@ body.dark-theme .is-today {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.age-badge-xs {
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  padding: 1px 4px;
+  border-radius: 8px;
+  border: 1px solid var(--border-card);
+  font-family: var(--font-main);
 }
 
 .tooltip-actions {

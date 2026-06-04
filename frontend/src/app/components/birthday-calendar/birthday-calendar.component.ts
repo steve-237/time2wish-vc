@@ -164,6 +164,17 @@ export class BirthdayCalendarComponent implements OnChanges {
     return today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
   }
 
+  getAge(birthdateStr: string): number {
+    const birthdate = new Date(birthdateStr);
+    const today = new Date();
+    let age = today.getFullYear() - birthdate.getFullYear();
+    const monthDiff = today.getMonth() - birthdate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
+      age--;
+    }
+    return age;
+  }
+
   getCategoryColor(cat: string): string {
     switch (cat) {
       case 'Family': return 'var(--cat-family)';

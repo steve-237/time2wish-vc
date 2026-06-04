@@ -18,6 +18,9 @@ export interface Birthday {
   photoUrl?: string;
   notes?: string;
   reminderDays: number;
+  showAge?: boolean;
+  email?: string;
+  whatsapp?: string;
   isDeleted: boolean;
   createdAt: string;
 }

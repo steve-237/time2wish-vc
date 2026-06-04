@@ -21,41 +21,23 @@
       {{ reminderStatus() === 'loading' ? '...' : t9n.t('dashboard.btn_test_reminders') }}
     </button>
 
-    <!-- Export CSV Button -->
-    <button
-      (click)="exportToCSV()"
-      class="btn-secondary"
-      title="Exporter en CSV"
-      style="padding: 10px 14px; font-size: 0.88rem; border-radius: 10px; display: flex; align-items: center; gap: 6px;">
-      <span class="material-symbols-outlined" style="font-size: 1.1rem;">download</span>
-      CSV
-    </button>
-
-    <!-- Export iCal Button -->
-    <button
-      (click)="exportToICal()"
-      class="btn-secondary"
-      title="Exporter en iCal (.ics)"
-      style="padding: 10px 14px; font-size: 0.88rem; border-radius: 10px; display: flex; align-items: center; gap: 6px;">
-      <span class="material-symbols-outlined" style="font-size: 1.1rem;">calendar_today</span>
-      iCal
-    </button>
-
-    <!-- Import CSV Button -->
-    <button
-      (click)="csvFileInput.click()"
-      class="btn-secondary"
-      title="Importer depuis CSV"
-      style="padding: 10px 14px; font-size: 0.88rem; border-radius: 10px; display: flex; align-items: center; gap: 6px;">
-      <span class="material-symbols-outlined" style="font-size: 1.1rem;">upload</span>
-      Import
-    </button>
+    <!-- Actions Selector -->
+    <div class="month-selector-custom" style="position: relative; min-width: 140px;">
+      <select class="custom-select-control" (change)="onActionSelect($event)">
+        <option value="" disabled selected>{{ t9n.t('dashboard.actions') || 'Actions' }}</option>
+        <option value="export-csv">{{ t9n.t('dashboard.export_csv') || 'Exporter CSV' }}</option>
+        <option value="export-ical">{{ t9n.t('dashboard.export_ical') || 'Exporter iCal' }}</option>
+        <option value="import-csv">{{ t9n.t('dashboard.import_csv') || 'Importer CSV' }}</option>
+      </select>
+      <span class="material-symbols-outlined select-chevron">expand_more</span>
+    </div>
     <input 
       type="file" 
       #csvFileInput 
       (change)="onCSVImport($event)" 
       accept=".csv" 
       style="display: none;">
+
 
     <!-- Add Birthday Button -->
     <a
@@ -130,14 +112,31 @@
   </div>
 
   <!-- Category Selection -->
-  <div class="category-pills">
-    <button 
-      *ngFor="let cat of categories" 
-      (click)="selectedCategory.set(cat)"
-      [class.active]="selectedCategory() === cat"
-      class="pill-btn">
-      {{ cat === 'All' ? t9n.t('dashboard.all_categories') : cat }}
-    </button>
+  <div class="month-selector-custom" style="position: relative; min-width: 150px;">
+    <select class="custom-select-control" [value]="selectedCategory()" (change)="selectedCategory.set($any($event.target).value)">
+      <option *ngFor="let cat of categories" [value]="cat">
+        {{ cat === 'All' ? t9n.t('dashboard.all_categories') : cat }}
+      </option>
+    </select>
+    <span class="material-symbols-outlined select-chevron">expand_more</span>
+  </div>
+
+  <!-- Time Filter Switch (Upcoming / Past) -->
+  <div class="time-filter-switch">
+    <div 
+      class="switch-option" 
+      [class.active]="timeFilter() === 'upcoming'"
+      (click)="timeFilter.set('upcoming')">
+      <span class="material-symbols-outlined">event_upcoming</span>
+      {{ t9n.currentLang() === 'en' ? 'Upcoming' : 'À venir' }}
+    </div>
+    <div 
+      class="switch-option" 
+      [class.active]="timeFilter() === 'past'"
+      (click)="timeFilter.set('past')">
+      <span class="material-symbols-outlined">history</span>
+      {{ t9n.currentLang() === 'en' ? 'Past' : 'Passés' }}
+    </div>
   </div>
 
   <!-- Month selection -->
@@ -178,34 +177,36 @@
   </div>
 </div>
 
-<!-- Birthdays Grid / List / Calendar View -->
-<div *ngIf="viewMode() === 'calendar' || filteredBirthdays().length > 0; else emptyState">
-  
-  <!-- Grid View (Dumb Component) -->
-  <app-birthday-grid 
-    *ngIf="viewMode() === 'grid'"
-    [birthdays]="filteredBirthdays()"
-    (sendWish)="onSendWish($event)"
-    (delete)="onDeleteRequested($event)">
-  </app-birthday-grid>
+<!-- ====== LIST VIEW ====== -->
+<div>
+  <div *ngIf="filteredBirthdays().length > 0; else emptyState">
+    
+    <!-- Grid View -->
+    <app-birthday-grid 
+      *ngIf="viewMode() === 'grid'"
+      [birthdays]="filteredBirthdays()"
+      (sendWish)="onSendWish($event)"
+      (delete)="onDeleteRequested($event)">
+    </app-birthday-grid>
 
-  <!-- List View (Dumb Component with MatTable) -->
-  <app-birthday-list 
-    *ngIf="viewMode() === 'list'"
-    [birthdays]="filteredBirthdays()"
-    (sendWish)="onSendWish($event)"
-    (delete)="onDeleteRequested($event)">
-  </app-birthday-list>
+    <!-- List View -->
+    <app-birthday-list 
+      *ngIf="viewMode() === 'list'"
+      [birthdays]="filteredBirthdays()"
+      (sendWish)="onSendWish($event)"
+      (delete)="onDeleteRequested($event)">
+    </app-birthday-list>
 
-  <!-- Calendar View (Dumb Component) -->
-  <app-birthday-calendar 
-    *ngIf="viewMode() === 'calendar'"
-    [birthdays]="filteredBirthdays()"
-    [initialMonth]="selectedMonth()"
-    (sendWish)="onSendWish($event)"
-    (delete)="onDeleteRequested($event)">
-  </app-birthday-calendar>
+    <!-- Calendar View -->
+    <app-birthday-calendar 
+      *ngIf="viewMode() === 'calendar'"
+      [birthdays]="filteredBirthdays()"
+      [initialMonth]="selectedMonth()"
+      (sendWish)="onSendWish($event)"
+      (delete)="onDeleteRequested($event)">
+    </app-birthday-calendar>
 
+  </div>
 </div>
 
 <!-- Empty State -->
@@ -227,3 +228,38 @@
   [birthday]="selectedBirthdayForWish()!" 
   (close)="isWishModalOpen.set(false)">
 </app-wish-modal>
+
+<!-- Delete Confirmation Modal Overlay -->
+<div class="tm-modal-overlay" *ngIf="isConfirmModalOpen()">
+  <div class="tm-modal-content glass-card" style="max-width: 400px; padding: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2 style="margin: 0; font-size: 1.4rem;">{{ t9n.t('dashboard.confirm_delete_title') || 'Confirmer la suppression' }}</h2>
+      <button class="icon-btn" (click)="cancelDelete()" style="background: none; border: none; cursor: pointer; color: var(--text-muted);">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div style="text-align: center; padding: 20px 0;">
+      <div style="width: 64px; height: 64px; background: rgba(239, 68, 68, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        <span class="material-symbols-outlined" style="font-size: 2rem; color: #ef4444;">delete_forever</span>
+      </div>
+      <p style="font-size: 1.1rem; margin-bottom: 8px; font-weight: 500; color: var(--text-main);">
+        {{ t9n.t('dashboard.confirm_delete_text') || 'Êtes-vous sûr de vouloir supprimer cet anniversaire ?' }}
+      </p>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">
+        {{ t9n.t('dashboard.confirm_delete_subtext') || 'Cette action est irréversible.' }}
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 12px; margin-top: 24px;">
+      <button class="btn-secondary" (click)="cancelDelete()" style="flex: 1;">
+        {{ t9n.t('dashboard.btn_cancel') || 'Non, annuler' }}
+      </button>
+      <button class="btn-premium" (click)="confirmDelete()" style="flex: 1; background: #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);">
+        {{ t9n.t('dashboard.btn_confirm_delete') || 'Oui, supprimer' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+
