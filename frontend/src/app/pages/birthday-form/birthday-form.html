@@ -48,21 +48,37 @@
           <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-date">{{ t9n.t('form.birthdate') }}</label>
         </div>
 
-        <!-- Category -->
+        <!-- Photo URL (Optional) -->
         <div class="floating-group" style="flex: 1; min-width: 200px;">
-          <select 
-            id="b-category" 
+          <input 
+            type="url" 
+            id="b-photo" 
             class="floating-input" 
-            [ngModel]="category()" 
-            (ngModelChange)="category.set($event)"
-            name="category">
-            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-          </select>
-          <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-category">{{ t9n.t('form.category') }}</label>
+            [ngModel]="photoUrl()" 
+            (ngModelChange)="photoUrl.set($event)"
+            name="photoUrl" 
+            placeholder=" ">
+          <label class="floating-label" for="b-photo">{{ t9n.t('form.photo_url') }}</label>
         </div>
       </div>
 
-      <div class="form-row">
+      <!-- Category Selection Cards -->
+      <div class="category-cards-group">
+        <label class="form-section-title">{{ t9n.t('form.category') }}</label>
+        <div class="category-cards-grid">
+          <button 
+            type="button"
+            *ngFor="let cat of categories" 
+            (click)="category.set(cat)"
+            [class.active]="category() === cat"
+            [class]="'category-card card-' + cat.toLowerCase()">
+            <span class="material-symbols-outlined cat-card-icon">{{ getIconForCategory(cat) }}</span>
+            <span class="cat-card-label">{{ cat }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-top: 24px;">
         <!-- Reminder Days -->
         <div class="floating-group" style="flex: 1; min-width: 200px;">
           <select 
@@ -78,19 +94,6 @@
             <option [value]="14">{{ t9n.t('form.reminder_14') }}</option>
           </select>
           <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-reminders">{{ t9n.t('form.reminder_days') }}</label>
-        </div>
-
-        <!-- Photo URL (Optional) -->
-        <div class="floating-group" style="flex: 1; min-width: 200px;">
-          <input 
-            type="url" 
-            id="b-photo" 
-            class="floating-input" 
-            [ngModel]="photoUrl()" 
-            (ngModelChange)="photoUrl.set($event)"
-            name="photoUrl" 
-            placeholder=" ">
-          <label class="floating-label" for="b-photo">{{ t9n.t('form.photo_url') }}</label>
         </div>
       </div>
 

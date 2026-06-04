@@ -38,6 +38,16 @@ export class BirthdayForm implements OnInit {
   // Dropdown categories list
   readonly categories: BirthdayCategory[] = ['Family', 'Friend', 'Work', 'Other'];
 
+  getIconForCategory(cat: BirthdayCategory): string {
+    switch(cat) {
+      case 'Family': return 'diversity_3';
+      case 'Friend': return 'handshake';
+      case 'Work': return 'business_center';
+      case 'Other': return 'star';
+      default: return 'help';
+    }
+  }
+
   ngOnInit() {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {

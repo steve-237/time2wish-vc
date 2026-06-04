@@ -120,7 +120,7 @@
   box-shadow: 0 4px 10px rgba(37, 99, 235, 0.15);
 }
 
-.month-selector {
+.month-selector-custom {
   min-width: 160px;
 }
 
@@ -315,7 +315,7 @@
     justify-content: flex-start;
   }
 
-  .month-selector {
+  .month-selector-custom {
     width: 100%;
   }
 }

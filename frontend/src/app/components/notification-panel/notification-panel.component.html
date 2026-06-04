@@ -1,6 +1,6 @@
 <div class="notif-wrapper" #notifWrapper>
   <!-- Bell Icon -->
-  <button class="icon-btn notif-bell" (click)="togglePanel()" [title]="'Notifications'">
+  <button class="icon-btn notif-bell" (click)="togglePanel()" [title]="'Notifications'" [class.ring]="isRinging()">
     <span class="material-symbols-outlined">notifications</span>
     <!-- Badge -->
     <span *ngIf="notifService.unreadCount() > 0" class="notif-badge">{{ notifService.unreadCount() }}</span>

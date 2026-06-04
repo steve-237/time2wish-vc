@@ -514,3 +514,49 @@ body.dark-theme .mat-mdc-paginator .mat-mdc-icon-button:hover:not([disabled]) {
   color: var(--text-muted) !important;
   opacity: 0.3 !important;
 }
+
+/* Custom Premium Select Dropdown Styling */
+.month-selector-custom {
+  position: relative;
+  min-width: 170px;
+}
+
+.custom-select-control {
+  width: 100%;
+  padding: 10px 40px 10px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border-card);
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.custom-select-control:focus {
+  outline: none;
+  border-color: hsl(var(--primary-hsl));
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.select-chevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  font-size: 1.2rem !important;
+  transition: transform 0.2s ease;
+}
+
+.custom-select-control:focus ~ .select-chevron {
+  transform: translateY(-50%) rotate(180deg);
+  color: hsl(var(--primary-hsl));
+}

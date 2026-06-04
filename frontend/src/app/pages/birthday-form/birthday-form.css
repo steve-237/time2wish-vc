@@ -84,3 +84,89 @@
     width: 100%;
   }
 }
+
+/* Category Cards styling */
+.category-cards-group {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.form-section-title {
+  display: block;
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.category-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+}
+
+.category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-main);
+  outline: none;
+}
+
+.category-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+}
+
+.cat-card-icon {
+  font-size: 2rem !important;
+  transition: transform 0.2s ease;
+}
+
+.category-card:hover .cat-card-icon {
+  transform: scale(1.15);
+}
+
+.cat-card-label {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* Active Category Card states with specific theme lues */
+.category-card.card-family.active {
+  border-color: var(--cat-family) !important;
+  background: rgba(236, 72, 153, 0.08) !important;
+  color: var(--cat-family) !important;
+  box-shadow: 0 8px 24px rgba(236, 72, 153, 0.15) !important;
+}
+
+.category-card.card-friend.active {
+  border-color: var(--cat-friend) !important;
+  background: rgba(59, 130, 246, 0.08) !important;
+  color: var(--cat-friend) !important;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15) !important;
+}
+
+.category-card.card-work.active {
+  border-color: var(--cat-work) !important;
+  background: rgba(16, 185, 129, 0.08) !important;
+  color: var(--cat-work) !important;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15) !important;
+}
+
+.category-card.card-other.active {
+  border-color: var(--cat-other) !important;
+  background: rgba(139, 92, 246, 0.08) !important;
+  color: var(--cat-other) !important;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.15) !important;
+}

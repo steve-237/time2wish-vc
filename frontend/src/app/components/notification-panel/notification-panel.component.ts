@@ -1,4 +1,4 @@
-import { Component, inject, signal, ChangeDetectionStrategy, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy, HostListener, ViewChild, ElementRef, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NotificationService } from '../../services/notification.service';
@@ -19,6 +19,21 @@ export class NotificationPanelComponent {
   @ViewChild('notifWrapper') notifWrapper!: ElementRef;
 
   public isOpen = signal(false);
+  public isRinging = signal(false);
+
+  private lastCount = 0;
+
+  constructor() {
+    effect(() => {
+      const count = this.notifService.unreadCount();
+      // Trigger ringing animation if the count increases
+      if (count > this.lastCount) {
+        this.isRinging.set(true);
+        setTimeout(() => this.isRinging.set(false), 1000);
+      }
+      this.lastCount = count;
+    });
+  }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
