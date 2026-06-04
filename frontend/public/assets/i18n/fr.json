@@ -1,0 +1,90 @@
+{
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "add": "Ajouter",
+    "logout": "Déconnexion"
+  },
+  "footer": {
+    "tagline": "Ne manquez plus jamais un anniversaire. 💖",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "support": "Support"
+  },
+  "login": {
+    "subtitle": "Ne manquez plus jamais un anniversaire.",
+    "tab_login": "Se connecter",
+    "tab_register": "S'inscrire",
+    "full_name": "Nom Complet",
+    "email": "Adresse Email",
+    "password": "Mot de passe",
+    "btn_login": "Se connecter",
+    "btn_register": "Créer un compte",
+    "demo_hint": "💡 Compte démo :"
+  },
+  "dashboard": {
+    "title": "Mon Tableau de Bord 🚀",
+    "subtitle": "Suivez et célébrez les anniversaires de vos cercles.",
+    "btn_add": "Ajouter un Anniversaire",
+    "stat_total": "Total Anniversaires",
+    "stat_today": "Aujourd'hui 🎂",
+    "stat_month": "Ce Mois-ci",
+    "stat_30days": "Prochains 30 Jours",
+    "search_placeholder": "Rechercher par nom...",
+    "all_months": "Tous les mois",
+    "all_categories": "Tous",
+    "btn_wish": "Souhaiter",
+    "empty_title": "Aucun anniversaire trouvé",
+    "empty_text": "Essayez de modifier vos filtres de recherche ou ajoutez un nouvel anniversaire pour commencer.",
+    "empty_btn": "Ajouter un anniversaire",
+    "btn_test_reminders": "🔔 Tester les Rappels",
+    "reminder_success": "Rappels envoyés !",
+    "wish_message": "Joyeux anniversaire %s ! Passe une excellente journée ! 🎂🎉",
+    "confirm_delete": "Voulez-vous vraiment supprimer cet anniversaire ?",
+    "months": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
+  },
+  "form": {
+    "title_add": "Ajouter un Anniversaire",
+    "title_edit": "Modifier l'Anniversaire",
+    "subtitle_add": "Créez un nouveau rappel d'anniversaire.",
+    "subtitle_edit": "Mettez à jour les informations du contact.",
+    "back": "Retour au dashboard",
+    "name": "Nom Complet",
+    "birthdate": "Date de Naissance",
+    "category": "Catégorie de Relation",
+    "reminder_days": "Délai du premier rappel (jours)",
+    "reminder_0": "Le jour même",
+    "reminder_1": "1 jour avant",
+    "reminder_3": "3 jours avant",
+    "reminder_7": "7 jours avant (Recommandé)",
+    "reminder_14": "14 jours avant",
+    "photo_url": "URL de la Photo (Optionnel)",
+    "notes": "Notes & Idées Cadeaux",
+    "btn_cancel": "Annuler",
+    "btn_save": "Enregistrer",
+    "btn_update": "Mettre à jour"
+  },
+  "detail": {
+    "back": "Retour au dashboard",
+    "birthdate": "Date de Naissance",
+    "reminder": "Rappels configurés",
+    "reminder_text": "Email reçu %d jours avant la date.",
+    "notes": "Idées Cadeaux & Notes",
+    "no_notes": "Aucune note ou idée cadeau enregistrée pour le moment.",
+    "btn_wish": "Souhaiter Joyeux Anniversaire",
+    "btn_edit": "Modifier",
+    "btn_delete": "Supprimer"
+  },
+  "countdown": {
+    "today": "🎂 Aujourd'hui !",
+    "tomorrow": "⚡ Demain !",
+    "days": "📅 %d jours"
+  },
+  "paginator": {
+    "items_per_page": "Éléments par page :",
+    "next_page": "Page suivante",
+    "previous_page": "Page précédente",
+    "first_page": "Première page",
+    "last_page": "Dernière page",
+    "of": "sur"
+  }
+}

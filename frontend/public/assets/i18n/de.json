@@ -1,0 +1,90 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "add": "Hinzufügen",
+    "logout": "Abmelden"
+  },
+  "footer": {
+    "tagline": "Verpassen Sie nie wieder einen Geburtstag. 💖",
+    "privacy": "Datenschutz",
+    "terms": "Nutzungsbedingungen",
+    "support": "Support"
+  },
+  "login": {
+    "subtitle": "Verpassen Sie nie wieder einen Geburtstag.",
+    "tab_login": "Anmelden",
+    "tab_register": "Registrieren",
+    "full_name": "Vollständiger Name",
+    "email": "E-Mail-Adresse",
+    "password": "Passwort",
+    "btn_login": "Anmelden",
+    "btn_register": "Konto erstellen",
+    "demo_hint": "💡 Demo-Konto:"
+  },
+  "dashboard": {
+    "title": "Mein Dashboard 🚀",
+    "subtitle": "Verfolge und feiere die Geburtstage in deinen Kreisen.",
+    "btn_add": "Geburtstag hinzufügen",
+    "stat_total": "Geburtstage gesamt",
+    "stat_today": "Heute 🎂",
+    "stat_month": "Diesen Monat",
+    "stat_30days": "Nächste 30 Tage",
+    "search_placeholder": "Nach Name suchen...",
+    "all_months": "Alle Monate",
+    "all_categories": "Alle",
+    "btn_wish": "Gratulieren",
+    "empty_title": "Keine Geburtstage gefunden",
+    "empty_text": "Passen Sie Ihre Filter an oder fügen Sie einen neuen Geburtstag hinzu.",
+    "empty_btn": "Geburtstag hinzufügen",
+    "btn_test_reminders": "🔔 Erinnerungen testen",
+    "reminder_success": "Erinnerungen gesendet!",
+    "wish_message": "Herzlichen Glückwunsch zum Geburtstag, %s! Schönen Tag! 🎂🎉",
+    "confirm_delete": "Möchten Sie diesen Geburtstag wirklich löschen?",
+    "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
+  },
+  "form": {
+    "title_add": "Geburtstag hinzufügen",
+    "title_edit": "Geburtstag bearbeiten",
+    "subtitle_add": "Erstelle eine neue Geburtstagserinnerung.",
+    "subtitle_edit": "Kontaktinformationen aktualisieren.",
+    "back": "Zurück zum Dashboard",
+    "name": "Vollständiger Name",
+    "birthdate": "Geburtsdatum",
+    "category": "Beziehungskategorie",
+    "reminder_days": "Erinnerungsvorlaufzeit (Tage)",
+    "reminder_0": "Am Tag selbst",
+    "reminder_1": "1 Tag vorher",
+    "reminder_3": "3 Tage vorher",
+    "reminder_7": "7 Tage vorher (Empfohlen)",
+    "reminder_14": "14 Tage vorher",
+    "photo_url": "Foto-URL (Optional)",
+    "notes": "Notizen & Geschenkideen",
+    "btn_cancel": "Abbrechen",
+    "btn_save": "Speichern",
+    "btn_update": "Aktualisieren"
+  },
+  "detail": {
+    "back": "Zurück zum Dashboard",
+    "birthdate": "Geburtsdatum",
+    "reminder": "Konfigurierte Erinnerungen",
+    "reminder_text": "E-Mail erhalten %d Tage vor dem Datum.",
+    "notes": "Geschenkideen & Notizen",
+    "no_notes": "Noch keine Notizen oder Geschenkideen gespeichert.",
+    "btn_wish": "Zum Geburtstag gratulieren",
+    "btn_edit": "Bearbeiten",
+    "btn_delete": "Löschen"
+  },
+  "countdown": {
+    "today": "🎂 Heute!",
+    "tomorrow": "⚡ Morgen!",
+    "days": "📅 %d Tage"
+  },
+  "paginator": {
+    "items_per_page": "Einträge pro Seite:",
+    "next_page": "Nächste Seite",
+    "previous_page": "Vorherige Seite",
+    "first_page": "Erste Seite",
+    "last_page": "Letzte Seite",
+    "of": "von"
+  }
+}

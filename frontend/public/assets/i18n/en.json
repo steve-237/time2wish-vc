@@ -1,0 +1,90 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "add": "Add",
+    "logout": "Logout"
+  },
+  "footer": {
+    "tagline": "Never miss a birthday again. 💖",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "support": "Support"
+  },
+  "login": {
+    "subtitle": "Never miss a birthday again.",
+    "tab_login": "Sign In",
+    "tab_register": "Sign Up",
+    "full_name": "Full Name",
+    "email": "Email Address",
+    "password": "Password",
+    "btn_login": "Sign In",
+    "btn_register": "Create Account",
+    "demo_hint": "💡 Demo account:"
+  },
+  "dashboard": {
+    "title": "My Dashboard 🚀",
+    "subtitle": "Track and celebrate the birthdays in your circles.",
+    "btn_add": "Add a Birthday",
+    "stat_total": "Total Birthdays",
+    "stat_today": "Today 🎂",
+    "stat_month": "This Month",
+    "stat_30days": "Next 30 Days",
+    "search_placeholder": "Search by name...",
+    "all_months": "All months",
+    "all_categories": "All",
+    "btn_wish": "Wish",
+    "empty_title": "No birthdays found",
+    "empty_text": "Try adjusting your filters or add a new birthday to get started.",
+    "empty_btn": "Add a birthday",
+    "btn_test_reminders": "🔔 Test Reminders",
+    "reminder_success": "Reminders sent!",
+    "wish_message": "Happy birthday %s! Have a wonderful day! 🎂🎉",
+    "confirm_delete": "Are you sure you want to delete this birthday?",
+    "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+  },
+  "form": {
+    "title_add": "Add a Birthday",
+    "title_edit": "Edit Birthday",
+    "subtitle_add": "Create a new birthday reminder.",
+    "subtitle_edit": "Update your contact's information.",
+    "back": "Back to dashboard",
+    "name": "Full Name",
+    "birthdate": "Date of Birth",
+    "category": "Relationship Category",
+    "reminder_days": "Reminder advance notice (days)",
+    "reminder_0": "On the day",
+    "reminder_1": "1 day before",
+    "reminder_3": "3 days before",
+    "reminder_7": "7 days before (Recommended)",
+    "reminder_14": "14 days before",
+    "photo_url": "Photo URL (Optional)",
+    "notes": "Notes & Gift Ideas",
+    "btn_cancel": "Cancel",
+    "btn_save": "Save",
+    "btn_update": "Update"
+  },
+  "detail": {
+    "back": "Back to dashboard",
+    "birthdate": "Date of Birth",
+    "reminder": "Configured Reminders",
+    "reminder_text": "Email received %d days before the date.",
+    "notes": "Gift Ideas & Notes",
+    "no_notes": "No notes or gift ideas saved yet.",
+    "btn_wish": "Wish Happy Birthday",
+    "btn_edit": "Edit",
+    "btn_delete": "Delete"
+  },
+  "countdown": {
+    "today": "🎂 Today!",
+    "tomorrow": "⚡ Tomorrow!",
+    "days": "📅 %d days"
+  },
+  "paginator": {
+    "items_per_page": "Items per page:",
+    "next_page": "Next page",
+    "previous_page": "Previous page",
+    "first_page": "First page",
+    "last_page": "Last page",
+    "of": "of"
+  }
+}
