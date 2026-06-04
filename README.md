@@ -1,67 +1,69 @@
 # Time2Wish – Birthday Manager & Reminder 🎂🎉
 
-Time2Wish est une application web moderne et premium conçue pour vous aider à suivre, organiser et célébrer les anniversaires de vos cercles sociaux (famille, amis, collègues). Dotée d'un design élégant (glassmorphism), de retours sonores interactifs et de fonctionnalités de gestion avancées, elle vous garantit de ne plus jamais oublier un anniversaire.
+Time2Wish is a modern and premium web application designed to help you track, organize, and celebrate the birthdays of your social circles (family, friends, colleagues). Featuring an elegant glassmorphism design, interactive sound effects, and advanced management features, it ensures you will never forget a birthday again.
 
 ---
 
-## 🛠️ Architecture du Projet
+## 🛠️ Project Architecture
 
-Le projet est divisé en deux parties distinctes :
+The project is split into two distinct parts:
 
-*   **`backend/` (Spring Boot 3.x & PostgreSQL) :**
-    *   API REST sécurisée (JWT, rafraîchissement par cookies HTTP-only).
-    *   Gestion de base de données PostgreSQL.
-    *   Planificateur de tâches automatisé pour la vérification quotidienne et l'envoi de courriels de rappel.
-*   **`frontend/` (Angular 18+ & Angular Material) :**
-    *   Interface utilisateur moderne et animée (Design Glassmorphism).
-    *   Gestion réactive de l'état via les **Angular Signals**.
-    *   Synthesizer Audio natif pour les retours sonores.
-    *   Internationalisation (Français, Anglais, Allemand).
-
----
-
-## 🚀 Fonctionnalités Clés
-
-1.  **Dashboard Réactif :** Visualisation claire avec statistiques (total, aujourd'hui, ce mois-ci, 30 prochains jours) et filtres avancés (recherche textuelle, catégories, mois).
-2.  **Double Affichage :** Mode grille (cartes graphiques soignées) et mode liste (table professionnelle `Mat-Table` avec tri et pagination).
-3.  **Centre de Notifications (Cloche) :** Suivi individuel par profil de l'historique de vos actions (ajouts, modifications, suppressions d'anniversaires) et alertes de rappels.
-4.  **Synthèse Audio Native :** Effets sonores mélodieux déclenchés lors des actions (succès à l'ajout, son de suppression).
-5.  **Internationalisation (i18n) :** Traduction instantanée de toute l'application.
+*   **`backend/` (Spring Boot 3.x & PostgreSQL):**
+    *   Secure REST API (JWT, refresh via HTTP-only cookies).
+    *   PostgreSQL database management.
+    *   Automated task scheduler for daily checks and reminder email dispatches.
+*   **`frontend/` (Angular 18+ & Angular Material):**
+    *   Modern and animated user interface (Glassmorphism design).
+    *   Reactive state management using **Angular Signals**.
+    *   Native Audio Synthesizer for sound feedback.
+    *   Internationalization support (French, English, German).
 
 ---
 
-## 📥 Guide de Démarrage Rapide
+## 🚀 Key Features
 
-### Prérequis
-*   **Java 21** ou supérieur.
-*   **Node.js 18** ou supérieur (avec npm).
-*   **Docker & Docker Compose** (pour la base de données locale).
+1.  **Reactive Dashboard:** Clear visualization with stats (total, today, this month, next 30 days) and advanced filters (text search, categories, month).
+2.  **Triple View Modes:** Grid mode (polished graphic cards), List mode (professional `Mat-Table` with sorting and pagination), and **Calendar View** (monthly calendar grid showing birthdays).
+3.  **Wish Templates Modal:** Quick share option via WhatsApp or Email choosing between Friendly, Funny, and Formal templates.
+4.  **Data Management:** Easily import and export your birthdays from/to CSV files, or export them to standard yearly recurring iCal `.ics` files for Google Calendar, Outlook, and Apple Calendar.
+5.  **Live Toast Alerts:** Non-blocking real-time feedback notifications for all actions (add, update, delete, and import).
+6.  **Notification Center (Bell):** Individual profile tracking of action history (adds, updates, deletions) with custom bell-ringing animations.
+7.  **Native Audio Synthesis:** Melodious sound feedback triggered on success and deletion actions.
 
-### 1. Lancement de la Base de Données
-Depuis la racine du projet, lancez PostgreSQL en arrière-plan :
+---
+
+## 📥 Quick Start Guide
+
+### Prerequisites
+*   **Java 21** or higher.
+*   **Node.js 18** or higher (with npm).
+*   **Docker & Docker Compose** (for the local database).
+
+### 1. Launching the Database
+From the project root, launch PostgreSQL in the background:
 ```bash
 docker compose -f docker-compose.dev.yml up -d
 ```
 
-### 2. Démarrage du Backend
-Rendez-vous dans le répertoire `backend/`, compilez et lancez l'application :
+### 2. Running the Backend
+Navigate to the `backend/` directory, configure your JDK path, and run the app:
 ```bash
 cd backend
-$env:JAVA_HOME = "C:\Program Files\Java\jdk-21"  # Sur Windows
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-21"  # On Windows
 ./mvnw.cmd spring-boot:run
 ```
-*Le serveur backend démarrera sur le port `8081`.*
+*The backend server will run on port `8081`.*
 
-### 3. Démarrage du Frontend
-Rendez-vous dans le répertoire `frontend/`, installez les dépendances et démarrez le serveur :
+### 3. Running the Frontend
+Navigate to the `frontend/` directory, install dependencies, and start the development server:
 ```bash
 cd frontend
 npm install
 npm run start
 ```
-*L'application sera accessible sur `http://localhost:4200`.*
+*The frontend application will be accessible at `http://localhost:4200`.*
 
 ---
 
-## 📝 Licence
-Ce projet est développé à des fins éducatives et de gestion personnelle. Tous droits réservés.
+## 📝 License
+This project is developed for educational and personal management purposes. All rights reserved.
