@@ -1,0 +1,91 @@
+<div class="detail-wrapper" *ngIf="birthday()">
+  
+  <div class="detail-header">
+    <a routerLink="/dashboard" class="back-link">
+      <span class="material-symbols-outlined">arrow_back</span>
+      {{ t9n.t('detail.back') }}
+    </a>
+  </div>
+
+  <div class="glass-card detail-card">
+    
+    <!-- Profile Banner Section -->
+    <div class="profile-banner">
+      <div class="avatar-large-container" [class]="birthdayService.getUrgencyClass(daysUntil())">
+        <img [src]="birthday()?.photoUrl" alt="{{ birthday()?.name }}" class="avatar-large">
+      </div>
+      
+      <div class="profile-meta">
+        <h1 class="profile-name">{{ birthday()?.name }}</h1>
+        <div style="display: flex; gap: 8px; align-items: center; justify-content: center; margin-top: 8px;">
+          <span class="tag-category" [class]="'tag-' + birthday()?.category?.toLowerCase()">
+            {{ birthday()?.category }}
+          </span>
+          <span class="badge-urgency" [class]="birthdayService.getUrgencyClass(daysUntil())">
+            {{ getLabel(birthdayService.getCountdownLabel(daysUntil())) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Sections Grid -->
+    <div class="info-sections">
+      
+      <!-- Date -->
+      <div class="info-block">
+        <span class="material-symbols-outlined block-icon">cake</span>
+        <div class="block-content">
+          <h3>{{ t9n.t('detail.birthdate') }}</h3>
+          <p>{{ birthday()?.birthdate | date:'dd MMMM yyyy' }}</p>
+        </div>
+      </div>
+
+      <!-- Reminder setting -->
+      <div class="info-block">
+        <span class="material-symbols-outlined block-icon">notifications_active</span>
+        <div class="block-content">
+          <h3>{{ t9n.t('detail.reminder') }}</h3>
+          <p>{{ t9n.t('detail.reminder_text', birthday()?.reminderDays ?? 7) }}</p>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="info-block notes-block">
+        <span class="material-symbols-outlined block-icon">sticky_note_2</span>
+        <div class="block-content">
+          <h3>{{ t9n.t('detail.notes') }}</h3>
+          <p class="notes-text" *ngIf="birthday()?.notes; else noNotes">{{ birthday()?.notes }}</p>
+          <ng-template #noNotes>
+            <p class="notes-text empty">{{ t9n.t('detail.no_notes') }}</p>
+          </ng-template>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Actions Footer -->
+    <div class="detail-actions">
+      <!-- Send Wish -->
+      <button 
+        *ngIf="daysUntil() === 0" 
+        (click)="onSendWish()" 
+        class="btn-premium wish-btn">
+        <span class="material-symbols-outlined">send</span>
+        {{ t9n.t('detail.btn_wish') }}
+      </button>
+
+      <div class="danger-actions">
+        <a [routerLink]="['/birthday/edit', birthday()?.id]" class="btn-secondary">
+          <span class="material-symbols-outlined">edit</span>
+          {{ t9n.t('detail.btn_edit') }}
+        </a>
+        <button (click)="onDelete()" class="btn-secondary delete-btn">
+          <span class="material-symbols-outlined">delete</span>
+          {{ t9n.t('detail.btn_delete') }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>

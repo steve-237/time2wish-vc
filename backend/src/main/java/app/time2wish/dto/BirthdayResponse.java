@@ -1,0 +1,23 @@
+package app.time2wish.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@Builder
+public class BirthdayResponse {
+    private Long id;
+    private String name;
+    private LocalDate birthdate;
+    private String category;
+    private String photoUrl;
+    private String notes;
+    private Short reminderDays;
+    private LocalDateTime createdAt;
+}

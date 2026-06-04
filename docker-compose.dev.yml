@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: time2wish-postgres
+    environment:
+      POSTGRES_USER: time2wish_user
+      POSTGRES_PASSWORD: time2wish_password
+      POSTGRES_DB: time2wish
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local

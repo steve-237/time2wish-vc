@@ -1,0 +1,89 @@
+<div class="login-wrapper">
+  <div class="login-card glass-card">
+    
+    <!-- Branding -->
+    <div class="login-branding">
+      <span class="branding-icon">🎂</span>
+      <h1 class="gradient-text branding-title">Time2Wish</h1>
+      <p class="branding-subtitle">{{ t9n.t('login.subtitle') }}</p>
+    </div>
+
+    <!-- Tabs Toggle -->
+    <div class="tabs-container">
+      <button 
+        (click)="isLoginTab.set(true); errorMessage.set('');" 
+        [class.active]="isLoginTab()"
+        class="tab-btn">
+        {{ t9n.t('login.tab_login') }}
+      </button>
+      <button 
+        (click)="isLoginTab.set(false); errorMessage.set('');" 
+        [class.active]="!isLoginTab()"
+        class="tab-btn">
+        {{ t9n.t('login.tab_register') }}
+      </button>
+    </div>
+
+    <!-- Alert Message -->
+    <div *ngIf="errorMessage()" class="alert-box">
+      <span class="material-symbols-outlined">warning</span>
+      <span class="alert-text">{{ errorMessage() }}</span>
+    </div>
+
+    <!-- Form -->
+    <form (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Full Name (Register Only) -->
+      <div class="form-group" *ngIf="!isLoginTab()">
+        <label class="form-label" for="reg-name">{{ t9n.t('login.full_name') }}</label>
+        <input 
+          type="text" 
+          id="reg-name" 
+          class="form-control" 
+          [ngModel]="fullName()" 
+          (ngModelChange)="fullName.set($event)"
+          name="fullName" 
+          placeholder="Ex: Jean Dupont" 
+          required>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label class="form-label" for="login-email">{{ t9n.t('login.email') }}</label>
+        <input 
+          type="email" 
+          id="login-email" 
+          class="form-control" 
+          [ngModel]="email()" 
+          (ngModelChange)="email.set($event)"
+          name="email" 
+          placeholder="email@example.com" 
+          required>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label class="form-label" for="login-password">{{ t9n.t('login.password') }}</label>
+        <input 
+          type="password" 
+          id="login-password" 
+          class="form-control" 
+          [ngModel]="password()" 
+          (ngModelChange)="password.set($event)"
+          name="password" 
+          placeholder="••••••••" 
+          required>
+      </div>
+
+      <!-- Submit button -->
+      <button type="submit" class="btn-premium" style="width: 100%; margin-top: 10px;">
+        <span class="material-symbols-outlined">{{ isLoginTab() ? 'login' : 'person_add' }}</span>
+        {{ isLoginTab() ? t9n.t('login.btn_login') : t9n.t('login.btn_register') }}
+      </button>
+    </form>
+
+    <div class="demo-account-hint" *ngIf="isLoginTab()">
+      <p>{{ t9n.t('login.demo_hint') }} <strong>demo@time2wish.com</strong> / <strong>password</strong></p>
+    </div>
+
+  </div>
+</div>

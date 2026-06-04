@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: time2wish-backend
+  datasource:
+    url: jdbc:postgresql://localhost:5433/time2wish
+    username: time2wish_user
+    password: time2wish_password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+server:
+  port: 8081
+
+# ─── Email Configuration ─────────────────────────────────────────
+# Set spring.sendgrid.api-key to a real key to send actual emails.
+# Without it, HTML emails are written to app.email.output-dir for preview.
+app:
+  email:
+    output-dir: scratch/emails
+
+# spring:
+#   sendgrid:
+#     api-key: YOUR_SENDGRID_API_KEY_HERE
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:time2wish}
+    username: ${DB_USER:time2wish_user}
+    password: ${DB_PASSWORD:time2wish_password}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  flyway:
+    enabled: true
+  sendgrid:
+    api-key: ${SENDGRID_API_KEY:}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:dDJ3U2VjcmV0S2V5TXVzdEJlQXRMZWFzdDMyQnl0ZXNMb25nRm9ySFMyNTZTZWN1cml0eVJlcXVpcmVtZW50Cg==}
+
+

@@ -1,0 +1,19 @@
+package app.time2wish.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@Builder
+public class JwtResponse {
+    private String token;
+    private Long id;
+    private String email;
+    private String fullName;
+    private String bio;
+    private String avatarUrl;
+}
