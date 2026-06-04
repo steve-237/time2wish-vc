@@ -21,6 +21,42 @@
       {{ reminderStatus() === 'loading' ? '...' : t9n.t('dashboard.btn_test_reminders') }}
     </button>
 
+    <!-- Export CSV Button -->
+    <button
+      (click)="exportToCSV()"
+      class="btn-secondary"
+      title="Exporter en CSV"
+      style="padding: 10px 14px; font-size: 0.88rem; border-radius: 10px; display: flex; align-items: center; gap: 6px;">
+      <span class="material-symbols-outlined" style="font-size: 1.1rem;">download</span>
+      CSV
+    </button>
+
+    <!-- Export iCal Button -->
+    <button
+      (click)="exportToICal()"
+      class="btn-secondary"
+      title="Exporter en iCal (.ics)"
+      style="padding: 10px 14px; font-size: 0.88rem; border-radius: 10px; display: flex; align-items: center; gap: 6px;">
+      <span class="material-symbols-outlined" style="font-size: 1.1rem;">calendar_today</span>
+      iCal
+    </button>
+
+    <!-- Import CSV Button -->
+    <button
+      (click)="csvFileInput.click()"
+      class="btn-secondary"
+      title="Importer depuis CSV"
+      style="padding: 10px 14px; font-size: 0.88rem; border-radius: 10px; display: flex; align-items: center; gap: 6px;">
+      <span class="material-symbols-outlined" style="font-size: 1.1rem;">upload</span>
+      Import
+    </button>
+    <input 
+      type="file" 
+      #csvFileInput 
+      (change)="onCSVImport($event)" 
+      accept=".csv" 
+      style="display: none;">
+
     <!-- Add Birthday Button -->
     <a
       routerLink="/birthday/add"
@@ -105,14 +141,15 @@
   </div>
 
   <!-- Month selection -->
-  <div class="month-selector">
+  <div class="month-selector-custom">
     <select 
-      class="form-control" 
+      class="custom-select-control" 
       [ngModel]="selectedMonth()" 
       (ngModelChange)="selectedMonth.set(+$event)">
       <option [value]="-1">{{ t9n.t('dashboard.all_months') }}</option>
       <option *ngFor="let m of months(); let i = index" [value]="i">{{ m }}</option>
     </select>
+    <span class="material-symbols-outlined select-chevron">expand_more</span>
   </div>
 
   <!-- View Mode Toggle -->
@@ -131,11 +168,18 @@
       title="Vue Liste">
       <span class="material-symbols-outlined">view_list</span>
     </button>
+    <button 
+      (click)="viewMode.set('calendar')" 
+      [class.active]="viewMode() === 'calendar'"
+      class="icon-btn" 
+      title="Vue Calendrier">
+      <span class="material-symbols-outlined">calendar_month</span>
+    </button>
   </div>
 </div>
 
-<!-- Birthdays Grid / List View -->
-<div *ngIf="filteredBirthdays().length > 0; else emptyState">
+<!-- Birthdays Grid / List / Calendar View -->
+<div *ngIf="viewMode() === 'calendar' || filteredBirthdays().length > 0; else emptyState">
   
   <!-- Grid View (Dumb Component) -->
   <app-birthday-grid 
@@ -153,6 +197,15 @@
     (delete)="onDeleteRequested($event)">
   </app-birthday-list>
 
+  <!-- Calendar View (Dumb Component) -->
+  <app-birthday-calendar 
+    *ngIf="viewMode() === 'calendar'"
+    [birthdays]="filteredBirthdays()"
+    [initialMonth]="selectedMonth()"
+    (sendWish)="onSendWish($event)"
+    (delete)="onDeleteRequested($event)">
+  </app-birthday-calendar>
+
 </div>
 
 <!-- Empty State -->
@@ -167,3 +220,10 @@
     </a>
   </div>
 </ng-template>
+
+<!-- Wish Modal Overlay -->
+<app-wish-modal 
+  *ngIf="isWishModalOpen() && selectedBirthdayForWish()" 
+  [birthday]="selectedBirthdayForWish()!" 
+  (close)="isWishModalOpen.set(false)">
+</app-wish-modal>

@@ -1,0 +1,209 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  padding: 24px;
+  margin: 16px;
+  box-sizing: border-box;
+  transform: scale(0.95);
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.modal-header h2 {
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+}
+
+.form-group-section {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.section-label {
+  display: block;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+/* Template Cards selector */
+.template-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.template-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  padding: 12px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-main);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.template-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.template-card.active {
+  border-color: hsl(var(--primary-hsl)) !important;
+  background: rgba(37, 99, 235, 0.08) !important;
+  color: hsl(var(--primary-hsl)) !important;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.15) !important;
+}
+
+.card-icon {
+  font-size: 1.5rem !important;
+}
+
+.card-title {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+/* Channel selector */
+.channel-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.channel-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text-main);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.channel-card:hover {
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+.channel-card.active {
+  border-color: hsl(var(--primary-hsl)) !important;
+  background: rgba(37, 99, 235, 0.08) !important;
+  color: hsl(var(--primary-hsl)) !important;
+}
+
+.chan-icon {
+  font-size: 1.3rem !important;
+}
+
+.chan-title {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.hidden-radio {
+  display: none;
+}
+
+/* Message Textarea styling */
+.message-textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-card);
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  resize: vertical;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.message-textarea:focus {
+  outline: none;
+  border-color: hsl(var(--primary-hsl));
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.send-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 480px) {
+  .template-selector-grid {
+    grid-template-columns: 1fr;
+  }
+  .channel-selector-grid {
+    grid-template-columns: 1fr;
+  }
+}

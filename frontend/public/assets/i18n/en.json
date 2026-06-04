@@ -86,5 +86,12 @@
     "first_page": "First page",
     "last_page": "Last page",
     "of": "of"
+  },
+  "toasts": {
+    "add_success": "Birthday of %s has been added!",
+    "update_success": "Birthday of %s has been updated!",
+    "delete_success": "Birthday of %s has been deleted.",
+    "import_success": "%d birthdays imported successfully!",
+    "import_error": "Error during import."
   }
 }

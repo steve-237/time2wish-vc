@@ -86,5 +86,12 @@
     "first_page": "Erste Seite",
     "last_page": "Letzte Seite",
     "of": "von"
+  },
+  "toasts": {
+    "add_success": "Der Geburtstag von %s wurde hinzugefügt!",
+    "update_success": "Der Geburtstag von %s wurde aktualisiert!",
+    "delete_success": "Der Geburtstag von %s wurde gelöscht.",
+    "import_success": "%d Geburtstage erfolgreich importiert!",
+    "import_error": "Fehler beim Importieren."
   }
 }

@@ -89,3 +89,10 @@
   </div>
 
 </div>
+
+<!-- Wish Modal Overlay -->
+<app-wish-modal 
+  *ngIf="isWishModalOpen() && birthday()" 
+  [birthday]="birthday()!" 
+  (close)="isWishModalOpen.set(false)">
+</app-wish-modal>

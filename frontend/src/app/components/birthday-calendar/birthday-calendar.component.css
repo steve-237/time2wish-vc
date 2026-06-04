@@ -1,0 +1,312 @@
+.calendar-wrapper {
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--shadow-card);
+  margin-top: 16px;
+}
+
+.calendar-header {
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-card);
+  padding-bottom: 16px;
+}
+
+.calendar-title {
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: var(--text-main);
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.nav-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+  border-color: hsl(var(--primary-hsl));
+  background: rgba(37, 99, 235, 0.05);
+  transform: scale(1.05);
+}
+
+.weekdays-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.weekday-lbl {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  padding: 8px 0;
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.day-cell {
+  position: relative;
+  aspect-ratio: 1.1;
+  min-height: 80px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+body.dark-theme .day-cell {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.day-cell:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(37, 99, 235, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
+
+body.dark-theme .day-cell:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.day-number {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-main);
+  align-self: flex-start;
+}
+
+.other-month {
+  opacity: 0.35;
+}
+
+.is-today {
+  border-color: var(--color-today) !important;
+  background: rgba(220, 38, 38, 0.03) !important;
+}
+
+body.dark-theme .is-today {
+  background: rgba(220, 38, 38, 0.05) !important;
+}
+
+.is-today .day-number {
+  color: var(--color-today);
+  font-weight: 800;
+}
+
+/* Indicators and Avatars inside calendar cells */
+.birthday-dots {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: auto;
+}
+
+.birthday-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-app);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-initial {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-transform: uppercase;
+}
+
+.day-cell:hover .birthday-avatar {
+  transform: scale(1.1);
+}
+
+/* Glassmorphic hover tooltip card */
+.calendar-tooltip {
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px) scale(0.95);
+  width: 230px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  padding: 12px;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+}
+
+/* Adjust tooltip position if on the edges of the grid */
+.day-cell:nth-child(7n) .calendar-tooltip {
+  left: auto;
+  right: 0;
+  transform: translateY(10px) scale(0.95);
+}
+
+.day-cell:nth-child(7n+1) .calendar-tooltip {
+  left: 0;
+  transform: translateY(10px) scale(0.95);
+}
+
+.day-cell:hover .calendar-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+.day-cell:nth-child(7n):hover .calendar-tooltip {
+  transform: translateY(0) scale(1);
+}
+
+.day-cell:nth-child(7n+1):hover .calendar-tooltip {
+  transform: translateY(0) scale(1);
+}
+
+.tooltip-header {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-card);
+  padding-bottom: 4px;
+}
+
+.tooltip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tooltip-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tooltip-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.category-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tooltip-name {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tooltip-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.tooltip-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.tooltip-action-btn span {
+  font-size: 1rem !important;
+}
+
+.tooltip-action-btn:hover {
+  background: rgba(37, 99, 235, 0.08);
+  color: hsl(var(--primary-hsl));
+}
+
+.tooltip-action-btn.delete-btn:hover {
+  background: rgba(220, 38, 38, 0.08);
+  color: var(--color-today);
+}
+
+@media (max-width: 768px) {
+  .day-cell {
+    min-height: 60px;
+    padding: 4px;
+  }
+  
+  .day-number {
+    font-size: 0.8rem;
+  }
+  
+  .birthday-avatar {
+    width: 18px;
+    height: 18px;
+  }
+
+  .avatar-initial {
+    font-size: 0.55rem;
+  }
+
+  .calendar-tooltip {
+    width: 180px;
+  }
+}

@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Birthday, BirthdayStats, BirthdayCategory } from '../models/birthday.model';
 import { AuthService } from './auth.service';
 import { effect } from '@angular/core';
+import { ToastService } from './toast.service';
+import { TranslationService } from './translation.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +12,8 @@ import { effect } from '@angular/core';
 export class BirthdayService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
+  private readonly t9n = inject(TranslationService);
   private readonly API_URL = 'http://localhost:8081/api/birthdays';
 
   // Signals
@@ -97,9 +101,11 @@ export class BirthdayService {
     this.http.post<Birthday>(this.API_URL, payload).subscribe({
       next: (saved) => {
         this.birthdays.update(list => [...list, saved]);
+        this.toastService.success(this.t9n.t('toasts.add_success', saved.name));
       },
       error: (err) => {
         console.error('Failed to create birthday via API', err);
+        this.toastService.error(this.t9n.t('toasts.import_error'));
       }
     });
   }
@@ -117,20 +123,27 @@ export class BirthdayService {
     this.http.put<Birthday>(`${this.API_URL}/${id}`, payload).subscribe({
       next: (updated) => {
         this.birthdays.update(list => list.map(b => b.id === id ? updated : b));
+        this.toastService.success(this.t9n.t('toasts.update_success', updated.name));
       },
       error: (err) => {
         console.error('Failed to update birthday via API', err);
+        this.toastService.error(this.t9n.t('toasts.import_error'));
       }
     });
   }
 
   deleteBirthday(id: number): void {
+    const birthdayToDelete = this.getBirthday(id);
+    const name = birthdayToDelete ? birthdayToDelete.name : 'Inconnu';
+    
     this.http.delete(`${this.API_URL}/${id}`).subscribe({
       next: () => {
         this.birthdays.update(list => list.filter(b => b.id !== id));
+        this.toastService.success(this.t9n.t('toasts.delete_success', name));
       },
       error: (err) => {
         console.error('Failed to delete birthday via API', err);
+        this.toastService.error(this.t9n.t('toasts.import_error'));
       }
     });
   }

@@ -1,0 +1,20 @@
+<div class="toast-container">
+  <div 
+    *ngFor="let t of toastService.toasts(); trackBy: trackById" 
+    class="toast-item glass-card"
+    [class]="'toast-' + t.type">
+    
+    <span class="material-symbols-outlined toast-icon">
+      {{ getIconForType(t.type) }}
+    </span>
+    
+    <div class="toast-message">
+      {{ t.message }}
+    </div>
+    
+    <button class="toast-close-btn" (click)="toastService.remove(t.id)">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+
+  </div>
+</div>

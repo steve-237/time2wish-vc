@@ -1,0 +1,84 @@
+<div class="calendar-wrapper glass-card">
+  <!-- Calendar Header -->
+  <div class="calendar-header flex-between">
+    <button (click)="prevMonth()" class="icon-btn nav-btn" title="Mois Précédent">
+      <span class="material-symbols-outlined">chevron_left</span>
+    </button>
+    
+    <h2 class="calendar-title">{{ currentMonthName() }} {{ currentYear() }}</h2>
+    
+    <button (click)="nextMonth()" class="icon-btn nav-btn" title="Mois Suivant">
+      <span class="material-symbols-outlined">chevron_right</span>
+    </button>
+  </div>
+
+  <!-- Days of Week Header -->
+  <div class="weekdays-grid">
+    <div *ngFor="let wd of weekDays()" class="weekday-lbl">{{ wd }}</div>
+  </div>
+
+  <!-- Calendar Grid -->
+  <div class="days-grid">
+    <div 
+      *ngFor="let cell of days(); trackBy: trackByDay" 
+      class="day-cell"
+      [class.other-month]="!cell.isCurrentMonth"
+      [class.is-today]="cell.isToday"
+      [class.has-birthdays]="cell.birthdays.length > 0">
+      
+      <!-- Day Number -->
+      <span class="day-number">{{ cell.day }}</span>
+      
+      <!-- Birthday Indicators (Avatars) -->
+      <div class="birthday-dots" *ngIf="cell.birthdays.length > 0">
+        <div 
+          *ngFor="let b of cell.birthdays" 
+          class="birthday-avatar"
+          [style.border-color]="getCategoryColor(b.category)"
+          [title]="b.name">
+          <img *ngIf="b.photoUrl; else initialAvatar" [src]="b.photoUrl" [alt]="b.name" class="avatar-img">
+          <ng-template #initialAvatar>
+            <div class="avatar-initial">{{ b.name.charAt(0) }}</div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Hover Tooltip/Detail Card -->
+      <div class="calendar-tooltip glass-card" *ngIf="cell.birthdays.length > 0">
+        <div class="tooltip-header">{{ cell.day }} {{ currentMonthName() }}</div>
+        <div class="tooltip-list">
+          <div *ngFor="let b of cell.birthdays" class="tooltip-item">
+            <div class="tooltip-left">
+              <span class="category-indicator" [style.background]="getCategoryColor(b.category)"></span>
+              <span class="tooltip-name">{{ b.name }}</span>
+            </div>
+            <div class="tooltip-actions">
+              <!-- Wish Action -->
+              <button 
+                class="tooltip-action-btn wish-btn" 
+                (click)="onSendWish(b, $event)" 
+                title="Souhaiter">
+                <span class="material-symbols-outlined">send</span>
+              </button>
+              <!-- Edit Action -->
+              <a 
+                [routerLink]="['/birthday/edit', b.id]" 
+                class="tooltip-action-btn edit-btn" 
+                title="Modifier">
+                <span class="material-symbols-outlined">edit</span>
+              </a>
+              <!-- Delete Action -->
+              <button 
+                class="tooltip-action-btn delete-btn" 
+                (click)="onDelete(b.id, $event)" 
+                title="Supprimer">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

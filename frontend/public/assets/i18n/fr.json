@@ -86,5 +86,12 @@
     "first_page": "Première page",
     "last_page": "Dernière page",
     "of": "sur"
+  },
+  "toasts": {
+    "add_success": "L'anniversaire de %s a été ajouté !",
+    "update_success": "L'anniversaire de %s a été mis à jour !",
+    "delete_success": "L'anniversaire de %s a été supprimé.",
+    "import_success": "%d anniversaires importés avec succès !",
+    "import_error": "Erreur lors de l'importation."
   }
 }

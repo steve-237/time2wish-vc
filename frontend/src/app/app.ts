@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { TranslationService, Language } from './services/translation.service';
 import { NotificationPanelComponent } from './components/notification-panel/notification-panel.component';
+import { ToastContainerComponent } from './components/toast-container/toast-container.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, CommonModule, NotificationPanelComponent],
+  imports: [RouterOutlet, RouterLink, CommonModule, NotificationPanelComponent, ToastContainerComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

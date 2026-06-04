@@ -1,0 +1,90 @@
+<div class="modal-overlay" (click)="close.emit()">
+  <div class="modal-card glass-card" (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="modal-header flex-between">
+      <h2>🎉 {{ t9n.t('dashboard.btn_wish') }} à {{ birthday.name }}</h2>
+      <button class="icon-btn close-btn" (click)="close.emit()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <!-- Templates selector -->
+    <div class="form-group-section">
+      <label class="section-label">1. Choisir un modèle</label>
+      <div class="template-selector-grid">
+        <button 
+          type="button" 
+          class="template-card" 
+          [class.active]="templateType === 'friendly'" 
+          (click)="onTemplateChange('friendly')">
+          <span class="material-symbols-outlined card-icon">favorite</span>
+          <span class="card-title">Amical</span>
+        </button>
+        <button 
+          type="button" 
+          class="template-card" 
+          [class.active]="templateType === 'funny'" 
+          (click)="onTemplateChange('funny')">
+          <span class="material-symbols-outlined card-icon">sentiment_very_satisfied</span>
+          <span class="card-title">Drôle</span>
+        </button>
+        <button 
+          type="button" 
+          class="template-card" 
+          [class.active]="templateType === 'formal'" 
+          (click)="onTemplateChange('formal')">
+          <span class="material-symbols-outlined card-icon">business_center</span>
+          <span class="card-title">Formel</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Channels selector -->
+    <div class="form-group-section">
+      <label class="section-label">2. Canal de partage</label>
+      <div class="channel-selector-grid">
+        <label class="channel-card" [class.active]="channel === 'whatsapp'">
+          <input 
+            type="radio" 
+            name="channel" 
+            [(ngModel)]="channel" 
+            value="whatsapp" 
+            class="hidden-radio">
+          <span class="material-symbols-outlined chan-icon">chat</span>
+          <span class="chan-title">WhatsApp</span>
+        </label>
+        <label class="channel-card" [class.active]="channel === 'email'">
+          <input 
+            type="radio" 
+            name="channel" 
+            [(ngModel)]="channel" 
+            value="email" 
+            class="hidden-radio">
+          <span class="material-symbols-outlined chan-icon">mail</span>
+          <span class="chan-title">Email</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Message customization -->
+    <div class="form-group-section">
+      <label class="section-label">3. Personnaliser le message</label>
+      <textarea 
+        class="floating-input message-textarea" 
+        [(ngModel)]="customMessage" 
+        rows="4" 
+        placeholder="Écrivez votre message personnalisé ici..."></textarea>
+    </div>
+
+    <!-- Actions -->
+    <div class="modal-actions flex-between" style="margin-top: 24px;">
+      <button class="btn-secondary" (click)="close.emit()">Annuler</button>
+      <button class="btn-premium send-btn" (click)="send()">
+        <span class="material-symbols-outlined">send</span>
+        Envoyer le souhait
+      </button>
+    </div>
+
+  </div>
+</div>

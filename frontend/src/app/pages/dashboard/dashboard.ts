@@ -7,19 +7,23 @@ import { Birthday, BirthdayCategory } from '../../models/birthday.model';
 import { TranslationService } from '../../services/translation.service';
 import { BirthdayGridComponent } from '../../components/birthday-grid/birthday-grid.component';
 import { BirthdayListComponent } from '../../components/birthday-list/birthday-list.component';
+import { BirthdayCalendarComponent } from '../../components/birthday-calendar/birthday-calendar.component';
+import { WishModalComponent } from '../../components/wish-modal/wish-modal.component';
 import { AudioService } from '../../services/audio.service';
 import { NotificationService } from '../../services/notification.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, BirthdayGridComponent, BirthdayListComponent],
+  imports: [CommonModule, FormsModule, RouterModule, BirthdayGridComponent, BirthdayListComponent, BirthdayCalendarComponent, WishModalComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
 export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   birthdayService = inject(BirthdayService);
   t9n = inject(TranslationService);
+  toastService = inject(ToastService);
   private audioService = inject(AudioService);
   private notifService = inject(NotificationService);
 
@@ -30,11 +34,15 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   searchQuery = signal<string>('');
   selectedCategory = signal<BirthdayCategory | 'All'>('All');
   selectedMonth = signal<number | -1>(-1); // -1 means All
-  viewMode = signal<'grid' | 'list'>('grid');
+  viewMode = signal<'grid' | 'list' | 'calendar'>('grid');
 
   // Reminder trigger state
   reminderStatus = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
   reminderMessage = signal<string>('');
+
+  // Wish Modal state
+  isWishModalOpen = signal<boolean>(false);
+  selectedBirthdayForWish = signal<Birthday | null>(null);
 
   // Categories list
   readonly categories: (BirthdayCategory | 'All')[] = ['All', 'Family', 'Friend', 'Work', 'Other'];
@@ -100,9 +108,8 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       event.preventDefault();
       event.stopPropagation();
     }
-    const subject = encodeURIComponent(`Joyeux Anniversaire ${b.name} !`);
-    const body = encodeURIComponent(`Je te souhaite un très joyeux anniversaire ${b.name} ! Profite bien de ta journée ! 🎉🎂`);
-    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+    this.selectedBirthdayForWish.set(b);
+    this.isWishModalOpen.set(true);
   }
 
   deleteBirthday(id: number, event?: Event) {
@@ -192,5 +199,146 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     });
+  }
+
+  // --- CSV / iCal Import/Export ---
+  exportToCSV() {
+    const list = this.birthdayService.activeBirthdays();
+    let csvContent = 'name,birthdate,category,notes,reminderDays,photoUrl\n';
+    list.forEach(b => {
+      const notes = b.notes ? `"${b.notes.replace(/"/g, '""')}"` : '';
+      const row = `"${b.name.replace(/"/g, '""')}",${b.birthdate},${b.category},${notes},${b.reminderDays ?? 7},"${(b.photoUrl ?? '').replace(/"/g, '""')}"`;
+      csvContent += row + '\n';
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `time2wish_birthdays_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  exportToICal() {
+    const list = this.birthdayService.activeBirthdays();
+    let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Time2Wish//NONSGML Birthday Calendar//EN\nCALSCALE:GREGORIAN\n';
+    
+    list.forEach(b => {
+      const cleanDate = b.birthdate.replace(/-/g, ''); // 19900515
+      const bDate = new Date(b.birthdate);
+      bDate.setDate(bDate.getDate() + 1);
+      const cleanEndDate = bDate.toISOString().split('T')[0].replace(/-/g, '');
+      
+      icsContent += 'BEGIN:VEVENT\n';
+      icsContent += `SUMMARY:🎂 Anniversaire de ${b.name}\n`;
+      icsContent += `DTSTART;VALUE=DATE:${cleanDate}\n`;
+      icsContent += `DTEND;VALUE=DATE:${cleanEndDate}\n`;
+      icsContent += 'RRULE:FREQ=YEARLY\n';
+      icsContent += `DESCRIPTION:${b.notes ? b.notes.replace(/\n/g, '\\n') : 'Time2Wish Birthday reminder'}\n`;
+      icsContent += 'END:VEVENT\n';
+    });
+    
+    icsContent += 'END:VCALENDAR';
+    
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `time2wish_birthdays_${new Date().toISOString().split('T')[0]}.ics`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  onCSVImport(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = reader.result as string;
+      this.parseAndImportCSV(text);
+      input.value = ''; // Reset file input
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+
+  parseAndImportCSV(text: string) {
+    try {
+      const lines = text.split('\n');
+      if (lines.length <= 1) {
+        this.toastService.warning(this.t9n.t('toasts.import_error'));
+        return;
+      }
+      
+      const headers = lines[0].toLowerCase().trim().split(',');
+      let importCount = 0;
+      
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        // Simple CSV parsing (handling quotes)
+        const cols = [];
+        let insideQuotes = false;
+        let current = '';
+        for (let charIndex = 0; charIndex < line.length; charIndex++) {
+          const char = line[charIndex];
+          if (char === '"') {
+            insideQuotes = !insideQuotes;
+          } else if (char === ',' && !insideQuotes) {
+            cols.push(current.trim());
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        cols.push(current.trim());
+        
+        // Extract values
+        const nameIdx = headers.indexOf('name');
+        const dateIdx = headers.indexOf('birthdate');
+        const catIdx = headers.indexOf('category');
+        const notesIdx = headers.indexOf('notes');
+        const reminderIdx = headers.indexOf('reminderdays');
+        const photoIdx = headers.indexOf('photourl');
+        
+        const name = nameIdx !== -1 ? cols[nameIdx] : '';
+        const date = dateIdx !== -1 ? cols[dateIdx] : '';
+        
+        if (!name || !date) continue;
+        
+        // Validate date format (YYYY-MM-DD)
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (!dateRegex.test(date)) continue;
+        
+        let category: any = 'Other';
+        const catValue = catIdx !== -1 ? cols[catIdx] : 'Other';
+        if (['Family', 'Friend', 'Work', 'Other'].includes(catValue)) {
+          category = catValue;
+        }
+        
+        const notes = notesIdx !== -1 ? cols[notesIdx] : '';
+        const reminderDays = reminderIdx !== -1 ? parseInt(cols[reminderIdx], 10) || 7 : 7;
+        const photoUrl = photoIdx !== -1 ? cols[photoIdx] : '';
+        
+        this.birthdayService.addBirthday(name, date, category, notes, reminderDays, photoUrl);
+        importCount++;
+      }
+      
+      if (importCount > 0) {
+        this.toastService.success(this.t9n.t('toasts.import_success', importCount));
+      } else {
+        this.toastService.warning(this.t9n.t('toasts.import_error'));
+      }
+    } catch (err) {
+      console.error(err);
+      this.toastService.error(this.t9n.t('toasts.import_error'));
+    }
   }
 }
