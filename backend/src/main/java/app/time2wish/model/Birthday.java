@@ -42,6 +42,15 @@ public class Birthday {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @Column(name = "show_age", nullable = false)
+    private Boolean showAge = true;
+
+    @Column(length = 255)
+    private String email;
+
+    @Column(length = 50)
+    private String whatsapp;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -56,6 +65,9 @@ public class Birthday {
         }
         if (reminderDays == null) {
             reminderDays = (short) 7;
+        }
+        if (showAge == null) {
+            showAge = true;
         }
     }
 }

@@ -40,6 +40,9 @@ public class BirthdayService {
         birthday.setCategory(details.getCategory());
         birthday.setNotes(details.getNotes());
         birthday.setReminderDays(details.getReminderDays());
+        birthday.setShowAge(details.getShowAge());
+        birthday.setEmail(details.getEmail());
+        birthday.setWhatsapp(details.getWhatsapp());
         
         if (details.getPhotoUrl() != null && !details.getPhotoUrl().isEmpty()) {
             birthday.setPhotoUrl(details.getPhotoUrl());

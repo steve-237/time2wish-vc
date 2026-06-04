@@ -19,5 +19,8 @@ public class BirthdayResponse {
     private String photoUrl;
     private String notes;
     private Short reminderDays;
+    private Boolean showAge;
+    private String email;
+    private String whatsapp;
     private LocalDateTime createdAt;
 }

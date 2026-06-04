@@ -45,6 +45,9 @@ public class BirthdayController {
                 .photoUrl(b.getPhotoUrl())
                 .notes(b.getNotes())
                 .reminderDays(b.getReminderDays())
+                .showAge(b.getShowAge())
+                .email(b.getEmail())
+                .whatsapp(b.getWhatsapp())
                 .createdAt(b.getCreatedAt())
                 .build();
     }
@@ -81,6 +84,9 @@ public class BirthdayController {
                 .photoUrl(request.getPhotoUrl())
                 .notes(request.getNotes())
                 .reminderDays(request.getReminderDays())
+                .showAge(request.getShowAge())
+                .email(request.getEmail())
+                .whatsapp(request.getWhatsapp())
                 .build();
 
         Birthday saved = birthdayService.addBirthday(birthday, user);
@@ -101,6 +107,9 @@ public class BirthdayController {
                 .photoUrl(request.getPhotoUrl())
                 .notes(request.getNotes())
                 .reminderDays(request.getReminderDays())
+                .showAge(request.getShowAge())
+                .email(request.getEmail())
+                .whatsapp(request.getWhatsapp())
                 .build();
 
         try {

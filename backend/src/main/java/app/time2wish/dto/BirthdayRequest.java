@@ -26,4 +26,12 @@ public class BirthdayRequest {
     private String notes;
 
     private Short reminderDays = (short) 7;
+
+    private Boolean showAge = true;
+
+    @Size(max = 255)
+    private String email;
+
+    @Size(max = 50)
+    private String whatsapp;
 }
