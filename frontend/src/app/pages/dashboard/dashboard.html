@@ -1,0 +1,169 @@
+<!-- Confetti layer -->
+<canvas #confettiCanvas class="confetti-canvas"></canvas>
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+  <div>
+    <h1>{{ t9n.t('dashboard.title') }}</h1>
+    <p class="subtitle">{{ t9n.t('dashboard.subtitle') }}</p>
+  </div>
+  <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+    <!-- Test Reminders Button -->
+    <button
+      id="btn-test-reminders"
+      (click)="onTriggerReminders()"
+      [disabled]="reminderStatus() === 'loading'"
+      class="btn-secondary"
+      style="padding: 10px 18px; font-size: 0.88rem; border-radius: 10px; display: flex; align-items: center; gap: 6px;">
+      <span class="material-symbols-outlined" style="font-size: 1rem;">
+        {{ reminderStatus() === 'loading' ? 'sync' : 'notifications' }}
+      </span>
+      {{ reminderStatus() === 'loading' ? '...' : t9n.t('dashboard.btn_test_reminders') }}
+    </button>
+
+    <!-- Add Birthday Button -->
+    <a
+      routerLink="/birthday/add"
+      class="btn-premium"
+      style="padding: 10px 18px; font-size: 0.88rem; border-radius: 10px; display: flex; align-items: center; gap: 6px; text-decoration: none;">
+      <span class="material-symbols-outlined" style="font-size: 1.1rem;">add_circle</span>
+      {{ t9n.t('dashboard.btn_add') }}
+    </a>
+  </div>
+</div>
+
+<!-- Reminder Status Toast -->
+<div
+  *ngIf="reminderStatus() === 'success' || reminderStatus() === 'error'"
+  class="glass-card"
+  style="margin-bottom: 16px; padding: 14px 20px; display:flex; align-items:center; gap:10px; border-left: 4px solid;"
+  [style.border-left-color]="reminderStatus() === 'success' ? '#10b981' : '#ef4444'">
+  <span class="material-symbols-outlined" [style.color]="reminderStatus() === 'success' ? '#10b981' : '#ef4444'">
+    {{ reminderStatus() === 'success' ? 'check_circle' : 'error' }}
+  </span>
+  <span style="font-size: 0.9rem; color: var(--text-main);">{{ reminderMessage() }}</span>
+</div>
+
+<!-- Stats Row -->
+<div class="stats-grid">
+  <div class="glass-card stat-card">
+    <span class="stat-icon" style="color: hsl(var(--primary-hsl)); background: rgba(37,99,235,0.08);">group</span>
+    <div class="stat-content">
+      <span class="stat-value">{{ birthdayService.statistics().total }}</span>
+      <span class="stat-label">{{ t9n.t('dashboard.stat_total') }}</span>
+    </div>
+  </div>
+
+  <div class="glass-card stat-card" [class.highlight]="birthdayService.statistics().todayCount > 0">
+    <span class="stat-icon" style="color: var(--color-today); background: rgba(220,38,38,0.08);">cake</span>
+    <div class="stat-content">
+      <span class="stat-value">{{ birthdayService.statistics().todayCount }}</span>
+      <span class="stat-label">{{ t9n.t('dashboard.stat_today') }}</span>
+    </div>
+  </div>
+
+  <div class="glass-card stat-card">
+    <span class="stat-icon" style="color: var(--color-soon); background: rgba(245,158,11,0.08);">calendar_month</span>
+    <div class="stat-content">
+      <span class="stat-value">{{ birthdayService.statistics().thisMonthCount }}</span>
+      <span class="stat-label">{{ t9n.t('dashboard.stat_month') }}</span>
+    </div>
+  </div>
+
+  <div class="glass-card stat-card">
+    <span class="stat-icon" style="color: var(--color-upcoming); background: rgba(22,163,74,0.08);">schedule</span>
+    <div class="stat-content">
+      <span class="stat-value">{{ birthdayService.statistics().next30DaysCount }}</span>
+      <span class="stat-label">{{ t9n.t('dashboard.stat_30days') }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Filters Section -->
+<div class="filters-panel glass-card">
+  <!-- Search -->
+  <div class="search-box">
+    <span class="material-symbols-outlined search-icon">search</span>
+    <input 
+      type="text" 
+      class="form-control" 
+      style="padding-left: 40px;" 
+      [placeholder]="t9n.t('dashboard.search_placeholder')"
+      [ngModel]="searchQuery()" 
+      (ngModelChange)="searchQuery.set($event)">
+  </div>
+
+  <!-- Category Selection -->
+  <div class="category-pills">
+    <button 
+      *ngFor="let cat of categories" 
+      (click)="selectedCategory.set(cat)"
+      [class.active]="selectedCategory() === cat"
+      class="pill-btn">
+      {{ cat === 'All' ? t9n.t('dashboard.all_categories') : cat }}
+    </button>
+  </div>
+
+  <!-- Month selection -->
+  <div class="month-selector">
+    <select 
+      class="form-control" 
+      [ngModel]="selectedMonth()" 
+      (ngModelChange)="selectedMonth.set(+$event)">
+      <option [value]="-1">{{ t9n.t('dashboard.all_months') }}</option>
+      <option *ngFor="let m of months(); let i = index" [value]="i">{{ m }}</option>
+    </select>
+  </div>
+
+  <!-- View Mode Toggle -->
+  <div class="view-mode-toggle flex-center">
+    <button 
+      (click)="viewMode.set('grid')" 
+      [class.active]="viewMode() === 'grid'"
+      class="icon-btn" 
+      title="Vue Grille">
+      <span class="material-symbols-outlined">grid_view</span>
+    </button>
+    <button 
+      (click)="viewMode.set('list')" 
+      [class.active]="viewMode() === 'list'"
+      class="icon-btn" 
+      title="Vue Liste">
+      <span class="material-symbols-outlined">view_list</span>
+    </button>
+  </div>
+</div>
+
+<!-- Birthdays Grid / List View -->
+<div *ngIf="filteredBirthdays().length > 0; else emptyState">
+  
+  <!-- Grid View (Dumb Component) -->
+  <app-birthday-grid 
+    *ngIf="viewMode() === 'grid'"
+    [birthdays]="filteredBirthdays()"
+    (sendWish)="onSendWish($event)"
+    (delete)="onDeleteRequested($event)">
+  </app-birthday-grid>
+
+  <!-- List View (Dumb Component with MatTable) -->
+  <app-birthday-list 
+    *ngIf="viewMode() === 'list'"
+    [birthdays]="filteredBirthdays()"
+    (sendWish)="onSendWish($event)"
+    (delete)="onDeleteRequested($event)">
+  </app-birthday-list>
+
+</div>
+
+<!-- Empty State -->
+<ng-template #emptyState>
+  <div class="glass-card empty-card">
+    <span class="material-symbols-outlined empty-icon">sentiment_dissatisfied</span>
+    <h2>{{ t9n.t('dashboard.empty_title') }}</h2>
+    <p>{{ t9n.t('dashboard.empty_text') }}</p>
+    <a routerLink="/birthday/add" class="btn-premium" style="margin-top: 16px;">
+      <span class="material-symbols-outlined">add_circle</span>
+      {{ t9n.t('dashboard.empty_btn') }}
+    </a>
+  </div>
+</ng-template>

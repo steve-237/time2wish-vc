@@ -1,0 +1,73 @@
+<!-- Glassmorphic Header -->
+<header class="glass-header" *ngIf="authService.isAuthenticated()">
+  <div class="header-content flex-between gap-md">
+    
+    <!-- Logo -->
+    <a routerLink="/dashboard" class="logo-link flex-center gap-sm">
+      <span class="gradient-text">Time2Wish</span>
+      <span>🎂</span>
+    </a>
+
+
+    <!-- Toolbar actions -->
+    <div class="toolbar-actions flex-center gap-sm">
+      
+      <!-- Language Selector -->
+      <div class="lang-selector">
+        <button
+          *ngFor="let lang of languages"
+          (click)="setLanguage(lang.code)"
+          [class.lang-active]="t9n.currentLang() === lang.code"
+          class="lang-btn"
+          [title]="lang.label"
+          [id]="'lang-btn-' + lang.code">
+          {{ lang.flag }} {{ lang.label }}
+        </button>
+      </div>
+
+      <!-- Dark mode switch -->
+      <button (click)="toggleDarkMode()" class="icon-btn theme-toggle" [title]="isDarkMode() ? 'Passer au mode clair' : 'Passer au mode sombre'">
+        <span class="material-symbols-outlined" *ngIf="!isDarkMode()">dark_mode</span>
+        <span class="material-symbols-outlined" *ngIf="isDarkMode()">light_mode</span>
+      </button>
+
+      <!-- Notifications Panel -->
+      <app-notification-panel></app-notification-panel>
+
+      <!-- User avatar & Profile menu -->
+      <div class="user-profile-menu flex-center gap-sm">
+        <img [src]="authService.currentUser()?.avatarUrl" alt="Avatar" class="user-avatar">
+        <div class="user-info">
+          <span class="user-name">{{ authService.currentUser()?.fullName }}</span>
+          <span class="user-email">{{ authService.currentUser()?.email }}</span>
+        </div>
+      </div>
+
+      <!-- Logout -->
+      <button (click)="onLogout()" class="btn-secondary logout-btn">
+        <span class="material-symbols-outlined logout-icon">logout</span>
+        <span class="logout-text">{{ t9n.t('nav.logout') }}</span>
+      </button>
+    </div>
+
+  </div>
+</header>
+
+<!-- Main content routing window -->
+<main class="main-container">
+  <router-outlet></router-outlet>
+</main>
+
+<!-- Footer -->
+<footer class="app-footer">
+  <div class="footer-content flex-center">
+    <p>© 2026 Time2Wish. {{ t9n.t('footer.tagline') }}</p>
+    <div class="footer-links flex-center gap-md">
+      <a href="#" class="footer-link">{{ t9n.t('footer.privacy') }}</a>
+      <span class="separator">•</span>
+      <a href="#" class="footer-link">{{ t9n.t('footer.terms') }}</a>
+      <span class="separator">•</span>
+      <a href="#" class="footer-link">{{ t9n.t('footer.support') }}</a>
+    </div>
+  </div>
+</footer>

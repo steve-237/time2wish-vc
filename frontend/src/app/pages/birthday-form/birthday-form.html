@@ -1,0 +1,122 @@
+<div class="form-wrapper">
+  
+  <div class="form-header">
+    <a routerLink="/dashboard" class="back-link">
+      <span class="material-symbols-outlined">arrow_back</span>
+      {{ t9n.t('form.back') }}
+    </a>
+    <h1>{{ isEditMode() ? t9n.t('form.title_edit') : t9n.t('form.title_add') }}</h1>
+    <p class="subtitle">{{ isEditMode() ? t9n.t('form.subtitle_edit') : t9n.t('form.subtitle_add') }}</p>
+  </div>
+
+  <div class="glass-card form-card">
+    
+    <!-- Error Message -->
+    <div *ngIf="errorMessage()" class="alert-box">
+      <span class="material-symbols-outlined">warning</span>
+      <span class="alert-text">{{ errorMessage() }}</span>
+    </div>
+
+    <!-- Form -->
+    <form (ngSubmit)="onSubmit()" class="birthday-form-element">
+      
+      <!-- Name -->
+      <div class="floating-group">
+        <input 
+          type="text" 
+          id="b-name" 
+          class="floating-input" 
+          [ngModel]="name()" 
+          (ngModelChange)="name.set($event)"
+          name="name" 
+          placeholder=" " 
+          required>
+        <label class="floating-label" for="b-name">{{ t9n.t('form.name') }}</label>
+      </div>
+
+      <div class="form-row">
+        <!-- Birthdate -->
+        <div class="floating-group" style="flex: 1; min-width: 200px;">
+          <input 
+            type="date" 
+            id="b-date" 
+            class="floating-input" 
+            [ngModel]="birthdate()" 
+            (ngModelChange)="birthdate.set($event)"
+            name="birthdate" 
+            required>
+          <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-date">{{ t9n.t('form.birthdate') }}</label>
+        </div>
+
+        <!-- Category -->
+        <div class="floating-group" style="flex: 1; min-width: 200px;">
+          <select 
+            id="b-category" 
+            class="floating-input" 
+            [ngModel]="category()" 
+            (ngModelChange)="category.set($event)"
+            name="category">
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+          <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-category">{{ t9n.t('form.category') }}</label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <!-- Reminder Days -->
+        <div class="floating-group" style="flex: 1; min-width: 200px;">
+          <select 
+            id="b-reminders" 
+            class="floating-input" 
+            [ngModel]="reminderDays()" 
+            (ngModelChange)="reminderDays.set(+$event)"
+            name="reminderDays">
+            <option [value]="0">{{ t9n.t('form.reminder_0') }}</option>
+            <option [value]="1">{{ t9n.t('form.reminder_1') }}</option>
+            <option [value]="3">{{ t9n.t('form.reminder_3') }}</option>
+            <option [value]="7">{{ t9n.t('form.reminder_7') }}</option>
+            <option [value]="14">{{ t9n.t('form.reminder_14') }}</option>
+          </select>
+          <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-reminders">{{ t9n.t('form.reminder_days') }}</label>
+        </div>
+
+        <!-- Photo URL (Optional) -->
+        <div class="floating-group" style="flex: 1; min-width: 200px;">
+          <input 
+            type="url" 
+            id="b-photo" 
+            class="floating-input" 
+            [ngModel]="photoUrl()" 
+            (ngModelChange)="photoUrl.set($event)"
+            name="photoUrl" 
+            placeholder=" ">
+          <label class="floating-label" for="b-photo">{{ t9n.t('form.photo_url') }}</label>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="floating-group">
+        <textarea 
+          id="b-notes" 
+          class="floating-input" 
+          rows="4"
+          [ngModel]="notes()" 
+          (ngModelChange)="notes.set($event)"
+          name="notes" 
+          placeholder=" "></textarea>
+        <label class="floating-label" for="b-notes">{{ t9n.t('form.notes') }}</label>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <a routerLink="/dashboard" class="btn-secondary">{{ t9n.t('form.btn_cancel') }}</a>
+        <button type="submit" class="btn-premium">
+          <span class="material-symbols-outlined">save</span>
+          {{ isEditMode() ? t9n.t('form.btn_update') : t9n.t('form.btn_save') }}
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
