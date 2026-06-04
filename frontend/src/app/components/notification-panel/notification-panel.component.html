@@ -1,0 +1,42 @@
+<div class="notif-wrapper" #notifWrapper>
+  <!-- Bell Icon -->
+  <button class="icon-btn notif-bell" (click)="togglePanel()" [title]="'Notifications'">
+    <span class="material-symbols-outlined">notifications</span>
+    <!-- Badge -->
+    <span *ngIf="notifService.unreadCount() > 0" class="notif-badge">{{ notifService.unreadCount() }}</span>
+  </button>
+
+  <!-- Dropdown Panel -->
+  <div *ngIf="isOpen()" class="notif-dropdown glass-card">
+    <div class="notif-header flex-between">
+      <h3>Notifications</h3>
+      <div class="flex-center gap-sm">
+        <button *ngIf="notifService.unreadCount() > 0" class="text-btn" (click)="notifService.markAllAsRead()">Tout marquer comme lu</button>
+        <button class="text-btn text-danger" (click)="notifService.clearAll()">Effacer</button>
+      </div>
+    </div>
+
+    <div class="notif-list">
+      <div *ngIf="notifService.notifications().length === 0" class="empty-notifs">
+        <span class="material-symbols-outlined">notifications_off</span>
+        <p>Aucune notification</p>
+      </div>
+
+      <!-- Using trackBy (or Angular 17+ control flow tracking which is implicit with @for, but we use ngFor with trackBy for robust Angular < 17 compatibility if needed, or default implicit index. We'll use structural directive standard) -->
+      <div *ngFor="let n of notifService.notifications()" 
+           class="notif-item" 
+           [class.unread]="!n.isRead"
+           (click)="notifService.markAsRead(n.id)">
+        <div class="notif-icon flex-center" [class]="'type-' + n.type.toLowerCase()">
+          <span class="material-symbols-outlined">{{ getIconForType(n.type) }}</span>
+        </div>
+        <div class="notif-content">
+          <p class="notif-message">{{ n.message }}</p>
+          <span class="notif-time">{{ n.timestamp | date:'short' }}</span>
+        </div>
+        <!-- Unread dot -->
+        <div *ngIf="!n.isRead" class="unread-dot"></div>
+      </div>
+    </div>
+  </div>
+</div>
