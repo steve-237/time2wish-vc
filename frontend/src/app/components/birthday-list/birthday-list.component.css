@@ -1,0 +1,123 @@
+.list-container {
+  overflow: hidden;
+  margin-bottom: 40px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.birthday-table {
+  width: 100%;
+  background: transparent !important;
+  border-collapse: collapse;
+}
+
+.mat-mdc-header-row {
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+body.dark-theme .mat-mdc-header-row {
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.mat-mdc-header-cell {
+  color: var(--text-muted) !important;
+  font-family: var(--font-title) !important;
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  border-bottom: 2px solid var(--border-card) !important;
+  padding: 16px !important;
+}
+
+.mat-mdc-row {
+  height: 72px !important;
+  border-bottom: 1px solid var(--border-card) !important;
+  transition: background 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.table-row-hover {
+  cursor: pointer;
+}
+
+.table-row-hover:hover {
+  background: rgba(37, 99, 235, 0.03) !important;
+  box-shadow: inset 4px 0 0 0 hsl(var(--primary-hsl)) !important;
+}
+
+body.dark-theme .table-row-hover:hover {
+  background: rgba(255, 255, 255, 0.02) !important;
+  box-shadow: inset 4px 0 0 0 hsl(var(--accent-hsl)) !important;
+}
+
+.mat-mdc-cell {
+  color: var(--text-main) !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.92rem !important;
+  padding: 16px !important;
+}
+
+.avatar-container {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border-card);
+}
+
+.avatar-container.today {
+  border-color: var(--color-today);
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.3);
+}
+
+.avatar-container.soon {
+  border-color: var(--color-soon);
+}
+
+.birthday-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.fw-bold {
+  font-weight: 600;
+  font-family: var(--font-title);
+}
+
+.icon-sm {
+  font-size: 1.1rem;
+}
+
+.action-icon-link, .action-icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.action-icon-link:hover {
+  color: hsl(var(--primary-hsl));
+  background: rgba(37, 99, 235, 0.05);
+}
+
+.action-icon-btn:hover {
+  color: var(--color-today);
+  background: rgba(220, 38, 38, 0.05);
+}

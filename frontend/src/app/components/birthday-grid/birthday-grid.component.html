@@ -1,0 +1,57 @@
+<div class="birthdays-grid">
+  <div 
+    *ngFor="let b of birthdays; trackBy: trackById" 
+    [routerLink]="['/birthday', b.id]"
+    class="glass-card birthday-item glass-card-hover">
+    
+    <div class="birthday-card-main">
+      <!-- Profile Photo -->
+      <div class="avatar-container" [class]="birthdayService.getUrgencyClass(birthdayService.getDaysUntil(b.birthdate))">
+        <img [src]="b.photoUrl" alt="{{ b.name }}" class="birthday-avatar">
+      </div>
+
+      <!-- User Info -->
+      <div class="birthday-info">
+        <h3 class="birthday-name">{{ b.name }}</h3>
+        <p class="birthday-date">
+          <span class="material-symbols-outlined" style="font-size: 0.95rem; vertical-align: middle;">event</span>
+          {{ b.birthdate | date:'dd MMMM yyyy' }}
+        </p>
+        <span class="tag-category" [class]="'tag-' + b.category.toLowerCase()">{{ b.category }}</span>
+      </div>
+
+      <!-- Urgency Countdown badge -->
+      <div class="countdown-section">
+        <span 
+          class="badge-urgency" 
+          [class]="birthdayService.getUrgencyClass(birthdayService.getDaysUntil(b.birthdate))">
+          <span class="material-symbols-outlined" style="font-size: 1rem;">alarm</span>
+          {{ getLabel(birthdayService.getCountdownLabel(birthdayService.getDaysUntil(b.birthdate))) }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Quick Action Bar -->
+    <div class="birthday-actions-bar">
+      <!-- Write template wishes if today -->
+      <button 
+        *ngIf="birthdayService.getDaysUntil(b.birthdate) === 0" 
+        (click)="onSendWish(b, $event)" 
+        class="btn-premium quick-wish-btn" 
+        style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px;">
+        <span class="material-symbols-outlined" style="font-size: 0.9rem;">send</span>
+        {{ t9n.t('dashboard.btn_wish') }}
+      </button>
+      
+      <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
+        <a [routerLink]="['/birthday/edit', b.id]" (click)="$event.stopPropagation()" class="action-icon-link" title="Modifier">
+          <span class="material-symbols-outlined">edit</span>
+        </a>
+        <button (click)="onDelete(b.id, $event)" class="action-icon-btn" title="Supprimer">
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,82 @@
+<div class="glass-card mat-elevation-z8 list-container">
+  
+  <table mat-table [dataSource]="dataSource" matSort class="birthday-table">
+
+    <!-- Avatar Column -->
+    <ng-container matColumnDef="avatar">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let element">
+        <div class="avatar-container" [class]="birthdayService.getUrgencyClass(birthdayService.getDaysUntil(element.birthdate))">
+          <img [src]="element.photoUrl" alt="{{ element.name }}" class="birthday-avatar">
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
+      <td mat-cell *matCellDef="let element" class="fw-bold"> {{element.name}} </td>
+    </ng-container>
+
+    <!-- Birthdate Column -->
+    <ng-container matColumnDef="birthdate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
+      <td mat-cell *matCellDef="let element"> 
+        <span class="flex-center gap-sm" style="justify-content: flex-start;">
+          <span class="material-symbols-outlined icon-sm">event</span>
+          {{element.birthdate | date:'dd MMMM yyyy'}} 
+        </span>
+      </td>
+    </ng-container>
+
+    <!-- Category Column -->
+    <ng-container matColumnDef="category">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Catégorie </th>
+      <td mat-cell *matCellDef="let element"> 
+        <span class="tag-category" [class]="'tag-' + element.category.toLowerCase()">{{ element.category }}</span>
+      </td>
+    </ng-container>
+
+    <!-- Countdown Column -->
+    <ng-container matColumnDef="countdown">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Statut </th>
+      <td mat-cell *matCellDef="let element">
+        <span 
+          class="badge-urgency" 
+          [class]="birthdayService.getUrgencyClass(birthdayService.getDaysUntil(element.birthdate))">
+          <span class="material-symbols-outlined icon-sm">alarm</span>
+          {{ getLabel(birthdayService.getCountdownLabel(birthdayService.getDaysUntil(element.birthdate))) }}
+        </span>
+      </td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let element">
+        <div class="flex-center gap-sm" style="justify-content: flex-start;">
+          <button 
+            *ngIf="birthdayService.getDaysUntil(element.birthdate) === 0" 
+            (click)="onSendWish(element, $event)" 
+            class="btn-premium quick-wish-btn" 
+            style="padding: 4px 8px; font-size: 0.75rem; border-radius: 8px;">
+            <span class="material-symbols-outlined icon-sm">send</span>
+          </button>
+          
+          <a [routerLink]="['/birthday/edit', element.id]" (click)="$event.stopPropagation()" class="action-icon-link" title="Modifier">
+            <span class="material-symbols-outlined">edit</span>
+          </a>
+          <button (click)="onDelete(element.id, $event)" class="action-icon-btn" title="Supprimer">
+            <span class="material-symbols-outlined">delete</span>
+          </button>
+        </div>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" [routerLink]="['/birthday', row.id]" class="table-row-hover"></tr>
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page of birthdays"></mat-paginator>
+
+</div>
