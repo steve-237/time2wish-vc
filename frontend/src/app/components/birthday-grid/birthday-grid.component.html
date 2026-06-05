@@ -15,6 +15,9 @@
       <div class="birthday-info">
         <h3 class="birthday-name">
           {{ b.name }}
+          <span *ngIf="b.gender === 'Masculin'" class="material-symbols-outlined" style="color: #3b82f6; font-size: 1.2rem; vertical-align: middle; margin-left: 2px;" title="Masculin">male</span>
+          <span *ngIf="b.gender === 'Féminin'" class="material-symbols-outlined" style="color: #ec4899; font-size: 1.2rem; vertical-align: middle; margin-left: 2px;" title="Féminin">female</span>
+          <span *ngIf="b.gender === 'Autre'" class="material-symbols-outlined" style="color: #8b5cf6; font-size: 1.2rem; vertical-align: middle; margin-left: 2px;" title="Autre">transgender</span>
           <span *ngIf="b.showAge !== false" class="age-badge">{{ getAge(b.birthdate) }} {{ t9n.currentLang() === 'en' ? 'yrs' : 'ans' }}</span>
         </h3>
         <p class="birthday-date">

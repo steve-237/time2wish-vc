@@ -21,6 +21,7 @@ export interface Birthday {
   showAge?: boolean;
   email?: string;
   whatsapp?: string;
+  gender?: 'Masculin' | 'Féminin' | 'Autre';
   isDeleted: boolean;
   createdAt: string;
 }

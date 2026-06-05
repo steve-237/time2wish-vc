@@ -15,7 +15,12 @@
     <!-- Name Column -->
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
-      <td mat-cell *matCellDef="let element" class="fw-bold"> {{element.name}} </td>
+      <td mat-cell *matCellDef="let element" class="fw-bold"> 
+        {{element.name}}
+        <span *ngIf="element.gender === 'Masculin'" class="material-symbols-outlined" style="color: #3b82f6; font-size: 1.1rem; vertical-align: middle; margin-left: 2px;" title="Masculin">male</span>
+        <span *ngIf="element.gender === 'Féminin'" class="material-symbols-outlined" style="color: #ec4899; font-size: 1.1rem; vertical-align: middle; margin-left: 2px;" title="Féminin">female</span>
+        <span *ngIf="element.gender === 'Autre'" class="material-symbols-outlined" style="color: #8b5cf6; font-size: 1.1rem; vertical-align: middle; margin-left: 2px;" title="Autre">transgender</span>
+      </td>
     </ng-container>
 
     <!-- Birthdate Column -->

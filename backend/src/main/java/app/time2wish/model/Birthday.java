@@ -51,6 +51,9 @@ public class Birthday {
     @Column(length = 50)
     private String whatsapp;
 
+    @Column(length = 20)
+    private String gender;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

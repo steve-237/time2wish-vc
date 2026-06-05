@@ -22,5 +22,7 @@ public class BirthdayResponse {
     private Boolean showAge;
     private String email;
     private String whatsapp;
+    private String gender;
+    private Boolean isDeleted;
     private LocalDateTime createdAt;
 }

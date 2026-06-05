@@ -37,6 +37,7 @@ export class BirthdayForm implements OnInit {
   showAge = signal<boolean>(true);
   email = signal<string>('');
   whatsapp = signal<string>('');
+  gender = signal<'Masculin' | 'Féminin' | 'Autre' | undefined>(undefined);
   errorMessage = signal<string>('');
 
   // Dropdown categories list
@@ -69,8 +70,9 @@ export class BirthdayForm implements OnInit {
         this.reminderDays.set(b.reminderDays);
         this.photoUrl.set(b.photoUrl || '');
         this.showAge.set(b.showAge !== false);
-        this.email.set(b.email || '');
-        this.whatsapp.set(b.whatsapp || '');
+        if (b.email) this.email.set(b.email);
+        if (b.whatsapp) this.whatsapp.set(b.whatsapp);
+        if (b.gender) this.gender.set(b.gender);
       } else {
         this.router.navigate(['/dashboard']);
       }
@@ -109,7 +111,8 @@ export class BirthdayForm implements OnInit {
           this.photoUrl(),
           this.showAge(),
           this.email(),
-          this.whatsapp()
+          this.whatsapp(),
+          this.gender()
         );
         this.audioService.playSuccessSound();
         this.notifService.logAction('UPDATE', `L'anniversaire de ${this.name()} a été mis à jour.`);

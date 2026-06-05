@@ -48,6 +48,8 @@ public class BirthdayController {
                 .showAge(b.getShowAge())
                 .email(b.getEmail())
                 .whatsapp(b.getWhatsapp())
+                .gender(b.getGender())
+                .isDeleted(b.getIsDeleted())
                 .createdAt(b.getCreatedAt())
                 .build();
     }

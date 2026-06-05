@@ -18,7 +18,12 @@
       </div>
       
       <div class="profile-meta">
-        <h1 class="profile-name">{{ birthday()?.name }}</h1>
+        <h1 class="profile-name">
+          {{ birthday()?.name }}
+          <span *ngIf="birthday()?.gender === 'Masculin'" class="material-symbols-outlined" style="color: #3b82f6; font-size: 1.8rem; vertical-align: middle;" title="Masculin">male</span>
+          <span *ngIf="birthday()?.gender === 'Féminin'" class="material-symbols-outlined" style="color: #ec4899; font-size: 1.8rem; vertical-align: middle;" title="Féminin">female</span>
+          <span *ngIf="birthday()?.gender === 'Autre'" class="material-symbols-outlined" style="color: #8b5cf6; font-size: 1.8rem; vertical-align: middle;" title="Autre">transgender</span>
+        </h1>
         <div style="display: flex; gap: 8px; align-items: center; justify-content: center; margin-top: 8px;">
           <span class="tag-category" [class]="'tag-' + birthday()?.category?.toLowerCase()">
             {{ birthday()?.category }}

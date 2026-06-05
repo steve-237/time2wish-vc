@@ -34,4 +34,7 @@ public class BirthdayRequest {
 
     @Size(max = 50)
     private String whatsapp;
+
+    @Size(max = 20)
+    private String gender;
 }

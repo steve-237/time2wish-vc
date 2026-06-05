@@ -22,105 +22,108 @@
     <!-- Form -->
     <form (ngSubmit)="onSubmit()" class="birthday-form-element">
       
-      <!-- Name -->
-      <div class="floating-group">
-        <input 
-          type="text" 
-          id="b-name" 
-          class="floating-input" 
-          [ngModel]="name()" 
-          (ngModelChange)="name.set($event)"
-          name="name" 
-          placeholder=" " 
-          required>
-        <label class="floating-label" for="b-name">{{ t9n.t('form.name') }}</label>
-      </div>
-
-      <div class="form-row">
-        <!-- Birthdate -->
-        <div class="floating-group" style="flex: 1; min-width: 200px;">
-          <input 
-            type="date" 
-            id="b-date" 
-            class="floating-input" 
-            [ngModel]="birthdate()" 
-            (ngModelChange)="birthdate.set($event)"
-            name="birthdate" 
-            required>
-          <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-date">{{ t9n.t('form.birthdate') }}</label>
-        </div>
-
-        <!-- Photo (Optional) -->
-        <div style="flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px;">
-          <label class="form-section-title" style="margin-bottom: 2px; font-size: 0.8rem;">{{ t9n.t('form.photo_url') }}</label>
-          <app-image-upload [currentImageUrl]="photoUrl()" (imageUrlChange)="photoUrl.set($event)"></app-image-upload>
-        </div>
-      </div>
-
-      <!-- Category Selection Cards -->
-      <div class="category-cards-group">
-        <label class="form-section-title">{{ t9n.t('form.category') }}</label>
-        <div class="category-cards-grid">
-          <button 
-            type="button"
-            *ngFor="let cat of categories" 
-            (click)="category.set(cat)"
-            [class.active]="category() === cat"
-            [class]="'category-card card-' + cat.toLowerCase()">
-            <span class="material-symbols-outlined cat-card-icon">{{ getIconForCategory(cat) }}</span>
-            <span class="cat-card-label">{{ cat }}</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="form-row" style="margin-top: 24px;">
-        <!-- Reminder Days -->
-        <div class="floating-group" style="flex: 1; min-width: 200px;">
-          <div class="month-selector-custom" style="width: 100%;">
-            <select 
-              id="b-reminders" 
-              class="custom-select-control" 
-              [ngModel]="reminderDays()" 
-              (ngModelChange)="reminderDays.set(+$event)"
-              name="reminderDays">
-              <option [value]="0">{{ t9n.t('form.reminder_0') }}</option>
-              <option [value]="1">{{ t9n.t('form.reminder_1') }}</option>
-              <option [value]="3">{{ t9n.t('form.reminder_3') }}</option>
-              <option [value]="7">{{ t9n.t('form.reminder_7') }}</option>
-              <option [value]="14">{{ t9n.t('form.reminder_14') }}</option>
-            </select>
-            <span class="material-symbols-outlined select-chevron">expand_more</span>
+      <!-- ========================================== -->
+      <!-- SECTION 1: IDENTITÉ -->
+      <!-- ========================================== -->
+      <div class="form-section">
+        <h3 class="section-heading">
+          <span class="material-symbols-outlined">person</span>
+          {{ t9n.t('form.section_identity') || 'Identité' }}
+        </h3>
+        
+        <div class="form-row" style="align-items: flex-start;">
+          <!-- Photo -->
+          <div style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; margin-right: 16px;">
+            <app-image-upload [currentImageUrl]="photoUrl()" (imageUrlChange)="photoUrl.set($event)"></app-image-upload>
+            <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px;">{{ t9n.t('form.photo_url') }}</span>
           </div>
-          <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-reminders">{{ t9n.t('form.reminder_days') }}</label>
+
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 16px;">
+            <!-- Name -->
+            <div class="floating-group" style="margin-bottom: 0;">
+              <input 
+                type="text" 
+                id="b-name" 
+                class="floating-input" 
+                [ngModel]="name()" 
+                (ngModelChange)="name.set($event)"
+                name="name" 
+                placeholder=" " 
+                required>
+              <label class="floating-label" for="b-name">{{ t9n.t('form.name') }}</label>
+            </div>
+
+            <!-- Gender -->
+            <div class="gender-selector">
+              <label class="form-section-title" style="margin-bottom: 8px; font-size: 0.85rem; display: block;">{{ t9n.t('form.gender') || 'Genre' }}</label>
+              <div class="radio-group">
+                <label class="radio-card">
+                  <input type="radio" name="gender" value="Masculin" [ngModel]="gender()" (ngModelChange)="gender.set($event)">
+                  <span class="radio-content">
+                    <span class="material-symbols-outlined">male</span>
+                    Masculin
+                  </span>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="gender" value="Féminin" [ngModel]="gender()" (ngModelChange)="gender.set($event)">
+                  <span class="radio-content">
+                    <span class="material-symbols-outlined">female</span>
+                    Féminin
+                  </span>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="gender" value="Autre" [ngModel]="gender()" (ngModelChange)="gender.set($event)">
+                  <span class="radio-content">
+                    <span class="material-symbols-outlined">transgender</span>
+                    Autre
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Birthdate -->
+            <div class="floating-group" style="margin-bottom: 0;">
+              <input 
+                type="date" 
+                id="b-date" 
+                class="floating-input" 
+                [ngModel]="birthdate()" 
+                (ngModelChange)="birthdate.set($event)"
+                name="birthdate" 
+                required>
+              <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-date">{{ t9n.t('form.birthdate') }}</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category -->
+        <div class="category-cards-group" style="margin-top: 24px;">
+          <label class="form-section-title">{{ t9n.t('form.category') }}</label>
+          <div class="category-cards-grid">
+            <button 
+              type="button"
+              *ngFor="let cat of categories" 
+              (click)="category.set(cat)"
+              [class.active]="category() === cat"
+              [class]="'category-card card-' + cat.toLowerCase()">
+              <span class="material-symbols-outlined cat-card-icon">{{ getIconForCategory(cat) }}</span>
+              <span class="cat-card-label">{{ cat }}</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Show Age Toggle -->
-      <div class="toggle-group" style="margin-top: 20px;">
-        <label class="form-section-title" style="margin-bottom: 8px; display: block;">
-          {{ t9n.t('form.age_display') || 'Affichage de l\'âge' }}
-        </label>
-        <label class="toggle-switch">
-          <input 
-            type="checkbox" 
-            [ngModel]="showAge()" 
-            (ngModelChange)="showAge.set($event)"
-            name="showAge">
-          <span class="toggle-slider"></span>
-          <span class="toggle-label">
-            {{ showAge() 
-              ? (t9n.t('form.age_visible') || 'Âge visible sur les cartes') 
-              : (t9n.t('form.age_hidden') || 'Âge masqué') }}
-          </span>
-        </label>
-      </div>
+      <div class="section-divider"></div>
 
-      <!-- Contact Info (Email & WhatsApp) -->
-      <div style="margin-top: 20px;">
-        <label class="form-section-title" style="margin-bottom: 12px; display: block;">
-          <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle; margin-right: 4px;">contact_mail</span>
-          {{ t9n.t('form.contact_info') || 'Coordonnées (optionnel)' }}
-        </label>
+      <!-- ========================================== -->
+      <!-- SECTION 2: CONTACT -->
+      <!-- ========================================== -->
+      <div class="form-section">
+        <h3 class="section-heading">
+          <span class="material-symbols-outlined">contact_mail</span>
+          {{ t9n.t('form.section_contact') || 'Coordonnées (Optionnel)' }}
+        </h3>
+        
         <div class="form-row">
           <!-- Email -->
           <div class="floating-group" style="flex: 1; min-width: 200px;">
@@ -150,17 +153,66 @@
         </div>
       </div>
 
-      <!-- Notes -->
-      <div class="floating-group">
-        <textarea 
-          id="b-notes" 
-          class="floating-input" 
-          rows="4"
-          [ngModel]="notes()" 
-          (ngModelChange)="notes.set($event)"
-          name="notes" 
-          placeholder=" "></textarea>
-        <label class="floating-label" for="b-notes">{{ t9n.t('form.notes') }}</label>
+      <div class="section-divider"></div>
+
+      <!-- ========================================== -->
+      <!-- SECTION 3: PRÉFÉRENCES & NOTES -->
+      <!-- ========================================== -->
+      <div class="form-section">
+        <h3 class="section-heading">
+          <span class="material-symbols-outlined">settings</span>
+          {{ t9n.t('form.section_prefs') || 'Préférences & Notes' }}
+        </h3>
+
+        <div class="form-row" style="align-items: center;">
+          <!-- Reminder Days -->
+          <div class="floating-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+            <div class="month-selector-custom" style="width: 100%;">
+              <select 
+                id="b-reminders" 
+                class="custom-select-control" 
+                [ngModel]="reminderDays()" 
+                (ngModelChange)="reminderDays.set(+$event)"
+                name="reminderDays">
+                <option [value]="0">{{ t9n.t('form.reminder_0') }}</option>
+                <option [value]="1">{{ t9n.t('form.reminder_1') }}</option>
+                <option [value]="3">{{ t9n.t('form.reminder_3') }}</option>
+                <option [value]="7">{{ t9n.t('form.reminder_7') }}</option>
+                <option [value]="14">{{ t9n.t('form.reminder_14') }}</option>
+              </select>
+              <span class="material-symbols-outlined select-chevron">expand_more</span>
+            </div>
+            <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-reminders">{{ t9n.t('form.reminder_days') }}</label>
+          </div>
+
+          <!-- Show Age Toggle -->
+          <div class="toggle-group" style="flex: 1; display: flex; flex-direction: column; align-items: flex-end;">
+            <label class="form-section-title" style="margin-bottom: 8px; font-size: 0.85rem;">
+              {{ t9n.t('form.age_display') || 'Afficher l\'âge' }}
+            </label>
+            <label class="toggle-switch">
+              <input 
+                type="checkbox" 
+                [ngModel]="showAge()" 
+                (ngModelChange)="showAge.set($event)"
+                name="showAge">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="floating-group" style="margin-top: 24px; margin-bottom: 0;">
+          <textarea 
+            id="b-notes" 
+            class="floating-input" 
+            rows="3"
+            [ngModel]="notes()" 
+            (ngModelChange)="notes.set($event)"
+            name="notes" 
+            placeholder=" "></textarea>
+          <label class="floating-label" for="b-notes">{{ t9n.t('form.notes') }}</label>
+        </div>
       </div>
 
       <!-- Actions -->
