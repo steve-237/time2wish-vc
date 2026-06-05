@@ -19,7 +19,7 @@
         </h3>
         <p class="birthday-date">
           <span class="material-symbols-outlined" style="font-size: 0.95rem; vertical-align: middle;">event</span>
-          {{ b.birthdate | date:'dd MMMM yyyy' }}
+          {{ b.birthdate | date:'dd MMMM yyyy' }} <span [title]="getZodiac(b.birthdate).name" style="cursor:help; font-size: 1.1em;">{{ getZodiac(b.birthdate).emoji }}</span>
         </p>
         <span class="tag-category" [class]="'tag-' + b.category.toLowerCase()">{{ b.category }}</span>
       </div>

@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Birthday } from '../../models/birthday.model';
+import { Birthday, getZodiacSign } from '../../models/birthday.model';
 import { BirthdayService } from '../../services/birthday.service';
 import { TranslationService } from '../../services/translation.service';
 
@@ -31,6 +31,14 @@ export class BirthdayGridComponent {
       return this.t9n.t('countdown.days', days);
     }
     return rawLabel;
+  }
+
+  calculateAge(birthdate: string): number {
+    return this.birthdayService.calculateAge(birthdate);
+  }
+
+  getZodiac(birthdate: string) {
+    return getZodiacSign(birthdate);
   }
 
   getAge(birthdateStr: string): number {

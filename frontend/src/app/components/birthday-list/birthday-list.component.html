@@ -25,6 +25,7 @@
         <span class="flex-center gap-sm" style="justify-content: flex-start;">
           <span class="material-symbols-outlined icon-sm">event</span>
           {{element.birthdate | date:'dd MMMM yyyy'}} 
+          <span [title]="getZodiac(element.birthdate).name" style="cursor:help; font-size: 1.1em;">{{ getZodiac(element.birthdate).emoji }}</span>
         </span>
       </td>
     </ng-container>

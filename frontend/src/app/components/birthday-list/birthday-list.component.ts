@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { Birthday } from '../../models/birthday.model';
+import { Birthday, getZodiacSign } from '../../models/birthday.model';
 import { BirthdayService } from '../../services/birthday.service';
 import { TranslationService } from '../../services/translation.service';
 
@@ -64,15 +64,12 @@ export class BirthdayListComponent implements OnChanges, AfterViewInit {
     return rawLabel;
   }
 
-  getAge(birthdateStr: string): number {
-    const birthdate = new Date(birthdateStr);
-    const today = new Date();
-    let age = today.getFullYear() - birthdate.getFullYear();
-    const monthDiff = today.getMonth() - birthdate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
-      age--;
-    }
-    return age;
+  calculateAge(birthdate: string): number {
+    return this.birthdayService.calculateAge(birthdate);
+  }
+
+  getZodiac(birthdate: string) {
+    return getZodiacSign(birthdate);
   }
 
   onSendWish(birthday: Birthday, event: Event) {
