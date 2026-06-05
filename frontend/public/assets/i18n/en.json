@@ -45,11 +45,13 @@
     "export_csv": "Export CSV",
     "export_ical": "Export iCal",
     "import_csv": "Import CSV",
-    "confirm_delete_title": "Confirm deletion",
+    "confirm_delete_title": "Confirm Deletion",
     "confirm_delete_text": "Are you sure you want to delete this birthday?",
     "confirm_delete_subtext": "This action cannot be undone.",
     "btn_cancel": "No, cancel",
     "btn_confirm_delete": "Yes, delete",
+    "filter_upcoming": "Upcoming",
+    "filter_past": "Past",
     "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
   },
   "form": {

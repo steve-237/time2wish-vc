@@ -50,6 +50,8 @@
     "confirm_delete_subtext": "Diese Aktion kann nicht rückgängig gemacht werden.",
     "btn_cancel": "Nein, abbrechen",
     "btn_confirm_delete": "Ja, löschen",
+    "filter_upcoming": "Anstehend",
+    "filter_past": "Vergangen",
     "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
   },
   "form": {

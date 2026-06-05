@@ -128,14 +128,14 @@
       [class.active]="timeFilter() === 'upcoming'"
       (click)="timeFilter.set('upcoming')">
       <span class="material-symbols-outlined">event_upcoming</span>
-      {{ t9n.currentLang() === 'en' ? 'Upcoming' : 'À venir' }}
+      {{ t9n.t('dashboard.filter_upcoming') || 'À venir' }}
     </div>
     <div 
       class="switch-option" 
       [class.active]="timeFilter() === 'past'"
       (click)="timeFilter.set('past')">
       <span class="material-symbols-outlined">history</span>
-      {{ t9n.currentLang() === 'en' ? 'Past' : 'Passés' }}
+      {{ t9n.t('dashboard.filter_past') || 'Passés' }}
     </div>
   </div>
 

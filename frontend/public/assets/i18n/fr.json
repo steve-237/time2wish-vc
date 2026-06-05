@@ -50,6 +50,8 @@
     "confirm_delete_subtext": "Cette action est irréversible.",
     "btn_cancel": "Non, annuler",
     "btn_confirm_delete": "Oui, supprimer",
+    "filter_upcoming": "À venir",
+    "filter_past": "Passés",
     "months": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
   },
   "form": {
