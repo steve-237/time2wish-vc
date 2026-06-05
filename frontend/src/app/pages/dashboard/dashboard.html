@@ -240,7 +240,7 @@
 
 <!-- Delete Confirmation Modal Overlay -->
 <div class="tm-modal-overlay" *ngIf="isConfirmModalOpen()">
-  <div class="tm-modal-content glass-card" style="max-width: 400px; padding: 24px;">
+  <div class="tm-modal-content glass-card" style="padding: 24px;" (click)="$event.stopPropagation()">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h2 style="margin: 0; font-size: 1.4rem;">{{ t9n.t('dashboard.confirm_delete_title') || 'Confirmer la suppression' }}</h2>
       <button class="icon-btn" (click)="cancelDelete()" style="background: none; border: none; cursor: pointer; color: var(--text-muted);">
