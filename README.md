@@ -33,6 +33,7 @@ The project is split into two distinct parts:
 9.  **Native Audio Synthesis:** Melodious sound feedback triggered on success and deletion actions.
 10. **Advanced User Profiles:** Dedicated settings page to manage personal information (Name, Bio, Avatar) and securely change passwords.
 11. **Interactive Analytics:** Dashboard integrations featuring dynamic Chart.js visualizations (Donut charts for categories, Bar charts for birth months).
+12. **Progressive Web App (PWA):** Installable on mobile and desktop devices with offline caching via Angular Service Workers.
 
 ---
 
