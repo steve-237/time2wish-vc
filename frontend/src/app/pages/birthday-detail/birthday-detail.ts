@@ -1,15 +1,16 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BirthdayService } from '../../services/birthday.service';
 import { TranslationService } from '../../services/translation.service';
-import { Birthday } from '../../models/birthday.model';
+import { Birthday, GiftSuggestion } from '../../models/birthday.model';
 import { WishModalComponent } from '../../components/wish-modal/wish-modal.component';
 
 @Component({
   selector: 'app-birthday-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, WishModalComponent],
+  imports: [CommonModule, FormsModule, RouterLink, WishModalComponent],
   templateUrl: './birthday-detail.html',
   styleUrl: './birthday-detail.css'
 })
@@ -22,6 +23,10 @@ export class BirthdayDetail implements OnInit {
   birthday = signal<Birthday | null>(null);
   daysUntil = signal<number>(0);
   isWishModalOpen = signal<boolean>(false);
+  
+  newInterest = signal<string>('');
+  isGeneratingGifts = signal<boolean>(false);
+  giftSuggestions = signal<GiftSuggestion[]>([]);
 
   ngOnInit() {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -59,6 +64,54 @@ export class BirthdayDetail implements OnInit {
       alert(this.t9n.t('detail.share_success') || 'Lien copié dans le presse-papier !');
     }).catch(err => {
       console.error('Could not copy text: ', err);
+    });
+  }
+
+  addInterest() {
+    const val = this.newInterest().trim();
+    const bId = this.birthday()?.id;
+    if (val && bId) {
+      this.birthdayService.addInterest(bId, val);
+      this.newInterest.set('');
+      
+      // Update local signal to reflect immediately
+      this.birthday.update(b => {
+        if (!b) return b;
+        return { ...b, interests: [...(b.interests || []), val] };
+      });
+    }
+  }
+
+  removeInterest(interest: string) {
+    const bId = this.birthday()?.id;
+    if (bId) {
+      this.birthdayService.removeInterest(bId, interest);
+      
+      // Update local signal to reflect immediately
+      this.birthday.update(b => {
+        if (!b) return b;
+        return { ...b, interests: (b.interests || []).filter(i => i !== interest) };
+      });
+    }
+  }
+
+  generateGifts() {
+    const bId = this.birthday()?.id;
+    if (!bId) return;
+
+    this.isGeneratingGifts.set(true);
+    const lang = this.t9n.currentLang();
+
+    this.birthdayService.generateGiftSuggestions(bId, lang).subscribe({
+      next: (gifts) => {
+        this.giftSuggestions.set(gifts);
+        this.isGeneratingGifts.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to generate gifts', err);
+        this.isGeneratingGifts.set(false);
+        alert(this.t9n.t('toasts.error') || 'Une erreur est survenue lors de la génération.');
+      }
     });
   }
 

@@ -9,7 +9,11 @@ import app.time2wish.repository.UserRepository;
 import app.time2wish.scheduler.BirthdayReminderScheduler;
 import app.time2wish.security.UserDetailsImpl;
 import app.time2wish.service.BirthdayService;
+import app.time2wish.service.GeminiService;
+import app.time2wish.dto.GiftSuggestion;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
+import java.time.Period;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +28,9 @@ public class BirthdayController {
 
     @Autowired
     private BirthdayService birthdayService;
+
+    @Autowired
+    private GeminiService geminiService;
 
     @Autowired
     private UserRepository userRepository;
@@ -51,6 +58,7 @@ public class BirthdayController {
                 .gender(b.getGender())
                 .isDeleted(b.getIsDeleted())
                 .createdAt(b.getCreatedAt())
+                .interests(b.getInterests())
                 .build();
     }
 
@@ -89,6 +97,8 @@ public class BirthdayController {
                 .showAge(request.getShowAge())
                 .email(request.getEmail())
                 .whatsapp(request.getWhatsapp())
+                .gender(request.getGender())
+                .interests(request.getInterests())
                 .build();
 
         Birthday saved = birthdayService.addBirthday(birthday, user);
@@ -112,6 +122,8 @@ public class BirthdayController {
                 .showAge(request.getShowAge())
                 .email(request.getEmail())
                 .whatsapp(request.getWhatsapp())
+                .gender(request.getGender())
+                .interests(request.getInterests())
                 .build();
 
         try {
@@ -131,6 +143,29 @@ public class BirthdayController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
+    }
+
+    @GetMapping("/{id}/gifts")
+    public ResponseEntity<List<GiftSuggestion>> getGiftSuggestions(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "fr") String lang,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        User user = getAuthenticatedUser(userDetails);
+        return birthdayService.getBirthday(id, user).map(birthday -> {
+            Integer age = null;
+            if (birthday.getBirthdate() != null) {
+                age = Period.between(birthday.getBirthdate(), LocalDate.now()).getYears();
+            }
+            List<GiftSuggestion> suggestions = geminiService.generateGiftSuggestions(
+                    birthday.getName(),
+                    age,
+                    birthday.getGender(),
+                    birthday.getCategory(),
+                    birthday.getInterests(),
+                    lang
+            );
+            return ResponseEntity.ok(suggestions);
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     /**

@@ -70,6 +70,91 @@
 
     </div>
 
+    <!-- ========================================== -->
+    <!-- CENTRES D'INTÉRÊT -->
+    <!-- ========================================== -->
+    <div class="interests-section" style="margin-top: 24px; padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+      <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined">favorite</span>
+        Centres d'intérêt
+      </h3>
+      
+      <div class="interests-tags" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+        <span *ngFor="let interest of birthday()?.interests" class="interest-chip" style="background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); color: #c4b5fd; padding: 4px 12px; border-radius: 16px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+          {{ interest }}
+          <button (click)="removeInterest(interest)" style="background: none; border: none; color: inherit; cursor: pointer; padding: 0; display: flex; align-items: center;">
+            <span class="material-symbols-outlined" style="font-size: 1rem;">close</span>
+          </button>
+        </span>
+        <span *ngIf="!birthday()?.interests?.length" style="color: rgba(255,255,255,0.5); font-size: 0.9rem; font-style: italic;">
+          Aucun centre d'intérêt renseigné.
+        </span>
+      </div>
+
+      <div class="add-interest-form" style="display: flex; gap: 8px;">
+        <input 
+          type="text" 
+          [ngModel]="newInterest()" 
+          (ngModelChange)="newInterest.set($event)"
+          (keyup.enter)="addInterest()"
+          placeholder="Ex: Jeux vidéo, Voyages..." 
+          style="flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; font-size: 0.9rem;">
+        <button (click)="addInterest()" class="btn-secondary" style="padding: 8px 12px; border-radius: 8px;">
+          <span class="material-symbols-outlined">add</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SUGGESTIONS DE CADEAUX (IA) -->
+    <!-- ========================================== -->
+    <div class="gifts-section" style="margin-top: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+          <span class="material-symbols-outlined">featured_seasonal_and_gifts</span>
+          Idées de Cadeaux
+        </h3>
+        <button class="btn-premium" (click)="generateGifts()" [disabled]="isGeneratingGifts()" style="padding: 8px 16px; font-size: 0.9rem;">
+          <span class="material-symbols-outlined" [class.rotating]="isGeneratingGifts()">
+            {{ isGeneratingGifts() ? 'autorenew' : 'auto_awesome' }}
+          </span>
+          {{ isGeneratingGifts() ? 'Génération...' : 'Générer avec l\'IA' }}
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isGeneratingGifts()" style="text-align: center; padding: 32px 0;">
+        <span class="material-symbols-outlined rotating" style="font-size: 2.5rem; color: #a78bfa;">autorenew</span>
+        <p style="margin-top: 12px; color: rgba(255,255,255,0.7);">L'IA analyse les centres d'intérêt...</p>
+      </div>
+
+      <!-- Suggestions List -->
+      <div *ngIf="!isGeneratingGifts() && giftSuggestions().length > 0" class="gifts-grid" style="display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));">
+        <div *ngFor="let gift of giftSuggestions()" class="gift-card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 16px;">
+          <h4 style="margin: 0 0 8px 0; font-size: 1.05rem; color: #fff;">{{ gift.name }}</h4>
+          
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px; color: #34d399; font-weight: bold; font-size: 0.95rem;">
+            <span class="material-symbols-outlined" style="font-size: 1.1rem;">payments</span>
+            {{ gift.estimatedPrice }}
+          </div>
+          
+          <div style="display: flex; align-items: flex-start; gap: 6px; margin-bottom: 8px; color: rgba(255,255,255,0.8); font-size: 0.85rem;">
+            <span class="material-symbols-outlined" style="font-size: 1rem; margin-top: 2px;">storefront</span>
+            <div>
+              <span>{{ gift.whereToBuy }}</span>
+              <a *ngIf="gift.purchaseLink && gift.purchaseLink !== '#'" [href]="gift.purchaseLink" target="_blank" style="color: #60a5fa; text-decoration: none; margin-left: 8px;">
+                Voir l'offre ↗
+              </a>
+            </div>
+          </div>
+          
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; color: rgba(255,255,255,0.7);">
+            <strong>Conseil :</strong> {{ gift.preparationTips }}
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Actions Footer -->
     <div class="detail-actions">
       <!-- Send Wish -->

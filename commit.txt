@@ -1,0 +1,11 @@
+feat: add interests and AI gift generation
+
+- back: create Flyway migration V5 for birthday_interests table
+- back: add interests field (@ElementCollection) to Birthday entity and DTOs
+- back: add gift generation method in GeminiService with JSON parsing
+- back: implement smart local fallback for gift suggestions based on age and interests if API key is missing
+- back: add GET /api/birthdays/{id}/gifts endpoint
+- front: add interests field and GiftSuggestion interface to Birthday model
+- front: update BirthdayService to handle interest addition/removal and /gifts API call
+- front: add "Interests" section with quick-add feature in birthday details modal
+- front: add "Generate with AI" button and gift suggestion cards UI

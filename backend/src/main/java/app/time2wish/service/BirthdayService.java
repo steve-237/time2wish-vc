@@ -44,7 +44,8 @@ public class BirthdayService {
         birthday.setEmail(details.getEmail());
         birthday.setWhatsapp(details.getWhatsapp());
         birthday.setGender(details.getGender());
-        
+        birthday.setInterests(details.getInterests());
+
         if (details.getPhotoUrl() != null && !details.getPhotoUrl().isEmpty()) {
             birthday.setPhotoUrl(details.getPhotoUrl());
         }

@@ -25,4 +25,5 @@ public class BirthdayResponse {
     private String gender;
     private Boolean isDeleted;
     private LocalDateTime createdAt;
+    private java.util.List<String> interests;
 }

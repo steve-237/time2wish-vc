@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "birthdays")
@@ -53,6 +55,11 @@ public class Birthday {
 
     @Column(length = 20)
     private String gender;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "birthday_interests", joinColumns = @JoinColumn(name = "birthday_id"))
+    @Column(name = "interest")
+    private List<String> interests = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

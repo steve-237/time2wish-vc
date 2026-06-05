@@ -16,11 +16,6 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
-
-server:
-  port: 8081
-
-# ─── Email Configuration ─────────────────────────────────────────
   mail:
     host: smtp.gmail.com
     port: 587
@@ -33,6 +28,10 @@ server:
           starttls:
             enable: true
     test-connection: false
+
+server:
+  port: 8081
+
 
 app:
   email:

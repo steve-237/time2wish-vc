@@ -36,6 +36,8 @@ The project is split into two distinct parts:
 12. **Progressive Web App (PWA):** Installable on mobile and desktop devices with offline caching via Angular Service Workers.
 13. **SMTP Email Integration:** Automated reminder emails sent out via a real SMTP server integration using Spring Boot Mail.
 14. **Astrology & Zodiac:** Automatic calculation and display of Zodiac signs based on birthdates across all dashboard views.
+15. **Interests Management:** Seamlessly add and manage tags for personal interests within the contact details to keep track of their hobbies.
+16. **AI Gift Generator:** Leverages Google's Gemini AI (with a smart local fallback engine) to generate personalized gift suggestions based on age, gender, category, and interests.
 
 ---
 

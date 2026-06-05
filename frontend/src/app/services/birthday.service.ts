@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Birthday, BirthdayStats, BirthdayCategory } from '../models/birthday.model';
+import { Birthday, BirthdayStats, BirthdayCategory, GiftSuggestion } from '../models/birthday.model';
 import { AuthService } from './auth.service';
 import { effect } from '@angular/core';
 import { ToastService } from './toast.service';
@@ -88,7 +88,7 @@ export class BirthdayService {
     return this.activeBirthdays().find(b => b.id === id);
   }
 
-  addBirthday(name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre'): void {
+  addBirthday(name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre', interests: string[] = []): void {
     const payload = {
       name,
       birthdate,
@@ -99,7 +99,8 @@ export class BirthdayService {
       showAge,
       email,
       whatsapp,
-      gender
+      gender,
+      interests
     };
 
     this.http.post<Birthday>(this.API_URL, payload).subscribe({
@@ -114,7 +115,7 @@ export class BirthdayService {
     });
   }
 
-  updateBirthday(id: number, name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre'): void {
+  updateBirthday(id: number, name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre', interests: string[] = []): void {
     const payload = {
       name,
       birthdate,
@@ -125,7 +126,8 @@ export class BirthdayService {
       showAge,
       email,
       whatsapp,
-      gender
+      gender,
+      interests
     };
 
     this.http.put<Birthday>(`${this.API_URL}/${id}`, payload).subscribe({
@@ -154,6 +156,54 @@ export class BirthdayService {
         this.toastService.error(this.t9n.t('toasts.import_error'));
       }
     });
+  }
+
+  addInterest(birthdayId: number, interest: string): void {
+    const birthday = this.getBirthday(birthdayId);
+    if (!birthday) return;
+    
+    const updatedInterests = [...(birthday.interests || []), interest];
+    
+    this.updateBirthday(
+      birthdayId,
+      birthday.name,
+      birthday.birthdate,
+      birthday.category,
+      birthday.notes,
+      birthday.reminderDays,
+      birthday.photoUrl,
+      birthday.showAge,
+      birthday.email,
+      birthday.whatsapp,
+      birthday.gender,
+      updatedInterests
+    );
+  }
+
+  removeInterest(birthdayId: number, interest: string): void {
+    const birthday = this.getBirthday(birthdayId);
+    if (!birthday) return;
+    
+    const updatedInterests = (birthday.interests || []).filter(i => i !== interest);
+    
+    this.updateBirthday(
+      birthdayId,
+      birthday.name,
+      birthday.birthdate,
+      birthday.category,
+      birthday.notes,
+      birthday.reminderDays,
+      birthday.photoUrl,
+      birthday.showAge,
+      birthday.email,
+      birthday.whatsapp,
+      birthday.gender,
+      updatedInterests
+    );
+  }
+
+  generateGiftSuggestions(id: number, lang: string) {
+    return this.http.get<GiftSuggestion[]>(`${this.API_URL}/${id}/gifts?lang=${lang}`);
   }
 
   /** Triggers the backend reminder scheduler manually. Returns observable with result. */

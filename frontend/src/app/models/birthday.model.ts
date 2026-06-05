@@ -24,6 +24,15 @@ export interface Birthday {
   gender?: 'Masculin' | 'Féminin' | 'Autre';
   isDeleted: boolean;
   createdAt: string;
+  interests?: string[];
+}
+
+export interface GiftSuggestion {
+  name: string;
+  estimatedPrice: string;
+  whereToBuy: string;
+  purchaseLink: string;
+  preparationTips: string;
 }
 
 export function getZodiacSign(birthdate: string): { name: string; emoji: string } {

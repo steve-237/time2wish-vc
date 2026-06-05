@@ -37,4 +37,6 @@ public class BirthdayRequest {
 
     @Size(max = 20)
     private String gender;
+
+    private java.util.List<String> interests;
 }
