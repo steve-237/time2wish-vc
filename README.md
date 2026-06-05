@@ -74,5 +74,27 @@ npm run start
 
 ---
 
+## 📱 How to Install the PWA
+
+Time2Wish is a Progressive Web App (PWA), meaning you can install it like a native app on your phone or computer for a better experience and offline access!
+
+### On Desktop (Chrome / Edge)
+1. Open Time2Wish in your browser.
+2. Look for the **Install icon** (a monitor with a down arrow) in the right side of your address bar.
+3. Click it and select **Install**. The app will now open in its own window and appear in your Start menu/Applications folder.
+
+### On Android (Chrome)
+1. Open Time2Wish in Chrome.
+2. A banner "Add to Home Screen" might appear at the bottom. If not, tap the **three dots menu** (top right).
+3. Select **"Install app"** or **"Add to Home screen"**.
+
+### On iOS (Safari)
+1. Open Time2Wish in Safari.
+2. Tap the **Share button** (the square with an arrow pointing up) at the bottom of the screen.
+3. Scroll down and tap **"Add to Home Screen"**.
+4. Tap **Add** in the top right corner. The app icon will now appear on your home screen.
+
+---
+
 ## 📝 License
 This project is developed for educational and personal management purposes. All rights reserved.
