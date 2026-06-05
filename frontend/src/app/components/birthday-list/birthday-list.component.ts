@@ -64,8 +64,15 @@ export class BirthdayListComponent implements OnChanges, AfterViewInit {
     return rawLabel;
   }
 
-  calculateAge(birthdate: string): number {
-    return this.birthdayService.calculateAge(birthdate);
+  getAge(birthdateStr: string): number {
+    const birthdate = new Date(birthdateStr);
+    const today = new Date();
+    let age = today.getFullYear() - birthdate.getFullYear();
+    const monthDiff = today.getMonth() - birthdate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
+      age--;
+    }
+    return age;
   }
 
   getZodiac(birthdate: string) {

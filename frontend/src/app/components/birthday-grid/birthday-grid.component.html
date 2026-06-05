@@ -1,7 +1,7 @@
 <div class="birthdays-grid">
   <div 
     *ngFor="let b of birthdays; trackBy: trackById" 
-    [routerLink]="['/birthday', b.id]"
+    [routerLink]="['/dashboard/birthday', b.id]"
     class="glass-card birthday-item glass-card-hover"
     [class]="'card-' + b.category.toLowerCase()">
     
@@ -48,7 +48,7 @@
       </button>
       
       <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
-        <a [routerLink]="['/birthday/edit', b.id]" (click)="$event.stopPropagation()" class="action-icon-link" title="Modifier">
+        <a [routerLink]="['/dashboard/birthday/edit', b.id]" (click)="$event.stopPropagation()" class="action-icon-link" title="Modifier">
           <span class="material-symbols-outlined">edit</span>
         </a>
         <button (click)="onDelete(b.id, $event)" class="action-icon-btn" title="Supprimer">

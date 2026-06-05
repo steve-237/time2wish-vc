@@ -77,6 +77,10 @@ export class BirthdayForm implements OnInit {
     }
   }
 
+  onCancel() {
+    this.router.navigate(['/dashboard']);
+  }
+
   onSubmit() {
     this.errorMessage.set('');
 

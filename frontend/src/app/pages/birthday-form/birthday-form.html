@@ -1,13 +1,15 @@
+<div class="tm-modal-overlay" (click)="onCancel()">
+  <div class="tm-modal-content" style="max-width: 600px; padding: 24px;" (click)="$event.stopPropagation()">
+    <!-- Added a specific header with close button to top -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h1 style="margin: 0;">{{ t9n.t(isEditMode() ? 'form.title_edit' : 'form.title_add') }}</h1>
+      <button class="icon-btn" (click)="onCancel()" style="background: none; border: none; cursor: pointer;">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
 <div class="form-wrapper">
   
-  <div class="form-header">
-    <a routerLink="/dashboard" class="back-link">
-      <span class="material-symbols-outlined">arrow_back</span>
-      {{ t9n.t('form.back') }}
-    </a>
-    <h1>{{ isEditMode() ? t9n.t('form.title_edit') : t9n.t('form.title_add') }}</h1>
-    <p class="subtitle">{{ isEditMode() ? t9n.t('form.subtitle_edit') : t9n.t('form.subtitle_add') }}</p>
-  </div>
 
   <div class="glass-card form-card">
     
@@ -163,7 +165,7 @@
 
       <!-- Actions -->
       <div class="form-actions">
-        <a routerLink="/dashboard" class="btn-secondary">{{ t9n.t('form.btn_cancel') }}</a>
+        <a (click)="onCancel()" style="cursor: pointer;" class="btn-secondary">{{ t9n.t('form.btn_cancel') }}</a>
         <button type="submit" class="btn-premium">
           <span class="material-symbols-outlined">save</span>
           {{ isEditMode() ? t9n.t('form.btn_update') : t9n.t('form.btn_save') }}
@@ -172,5 +174,7 @@
 
     </form>
 
+  </div>
+</div>
   </div>
 </div>

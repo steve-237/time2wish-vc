@@ -1,11 +1,15 @@
-<div class="profile-wrapper">
-  
-  <div class="profile-header">
-    <h1>{{ t9n.t('profile.title') || 'Mon Profil' }}</h1>
-    <p class="subtitle">{{ t9n.t('profile.subtitle') || 'Gérez vos informations personnelles et vos paramètres.' }}</p>
-  </div>
+<div class="tm-modal-overlay" (click)="onClose()">
+  <div class="tm-modal-content" style="max-width: 600px; padding: 24px;" (click)="$event.stopPropagation()">
+    <!-- Profile Header with Close Button -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h1 style="margin: 0;">{{ t9n.t('profile.title') || 'Mon Profil' }}</h1>
+      <button class="icon-btn" (click)="onClose()" style="background: none; border: none; cursor: pointer;">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
 
-  <div class="glass-card profile-card">
+    <!-- Main Profile Card -->
+    <div class="glass-card" style="padding: 24px;">
     
     <!-- Status Messages -->
     <div *ngIf="message()" class="alert-box" [class.success]="messageType() === 'success'">
@@ -141,5 +145,6 @@
       </div>
     </form>
 
+    </div>
   </div>
 </div>

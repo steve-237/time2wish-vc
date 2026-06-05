@@ -1,7 +1,7 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { TranslationService } from '../../services/translation.service';
 
@@ -13,8 +13,15 @@ import { TranslationService } from '../../services/translation.service';
   styleUrl: './profile.css'
 })
 export class Profile implements OnInit {
-  authService = inject(AuthService);
-  t9n = inject(TranslationService);
+  public authService = inject(AuthService);
+  public t9n = inject(TranslationService);
+  private router = inject(Router);
+
+  currentUser = this.authService.currentUser;
+
+  onClose() {
+    this.router.navigate(['/dashboard']);
+  }
 
   // Profile Form State
   fullName = signal<string>('');

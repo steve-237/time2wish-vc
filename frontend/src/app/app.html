@@ -31,8 +31,8 @@
       <!-- Notifications Panel -->
       <app-notification-panel></app-notification-panel>
 
-      <!-- User avatar & Profile menu -->
-      <a routerLink="/profile" class="user-profile-menu flex-center gap-sm" style="text-decoration: none; cursor: pointer; padding: 6px; border-radius: 12px; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
+      <!-- Profile dropdown / User Menu -->
+      <a routerLink="/dashboard/profile" class="user-profile-menu flex-center gap-sm" style="text-decoration: none; cursor: pointer; padding: 6px; border-radius: 12px; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
         <img [src]="authService.currentUser()?.avatarUrl" alt="Avatar" class="user-avatar">
         <div class="user-info">
           <span class="user-name">{{ authService.currentUser()?.fullName }}</span>

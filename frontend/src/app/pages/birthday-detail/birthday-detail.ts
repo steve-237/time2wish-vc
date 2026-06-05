@@ -48,16 +48,28 @@ export class BirthdayDetail implements OnInit {
     return rawLabel;
   }
 
+  onClose() {
+    this.router.navigate(['/dashboard']);
+  }
+
+  onShare() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      // Optional: if there was a toast service we could use it here
+      alert(this.t9n.t('detail.share_success') || 'Lien copié dans le presse-papier !');
+    }).catch(err => {
+      console.error('Could not copy text: ', err);
+    });
+  }
+
   onSendWish() {
     this.isWishModalOpen.set(true);
   }
 
   onDelete() {
-    const b = this.birthday();
-    if (!b) return;
-
-    if (confirm(this.t9n.t('dashboard.confirm_delete'))) {
-      this.birthdayService.deleteBirthday(b.id);
+    const id = this.birthday()?.id;
+    if (id && confirm(this.t9n.t('detail.confirm_delete') || 'Êtes-vous sûr de vouloir supprimer cet anniversaire ?')) {
+      this.birthdayService.deleteBirthday(id);
       this.router.navigate(['/dashboard']);
     }
   }

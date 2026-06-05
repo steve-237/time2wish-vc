@@ -33,9 +33,7 @@ export class BirthdayGridComponent {
     return rawLabel;
   }
 
-  calculateAge(birthdate: string): number {
-    return this.birthdayService.calculateAge(birthdate);
-  }
+
 
   getZodiac(birthdate: string) {
     return getZodiacSign(birthdate);

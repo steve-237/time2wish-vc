@@ -64,7 +64,7 @@
             <span class="material-symbols-outlined icon-sm">send</span>
           </button>
           
-          <a [routerLink]="['/birthday/edit', element.id]" (click)="$event.stopPropagation()" class="action-icon-link" title="Modifier">
+          <a [routerLink]="['/dashboard/birthday/edit', element.id]" (click)="$event.stopPropagation()" class="action-icon-link" title="Modifier">
             <span class="material-symbols-outlined">edit</span>
           </a>
           <button (click)="onDelete(element.id, $event)" class="action-icon-btn" title="Supprimer">
@@ -75,7 +75,7 @@
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;" [routerLink]="['/birthday', row.id]" class="table-row-hover"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" [routerLink]="['/dashboard/birthday', row.id]" class="table-row-hover"></tr>
   </table>
 
   <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page of birthdays"></mat-paginator>

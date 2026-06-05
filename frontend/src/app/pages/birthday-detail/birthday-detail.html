@@ -1,11 +1,14 @@
+<div class="tm-modal-overlay" (click)="onClose()">
+  <div class="tm-modal-content" style="max-width: 600px; padding: 0;" (click)="$event.stopPropagation()">
+    <!-- Added a specific header with close button to top -->
+    <div style="position: absolute; top: 16px; right: 16px; z-index: 10;">
+      <button class="icon-btn" (click)="onClose()" style="background: rgba(255,255,255,0.2); border: none; cursor: pointer; color: white;">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
 <div class="detail-wrapper" *ngIf="birthday()">
   
-  <div class="detail-header">
-    <a routerLink="/dashboard" class="back-link">
-      <span class="material-symbols-outlined">arrow_back</span>
-      {{ t9n.t('detail.back') }}
-    </a>
-  </div>
 
   <div class="glass-card detail-card">
     
@@ -66,16 +69,18 @@
     <!-- Actions Footer -->
     <div class="detail-actions">
       <!-- Send Wish -->
-      <button 
-        *ngIf="daysUntil() === 0" 
-        (click)="onSendWish()" 
-        class="btn-premium wish-btn">
-        <span class="material-symbols-outlined">send</span>
+      <button class="btn-secondary" (click)="onShare()">
+        <span class="material-symbols-outlined">share</span>
+        {{ t9n.t('detail.btn_share') || 'Partager' }}
+      </button>
+
+      <button class="btn-premium" (click)="isWishModalOpen.set(true)">
+        <span class="material-symbols-outlined">auto_awesome</span>
         {{ t9n.t('detail.btn_wish') }}
       </button>
 
       <div class="danger-actions">
-        <a [routerLink]="['/birthday/edit', birthday()?.id]" class="btn-secondary">
+        <a [routerLink]="['/dashboard/birthday/edit', birthday()?.id]" class="btn-secondary">
           <span class="material-symbols-outlined">edit</span>
           {{ t9n.t('detail.btn_edit') }}
         </a>
@@ -88,6 +93,8 @@
 
   </div>
 
+</div>
+  </div>
 </div>
 
 <!-- Wish Modal Overlay -->

@@ -9,27 +9,29 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard),
-    canActivate: [authGuard]
-  },
-  {
-    path: 'profile',
-    loadComponent: () => import('./pages/profile/profile').then(m => m.Profile),
-    canActivate: [authGuard]
-  },
-  {
-    path: 'birthday/add',
-    loadComponent: () => import('./pages/birthday-form/birthday-form').then(m => m.BirthdayForm),
-    canActivate: [authGuard]
-  },
-  {
-    path: 'birthday/edit/:id',
-    loadComponent: () => import('./pages/birthday-form/birthday-form').then(m => m.BirthdayForm),
-    canActivate: [authGuard]
-  },
-  {
-    path: 'birthday/:id',
-    loadComponent: () => import('./pages/birthday-detail/birthday-detail').then(m => m.BirthdayDetail),
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'profile',
+        loadComponent: () => import('./pages/profile/profile').then(m => m.Profile)
+      },
+      {
+        path: 'birthday/add',
+        loadComponent: () => import('./pages/birthday-form/birthday-form').then(m => m.BirthdayForm)
+      },
+      {
+        path: 'birthday/edit/:id',
+        loadComponent: () => import('./pages/birthday-form/birthday-form').then(m => m.BirthdayForm)
+      },
+      {
+        path: 'birthday/:id',
+        loadComponent: () => import('./pages/birthday-detail/birthday-detail').then(m => m.BirthdayDetail)
+      },
+      {
+        path: 'stats',
+        loadComponent: () => import('./components/statistics-modal/statistics-modal.component').then(m => m.StatisticsModalComponent)
+      }
+    ]
   },
   {
     path: '',
