@@ -54,6 +54,11 @@
     "filter_past": "Past",
     "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
   },
+  "charts": {
+    "birthdays_by_month": "Birthdays by Month",
+    "birthdays_by_category": "Distribution by Category",
+    "birthdays": "Birthdays"
+  },
   "form": {
     "title_add": "Add a Birthday",
     "title_edit": "Edit Birthday",

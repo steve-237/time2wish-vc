@@ -54,6 +54,11 @@
     "filter_past": "Vergangen",
     "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
   },
+  "charts": {
+    "birthdays_by_month": "Geburtstage pro Monat",
+    "birthdays_by_category": "Verteilung nach Kategorie",
+    "birthdays": "Geburtstage"
+  },
   "form": {
     "title_add": "Geburtstag hinzufügen",
     "title_edit": "Geburtstag bearbeiten",

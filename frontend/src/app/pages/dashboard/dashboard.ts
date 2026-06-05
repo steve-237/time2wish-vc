@@ -12,11 +12,12 @@ import { WishModalComponent } from '../../components/wish-modal/wish-modal.compo
 import { AudioService } from '../../services/audio.service';
 import { NotificationService } from '../../services/notification.service';
 import { ToastService } from '../../services/toast.service';
+import { DashboardChartsComponent } from '../../components/dashboard-charts/dashboard-charts.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, BirthdayGridComponent, BirthdayListComponent, BirthdayCalendarComponent, WishModalComponent],
+  imports: [CommonModule, FormsModule, RouterModule, BirthdayGridComponent, BirthdayListComponent, BirthdayCalendarComponent, WishModalComponent, DashboardChartsComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })

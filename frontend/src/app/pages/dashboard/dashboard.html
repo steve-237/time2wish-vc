@@ -97,6 +97,12 @@
   </div>
 </div>
 
+<!-- Charts Section -->
+<app-dashboard-charts 
+  *ngIf="viewMode() !== 'calendar'" 
+  [birthdays]="filteredBirthdays()">
+</app-dashboard-charts>
+
 <!-- Filters Section -->
 <div class="filters-panel glass-card">
   <!-- Search -->

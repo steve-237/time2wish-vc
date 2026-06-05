@@ -1,0 +1,25 @@
+<div class="charts-container">
+  <!-- Bar Chart: Birthdays by Month -->
+  <div class="glass-card chart-card">
+    <h3 class="chart-title">{{ t9n.t('charts.birthdays_by_month') || 'Anniversaires par Mois' }}</h3>
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="barChartData"
+              [options]="barChartOptions"
+              [type]="'bar'">
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Donut Chart: Birthdays by Category -->
+  <div class="glass-card chart-card">
+    <h3 class="chart-title">{{ t9n.t('charts.birthdays_by_category') || 'Répartition par Catégorie' }}</h3>
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="doughnutChartData"
+              [options]="doughnutChartOptions"
+              [type]="'doughnut'">
+      </canvas>
+    </div>
+  </div>
+</div>

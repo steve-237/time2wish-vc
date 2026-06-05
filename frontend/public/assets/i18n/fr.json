@@ -54,6 +54,11 @@
     "filter_past": "Passés",
     "months": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
   },
+  "charts": {
+    "birthdays_by_month": "Anniversaires par Mois",
+    "birthdays_by_category": "Répartition par Catégorie",
+    "birthdays": "Anniversaires"
+  },
   "form": {
     "title_add": "Ajouter un Anniversaire",
     "title_edit": "Modifier l'Anniversaire",
