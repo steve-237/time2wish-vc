@@ -73,14 +73,14 @@
 
       <!-- Extra Guidelines -->
       <div class="form-group-section" style="margin-top: 16px;">
-        <label class="section-label">{{ t9n.t('wish.step_2_ai') || '2. Instructions pour l\\'IA (Optionnel)' }}</label>
+        <label class="section-label">{{ t9n.t('wish.step_2_ai') || "2. Instructions pour l'IA (Optionnel)" }}</label>
         <div style="display: flex; gap: 8px; align-items: center;">
           <div style="flex: 1; position: relative;">
             <input 
               type="text" 
               class="floating-input"
               style="padding: 10px; border-radius: 10px; font-size: 0.88rem; width: 100%; border: 1px solid var(--border-card); background: transparent; color: var(--text-main); height: 42px;"
-              [placeholder]="t9n.t('wish.ai_placeholder') || 'ex: mentionne qu\'il adore le football'"
+              [placeholder]="t9n.t('wish.ai_placeholder') || 'ex: mentionne qu’il adore le football'"
               [ngModel]="aiInstructions()"
               (ngModelChange)="aiInstructions.set($event)">
           </div>
