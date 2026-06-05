@@ -261,11 +261,6 @@ app-template-manager .tm-form-buttons {
 }
 
 /* Custom dropdown resets matching floating style */
-app-template-manager .tm-select-input {
-  appearance: none;
-  background: transparent;
-}
-
 app-template-manager .tm-select-label {
   top: 4px;
   font-size: 0.7rem;

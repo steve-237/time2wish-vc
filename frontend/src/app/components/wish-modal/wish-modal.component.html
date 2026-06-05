@@ -132,15 +132,16 @@
         </div>
 
         <div class="custom-templates-row" style="margin-top: 14px; display: flex; gap: 10px; align-items: center;">
-          <div style="flex: 1; position: relative;">
+          <div class="month-selector-custom" style="flex: 1; min-width: 0;">
             <select 
-              class="floating-input select-input" 
-              style="padding: 10px; border-radius: 10px; font-size: 0.88rem; width: 100%; border: 1px solid var(--border-card); background: transparent; color: var(--text-main); height: 42px;"
+              class="custom-select-control" 
+              style="height: 42px;"
               [ngModel]="selectedTemplateId().startsWith('custom-') ? selectedTemplateId() : ''" 
               (ngModelChange)="onTemplateChange($event)">
               <option value="" disabled>{{ t9n.t('wish.custom_placeholder') || '-- Ou utiliser un modèle personnalisé --' }}</option>
               <option *ngFor="let t of templateService.templates()" [value]="'custom-' + t.id">{{ t.title }}</option>
             </select>
+            <span class="material-symbols-outlined select-chevron">expand_more</span>
           </div>
           <button 
             type="button" 

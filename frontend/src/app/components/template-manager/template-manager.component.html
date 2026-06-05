@@ -60,14 +60,17 @@
 
           <!-- Category -->
           <div class="floating-group">
-            <select 
-              id="t-category" 
-              class="floating-input tm-select-input" 
-              [ngModel]="category()" 
-              (ngModelChange)="category.set($event)"
-              name="category">
-              <option *ngFor="let cat of categories" [value]="cat">{{ getCategoryLabel(cat) }}</option>
-            </select>
+            <div class="month-selector-custom" style="width: 100%;">
+              <select 
+                id="t-category" 
+                class="custom-select-control" 
+                [ngModel]="category()" 
+                (ngModelChange)="category.set($event)"
+                name="category">
+                <option *ngFor="let cat of categories" [value]="cat">{{ getCategoryLabel(cat) }}</option>
+              </select>
+              <span class="material-symbols-outlined select-chevron">expand_more</span>
+            </div>
             <label class="floating-label tm-select-label" for="t-category">{{ t9n.t('template_manager.label_category') || 'Catégorie' }}</label>
           </div>
 

@@ -74,18 +74,21 @@
       <div class="form-row" style="margin-top: 24px;">
         <!-- Reminder Days -->
         <div class="floating-group" style="flex: 1; min-width: 200px;">
-          <select 
-            id="b-reminders" 
-            class="floating-input" 
-            [ngModel]="reminderDays()" 
-            (ngModelChange)="reminderDays.set(+$event)"
-            name="reminderDays">
-            <option [value]="0">{{ t9n.t('form.reminder_0') }}</option>
-            <option [value]="1">{{ t9n.t('form.reminder_1') }}</option>
-            <option [value]="3">{{ t9n.t('form.reminder_3') }}</option>
-            <option [value]="7">{{ t9n.t('form.reminder_7') }}</option>
-            <option [value]="14">{{ t9n.t('form.reminder_14') }}</option>
-          </select>
+          <div class="month-selector-custom" style="width: 100%;">
+            <select 
+              id="b-reminders" 
+              class="custom-select-control" 
+              [ngModel]="reminderDays()" 
+              (ngModelChange)="reminderDays.set(+$event)"
+              name="reminderDays">
+              <option [value]="0">{{ t9n.t('form.reminder_0') }}</option>
+              <option [value]="1">{{ t9n.t('form.reminder_1') }}</option>
+              <option [value]="3">{{ t9n.t('form.reminder_3') }}</option>
+              <option [value]="7">{{ t9n.t('form.reminder_7') }}</option>
+              <option [value]="14">{{ t9n.t('form.reminder_14') }}</option>
+            </select>
+            <span class="material-symbols-outlined select-chevron">expand_more</span>
+          </div>
           <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-reminders">{{ t9n.t('form.reminder_days') }}</label>
         </div>
       </div>
