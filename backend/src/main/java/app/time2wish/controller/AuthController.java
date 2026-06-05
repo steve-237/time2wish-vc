@@ -4,6 +4,8 @@ import app.time2wish.dto.JwtResponse;
 import app.time2wish.dto.LoginRequest;
 import app.time2wish.dto.MessageResponse;
 import app.time2wish.dto.SignupRequest;
+import app.time2wish.dto.ProfileUpdateRequest;
+import app.time2wish.dto.PasswordUpdateRequest;
 import app.time2wish.model.RefreshToken;
 import app.time2wish.model.User;
 import app.time2wish.repository.UserRepository;
@@ -149,5 +151,48 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return ResponseEntity.ok(new MessageResponse("Log out successful!"));
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(@Valid @RequestBody ProfileUpdateRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof UserDetailsImpl userDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Unauthorized"));
+        }
+
+        User user = userRepository.findById(userDetails.getId()).orElseThrow();
+        user.setFullName(request.getFullName());
+        user.setBio(request.getBio());
+        user.setAvatarUrl(request.getAvatarUrl());
+
+        userRepository.save(user);
+
+        return ResponseEntity.ok(JwtResponse.builder()
+                .token(jwtUtils.generateJwtToken(user.getEmail()))
+                .id(user.getId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .bio(user.getBio())
+                .avatarUrl(user.getAvatarUrl())
+                .build());
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<?> updatePassword(@Valid @RequestBody PasswordUpdateRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof UserDetailsImpl userDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Unauthorized"));
+        }
+
+        User user = userRepository.findById(userDetails.getId()).orElseThrow();
+
+        if (!encoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Incorrect current password"));
+        }
+
+        user.setPassword(encoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new MessageResponse("Password updated successfully!"));
     }
 }

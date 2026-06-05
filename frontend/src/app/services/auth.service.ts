@@ -62,6 +62,21 @@ export class AuthService {
     );
   }
 
+  updateProfile(fullName: string, bio: string, avatarUrl: string): Observable<boolean> {
+    return this.http.put<AuthResponse>(`${this.API_URL}/profile`, { fullName, bio, avatarUrl }, { withCredentials: true }).pipe(
+      tap(res => this.saveSession(res)),
+      map(() => true),
+      catchError(() => of(false))
+    );
+  }
+
+  updatePassword(currentPassword: string, newPassword: string): Observable<boolean> {
+    return this.http.put(`${this.API_URL}/password`, { currentPassword, newPassword }, { withCredentials: true }).pipe(
+      map(() => true),
+      catchError(() => of(false))
+    );
+  }
+
   refreshSession(): Observable<boolean> {
     return this.http.post<AuthResponse>(`${this.API_URL}/refresh`, {}, { withCredentials: true }).pipe(
       tap(res => this.saveSession(res)),

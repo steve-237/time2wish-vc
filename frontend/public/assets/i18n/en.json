@@ -77,7 +77,24 @@
     "age_display": "Age Display",
     "age_visible": "Age visible on cards",
     "age_hidden": "Age hidden",
-    "contact_info": "Contact Info (optional)"
+    "contact_info": "Contact Info (Optional)"
+  },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal information and security settings.",
+    "section_info": "Personal Information",
+    "section_password": "Security",
+    "avatar_url": "Profile Photo URL",
+    "full_name": "Full Name",
+    "bio": "Biography",
+    "btn_cancel": "Cancel",
+    "btn_save": "Save Changes",
+    "current_password": "Current Password",
+    "new_password": "New Password",
+    "confirm_password": "Confirm New Password",
+    "btn_update_password": "Change Password",
+    "msg_profile_success": "Profile updated successfully.",
+    "msg_password_success": "Password changed successfully."
   },
   "detail": {
     "back": "Back to dashboard",

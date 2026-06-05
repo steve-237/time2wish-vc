@@ -32,13 +32,13 @@
       <app-notification-panel></app-notification-panel>
 
       <!-- User avatar & Profile menu -->
-      <div class="user-profile-menu flex-center gap-sm">
+      <a routerLink="/profile" class="user-profile-menu flex-center gap-sm" style="text-decoration: none; cursor: pointer; padding: 6px; border-radius: 12px; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
         <img [src]="authService.currentUser()?.avatarUrl" alt="Avatar" class="user-avatar">
         <div class="user-info">
           <span class="user-name">{{ authService.currentUser()?.fullName }}</span>
           <span class="user-email">{{ authService.currentUser()?.email }}</span>
         </div>
-      </div>
+      </a>
 
       <!-- Logout -->
       <button (click)="onLogout()" class="btn-secondary logout-btn">

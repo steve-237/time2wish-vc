@@ -1,0 +1,145 @@
+<div class="profile-wrapper">
+  
+  <div class="profile-header">
+    <h1>{{ t9n.t('profile.title') || 'Mon Profil' }}</h1>
+    <p class="subtitle">{{ t9n.t('profile.subtitle') || 'Gérez vos informations personnelles et vos paramètres.' }}</p>
+  </div>
+
+  <div class="glass-card profile-card">
+    
+    <!-- Status Messages -->
+    <div *ngIf="message()" class="alert-box" [class.success]="messageType() === 'success'">
+      <span class="material-symbols-outlined">{{ messageType() === 'success' ? 'check_circle' : 'warning' }}</span>
+      <span class="alert-text">{{ message() }}</span>
+    </div>
+
+    <form (ngSubmit)="onSaveProfile()">
+      <h2 class="form-section-title">{{ t9n.t('profile.section_info') || 'Informations Personnelles' }}</h2>
+
+      <!-- Avatar Preview -->
+      <div class="avatar-preview-container">
+        <img [src]="avatarUrl() || 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + fullName()" alt="Avatar" class="avatar-preview">
+      </div>
+
+      <!-- Avatar URL -->
+      <div class="floating-group">
+        <input 
+          type="url" 
+          id="p-avatar" 
+          class="floating-input" 
+          [ngModel]="avatarUrl()" 
+          (ngModelChange)="avatarUrl.set($event)"
+          name="avatarUrl" 
+          placeholder=" ">
+        <label class="floating-label" for="p-avatar">{{ t9n.t('profile.avatar_url') || 'URL de la photo de profil' }}</label>
+      </div>
+
+      <!-- Full Name -->
+      <div class="floating-group">
+        <input 
+          type="text" 
+          id="p-name" 
+          class="floating-input" 
+          [ngModel]="fullName()" 
+          (ngModelChange)="fullName.set($event)"
+          name="fullName" 
+          required
+          placeholder=" ">
+        <label class="floating-label" for="p-name">{{ t9n.t('profile.full_name') || 'Nom complet' }}</label>
+      </div>
+
+      <!-- Email (Read-only) -->
+      <div class="floating-group">
+        <input 
+          type="email" 
+          id="p-email" 
+          class="floating-input" 
+          [ngModel]="authService.currentUser()?.email" 
+          name="email" 
+          disabled
+          style="opacity: 0.7; cursor: not-allowed;"
+          placeholder=" ">
+        <label class="floating-label" for="p-email">Email</label>
+      </div>
+
+      <!-- Bio -->
+      <div class="floating-group">
+        <textarea 
+          id="p-bio" 
+          class="floating-input" 
+          rows="3"
+          [ngModel]="bio()" 
+          (ngModelChange)="bio.set($event)"
+          name="bio" 
+          placeholder=" "></textarea>
+        <label class="floating-label" for="p-bio">{{ t9n.t('profile.bio') || 'Biographie' }}</label>
+      </div>
+
+      <!-- Actions Profile -->
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" routerLink="/dashboard">{{ t9n.t('profile.btn_cancel') || 'Annuler' }}</button>
+        <button type="submit" class="btn-premium" [disabled]="isSaving()">
+          <span class="material-symbols-outlined">{{ isSaving() ? 'sync' : 'save' }}</span>
+          {{ t9n.t('profile.btn_save') || 'Enregistrer les modifications' }}
+        </button>
+      </div>
+    </form>
+
+    <div style="margin-top: 40px;"></div>
+
+    <form (ngSubmit)="onUpdatePassword()">
+      <h2 class="form-section-title">{{ t9n.t('profile.section_password') || 'Sécurité' }}</h2>
+
+      <!-- Current Password -->
+      <div class="floating-group">
+        <input 
+          type="password" 
+          id="p-current-pass" 
+          class="floating-input" 
+          [ngModel]="currentPassword()" 
+          (ngModelChange)="currentPassword.set($event)"
+          name="currentPassword" 
+          required
+          placeholder=" ">
+        <label class="floating-label" for="p-current-pass">{{ t9n.t('profile.current_password') || 'Mot de passe actuel' }}</label>
+      </div>
+
+      <!-- New Password -->
+      <div class="floating-group">
+        <input 
+          type="password" 
+          id="p-new-pass" 
+          class="floating-input" 
+          [ngModel]="newPassword()" 
+          (ngModelChange)="newPassword.set($event)"
+          name="newPassword" 
+          required
+          placeholder=" ">
+        <label class="floating-label" for="p-new-pass">{{ t9n.t('profile.new_password') || 'Nouveau mot de passe' }}</label>
+      </div>
+
+      <!-- Confirm New Password -->
+      <div class="floating-group">
+        <input 
+          type="password" 
+          id="p-confirm-pass" 
+          class="floating-input" 
+          [ngModel]="confirmPassword()" 
+          (ngModelChange)="confirmPassword.set($event)"
+          name="confirmPassword" 
+          required
+          placeholder=" ">
+        <label class="floating-label" for="p-confirm-pass">{{ t9n.t('profile.confirm_password') || 'Confirmer le nouveau mot de passe' }}</label>
+      </div>
+
+      <!-- Actions Password -->
+      <div class="form-actions">
+        <button type="submit" class="btn-premium" style="background: hsl(var(--primary-hsl));" [disabled]="isSavingPassword()">
+          <span class="material-symbols-outlined">{{ isSavingPassword() ? 'sync' : 'lock_reset' }}</span>
+          {{ t9n.t('profile.btn_update_password') || 'Changer le mot de passe' }}
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>

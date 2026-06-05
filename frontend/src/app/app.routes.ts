@@ -12,6 +12,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'profile',
+    loadComponent: () => import('./pages/profile/profile').then(m => m.Profile),
+    canActivate: [authGuard]
+  },
+  {
     path: 'birthday/add',
     loadComponent: () => import('./pages/birthday-form/birthday-form').then(m => m.BirthdayForm),
     canActivate: [authGuard]

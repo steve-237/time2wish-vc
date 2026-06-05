@@ -76,8 +76,25 @@
     "btn_update": "Aktualisieren",
     "age_display": "Altersanzeige",
     "age_visible": "Alter auf Karten sichtbar",
-    "age_hidden": "Alter verborgen",
-    "contact_info": "Kontaktinformationen (optional)"
+    "age_hidden": "Alter ausgeblendet",
+    "contact_info": "Kontaktinfo (Optional)"
+  },
+  "profile": {
+    "title": "Mein Profil",
+    "subtitle": "Verwalten Sie Ihre persönlichen Daten und Sicherheitseinstellungen.",
+    "section_info": "Persönliche Daten",
+    "section_password": "Sicherheit",
+    "avatar_url": "Profilbild-URL",
+    "full_name": "Vollständiger Name",
+    "bio": "Biografie",
+    "btn_cancel": "Abbrechen",
+    "btn_save": "Änderungen speichern",
+    "current_password": "Aktuelles Passwort",
+    "new_password": "Neues Passwort",
+    "confirm_password": "Neues Passwort bestätigen",
+    "btn_update_password": "Passwort ändern",
+    "msg_profile_success": "Profil erfolgreich aktualisiert.",
+    "msg_password_success": "Passwort erfolgreich geändert."
   },
   "detail": {
     "back": "Zurück zum Dashboard",
