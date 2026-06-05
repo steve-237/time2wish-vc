@@ -34,6 +34,7 @@ The project is split into two distinct parts:
 10. **Advanced User Profiles:** Dedicated settings page to manage personal information (Name, Bio, Avatar) and securely change passwords.
 11. **Interactive Analytics:** Dashboard integrations featuring dynamic Chart.js visualizations (Donut charts for categories, Bar charts for birth months).
 12. **Progressive Web App (PWA):** Installable on mobile and desktop devices with offline caching via Angular Service Workers.
+13. **SMTP Email Integration:** Automated reminder emails sent out via a real SMTP server integration using Spring Boot Mail.
 
 ---
 

@@ -1,8 +1,13 @@
 package app.time2wish.service;
 
 import app.time2wish.model.Birthday;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -21,18 +26,21 @@ public class EmailService {
     @Value("${app.email.output-dir:scratch/emails}")
     private String emailOutputDir;
 
-    @Value("${spring.sendgrid.api-key:}")
-    private String sendGridApiKey;
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Value("${spring.mail.username:}")
+    private String senderEmail;
 
     /**
-     * Sends (or simulates) a birthday reminder email for the given birthday.
+     * Sends a birthday reminder email for the given birthday.
      */
     public void sendBirthdayReminder(Birthday birthday) {
         String subject = buildSubject(birthday);
         String htmlBody = buildHtmlEmail(birthday);
 
-        if (sendGridApiKey != null && !sendGridApiKey.isBlank()) {
-            sendViaSendGrid(birthday.getUser().getEmail(), subject, htmlBody);
+        if (senderEmail != null && !senderEmail.isBlank() && !senderEmail.contains("your-email")) {
+            sendViaSmtp(birthday.getUser().getEmail(), subject, htmlBody);
         } else {
             simulateToFile(birthday, subject, htmlBody);
         }
@@ -57,11 +65,20 @@ public class EmailService {
         return ChronoUnit.DAYS.between(today, nextBirthday);
     }
 
-    private void sendViaSendGrid(String toEmail, String subject, String htmlBody) {
-        // Real SendGrid integration would go here.
-        // We keep this stub to avoid pulling in the heavy SendGrid SDK dependency.
-        log.info("[EmailService] SendGrid key detected – would send email to '{}' with subject '{}'", toEmail, subject);
-        log.info("[EmailService] HTML body length: {} characters", htmlBody.length());
+    private void sendViaSmtp(String toEmail, String subject, String htmlBody) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(senderEmail);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(htmlBody, true); // true indicates html
+            
+            mailSender.send(message);
+            log.info("[EmailService] 📧 Email sent successfully via SMTP to '{}'", toEmail);
+        } catch (MessagingException e) {
+            log.error("[EmailService] Failed to send email via SMTP to '{}'", toEmail, e);
+        }
     }
 
     private void simulateToFile(Birthday birthday, String subject, String htmlBody) {
