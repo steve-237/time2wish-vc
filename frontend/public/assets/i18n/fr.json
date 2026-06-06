@@ -53,6 +53,8 @@
     "btn_confirm_delete": "Oui, supprimer",
     "filter_upcoming": "À venir",
     "filter_past": "Passés",
+    "filter_favorites": "Favoris uniquement",
+    "filter_all": "Tous",
     "months": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
   },
   "charts": {
@@ -113,6 +115,13 @@
     "gift_ideas": "Idées de Cadeaux",
     "btn_wish": "Souhaiter Joyeux Anniversaire",
     "btn_share": "Partager",
+    "share_title": "Options de partage",
+    "share_native": "Partager le profil",
+    "share_native_desc": "Envoyer via WhatsApp, SMS, Email...",
+    "share_ics": "Ajouter à l'agenda",
+    "share_ics_desc": "Télécharger le fichier .ics",
+    "share_link": "Copier le lien",
+    "share_link_desc": "Copier le lien direct vers cette page",
     "btn_edit": "Modifier",
     "btn_delete": "Supprimer"
   },

@@ -39,4 +39,6 @@ public class BirthdayRequest {
     private String gender;
 
     private java.util.List<String> interests;
+
+    private Boolean isFavorite = false;
 }

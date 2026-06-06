@@ -26,4 +26,5 @@ public class BirthdayResponse {
     private Boolean isDeleted;
     private LocalDateTime createdAt;
     private java.util.List<String> interests;
+    private Boolean isFavorite;
 }

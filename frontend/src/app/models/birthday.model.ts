@@ -23,8 +23,8 @@ export interface Birthday {
   whatsapp?: string;
   gender?: 'Masculin' | 'Féminin' | 'Autre';
   isDeleted: boolean;
-  createdAt: string;
   interests?: string[];
+  isFavorite?: boolean;
 }
 
 export interface GiftSuggestion {

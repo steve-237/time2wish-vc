@@ -8,7 +8,7 @@ export class TranslationService {
   private http: HttpClient;
 
   /** Currently active language */
-  readonly currentLang = signal<Language>('fr');
+  readonly currentLang = signal<Language>('en');
 
   /** Loaded translations dictionary */
   private translations = signal<Record<string, unknown>>({});
@@ -18,8 +18,12 @@ export class TranslationService {
 
   constructor(http: HttpClient) {
     this.http = http;
-    const saved = (localStorage.getItem('t2w_lang') as Language) || 'fr';
-    this.loadLanguage(saved);
+    // Toujours utiliser la langue du système au démarrage, comme demandé
+    const browserLang = navigator.language.substring(0, 2).toLowerCase();
+    const detected = (['fr', 'en', 'de'].includes(browserLang) ? browserLang : 'en') as Language;
+    
+    this.currentLang.set(detected);
+    this.loadLanguage(detected);
   }
 
   /** Switches language and re-loads the dictionary */
@@ -41,11 +45,11 @@ export class TranslationService {
       if (current && typeof current === 'object' && k in (current as Record<string, unknown>)) {
         current = (current as Record<string, unknown>)[k];
       } else {
-        return key; // fallback to key itself
+        return ''; // fallback to empty string so template '||' operator works
       }
     }
 
-    if (typeof current !== 'string') return key;
+    if (typeof current !== 'string') return '';
 
     // Simple printf-style substitution for %s and %d
     let result = current;
@@ -76,13 +80,10 @@ export class TranslationService {
         this.isLoaded.set(true);
       },
       error: (err) => {
-        console.error(`[TranslationService] Failed to load '${lang}' translations:`, err);
-        // Fallback: try French
-        if (lang !== 'fr') {
-          this.loadLanguage('fr');
-        } else {
-          this.isLoaded.set(true);
-        }
+        console.warn(`[TranslationService] Failed to load '${lang}' translations. Using template fallbacks.`);
+        this.currentLang.set(lang);
+        this.translations.set({});
+        this.isLoaded.set(true);
       }
     });
   }

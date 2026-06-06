@@ -51,8 +51,10 @@
     "confirm_delete_subtext": "Diese Aktion kann nicht rückgängig gemacht werden.",
     "btn_cancel": "Nein, abbrechen",
     "btn_confirm_delete": "Ja, löschen",
-    "filter_upcoming": "Anstehend",
+    "filter_upcoming": "Bevorstehend",
     "filter_past": "Vergangen",
+    "filter_favorites": "Nur Favoriten",
+    "filter_all": "Alle",
     "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
   },
   "charts": {
@@ -113,6 +115,13 @@
     "gift_ideas": "Geschenkideen",
     "btn_wish": "Geburtstagswunsch senden",
     "btn_share": "Teilen",
+    "share_title": "Teilen-Optionen",
+    "share_native": "Profil teilen",
+    "share_native_desc": "Senden per WhatsApp, SMS, E-Mail...",
+    "share_ics": "Zum Kalender hinzufügen",
+    "share_ics_desc": "Laden Sie die .ics-Datei herunter",
+    "share_link": "Link kopieren",
+    "share_link_desc": "Kopieren Sie den direkten Link zu dieser Seite",
     "btn_edit": "Bearbeiten",
     "btn_delete": "Löschen"
   },

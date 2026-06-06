@@ -6,8 +6,16 @@
     <ng-container matColumnDef="avatar">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let element">
-        <div class="avatar-container" [class]="birthdayService.getUrgencyClass(birthdayService.getDaysUntil(element.birthdate))">
-          <img [src]="element.photoUrl" alt="{{ element.name }}" class="birthday-avatar">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="avatar-container" [class]="birthdayService.getUrgencyClass(birthdayService.getDaysUntil(element.birthdate))" style="width: 40px; height: 40px; min-width: 40px;">
+            <img [src]="element.photoUrl" alt="{{ element.name }}" class="birthday-avatar" style="width: 100%; height: 100%; border-radius: 50%;">
+          </div>
+          <button 
+            (click)="toggleFavorite(element, $event)" 
+            style="background: none; border: none; cursor: pointer; color: #fbbf24; padding: 0;"
+            [title]="element.isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'">
+            <span class="material-symbols-outlined" [style.font-variation-settings]="element.isFavorite ? '&quot;FILL&quot; 1' : '&quot;FILL&quot; 0'" style="font-size: 1.4rem; transition: font-variation-settings 0.2s;">star</span>
+          </button>
         </div>
       </td>
     </ng-container>

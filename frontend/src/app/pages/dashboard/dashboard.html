@@ -160,6 +160,18 @@
     <span class="material-symbols-outlined select-chevron">expand_more</span>
   </div>
 
+  <!-- Favorite Filter -->
+  <div class="favorite-filter-toggle flex-center" style="margin-right: 12px; margin-left: 12px;">
+    <button 
+      (click)="filterFavorite.set(!filterFavorite())" 
+      [class.active]="filterFavorite()"
+      class="icon-btn" 
+      [title]="filterFavorite() ? (t9n.t('dashboard.filter_all') || 'Tous') : (t9n.t('dashboard.filter_favorites') || 'Favoris uniquement')"
+      style="color: #fbbf24;">
+      <span class="material-symbols-outlined" [style.font-variation-settings]="filterFavorite() ? '&quot;FILL&quot; 1' : '&quot;FILL&quot; 0'">star</span>
+    </button>
+  </div>
+
   <!-- View Mode Toggle -->
   <div class="view-mode-toggle flex-center">
     <button 

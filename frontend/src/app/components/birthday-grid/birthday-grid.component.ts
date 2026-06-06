@@ -58,6 +58,11 @@ export class BirthdayGridComponent {
     this.delete.emit({ id, event });
   }
 
+  toggleFavorite(b: Birthday, event: Event) {
+    event.stopPropagation();
+    this.birthdayService.toggleFavorite(b.id, !b.isFavorite);
+  }
+
   trackById(index: number, b: Birthday): number {
     return b.id;
   }

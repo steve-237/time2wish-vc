@@ -44,6 +44,9 @@ public class Birthday {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @Column(name = "is_favorite", nullable = false)
+    private Boolean isFavorite = false;
+
     @Column(name = "show_age", nullable = false)
     private Boolean showAge = true;
 

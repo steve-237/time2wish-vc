@@ -53,15 +53,57 @@ export class BirthdayDetail implements OnInit {
     return rawLabel;
   }
 
+  isShareModalOpen = signal<boolean>(false);
+  canWebShare = signal<boolean>(!!navigator.share);
+
   onClose() {
     this.router.navigate(['/dashboard']);
   }
 
-  onShare() {
+  toggleFavorite() {
+    const b = this.birthday();
+    if (b) {
+      const newStatus = !b.isFavorite;
+      this.birthdayService.toggleFavorite(b.id, newStatus);
+      // Update local signal to reflect immediately
+      this.birthday.update(current => current ? { ...current, isFavorite: newStatus } : current);
+    }
+  }
+
+  onShareClick() {
+    this.isShareModalOpen.set(true);
+  }
+
+  shareNative() {
+    const b = this.birthday();
+    if (!b) return;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: `Anniversaire de ${b.name}`,
+        text: `N'oubliez pas de souhaiter un joyeux anniversaire à ${b.name} le ${new Date(b.birthdate).toLocaleDateString()} !`,
+        url: window.location.href
+      }).then(() => {
+        this.isShareModalOpen.set(false);
+      }).catch(err => {
+        console.error('Share failed:', err);
+      });
+    }
+  }
+
+  downloadIcs() {
+    const b = this.birthday();
+    if (b) {
+      this.birthdayService.downloadIcs(b);
+      this.isShareModalOpen.set(false);
+    }
+  }
+
+  copyLink() {
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => {
-      // Optional: if there was a toast service we could use it here
       alert(this.t9n.t('detail.share_success') || 'Lien copié dans le presse-papier !');
+      this.isShareModalOpen.set(false);
     }).catch(err => {
       console.error('Could not copy text: ', err);
     });

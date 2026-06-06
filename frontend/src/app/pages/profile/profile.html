@@ -91,6 +91,48 @@
 
     <div style="margin-top: 40px;"></div>
 
+    <!-- Application Preferences -->
+    <h2 class="form-section-title">{{ t9n.t('profile.section_preferences') || 'Préférences d\\'application' }}</h2>
+    
+    <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+      <!-- Language Selector -->
+      <div class="floating-group" style="flex: 1;">
+        <div class="month-selector-custom" style="width: 100%;">
+          <select 
+            id="p-lang"
+            class="custom-select-control" 
+            [value]="t9n.currentLang()" 
+            (change)="setLanguage($any($event.target).value)"
+            style="padding-top: 20px; padding-bottom: 8px;">
+            <option *ngFor="let lang of languages" [value]="lang.code">
+              {{ lang.flag }} {{ lang.label }}
+            </option>
+          </select>
+          <label class="floating-label" for="p-lang" style="top: 4px; font-size: 0.7rem; color: hsl(var(--primary-hsl)); font-weight: 700;">{{ t9n.t('profile.language') || 'Langue' }}</label>
+          <span class="material-symbols-outlined select-chevron">expand_more</span>
+        </div>
+      </div>
+
+      <!-- Theme Toggle -->
+      <div class="floating-group" style="flex: 1;">
+        <div class="month-selector-custom" style="width: 100%;">
+          <select 
+            id="p-theme"
+            class="custom-select-control" 
+            [ngModel]="isDarkMode() ? 'dark' : 'light'"
+            (ngModelChange)="toggleTheme($event === 'dark')"
+            style="padding-top: 20px; padding-bottom: 8px;">
+            <option value="light">☀️ Clair</option>
+            <option value="dark">🌙 Sombre</option>
+          </select>
+          <label class="floating-label" for="p-theme" style="top: 4px; font-size: 0.7rem; color: hsl(var(--primary-hsl)); font-weight: 700;">{{ t9n.t('profile.theme') || 'Thème' }}</label>
+          <span class="material-symbols-outlined select-chevron">expand_more</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 40px;"></div>
+
     <form (ngSubmit)="onUpdatePassword()">
       <h2 class="form-section-title">{{ t9n.t('profile.section_password') || 'Sécurité' }}</h2>
 

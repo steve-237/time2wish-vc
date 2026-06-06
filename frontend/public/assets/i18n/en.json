@@ -53,6 +53,8 @@
     "btn_confirm_delete": "Yes, delete",
     "filter_upcoming": "Upcoming",
     "filter_past": "Past",
+    "filter_favorites": "Favorites only",
+    "filter_all": "All",
     "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
   },
   "charts": {
@@ -113,6 +115,13 @@
     "gift_ideas": "Gift Ideas",
     "btn_wish": "Send Birthday Wish",
     "btn_share": "Share",
+    "share_title": "Share Options",
+    "share_native": "Share profile",
+    "share_native_desc": "Send via WhatsApp, SMS, Email...",
+    "share_ics": "Add to calendar",
+    "share_ics_desc": "Download the .ics file",
+    "share_link": "Copy link",
+    "share_link_desc": "Copy the direct link to this page",
     "btn_edit": "Edit",
     "btn_delete": "Delete"
   },

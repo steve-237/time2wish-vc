@@ -46,6 +46,30 @@ export class Profile implements OnInit {
       this.bio.set(user.bio || '');
       this.avatarUrl.set(user.avatarUrl || '');
     }
+    this.isDarkMode.set(document.body.classList.contains('dark-theme'));
+  }
+
+  // Application Preferences State
+  isDarkMode = signal<boolean>(false);
+  languages = [
+    { code: 'fr', label: 'Français', flag: '🇫🇷' },
+    { code: 'en', label: 'English', flag: '🇬🇧' },
+    { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+  ];
+
+  toggleTheme(dark: boolean) {
+    this.isDarkMode.set(dark);
+    if (dark) {
+      document.body.classList.add('dark-theme');
+      localStorage.setItem('t2w_theme', 'dark');
+    } else {
+      document.body.classList.remove('dark-theme');
+      localStorage.setItem('t2w_theme', 'light');
+    }
+  }
+
+  setLanguage(lang: string) {
+    this.t9n.setLanguage(lang as any);
   }
 
   onSaveProfile() {

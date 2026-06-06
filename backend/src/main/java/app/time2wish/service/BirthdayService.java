@@ -45,6 +45,9 @@ public class BirthdayService {
         birthday.setWhatsapp(details.getWhatsapp());
         birthday.setGender(details.getGender());
         birthday.setInterests(details.getInterests() == null ? new java.util.ArrayList<>() : details.getInterests());
+        if (details.getIsFavorite() != null) {
+            birthday.setIsFavorite(details.getIsFavorite());
+        }
 
         if (details.getPhotoUrl() == null || details.getPhotoUrl().isEmpty()) {
             String defaultPhoto = "https://ui-avatars.com/api/?name=" + java.net.URLEncoder.encode(details.getName(), java.nio.charset.StandardCharsets.UTF_8) + "&background=" + String.format("%06x", new java.util.Random().nextInt(0xffffff + 1)) + "&color=fff&rounded=true&bold=true";

@@ -59,6 +59,7 @@ public class BirthdayController {
                 .isDeleted(b.getIsDeleted())
                 .createdAt(b.getCreatedAt())
                 .interests(b.getInterests())
+                .isFavorite(b.getIsFavorite())
                 .build();
     }
 
@@ -99,6 +100,7 @@ public class BirthdayController {
                 .whatsapp(request.getWhatsapp())
                 .gender(request.getGender())
                 .interests(request.getInterests())
+                .isFavorite(request.getIsFavorite() != null ? request.getIsFavorite() : false)
                 .build();
 
         Birthday saved = birthdayService.addBirthday(birthday, user);
@@ -124,6 +126,7 @@ public class BirthdayController {
                 .whatsapp(request.getWhatsapp())
                 .gender(request.getGender())
                 .interests(request.getInterests())
+                .isFavorite(request.getIsFavorite() != null ? request.getIsFavorite() : false)
                 .build();
 
         try {

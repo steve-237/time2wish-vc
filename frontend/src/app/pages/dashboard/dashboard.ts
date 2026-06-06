@@ -37,6 +37,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   selectedMonth = signal<number | -1>(-1); // -1 means All
   viewMode = signal<'grid' | 'list' | 'calendar'>('grid');
   timeFilter = signal<'upcoming' | 'past'>('upcoming');
+  filterFavorite = signal<boolean>(false);
 
   // Reminder trigger state
   reminderStatus = signal<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -67,8 +68,9 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       
       const isPast = this.isBirthdayPast(b.birthdate);
       const matchesTime = tf === 'upcoming' ? !isPast : isPast;
+      const matchesFavorite = !this.filterFavorite() || b.isFavorite;
 
-      return matchesSearch && matchesCat && matchesMonth && matchesTime;
+      return matchesSearch && matchesCat && matchesMonth && matchesTime && matchesFavorite;
     });
   });
 

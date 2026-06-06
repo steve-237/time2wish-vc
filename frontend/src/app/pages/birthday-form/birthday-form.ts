@@ -127,7 +127,8 @@ export class BirthdayForm implements OnInit {
         this.photoUrl(),
         this.showAge(),
         this.email(),
-        this.whatsapp()
+        this.whatsapp(),
+        this.gender()
       );
       this.audioService.playSuccessSound();
       this.notifService.logAction('ADD', `L'anniversaire de ${this.name()} a été ajouté.`);

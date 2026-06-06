@@ -157,9 +157,15 @@
 
     <!-- Actions Footer -->
     <div class="detail-actions">
+      <!-- Favorite Toggle -->
+      <button class="btn-secondary" (click)="toggleFavorite()" [style.color]="birthday()?.isFavorite ? '#fbbf24' : 'inherit'">
+        <span class="material-symbols-outlined" [style.font-variation-settings]="birthday()?.isFavorite ? '&quot;FILL&quot; 1' : '&quot;FILL&quot; 0'">star</span>
+        {{ birthday()?.isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}
+      </button>
+
       <!-- Send Wish -->
-      <button class="btn-secondary" (click)="onShare()">
-        <span class="material-symbols-outlined">share</span>
+      <button class="btn-secondary" (click)="onShareClick()">
+        <span class="material-symbols-outlined">ios_share</span>
         {{ t9n.t('detail.btn_share') || 'Partager' }}
       </button>
 
@@ -194,7 +200,7 @@
 </app-wish-modal>
 
 <!-- Delete Confirmation Modal Overlay -->
-<div class="tm-modal-overlay" *ngIf="isConfirmModalOpen()" style="z-index: 1000;">
+<div class="tm-modal-overlay" *ngIf="isConfirmModalOpen()" style="z-index: 3000;">
   <div class="tm-modal-content glass-card" style="padding: 24px;" (click)="$event.stopPropagation()">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
       <h2 style="margin: 0; font-size: 1.4rem;">{{ t9n.t('dashboard.confirm_delete_title') || 'Confirmer la suppression' }}</h2>
@@ -221,6 +227,47 @@
       </button>
       <button class="btn-premium" (click)="confirmDelete()" style="flex: 1; background: #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);">
         {{ t9n.t('dashboard.btn_confirm_delete') || 'Oui, supprimer' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Share Modal Overlay -->
+<div class="tm-modal-overlay" *ngIf="isShareModalOpen()" style="z-index: 3000;">
+  <div class="tm-modal-content glass-card" style="padding: 24px; max-width: 400px;" (click)="$event.stopPropagation()">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2 style="margin: 0; font-size: 1.4rem;">{{ t9n.t('detail.share_title') || 'Options de partage' }}</h2>
+      <button class="icon-btn" (click)="isShareModalOpen.set(false)" style="background: none; border: none; cursor: pointer; color: var(--text-muted);">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px;">
+      <!-- Web Share API (only if supported) -->
+      <button *ngIf="canWebShare()" (click)="shareNative()" class="btn-premium" style="display: flex; align-items: center; justify-content: flex-start; gap: 12px; padding: 16px; width: 100%;">
+        <span class="material-symbols-outlined" style="font-size: 1.8rem;">share</span>
+        <div style="text-align: left;">
+          <div style="font-weight: bold; font-size: 1.05rem;">{{ t9n.t('detail.share_native') || 'Partager le profil' }}</div>
+          <div style="font-size: 0.85rem; opacity: 0.8;">{{ t9n.t('detail.share_native_desc') || 'Envoyer via WhatsApp, SMS, Email...' }}</div>
+        </div>
+      </button>
+
+      <!-- ICS Download -->
+      <button (click)="downloadIcs()" class="btn-secondary" style="display: flex; align-items: center; justify-content: flex-start; gap: 12px; padding: 16px; width: 100%; text-align: left;">
+        <span class="material-symbols-outlined" style="font-size: 1.8rem; color: #60a5fa;">calendar_month</span>
+        <div style="text-align: left;">
+          <div style="font-weight: bold; font-size: 1.05rem; color: white;">{{ t9n.t('detail.share_ics') || 'Ajouter à l\\'agenda' }}</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">{{ t9n.t('detail.share_ics_desc') || 'Télécharger le fichier .ics' }}</div>
+        </div>
+      </button>
+
+      <!-- Copy link -->
+      <button (click)="copyLink()" class="btn-secondary" style="display: flex; align-items: center; justify-content: flex-start; gap: 12px; padding: 16px; width: 100%; text-align: left;">
+        <span class="material-symbols-outlined" style="font-size: 1.8rem;">link</span>
+        <div style="text-align: left;">
+          <div style="font-weight: bold; font-size: 1.05rem; color: white;">{{ t9n.t('detail.share_link') || 'Copier le lien' }}</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">{{ t9n.t('detail.share_link_desc') || 'Copier le lien direct vers cette page' }}</div>
+        </div>
       </button>
     </div>
   </div>

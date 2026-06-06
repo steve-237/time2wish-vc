@@ -88,7 +88,7 @@ export class BirthdayService {
     return this.activeBirthdays().find(b => b.id === id);
   }
 
-  addBirthday(name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre', interests: string[] = []): void {
+  addBirthday(name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre', interests: string[] = [], isFavorite = false): void {
     const randomHex = Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
     const defaultPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${randomHex}&color=fff&rounded=true&bold=true`;
 
@@ -103,7 +103,8 @@ export class BirthdayService {
       email,
       whatsapp,
       gender,
-      interests
+      interests,
+      isFavorite
     };
 
     this.http.post<Birthday>(this.API_URL, payload).subscribe({
@@ -118,7 +119,7 @@ export class BirthdayService {
     });
   }
 
-  updateBirthday(id: number, name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre', interests: string[] = []): void {
+  updateBirthday(id: number, name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre', interests: string[] = [], isFavorite = false): void {
     const payload = {
       name,
       birthdate,
@@ -130,7 +131,8 @@ export class BirthdayService {
       email,
       whatsapp,
       gender,
-      interests
+      interests,
+      isFavorite
     };
 
     this.http.put<Birthday>(`${this.API_URL}/${id}`, payload).subscribe({
@@ -179,7 +181,8 @@ export class BirthdayService {
       birthday.email,
       birthday.whatsapp,
       birthday.gender,
-      updatedInterests
+      updatedInterests,
+      birthday.isFavorite
     );
   }
 
@@ -201,8 +204,73 @@ export class BirthdayService {
       birthday.email,
       birthday.whatsapp,
       birthday.gender,
-      updatedInterests
+      updatedInterests,
+      birthday.isFavorite
     );
+  }
+
+  toggleFavorite(id: number, isFavorite: boolean): void {
+    const birthday = this.getBirthday(id);
+    if (!birthday) return;
+    
+    // Optimistic UI update
+    this.birthdays.update(list => list.map(b => b.id === id ? { ...b, isFavorite } : b));
+    
+    this.updateBirthday(
+      id,
+      birthday.name,
+      birthday.birthdate,
+      birthday.category,
+      birthday.notes,
+      birthday.reminderDays,
+      birthday.photoUrl,
+      birthday.showAge,
+      birthday.email,
+      birthday.whatsapp,
+      birthday.gender,
+      birthday.interests || [],
+      isFavorite
+    );
+  }
+
+  downloadIcs(birthday: Birthday): void {
+    const bdate = new Date(birthday.birthdate);
+    const year = new Date().getFullYear();
+    const nextOccurrence = new Date(year, bdate.getMonth(), bdate.getDate());
+    
+    // If the birthday already passed this year, schedule for next year
+    if (nextOccurrence.getTime() < new Date().setHours(0,0,0,0)) {
+      nextOccurrence.setFullYear(year + 1);
+    }
+
+    const startStr = nextOccurrence.toISOString().replace(/[-:]/g, '').split('T')[0];
+    const endOccurrence = new Date(nextOccurrence);
+    endOccurrence.setDate(endOccurrence.getDate() + 1);
+    const endStr = endOccurrence.toISOString().replace(/[-:]/g, '').split('T')[0];
+
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Time2Wish//FR',
+      'BEGIN:VEVENT',
+      `DTSTART;VALUE=DATE:${startStr}`,
+      `DTEND;VALUE=DATE:${endStr}`,
+      `SUMMARY:Anniversaire de ${birthday.name}`,
+      `DESCRIPTION:N'oubliez pas de souhaiter un joyeux anniversaire à ${birthday.name} !`,
+      'RRULE:FREQ=YEARLY',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `anniversaire_${birthday.name.replace(/\s+/g, '_').toLowerCase()}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 
   generateGiftSuggestions(id: number, lang: string) {

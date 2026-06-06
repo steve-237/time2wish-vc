@@ -86,4 +86,9 @@ export class BirthdayListComponent implements OnChanges, AfterViewInit {
   onDelete(id: number, event: Event) {
     this.delete.emit({ id, event });
   }
+
+  toggleFavorite(b: Birthday, event: Event) {
+    event.stopPropagation();
+    this.birthdayService.toggleFavorite(b.id, !b.isFavorite);
+  }
 }
