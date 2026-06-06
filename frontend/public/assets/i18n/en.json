@@ -107,8 +107,10 @@
     "reminder": "Configured Reminders",
     "reminder_text": "Email received %d days before the date.",
     "notes": "Gift Ideas & Notes",
-    "no_notes": "No notes or gift ideas saved yet.",
-    "btn_wish": "Wish Happy Birthday",
+    "no_notes": "No notes or gift ideas recorded yet.",
+    "interests": "Interests",
+    "gift_ideas": "Gift Ideas",
+    "btn_wish": "Send Birthday Wish",
     "btn_edit": "Edit",
     "btn_delete": "Delete"
   },

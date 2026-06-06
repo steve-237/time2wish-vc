@@ -76,7 +76,7 @@
     <div class="interests-section" style="margin-top: 24px; padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
       <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
         <span class="material-symbols-outlined">favorite</span>
-        Centres d'intérêt
+        {{ t9n.t('detail.interests') || 'Centres d\\'intérêt' }}
       </h3>
       
       <div class="interests-tags" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
@@ -112,7 +112,7 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <h3 style="margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
           <span class="material-symbols-outlined">featured_seasonal_and_gifts</span>
-          Idées de Cadeaux
+          {{ t9n.t('detail.gift_ideas') || 'Idées de Cadeaux' }}
         </h3>
         <button class="btn-premium" (click)="generateGifts()" [disabled]="isGeneratingGifts()" style="padding: 8px 16px; font-size: 0.9rem;">
           <span class="material-symbols-outlined" [class.rotating]="isGeneratingGifts()">
@@ -169,7 +169,7 @@
       </button>
 
       <div class="danger-actions">
-        <a [routerLink]="['/dashboard/birthday/edit', birthday()?.id]" class="btn-secondary">
+        <a [routerLink]="['/dashboard/birthday/edit', birthday()?.id]" class="btn-secondary" style="text-decoration: none;">
           <span class="material-symbols-outlined">edit</span>
           {{ t9n.t('detail.btn_edit') }}
         </a>
@@ -192,3 +192,36 @@
   [birthday]="birthday()!" 
   (close)="isWishModalOpen.set(false)">
 </app-wish-modal>
+
+<!-- Delete Confirmation Modal Overlay -->
+<div class="tm-modal-overlay" *ngIf="isConfirmModalOpen()" style="z-index: 1000;">
+  <div class="tm-modal-content glass-card" style="padding: 24px;" (click)="$event.stopPropagation()">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2 style="margin: 0; font-size: 1.4rem;">{{ t9n.t('dashboard.confirm_delete_title') || 'Confirmer la suppression' }}</h2>
+      <button class="icon-btn" (click)="cancelDelete()" style="background: none; border: none; cursor: pointer; color: var(--text-muted);">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div style="text-align: center; padding: 20px 0;">
+      <div style="width: 64px; height: 64px; background: rgba(239, 68, 68, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        <span class="material-symbols-outlined" style="font-size: 2rem; color: #ef4444;">delete_forever</span>
+      </div>
+      <p style="font-size: 1.1rem; margin-bottom: 8px; font-weight: 500; color: var(--text-main);">
+        {{ t9n.t('dashboard.confirm_delete_text') || 'Êtes-vous sûr de vouloir supprimer cet anniversaire ?' }}
+      </p>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">
+        {{ t9n.t('dashboard.confirm_delete_subtext') || 'Cette action est irréversible.' }}
+      </p>
+    </div>
+
+    <div style="display: flex; gap: 12px; margin-top: 24px;">
+      <button class="btn-secondary" (click)="cancelDelete()" style="flex: 1;">
+        {{ t9n.t('dashboard.btn_cancel') || 'Non, annuler' }}
+      </button>
+      <button class="btn-premium" (click)="confirmDelete()" style="flex: 1; background: #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);">
+        {{ t9n.t('dashboard.btn_confirm_delete') || 'Oui, supprimer' }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -108,6 +108,8 @@
     "reminder_text": "Email reçu %d jours avant la date.",
     "notes": "Idées Cadeaux & Notes",
     "no_notes": "Aucune note ou idée cadeau enregistrée pour le moment.",
+    "interests": "Centres d'intérêt",
+    "gift_ideas": "Idées de Cadeaux",
     "btn_wish": "Souhaiter Joyeux Anniversaire",
     "btn_edit": "Modifier",
     "btn_delete": "Supprimer"

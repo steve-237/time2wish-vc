@@ -66,15 +66,16 @@
               <!-- Edit Action -->
               <a 
                 [routerLink]="['/dashboard/birthday/edit', b.id]" 
+                (click)="$event.stopPropagation()" 
                 class="tooltip-action-btn edit-btn" 
-                title="Modifier">
+                [title]="t9n.t('detail.btn_edit') || 'Modifier'">
                 <span class="material-symbols-outlined">edit</span>
               </a>
               <!-- Delete Action -->
               <button 
                 class="tooltip-action-btn delete-btn" 
                 (click)="onDelete(b.id, $event)" 
-                title="Supprimer">
+                [title]="t9n.t('detail.btn_delete') || 'Supprimer'">
                 <span class="material-symbols-outlined">delete</span>
               </button>
             </div>

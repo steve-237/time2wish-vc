@@ -108,7 +108,9 @@
     "reminder_text": "E-Mail erhalten %d Tage vor dem Datum.",
     "notes": "Geschenkideen & Notizen",
     "no_notes": "Noch keine Notizen oder Geschenkideen gespeichert.",
-    "btn_wish": "Zum Geburtstag gratulieren",
+    "interests": "Interessen",
+    "gift_ideas": "Geschenkideen",
+    "btn_wish": "Geburtstagswunsch senden",
     "btn_edit": "Bearbeiten",
     "btn_delete": "Löschen"
   },

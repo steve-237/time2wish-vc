@@ -119,9 +119,19 @@ export class BirthdayDetail implements OnInit {
     this.isWishModalOpen.set(true);
   }
 
+  isConfirmModalOpen = signal<boolean>(false);
+
   onDelete() {
+    this.isConfirmModalOpen.set(true);
+  }
+
+  cancelDelete() {
+    this.isConfirmModalOpen.set(false);
+  }
+
+  confirmDelete() {
     const id = this.birthday()?.id;
-    if (id && confirm(this.t9n.t('detail.confirm_delete') || 'Êtes-vous sûr de vouloir supprimer cet anniversaire ?')) {
+    if (id) {
       this.birthdayService.deleteBirthday(id);
       this.router.navigate(['/dashboard']);
     }

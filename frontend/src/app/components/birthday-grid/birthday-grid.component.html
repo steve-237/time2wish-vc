@@ -51,10 +51,10 @@
       </button>
       
       <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
-        <a [routerLink]="['/dashboard/birthday/edit', b.id]" (click)="$event.stopPropagation()" class="action-icon-link" title="Modifier">
+        <a [routerLink]="['/dashboard/birthday/edit', b.id]" (click)="$event.stopPropagation()" class="action-icon-link" [title]="t9n.t('detail.btn_edit') || 'Modifier'">
           <span class="material-symbols-outlined">edit</span>
         </a>
-        <button (click)="onDelete(b.id, $event)" class="action-icon-btn" title="Supprimer">
+        <button (click)="onDelete(b.id, $event)" class="action-icon-btn" [title]="t9n.t('detail.btn_delete') || 'Supprimer'">
           <span class="material-symbols-outlined">delete</span>
         </button>
       </div>
