@@ -18,6 +18,8 @@ export class BirthdayService {
 
   // Signals
   readonly birthdays = signal<Birthday[]>([]);
+  readonly isLoading = signal<boolean>(false);
+  readonly lastAddedBirthdayId = signal<number | null>(null);
 
   // Computed signals
   readonly activeBirthdays = computed(() => 
@@ -73,13 +75,16 @@ export class BirthdayService {
   }
 
   loadFromStorage(): void {
+    this.isLoading.set(true);
     this.http.get<Birthday[]>(this.API_URL).subscribe({
       next: (list) => {
         // Map backend Date object or String format if necessary
         this.birthdays.set(list);
+        this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Failed to load birthdays from API', err);
+        this.isLoading.set(false);
       }
     });
   }
@@ -111,6 +116,12 @@ export class BirthdayService {
       next: (saved) => {
         this.birthdays.update(list => [...list, saved]);
         this.toastService.success(this.t9n.t('toasts.add_success', saved.name));
+        this.lastAddedBirthdayId.set(saved.id);
+        setTimeout(() => {
+          if (this.lastAddedBirthdayId() === saved.id) {
+            this.lastAddedBirthdayId.set(null);
+          }
+        }, 15000);
       },
       error: (err) => {
         console.error('Failed to create birthday via API', err);

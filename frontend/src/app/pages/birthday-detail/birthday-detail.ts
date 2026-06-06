@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BirthdayService } from '../../services/birthday.service';
 import { TranslationService } from '../../services/translation.service';
+import { ToastService } from '../../services/toast.service';
 import { Birthday, GiftSuggestion } from '../../models/birthday.model';
 import { WishModalComponent } from '../../components/wish-modal/wish-modal.component';
 
@@ -12,11 +13,12 @@ import { WishModalComponent } from '../../components/wish-modal/wish-modal.compo
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, WishModalComponent],
   templateUrl: './birthday-detail.html',
-  styleUrl: './birthday-detail.css'
+  styleUrl: './birthday-detail.scss'
 })
 export class BirthdayDetail implements OnInit {
   birthdayService = inject(BirthdayService);
   t9n = inject(TranslationService);
+  toastService = inject(ToastService);
   route = inject(ActivatedRoute);
   router = inject(Router);
 
@@ -102,10 +104,11 @@ export class BirthdayDetail implements OnInit {
   copyLink() {
     const url = window.location.href;
     navigator.clipboard.writeText(url).then(() => {
-      alert(this.t9n.t('detail.share_success') || 'Lien copié dans le presse-papier !');
+      this.toastService.success(this.t9n.t('detail.share_success') || 'Lien copié dans le presse-papier !');
       this.isShareModalOpen.set(false);
     }).catch(err => {
       console.error('Could not copy text: ', err);
+      this.toastService.error('Erreur lors de la copie du lien.');
     });
   }
 

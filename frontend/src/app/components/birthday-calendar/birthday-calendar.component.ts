@@ -19,7 +19,7 @@ export interface CalendarDay {
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './birthday-calendar.component.html',
-  styleUrls: ['./birthday-calendar.component.css'],
+  styleUrls: ['./birthday-calendar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BirthdayCalendarComponent implements OnChanges {

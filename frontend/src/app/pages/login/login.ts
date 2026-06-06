@@ -10,12 +10,20 @@ import { TranslationService } from '../../services/translation.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.css'
+  styleUrl: './login.scss'
 })
 export class Login {
   authService = inject(AuthService);
   t9n = inject(TranslationService);
   router = inject(Router);
+
+  readonly languages: { code: string; label: string; flagUrl: string }[] = [
+    { code: 'fr', label: 'FR', flagUrl: 'https://flagcdn.com/w40/fr.png' },
+    { code: 'en', label: 'EN', flagUrl: 'https://flagcdn.com/w40/gb.png' },
+    { code: 'de', label: 'DE', flagUrl: 'https://flagcdn.com/w40/de.png' },
+  ];
+
+  isLangMenuOpen = signal<boolean>(false);
 
   isLoginTab = signal<boolean>(true);
   
@@ -23,6 +31,12 @@ export class Login {
   password = signal<string>('');
   fullName = signal<string>('');
   errorMessage = signal<string>('');
+  isLoading = signal<boolean>(false);
+
+  // Forgot password state
+  isForgotModalOpen = signal<boolean>(false);
+  forgotEmail = signal<string>('');
+  isForgotEmailSent = signal<boolean>(false);
 
   constructor() {
     // Redirect if already authenticated
@@ -36,6 +50,35 @@ export class Login {
     this.errorMessage.set('');
   }
 
+  setLanguage(lang: string) {
+    this.t9n.setLanguage(lang as any);
+    this.isLangMenuOpen.set(false);
+  }
+
+  getActiveFlagUrl(): string {
+    return this.languages.find(l => l.code === this.t9n.currentLang())?.flagUrl || 'https://flagcdn.com/w40/fr.png';
+  }
+
+  openForgotPassword() {
+    this.forgotEmail.set(this.email()); // pre-fill if available
+    this.isForgotEmailSent.set(false);
+    this.isForgotModalOpen.set(true);
+  }
+
+  closeForgotPassword() {
+    this.isForgotModalOpen.set(false);
+    this.isForgotEmailSent.set(false);
+  }
+
+  sendForgotPassword() {
+    if (!this.forgotEmail()) {
+      alert(this.t9n.currentLang() === 'en' ? 'Please enter an email address.' : 'Veuillez entrer une adresse email.');
+      return;
+    }
+    // Simulation
+    this.isForgotEmailSent.set(true);
+  }
+
   onSubmit() {
     this.errorMessage.set('');
 
@@ -46,7 +89,9 @@ export class Login {
 
     if (this.isLoginTab()) {
       // Login flow
+      this.isLoading.set(true);
       this.authService.login(this.email(), this.password()).subscribe(success => {
+        this.isLoading.set(false);
         if (success) {
           this.router.navigate(['/dashboard']);
         } else {
@@ -60,10 +105,12 @@ export class Login {
         return;
       }
       
+      this.isLoading.set(true);
       this.authService.register(this.email(), this.password(), this.fullName()).subscribe(success => {
         if (success) {
           // Log in automatically after registration
           this.authService.login(this.email(), this.password()).subscribe(loginSuccess => {
+            this.isLoading.set(false);
             if (loginSuccess) {
               this.router.navigate(['/dashboard']);
             } else {
@@ -71,6 +118,7 @@ export class Login {
             }
           });
         } else {
+          this.isLoading.set(false);
           this.errorMessage.set('Cet email est déjà enregistré.');
         }
       });

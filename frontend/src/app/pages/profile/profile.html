@@ -11,31 +11,16 @@
     <!-- Main Profile Card -->
     <div style="padding: 24px;">
     
-    <!-- Status Messages -->
-    <div *ngIf="message()" class="alert-box" [class.success]="messageType() === 'success'">
-      <span class="material-symbols-outlined">{{ messageType() === 'success' ? 'check_circle' : 'warning' }}</span>
-      <span class="alert-text">{{ message() }}</span>
-    </div>
-
     <form (ngSubmit)="onSaveProfile()">
       <h2 class="form-section-title">{{ t9n.t('profile.section_info') || 'Informations Personnelles' }}</h2>
 
-      <!-- Avatar Preview -->
-      <div class="avatar-preview-container">
-        <img [src]="avatarUrl() || 'https://api.dicebear.com/7.x/adventurer/svg?seed=' + fullName()" alt="Avatar" class="avatar-preview">
-      </div>
-
-      <!-- Avatar URL -->
-      <div class="floating-group">
-        <input 
-          type="url" 
-          id="p-avatar" 
-          class="floating-input" 
-          [ngModel]="avatarUrl()" 
-          (ngModelChange)="avatarUrl.set($event)"
-          name="avatarUrl" 
-          placeholder=" ">
-        <label class="floating-label" for="p-avatar">{{ t9n.t('profile.avatar_url') || 'URL de la photo de profil' }}</label>
+      <!-- Avatar Upload -->
+      <div style="margin-bottom: 24px;">
+        <label class="form-section-title" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; display: block;">{{ t9n.t('profile.avatar_url') || 'Photo de profil' }}</label>
+        <app-image-upload 
+          [currentImageUrl]="avatarUrl()" 
+          (imageUrlChange)="onAvatarChange($event)">
+        </app-image-upload>
       </div>
 
       <!-- Full Name -->
@@ -92,25 +77,31 @@
     <div style="margin-top: 40px;"></div>
 
     <!-- Application Preferences -->
-    <h2 class="form-section-title">{{ t9n.t('profile.section_preferences') || 'Préférences d\\'application' }}</h2>
+    <h2 class="form-section-title">{{ t9n.t('profile.section_preferences') || "Préférences d'application" }}</h2>
     
     <div style="display: flex; gap: 16px; margin-bottom: 20px;">
       <!-- Language Selector -->
       <div class="floating-group" style="flex: 1;">
-        <div class="month-selector-custom" style="width: 100%;">
-          <select 
-            id="p-lang"
-            class="custom-select-control" 
-            [value]="t9n.currentLang()" 
-            (change)="setLanguage($any($event.target).value)"
-            style="padding-top: 20px; padding-bottom: 8px;">
-            <option *ngFor="let lang of languages" [value]="lang.code">
-              {{ lang.flag }} {{ lang.label }}
-            </option>
-          </select>
-          <label class="floating-label" for="p-lang" style="top: 4px; font-size: 0.7rem; color: hsl(var(--primary-hsl)); font-weight: 700;">{{ t9n.t('profile.language') || 'Langue' }}</label>
-          <span class="material-symbols-outlined select-chevron">expand_more</span>
+        <!-- Custom Language Dropdown for Profile -->
+        <div class="custom-lang-menu-container" style="position: relative; width: 100%;">
+          <label class="floating-label" style="top: -10px; font-size: 0.7rem; color: hsl(var(--primary-hsl)); font-weight: 700; z-index: 10;">{{ t9n.t('profile.language') || 'Langue' }}</label>
+          <button type="button" class="custom-lang-btn" (click)="isLangMenuOpen.set(!isLangMenuOpen())" style="display: flex; justify-content: space-between; align-items: center; width: 100%; border-radius: 8px; padding: 12px 16px; background: transparent; border: 1px solid var(--border-card);">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <img [src]="getActiveFlagUrl()" alt="flag" class="flag-icon" style="border-radius: 2px;">
+              <span>{{ t9n.currentLang() === 'fr' ? 'Français' : (t9n.currentLang() === 'de' ? 'Deutsch' : 'English') }}</span>
+            </div>
+            <span class="material-symbols-outlined" style="transition: transform 0.2s;" [style.transform]="isLangMenuOpen() ? 'rotate(180deg)' : 'rotate(0)'">expand_more</span>
+          </button>
+
+          <div class="custom-lang-dropdown" *ngIf="isLangMenuOpen()" style="width: 100%; top: calc(100% + 4px);">
+            <div class="lang-option" *ngFor="let lang of languages" (click)="setLanguage(lang.code)" [class.active]="t9n.currentLang() === lang.code">
+              <img [src]="lang.flagUrl" alt="flag" class="flag-icon">
+              <span class="label">{{ lang.label }}</span>
+            </div>
+          </div>
         </div>
+        <!-- Backdrop to close the menu when clicking outside -->
+        <div *ngIf="isLangMenuOpen()" (click)="isLangMenuOpen.set(false)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 5;"></div>
       </div>
 
       <!-- Theme Toggle -->
@@ -119,15 +110,33 @@
           <select 
             id="p-theme"
             class="custom-select-control" 
-            [ngModel]="isDarkMode() ? 'dark' : 'light'"
-            (ngModelChange)="toggleTheme($event === 'dark')"
+            [ngModel]="appMode()"
+            (ngModelChange)="setAppMode($event)"
             style="padding-top: 20px; padding-bottom: 8px;">
             <option value="light">☀️ Clair</option>
-            <option value="dark">🌙 Sombre</option>
+            <option value="dark">🌙 Sombre (Défaut)</option>
+            <option value="oled">🌌 Noir OLED</option>
           </select>
           <label class="floating-label" for="p-theme" style="top: 4px; font-size: 0.7rem; color: hsl(var(--primary-hsl)); font-weight: 700;">{{ t9n.t('profile.theme') || 'Thème' }}</label>
           <span class="material-symbols-outlined select-chevron">expand_more</span>
         </div>
+      </div>
+    </div>
+
+    <!-- Color Themes -->
+    <div style="margin-bottom: 24px;">
+      <label class="form-section-title" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; display: block;">{{ t9n.t('profile.color_theme') || 'Couleur principale' }}</label>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <button 
+          *ngFor="let theme of themes" 
+          type="button"
+          (click)="setColorTheme(theme.id)"
+          class="theme-color-btn"
+          [class.active]="colorTheme() === theme.id"
+          [style.background]="'linear-gradient(135deg, ' + theme.color1 + ' 0%, ' + theme.color2 + ' 100%)'"
+          [title]="theme.name">
+          <span *ngIf="colorTheme() === theme.id" class="material-symbols-outlined" style="color: white; font-size: 1.2rem;">check</span>
+        </button>
       </div>
     </div>
 

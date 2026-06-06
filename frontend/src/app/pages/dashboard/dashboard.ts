@@ -19,7 +19,7 @@ import { DashboardChartsComponent } from '../../components/dashboard-charts/dash
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, BirthdayGridComponent, BirthdayListComponent, BirthdayCalendarComponent, WishModalComponent, DashboardChartsComponent],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css'
+  styleUrl: './dashboard.scss'
 })
 export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   birthdayService = inject(BirthdayService);

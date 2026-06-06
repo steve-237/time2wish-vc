@@ -10,7 +10,7 @@ import { MessageTemplate } from '../../models/template.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './template-manager.component.html',
-  styleUrls: ['./template-manager.component.css'],
+  styleUrls: ['./template-manager.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 export class TemplateManagerComponent {

@@ -8,7 +8,11 @@
   "projects": {
     "frontend": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -22,11 +26,10 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              },
-              "src/manifest.webmanifest"
+              }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss"
             ],
             "serviceWorker": "ngsw-config.json"
           },

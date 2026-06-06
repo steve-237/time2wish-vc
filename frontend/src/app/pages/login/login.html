@@ -8,6 +8,25 @@
       <p class="branding-subtitle">{{ t9n.t('login.subtitle') }}</p>
     </div>
 
+    <!-- Language Selector Custom Dropdown -->
+    <div style="position: absolute; top: 16px; right: 16px; z-index: 10;">
+      <div class="custom-lang-menu-container" style="position: relative;">
+        <button class="custom-lang-btn icon-btn" (click)="isLangMenuOpen.set(!isLangMenuOpen())" style="display: flex; align-items: center; gap: 4px; border-radius: 20px; padding: 4px 12px; font-size: 1.2rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);">
+          <img [src]="getActiveFlagUrl()" alt="flag" class="flag-icon" style="border-radius: 2px;">
+          <span class="material-symbols-outlined" style="font-size: 1.2rem; transition: transform 0.2s;" [style.transform]="isLangMenuOpen() ? 'rotate(180deg)' : 'rotate(0)'">expand_more</span>
+        </button>
+
+        <div class="custom-lang-dropdown" *ngIf="isLangMenuOpen()" style="min-width: 130px;">
+          <div class="lang-option" *ngFor="let lang of languages" (click)="setLanguage(lang.code)" [class.active]="t9n.currentLang() === lang.code">
+            <img [src]="lang.flagUrl" alt="flag" class="flag-icon">
+            <span class="label">{{ lang.label }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Backdrop to close the menu when clicking outside -->
+    <div *ngIf="isLangMenuOpen()" (click)="isLangMenuOpen.set(false)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 5;"></div>
+
     <!-- Tabs Toggle -->
     <div class="tabs-container">
       <button 
@@ -62,7 +81,12 @@
 
       <!-- Password -->
       <div class="form-group">
-        <label class="form-label" for="login-password">{{ t9n.t('login.password') }}</label>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <label class="form-label" for="login-password" style="margin-bottom: 0;">{{ t9n.t('login.password') }}</label>
+          <a *ngIf="isLoginTab()" href="javascript:void(0)" (click)="openForgotPassword()" style="font-size: 0.8rem; color: #60a5fa; text-decoration: none; font-weight: 500;">
+            {{ t9n.currentLang() === 'en' ? 'Forgot password?' : (t9n.currentLang() === 'de' ? 'Passwort vergessen?' : 'Mot de passe oublié ?') }}
+          </a>
+        </div>
         <input 
           type="password" 
           id="login-password" 
@@ -75,9 +99,10 @@
       </div>
 
       <!-- Submit button -->
-      <button type="submit" class="btn-premium" style="width: 100%; margin-top: 10px;">
-        <span class="material-symbols-outlined">{{ isLoginTab() ? 'login' : 'person_add' }}</span>
-        {{ isLoginTab() ? t9n.t('login.btn_login') : t9n.t('login.btn_register') }}
+      <button type="submit" class="btn-premium" style="width: 100%; margin-top: 10px;" [disabled]="isLoading()">
+        <span *ngIf="!isLoading()" class="material-symbols-outlined">{{ isLoginTab() ? 'login' : 'person_add' }}</span>
+        <span *ngIf="isLoading()" class="btn-spinner"></span>
+        {{ isLoading() ? (t9n.currentLang() === 'en' ? 'Loading...' : (t9n.currentLang() === 'de' ? 'Laden...' : 'Chargement...')) : (isLoginTab() ? t9n.t('login.btn_login') : t9n.t('login.btn_register')) }}
       </button>
     </form>
 
@@ -85,5 +110,45 @@
       <p>{{ t9n.t('login.demo_hint') }} <strong>demo@time2wish.com</strong> / <strong>password</strong></p>
     </div>
 
+  </div>
+</div>
+
+<!-- Forgot Password Modal Overlay -->
+<div class="tm-modal-overlay" *ngIf="isForgotModalOpen()" style="z-index: 3000;">
+  <div class="tm-modal-content glass-card" style="padding: 24px; max-width: 400px;" (click)="$event.stopPropagation()">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2 style="margin: 0; font-size: 1.4rem;">{{ t9n.currentLang() === 'en' ? 'Forgot Password' : (t9n.currentLang() === 'de' ? 'Passwort vergessen' : 'Mot de passe oublié') }}</h2>
+      <button class="icon-btn" (click)="closeForgotPassword()" style="background: none; border: none; cursor: pointer; color: var(--text-muted);">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div style="text-align: center; padding: 10px 0;">
+      <ng-container *ngIf="!isForgotEmailSent()">
+        <span class="material-symbols-outlined" style="font-size: 2.5rem; color: #60a5fa; margin-bottom: 12px;">mark_email_read</span>
+        <p style="font-size: 0.95rem; color: var(--text-main); margin-bottom: 16px;">
+          {{ t9n.currentLang() === 'en' ? 'Enter your email address to receive a reset link.' : (t9n.currentLang() === 'de' ? 'Geben Sie Ihre E-Mail-Adresse ein, um einen Zurücksetzungslink zu erhalten.' : 'Entrez votre adresse email pour recevoir un lien de réinitialisation.') }}
+        </p>
+        <input type="email" class="form-control" [ngModel]="forgotEmail()" (ngModelChange)="forgotEmail.set($event)" placeholder="email@example.com" style="margin-bottom: 16px;">
+        
+        <button class="btn-premium" (click)="sendForgotPassword()" style="width: 100%;">
+          {{ t9n.currentLang() === 'en' ? 'Send Link' : (t9n.currentLang() === 'de' ? 'Link senden' : 'Envoyer le lien') }}
+        </button>
+      </ng-container>
+
+      <ng-container *ngIf="isForgotEmailSent()">
+        <span class="material-symbols-outlined" style="font-size: 3rem; color: #10b981; margin-bottom: 16px;">check_circle</span>
+        <h3 style="margin-bottom: 8px; color: var(--text-main);">
+          {{ t9n.currentLang() === 'en' ? 'Link Sent!' : (t9n.currentLang() === 'de' ? 'Link gesendet!' : 'Lien envoyé !') }}
+        </h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px;">
+          {{ t9n.currentLang() === 'en' ? "A reset link has been sent (Simulation). Note: Email service is not configured yet." : (t9n.currentLang() === 'de' ? "Ein Zurücksetzungslink wurde gesendet (Simulation). Hinweis: Der E-Mail-Dienst ist noch nicht konfiguriert." : "Un lien de réinitialisation a été envoyé (Simulation). Note : Le service d'envoi d'email n'est pas encore configuré.") }}
+        </p>
+        
+        <button class="btn-secondary" (click)="closeForgotPassword()" style="width: 100%;">
+          {{ t9n.currentLang() === 'en' ? 'Close' : (t9n.currentLang() === 'de' ? 'Schließen' : 'Fermer') }}
+        </button>
+      </ng-container>
+    </div>
   </div>
 </div>

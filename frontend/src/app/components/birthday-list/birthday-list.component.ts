@@ -13,7 +13,7 @@ import { TranslationService } from '../../services/translation.service';
   standalone: true,
   imports: [CommonModule, RouterModule, MatTableModule, MatPaginatorModule, MatSortModule],
   templateUrl: './birthday-list.component.html',
-  styleUrls: ['./birthday-list.component.css'],
+  styleUrls: ['./birthday-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BirthdayListComponent implements OnChanges, AfterViewInit {

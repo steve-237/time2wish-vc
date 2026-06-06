@@ -22,4 +22,88 @@
       </canvas>
     </div>
   </div>
+
+  <!-- Pie Chart: Birthdays by Gender -->
+  <div class="glass-card chart-card">
+    <h3 class="chart-title">Répartition par Genre</h3>
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="genderChartData"
+              [options]="genderChartOptions"
+              [type]="'pie'">
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Bar Chart: Age Distribution -->
+  <div class="glass-card chart-card">
+    <h3 class="chart-title">Répartition par Âge</h3>
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="ageChartData"
+              [options]="ageChartOptions"
+              [type]="'bar'">
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Polar Area Chart: Zodiac Signs -->
+  <div class="glass-card chart-card">
+    <h3 class="chart-title">Signes Astrologiques</h3>
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="zodiacChartData"
+              [options]="zodiacChartOptions"
+              [type]="'polarArea'">
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Horizontal Bar Chart: Top Interests -->
+  <div class="glass-card chart-card">
+    <h3 class="chart-title">Centres d'intérêt (Top 7)</h3>
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="interestsChartData"
+              [options]="interestsChartOptions"
+              [type]="'bar'">
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Radar Chart: Jours de Naissance -->
+  <div class="glass-card chart-card">
+    <h3 class="chart-title">Jours de Naissance</h3>
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="weekdayChartData"
+              [options]="weekdayChartOptions"
+              [type]="'radar'">
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Doughnut Chart: Paramètres de Rappel -->
+  <div class="glass-card chart-card">
+    <h3 class="chart-title">Paramètres de Rappel</h3>
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="remindersChartData"
+              [options]="remindersChartOptions"
+              [type]="'doughnut'">
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Pie Chart: Favoris -->
+  <div class="glass-card chart-card">
+    <h3 class="chart-title">Contacts Favoris</h3>
+    <div class="chart-wrapper">
+      <canvas baseChart
+              [data]="favoritesChartData"
+              [options]="favoritesChartOptions"
+              [type]="'pie'">
+      </canvas>
+    </div>
+  </div>
 </div>

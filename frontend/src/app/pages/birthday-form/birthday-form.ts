@@ -14,7 +14,7 @@ import { ImageUploadComponent } from '../../components/image-upload/image-upload
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, ImageUploadComponent],
   templateUrl: './birthday-form.html',
-  styleUrl: './birthday-form.css'
+  styleUrl: './birthday-form.scss'
 })
 export class BirthdayForm implements OnInit {
   birthdayService = inject(BirthdayService);

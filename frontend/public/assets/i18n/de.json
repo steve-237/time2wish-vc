@@ -3,8 +3,9 @@
     "dashboard": "Dashboard",
     "add": "Hinzufügen",
     "logout": "Abmelden",
-    "light_mode": "In den hellen Modus wechseln",
-    "dark_mode": "In den dunklen Modus wechseln"
+    "light_mode": "Zum hellen Modus wechseln",
+    "dark_mode": "Zum dunklen Modus wechseln",
+    "install": "App Installieren"
   },
   "footer": {
     "tagline": "Verpassen Sie nie wieder einen Geburtstag. 💖",

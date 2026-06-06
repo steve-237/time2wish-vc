@@ -199,7 +199,13 @@
 </div>
 
 <!-- ====== LIST VIEW ====== -->
-<div>
+<div *ngIf="birthdayService.isLoading(); else contentState" class="loader-container" style="height: 300px;">
+  <div class="tm-spinner"></div>
+  <p>{{ t9n.currentLang() === 'en' ? 'Loading data...' : (t9n.currentLang() === 'de' ? 'Daten werden geladen...' : 'Chargement des données...') }}</p>
+</div>
+
+<ng-template #contentState>
+  <div>
   <div *ngIf="filteredBirthdays().length > 0; else emptyState">
     
     <!-- Grid View -->
@@ -229,6 +235,7 @@
 
   </div>
 </div>
+</ng-template>
 
 <!-- Empty State -->
 <ng-template #emptyState>

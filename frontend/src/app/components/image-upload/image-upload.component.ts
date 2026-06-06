@@ -8,7 +8,7 @@ import { TranslationService } from '../../services/translation.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './image-upload.component.html',
-  styleUrls: ['./image-upload.component.css']
+  styleUrls: ['./image-upload.component.scss']
 })
 export class ImageUploadComponent {
   private readonly http = inject(HttpClient);

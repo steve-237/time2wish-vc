@@ -10,7 +10,7 @@ import { TranslationService } from '../../services/translation.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './birthday-grid.component.html',
-  styleUrls: ['./birthday-grid.component.css'],
+  styleUrls: ['./birthday-grid.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BirthdayGridComponent {

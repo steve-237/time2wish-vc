@@ -4,7 +4,8 @@
     "add": "Add",
     "logout": "Logout",
     "light_mode": "Switch to light mode",
-    "dark_mode": "Switch to dark mode"
+    "dark_mode": "Switch to dark mode",
+    "install": "Install App"
   },
   "footer": {
     "tagline": "Never miss a birthday again. 💖",

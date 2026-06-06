@@ -40,6 +40,11 @@
 
       <!-- Badges row -->
       <div style="display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap;">
+        <!-- Nouveau Badge -->
+        <span *ngIf="birthdayService.lastAddedBirthdayId() === b.id" class="badge-new" style="font-size: 0.8rem; padding: 4px 10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 12px; font-weight: bold; animation: pulse-green 2s infinite; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);">
+          <span class="material-symbols-outlined" style="font-size: 0.9rem; vertical-align: middle;">new_releases</span> Nouveau
+        </span>
+
         <span *ngIf="b.showAge !== false" class="age-badge" style="font-size: 0.8rem; padding: 4px 10px;">{{ getAge(b.birthdate) }} {{ t9n.currentLang() === 'en' ? 'yrs' : 'ans' }}</span>
         
         <span 

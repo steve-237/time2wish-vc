@@ -9,7 +9,7 @@ import { TranslationService } from '../../services/translation.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './notification-panel.component.html',
-  styleUrls: ['./notification-panel.component.css'],
+  styleUrls: ['./notification-panel.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NotificationPanelComponent {

@@ -12,7 +12,7 @@ import { TemplateManagerComponent } from '../template-manager/template-manager.c
   standalone: true,
   imports: [CommonModule, FormsModule, TemplateManagerComponent],
   templateUrl: './wish-modal.component.html',
-  styleUrls: ['./wish-modal.component.css']
+  styleUrls: ['./wish-modal.component.scss']
 })
 export class WishModalComponent implements OnInit {
   @Input({ required: true }) birthday!: Birthday;

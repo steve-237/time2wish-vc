@@ -4,7 +4,8 @@
     "add": "Ajouter",
     "logout": "Déconnexion",
     "light_mode": "Passer au mode clair",
-    "dark_mode": "Passer au mode sombre"
+    "dark_mode": "Passer au mode sombre",
+    "install": "Installer l'App"
   },
   "footer": {
     "tagline": "Ne manquez plus jamais un anniversaire. 💖",
