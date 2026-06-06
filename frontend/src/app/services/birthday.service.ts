@@ -89,7 +89,8 @@ export class BirthdayService {
   }
 
   addBirthday(name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre', interests: string[] = []): void {
-    const defaultPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&rounded=true&bold=true`;
+    const randomHex = Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+    const defaultPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${randomHex}&color=fff&rounded=true&bold=true`;
 
     const payload = {
       name,

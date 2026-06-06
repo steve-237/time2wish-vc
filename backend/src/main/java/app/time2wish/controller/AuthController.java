@@ -89,11 +89,12 @@ public class AuthController {
         }
 
         // Create new user's account
+        String randomHex = String.format("%06x", new java.util.Random().nextInt(0xffffff + 1));
         User user = User.builder()
                 .email(signUpRequest.getEmail())
                 .password(encoder.encode(signUpRequest.getPassword()))
                 .fullName(signUpRequest.getFullName())
-                .avatarUrl("https://ui-avatars.com/api/?name=" + java.net.URLEncoder.encode(signUpRequest.getFullName(), java.nio.charset.StandardCharsets.UTF_8) + "&background=random&color=fff&rounded=true&bold=true")
+                .avatarUrl("https://ui-avatars.com/api/?name=" + java.net.URLEncoder.encode(signUpRequest.getFullName(), java.nio.charset.StandardCharsets.UTF_8) + "&background=" + randomHex + "&color=fff&rounded=true&bold=true")
                 .status("ACTIVE")
                 .build();
 
