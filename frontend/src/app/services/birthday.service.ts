@@ -22,11 +22,16 @@ export class BirthdayService {
   readonly lastAddedBirthdayId = signal<number | null>(null);
 
   // Computed signals
-  readonly activeBirthdays = computed(() => 
-    this.birthdays()
+  readonly activeBirthdays = computed(() => {
+    const lastAddedId = this.lastAddedBirthdayId();
+    return this.birthdays()
       .filter(b => !b.isDeleted)
-      .sort((a, b) => this.getDaysUntil(a.birthdate) - this.getDaysUntil(b.birthdate))
-  );
+      .sort((a, b) => {
+        if (a.id === lastAddedId) return -1;
+        if (b.id === lastAddedId) return 1;
+        return this.getDaysUntil(a.birthdate) - this.getDaysUntil(b.birthdate);
+      });
+  });
 
   readonly statistics = computed<BirthdayStats>(() => {
     const list = this.activeBirthdays();
@@ -242,46 +247,6 @@ export class BirthdayService {
       birthday.interests || [],
       isFavorite
     );
-  }
-
-  downloadIcs(birthday: Birthday): void {
-    const bdate = new Date(birthday.birthdate);
-    const year = new Date().getFullYear();
-    const nextOccurrence = new Date(year, bdate.getMonth(), bdate.getDate());
-    
-    // If the birthday already passed this year, schedule for next year
-    if (nextOccurrence.getTime() < new Date().setHours(0,0,0,0)) {
-      nextOccurrence.setFullYear(year + 1);
-    }
-
-    const startStr = nextOccurrence.toISOString().replace(/[-:]/g, '').split('T')[0];
-    const endOccurrence = new Date(nextOccurrence);
-    endOccurrence.setDate(endOccurrence.getDate() + 1);
-    const endStr = endOccurrence.toISOString().replace(/[-:]/g, '').split('T')[0];
-
-    const icsContent = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Time2Wish//FR',
-      'BEGIN:VEVENT',
-      `DTSTART;VALUE=DATE:${startStr}`,
-      `DTEND;VALUE=DATE:${endStr}`,
-      `SUMMARY:Anniversaire de ${birthday.name}`,
-      `DESCRIPTION:N'oubliez pas de souhaiter un joyeux anniversaire à ${birthday.name} !`,
-      'RRULE:FREQ=YEARLY',
-      'END:VEVENT',
-      'END:VCALENDAR'
-    ].join('\r\n');
-
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `anniversaire_${birthday.name.replace(/\s+/g, '_').toLowerCase()}.ics`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
   }
 
   generateGiftSuggestions(id: number, lang: string) {

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BirthdayService } from '../../services/birthday.service';
 import { TranslationService } from '../../services/translation.service';
+import { ExportService } from '../../services/export.service';
 import { ToastService } from '../../services/toast.service';
 import { Birthday, GiftSuggestion } from '../../models/birthday.model';
 import { WishModalComponent } from '../../components/wish-modal/wish-modal.component';
@@ -17,6 +18,7 @@ import { WishModalComponent } from '../../components/wish-modal/wish-modal.compo
 })
 export class BirthdayDetail implements OnInit {
   birthdayService = inject(BirthdayService);
+  exportService = inject(ExportService);
   t9n = inject(TranslationService);
   toastService = inject(ToastService);
   route = inject(ActivatedRoute);
@@ -96,7 +98,7 @@ export class BirthdayDetail implements OnInit {
   downloadIcs() {
     const b = this.birthday();
     if (b) {
-      this.birthdayService.downloadIcs(b);
+      this.exportService.downloadSingleIcs(b);
       this.isShareModalOpen.set(false);
     }
   }

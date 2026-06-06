@@ -1,6 +1,10 @@
 /* ===== Template Manager — Namespaced (ViewEncapsulation.None) ===== */
 
-app-template-manager .tm-overlay {
+app-template-manager .w-100 {
+  width: 100%;
+}
+
+.tm-overlay {
   position: fixed;
   top: 0;
   left: 0;

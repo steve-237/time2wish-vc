@@ -7,22 +7,21 @@
     <h1>{{ t9n.t('dashboard.title') }}</h1>
     <p class="subtitle">{{ t9n.t('dashboard.subtitle') }}</p>
   </div>
-  <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+  <div class="dashboard-header-actions">
     <!-- Test Reminders Button -->
     <button
       id="btn-test-reminders"
       (click)="onTriggerReminders()"
       [disabled]="reminderStatus() === 'loading'"
-      class="btn-secondary"
-      style="padding: 10px 18px; font-size: 0.88rem; border-radius: 10px; display: flex; align-items: center; gap: 6px;">
-      <span class="material-symbols-outlined" style="font-size: 1rem;">
+      class="btn-secondary dashboard-action-btn">
+      <span class="material-symbols-outlined action-btn-icon">
         {{ reminderStatus() === 'loading' ? 'sync' : 'notifications' }}
       </span>
       {{ reminderStatus() === 'loading' ? '...' : t9n.t('dashboard.btn_test_reminders') }}
     </button>
 
     <!-- Actions Selector -->
-    <div class="month-selector-custom" style="position: relative; min-width: 140px;">
+    <div class="month-selector-custom dashboard-month-selector">
       <select class="custom-select-control" (change)="onActionSelect($event)">
         <option value="" disabled selected>{{ t9n.t('dashboard.actions') || 'Actions' }}</option>
         <option value="export-csv">{{ t9n.t('dashboard.export_csv') || 'Exporter CSV' }}</option>
@@ -31,50 +30,43 @@
       </select>
       <span class="material-symbols-outlined select-chevron">expand_more</span>
     </div>
-    <input 
-      type="file" 
-      #csvFileInput 
-      (change)="onCSVImport($event)" 
-      accept=".csv" 
-      style="display: none;">
-
+    <input type="file" #csvFileInput (change)="onCSVImport($event)" accept=".csv" class="hidden">
 
     <!-- Add Birthday Button -->
     <a
       routerLink="/dashboard/birthday/add"
-      class="btn-premium"
-      style="padding: 10px 18px; font-size: 0.88rem; border-radius: 10px; display: flex; align-items: center; gap: 6px; text-decoration: none;">
-      <span class="material-symbols-outlined" style="font-size: 1.1rem;">add_circle</span>
+      class="btn-premium dashboard-action-btn dashboard-add-btn">
+      <span class="material-symbols-outlined add-icon">add_circle</span>
       {{ t9n.t('dashboard.btn_add') }}
     </a>
 
     <!-- Statistiques Button -->
     <a
       routerLink="/dashboard/stats"
-      class="btn-secondary"
-      style="padding: 10px 18px; font-size: 0.88rem; border-radius: 10px; display: flex; align-items: center; gap: 6px; text-decoration: none;">
-      <span class="material-symbols-outlined" style="font-size: 1.1rem;">bar_chart</span>
+      class="btn-secondary dashboard-action-btn dashboard-stats-btn">
+      <span class="material-symbols-outlined stats-icon">bar_chart</span>
       {{ t9n.t('dashboard.btn_stats') || 'Statistiques' }}
     </a>
   </div>
 </div>
 
 <!-- Reminder Status Toast -->
+@if (reminderStatus() === 'success' || reminderStatus() === 'error') {
 <div
-  *ngIf="reminderStatus() === 'success' || reminderStatus() === 'error'"
-  class="glass-card"
-  style="margin-bottom: 16px; padding: 14px 20px; display:flex; align-items:center; gap:10px; border-left: 4px solid;"
-  [style.border-left-color]="reminderStatus() === 'success' ? '#10b981' : '#ef4444'">
-  <span class="material-symbols-outlined" [style.color]="reminderStatus() === 'success' ? '#10b981' : '#ef4444'">
+  class="glass-card reminder-toast"
+  [class.success]="reminderStatus() === 'success'"
+  [class.error]="reminderStatus() === 'error'">
+  <span class="material-symbols-outlined toast-icon">
     {{ reminderStatus() === 'success' ? 'check_circle' : 'error' }}
   </span>
-  <span style="font-size: 0.9rem; color: var(--text-main);">{{ reminderMessage() }}</span>
+  <span class="toast-message">{{ reminderMessage() }}</span>
 </div>
+}
 
 <!-- Stats Row -->
 <div class="stats-grid">
   <div class="glass-card stat-card">
-    <span class="stat-icon" style="color: hsl(var(--primary-hsl)); background: rgba(37,99,235,0.08);">group</span>
+    <span class="stat-icon stat-icon-total">group</span>
     <div class="stat-content">
       <span class="stat-value">{{ birthdayService.statistics().total }}</span>
       <span class="stat-label">{{ t9n.t('dashboard.stat_total') }}</span>
@@ -82,7 +74,7 @@
   </div>
 
   <div class="glass-card stat-card" [class.highlight]="birthdayService.statistics().todayCount > 0">
-    <span class="stat-icon" style="color: var(--color-today); background: rgba(220,38,38,0.08);">cake</span>
+    <span class="stat-icon stat-icon-today">cake</span>
     <div class="stat-content">
       <span class="stat-value">{{ birthdayService.statistics().todayCount }}</span>
       <span class="stat-label">{{ t9n.t('dashboard.stat_today') }}</span>
@@ -90,7 +82,7 @@
   </div>
 
   <div class="glass-card stat-card">
-    <span class="stat-icon" style="color: var(--color-soon); background: rgba(245,158,11,0.08);">calendar_month</span>
+    <span class="stat-icon stat-icon-month">calendar_month</span>
     <div class="stat-content">
       <span class="stat-value">{{ birthdayService.statistics().thisMonthCount }}</span>
       <span class="stat-label">{{ t9n.t('dashboard.stat_month') }}</span>
@@ -98,7 +90,7 @@
   </div>
 
   <div class="glass-card stat-card">
-    <span class="stat-icon" style="color: var(--color-upcoming); background: rgba(22,163,74,0.08);">schedule</span>
+    <span class="stat-icon stat-icon-upcoming">schedule</span>
     <div class="stat-content">
       <span class="stat-value">{{ birthdayService.statistics().next30DaysCount }}</span>
       <span class="stat-label">{{ t9n.t('dashboard.stat_30days') }}</span>
@@ -113,19 +105,20 @@
     <span class="material-symbols-outlined search-icon">search</span>
     <input 
       type="text" 
-      class="form-control" 
-      style="padding-left: 40px;" 
+      class="form-control search-input" 
       [placeholder]="t9n.t('dashboard.search_placeholder')"
       [ngModel]="searchQuery()" 
       (ngModelChange)="searchQuery.set($event)">
   </div>
 
   <!-- Category Selection -->
-  <div class="month-selector-custom" style="position: relative; min-width: 150px;">
+  <div class="month-selector-custom dashboard-cat-selector">
     <select class="custom-select-control" [value]="selectedCategory()" (change)="selectedCategory.set($any($event.target).value)">
-      <option *ngFor="let cat of categories" [value]="cat">
+      @for (cat of categories; track cat) {
+      <option [value]="cat">
         {{ cat === 'All' ? t9n.t('dashboard.all_categories') : cat }}
       </option>
+      }
     </select>
     <span class="material-symbols-outlined select-chevron">expand_more</span>
   </div>
@@ -155,20 +148,21 @@
       [ngModel]="selectedMonth()" 
       (ngModelChange)="selectedMonth.set(+$event)">
       <option [value]="-1">{{ t9n.t('dashboard.all_months') }}</option>
-      <option *ngFor="let m of months(); let i = index" [value]="i">{{ m }}</option>
+      @for (m of months(); track m; let i = $index) {
+      <option [value]="i">{{ m }}</option>
+      }
     </select>
     <span class="material-symbols-outlined select-chevron">expand_more</span>
   </div>
 
   <!-- Favorite Filter -->
-  <div class="favorite-filter-toggle flex-center" style="margin-right: 12px; margin-left: 12px;">
+  <div class="favorite-filter-toggle flex-center dashboard-fav-toggle">
     <button 
       (click)="filterFavorite.set(!filterFavorite())" 
       [class.active]="filterFavorite()"
-      class="icon-btn" 
-      [title]="filterFavorite() ? (t9n.t('dashboard.filter_all') || 'Tous') : (t9n.t('dashboard.filter_favorites') || 'Favoris uniquement')"
-      style="color: #fbbf24;">
-      <span class="material-symbols-outlined" [style.font-variation-settings]="filterFavorite() ? '&quot;FILL&quot; 1' : '&quot;FILL&quot; 0'">star</span>
+      class="icon-btn fav-filter-btn" 
+      [title]="filterFavorite() ? (t9n.t('dashboard.filter_all') || 'Tous') : (t9n.t('dashboard.filter_favorites') || 'Favoris uniquement')">
+      <span class="material-symbols-outlined" [class.filled]="filterFavorite()">star</span>
     </button>
   </div>
 
@@ -199,96 +193,100 @@
 </div>
 
 <!-- ====== LIST VIEW ====== -->
-<div *ngIf="birthdayService.isLoading(); else contentState" class="loader-container" style="height: 300px;">
+@if (birthdayService.isLoading()) {
+<div class="loader-container dashboard-loader">
   <div class="tm-spinner"></div>
   <p>{{ t9n.currentLang() === 'en' ? 'Loading data...' : (t9n.currentLang() === 'de' ? 'Daten werden geladen...' : 'Chargement des données...') }}</p>
 </div>
-
-<ng-template #contentState>
-  <div>
-  <div *ngIf="filteredBirthdays().length > 0; else emptyState">
-    
+} @else {
+<div>
+  @if (filteredBirthdays().length > 0) {
     <!-- Grid View -->
+    @if (viewMode() === 'grid') {
     <app-birthday-grid 
-      *ngIf="viewMode() === 'grid'"
       [birthdays]="filteredBirthdays()"
       (sendWish)="onSendWish($event)"
       (delete)="onDeleteRequested($event)">
     </app-birthday-grid>
+    }
 
     <!-- List View -->
+    @if (viewMode() === 'list') {
     <app-birthday-list 
-      *ngIf="viewMode() === 'list'"
       [birthdays]="filteredBirthdays()"
       (sendWish)="onSendWish($event)"
       (delete)="onDeleteRequested($event)">
     </app-birthday-list>
+    }
 
     <!-- Calendar View -->
+    @if (viewMode() === 'calendar') {
     <app-birthday-calendar 
-      *ngIf="viewMode() === 'calendar'"
       [birthdays]="filteredBirthdays()"
       [initialMonth]="selectedMonth()"
       (sendWish)="onSendWish($event)"
       (delete)="onDeleteRequested($event)">
     </app-birthday-calendar>
-
-  </div>
+    }
+  } @else {
+    <!-- Empty State -->
+    <div class="glass-card empty-card">
+      <span class="material-symbols-outlined empty-icon">sentiment_dissatisfied</span>
+      <h2>{{ t9n.t('dashboard.empty_title') }}</h2>
+      <p>{{ t9n.t('dashboard.empty_text') }}</p>
+      <a routerLink="/dashboard/birthday/add" class="btn-premium empty-btn">
+        <span class="material-symbols-outlined">add_circle</span>
+        {{ t9n.t('dashboard.empty_btn') }}
+      </a>
+    </div>
+  }
 </div>
-</ng-template>
+}
 
-<!-- Empty State -->
-<ng-template #emptyState>
-  <div class="glass-card empty-card">
-    <span class="material-symbols-outlined empty-icon">sentiment_dissatisfied</span>
-    <h2>{{ t9n.t('dashboard.empty_title') }}</h2>
-    <p>{{ t9n.t('dashboard.empty_text') }}</p>
-    <a routerLink="/dashboard/birthday/add" class="btn-premium" style="margin-top: 16px; text-decoration: none;">
-      <span class="material-symbols-outlined">add_circle</span>
-      {{ t9n.t('dashboard.empty_btn') }}
-    </a>
-  </div>
-</ng-template>
+
 
 <!-- Wish Modal Overlay -->
+@if (isWishModalOpen() && selectedBirthdayForWish()) {
 <app-wish-modal 
-  *ngIf="isWishModalOpen() && selectedBirthdayForWish()" 
   [birthday]="selectedBirthdayForWish()!" 
   (close)="isWishModalOpen.set(false)">
 </app-wish-modal>
+}
 
 <!-- Delete Confirmation Modal Overlay -->
-<div class="tm-modal-overlay" *ngIf="isConfirmModalOpen()">
-  <div class="tm-modal-content glass-card" style="padding: 24px;" (click)="$event.stopPropagation()">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h2 style="margin: 0; font-size: 1.4rem;">{{ t9n.t('dashboard.confirm_delete_title') || 'Confirmer la suppression' }}</h2>
-      <button class="icon-btn" (click)="cancelDelete()" style="background: none; border: none; cursor: pointer; color: var(--text-muted);">
+@if (isConfirmModalOpen()) {
+<div class="tm-modal-overlay">
+  <div class="tm-modal-content glass-card delete-modal-content" (click)="$event.stopPropagation()">
+    <div class="delete-modal-header">
+      <h2>{{ t9n.t('dashboard.confirm_delete_title') || 'Confirmer la suppression' }}</h2>
+      <button class="icon-btn delete-modal-close" (click)="cancelDelete()">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
     
-    <div style="text-align: center; padding: 20px 0;">
-      <div style="width: 64px; height: 64px; background: rgba(239, 68, 68, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-        <span class="material-symbols-outlined" style="font-size: 2rem; color: #ef4444;">delete_forever</span>
+    <div class="delete-modal-body">
+      <div class="delete-modal-icon-bg">
+        <span class="material-symbols-outlined delete-modal-icon">delete_forever</span>
       </div>
-      <p style="font-size: 1.1rem; margin-bottom: 8px; font-weight: 500; color: var(--text-main);">
+      <p class="delete-modal-text">
         {{ t9n.t('dashboard.confirm_delete_text') || 'Êtes-vous sûr de vouloir supprimer cet anniversaire ?' }}
       </p>
-      <p style="color: var(--text-muted); font-size: 0.9rem;">
+      <p class="delete-modal-subtext">
         {{ t9n.t('dashboard.confirm_delete_subtext') || 'Cette action est irréversible.' }}
       </p>
     </div>
 
-    <div style="display: flex; gap: 12px; margin-top: 24px;">
-      <button class="btn-secondary" (click)="cancelDelete()" style="flex: 1;">
+    <div class="delete-modal-actions">
+      <button class="btn-secondary delete-btn-cancel" (click)="cancelDelete()">
         {{ t9n.t('dashboard.btn_cancel') || 'Non, annuler' }}
       </button>
-      <button class="btn-premium" (click)="confirmDelete()" style="flex: 1; background: #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);">
+      <button class="btn-premium delete-btn-confirm" (click)="confirmDelete()">
         {{ t9n.t('dashboard.btn_confirm_delete') || 'Oui, supprimer' }}
       </button>
     </div>
   </div>
 </div>
+}
 
 <!-- Modals Container (Child Routes) -->
 <router-outlet></router-outlet>

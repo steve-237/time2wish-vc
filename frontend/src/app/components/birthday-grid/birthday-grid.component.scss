@@ -128,3 +128,147 @@
   color: var(--color-today);
   background: rgba(220, 38, 38, 0.05);
 }
+
+/* --- Inline Style Replacements --- */
+.birthday-item {
+  position: relative;
+  text-decoration: none;
+}
+
+.grid-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  z-index: 10;
+}
+
+.grid-cat-tag {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+}
+
+.fav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #fbbf24;
+  padding: 0;
+  margin-top: -4px;
+  margin-right: -4px;
+}
+
+.star-icon {
+  font-size: 1.8rem;
+  transition: font-variation-settings 0.2s;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  font-variation-settings: "FILL" 0;
+}
+
+.star-icon.filled {
+  font-variation-settings: "FILL" 1;
+}
+
+.grid-center-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+  justify-content: center;
+  margin-top: -12px;
+  gap: 6px;
+}
+
+.grid-avatar {
+  width: 86px;
+  height: 86px;
+  flex-shrink: 0;
+  margin-bottom: 4px;
+}
+
+.grid-name {
+  justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: 2px;
+}
+
+.gender-icon {
+  font-size: 1.3rem;
+  vertical-align: middle;
+  margin-left: 2px;
+}
+.gender-icon.male { color: #3b82f6; }
+.gender-icon.female { color: #ec4899; }
+.gender-icon.other { color: #8b5cf6; }
+
+.grid-date {
+  justify-content: center;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.date-icon {
+  font-size: 1.1rem;
+  vertical-align: middle;
+}
+
+.zodiac-icon {
+  cursor: help;
+  font-size: 1.1em;
+  margin-left: 4px;
+}
+
+.grid-badges {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.badge-new {
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border-radius: 12px;
+  font-weight: bold;
+  animation: pulse-green 2s infinite;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.new-icon {
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.grid-age {
+  padding: 4px 10px;
+}
+
+.grid-urgency {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
+
+.urgency-icon {
+  font-size: 1rem;
+}
+
+.quick-wish-btn {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+}
+
+.wish-icon {
+  font-size: 0.9rem;
+}
+
+.action-buttons-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

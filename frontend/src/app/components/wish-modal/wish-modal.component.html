@@ -30,7 +30,8 @@
     </div>
 
     <!-- Mode 1: AI Generator -->
-    <div *ngIf="selectedMode() === 'ai'" class="tab-content animate-fade">
+    @if (selectedMode() === 'ai') {
+    <div class="tab-content animate-fade">
       
       <!-- Tone Selection -->
       <div class="form-group-section">
@@ -72,34 +73,34 @@
       </div>
 
       <!-- Extra Guidelines -->
-      <div class="form-group-section" style="margin-top: 16px;">
+      <div class="form-group-section mt-16">
         <label class="section-label">{{ t9n.t('wish.step_2_ai') || "2. Instructions pour l'IA (Optionnel)" }}</label>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <div style="flex: 1; position: relative;">
+        <div class="guidelines-row">
+          <div class="guidelines-input-wrapper">
             <input 
               type="text" 
-              class="floating-input"
-              style="padding: 10px; border-radius: 10px; font-size: 0.88rem; width: 100%; border: 1px solid var(--border-card); background: transparent; color: var(--text-main); height: 42px;"
+              class="floating-input guidelines-input"
               [placeholder]="t9n.t('wish.ai_placeholder') || 'ex: mentionne qu’il adore le football'"
               [ngModel]="aiInstructions()"
               (ngModelChange)="aiInstructions.set($event)">
           </div>
           <button 
             type="button" 
-            class="btn-premium" 
-            style="padding: 0 16px; border-radius: 10px; height: 42px; display: flex; align-items: center; gap: 6px;"
+            class="btn-premium regenerate-btn" 
             [disabled]="isGenerating()"
             (click)="generateAiWish()">
-            <span class="material-symbols-outlined" style="font-size: 1.2rem;">refresh</span>
+            <span class="material-symbols-outlined regenerate-icon">refresh</span>
             <span>{{ t9n.t('wish.btn_regenerate') || 'Régénérer' }}</span>
           </button>
         </div>
       </div>
 
     </div>
+    }
 
     <!-- Mode 2: Custom Saved Templates -->
-    <div *ngIf="selectedMode() === 'custom'" class="tab-content animate-fade">
+    @if (selectedMode() === 'custom') {
+    <div class="tab-content animate-fade">
       
       <!-- Template select -->
       <div class="form-group-section">
@@ -131,33 +132,34 @@
           </button>
         </div>
 
-        <div class="custom-templates-row" style="margin-top: 14px; display: flex; gap: 10px; align-items: center;">
-          <div class="month-selector-custom" style="flex: 1; min-width: 0;">
+        <div class="custom-templates-row">
+          <div class="month-selector-custom custom-templates-selector">
             <select 
-              class="custom-select-control" 
-              style="height: 42px;"
+              class="custom-select-control custom-templates-select" 
               [ngModel]="selectedTemplateId().startsWith('custom-') ? selectedTemplateId() : ''" 
               (ngModelChange)="onTemplateChange($event)">
               <option value="" disabled>{{ t9n.t('wish.custom_placeholder') || '-- Ou utiliser un modèle personnalisé --' }}</option>
-              <option *ngFor="let t of templateService.templates()" [value]="'custom-' + t.id">{{ t.title }}</option>
+              @for (t of templateService.templates(); track t.id) {
+              <option [value]="'custom-' + t.id">{{ t.title }}</option>
+              }
             </select>
             <span class="material-symbols-outlined select-chevron">expand_more</span>
           </div>
           <button 
             type="button" 
-            class="btn-secondary" 
-            style="padding: 0 16px; border-radius: 10px; display: flex; align-items: center; gap: 6px; height: 42px;"
+            class="btn-secondary manage-templates-btn" 
             (click)="isTemplateManagerOpen.set(true)">
-            <span class="material-symbols-outlined" style="font-size: 1.2rem;">settings</span>
+            <span class="material-symbols-outlined manage-templates-icon">settings</span>
             <span>{{ t9n.t('wish.btn_manage') || 'Gérer' }}</span>
           </button>
         </div>
       </div>
 
     </div>
+    }
 
     <!-- Channels selector -->
-    <div class="form-group-section" style="margin-top: 20px;">
+    <div class="form-group-section mt-20">
       <label class="section-label">{{ t9n.t('wish.step_2') || '2. Canal de partage' }}</label>
       <div class="channel-selector-grid">
         <label class="channel-card" [class.active]="channel === 'whatsapp'">
@@ -169,8 +171,8 @@
             class="hidden-radio">
           <span class="material-symbols-outlined chan-icon">chat</span>
           <span class="chan-title">WhatsApp</span>
-          <span class="chan-info" *ngIf="birthday.whatsapp">{{ birthday.whatsapp }}</span>
-          <span class="chan-info empty" *ngIf="!birthday.whatsapp">{{ t9n.t('wish.no_number') || 'Non renseigné' }}</span>
+          @if (birthday.whatsapp) { <span class="chan-info">{{ birthday.whatsapp }}</span> }
+          @if (!birthday.whatsapp) { <span class="chan-info empty">{{ t9n.t('wish.no_number') || 'Non renseigné' }}</span> }
         </label>
         <label class="channel-card" [class.active]="channel === 'email'">
           <input 
@@ -181,17 +183,17 @@
             class="hidden-radio">
           <span class="material-symbols-outlined chan-icon">mail</span>
           <span class="chan-title">Email</span>
-          <span class="chan-info" *ngIf="birthday.email">{{ birthday.email }}</span>
-          <span class="chan-info empty" *ngIf="!birthday.email">{{ t9n.t('wish.no_email') || 'Non renseigné' }}</span>
+          @if (birthday.email) { <span class="chan-info">{{ birthday.email }}</span> }
+          @if (!birthday.email) { <span class="chan-info empty">{{ t9n.t('wish.no_email') || 'Non renseigné' }}</span> }
         </label>
       </div>
     </div>
 
     <!-- Message customization & AI Loading spinner overlay -->
-    <div class="form-group-section" style="margin-top: 20px; position: relative;">
+    <div class="form-group-section step-3-section">
       <label class="section-label">{{ t9n.t('wish.step_3') || '3. Personnaliser le message' }}</label>
       
-      <div class="textarea-wrapper" style="position: relative; width: 100%;">
+      <div class="textarea-wrapper w-100">
         <textarea 
           class="floating-input message-textarea" 
           [(ngModel)]="customMessage" 
@@ -200,17 +202,19 @@
           [placeholder]="t9n.t('wish.message_placeholder') || 'Écrivez votre message...'"></textarea>
 
         <!-- Generation Loading Overlay -->
-        <div *ngIf="isGenerating()" class="loading-overlay flex-center">
+        @if (isGenerating()) {
+        <div class="loading-overlay flex-center">
           <div class="loader-spinner"></div>
-          <span style="font-size: 0.88rem; font-weight: 600; color: #fff; margin-top: 8px;">
+          <span class="ai-loading-text">
             {{ t9n.t('wish.loading_ai') || 'Génération par l\'IA...' }}
           </span>
         </div>
+        }
       </div>
     </div>
 
     <!-- Actions -->
-    <div class="modal-actions flex-between" style="margin-top: 24px;">
+    <div class="modal-actions flex-between mt-24">
       <button class="btn-secondary" (click)="close.emit()">{{ t9n.t('wish.btn_cancel') || 'Annuler' }}</button>
       <button class="btn-premium send-btn" (click)="send()" [disabled]="isGenerating()">
         <span class="material-symbols-outlined">send</span>
@@ -222,7 +226,8 @@
 </div>
 
 <!-- Template Manager Modal Overlay -->
+@if (isTemplateManagerOpen()) {
 <app-template-manager 
-  *ngIf="isTemplateManagerOpen()" 
   (close)="isTemplateManagerOpen.set(false)">
 </app-template-manager>
+}

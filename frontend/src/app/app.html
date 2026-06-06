@@ -1,5 +1,6 @@
 <!-- Glassmorphic Header -->
-<header class="glass-header" *ngIf="authService.isAuthenticated()">
+@if (authService.isAuthenticated()) {
+<header class="glass-header">
   <div class="header-content flex-between gap-md">
     
     <!-- Logo -->
@@ -8,47 +9,57 @@
       <span>🎂</span>
     </a>
 
-
-
     <!-- Toolbar actions -->
     <div class="toolbar-actions flex-center gap-sm">
       
       <!-- Language Selector Custom Dropdown -->
-      <div class="custom-lang-menu-container" style="position: relative;">
-        <button class="custom-lang-btn" (click)="isLangMenuOpen.set(!isLangMenuOpen())" style="display: flex; align-items: center; gap: 4px; border-radius: 20px; padding: 4px 12px; font-size: 1.2rem;">
-          <img [src]="getActiveFlagUrl()" alt="flag" class="flag-icon" style="border-radius: 2px;">
-          <span class="material-symbols-outlined" style="font-size: 1.2rem; transition: transform 0.2s;" [style.transform]="isLangMenuOpen() ? 'rotate(180deg)' : 'rotate(0)'">expand_more</span>
+      <div class="custom-lang-menu-container lang-menu-wrapper">
+        <button class="custom-lang-btn lang-btn" (click)="isLangMenuOpen.set(!isLangMenuOpen())">
+          <img [src]="getActiveFlagUrl()" alt="flag" class="flag-icon lang-flag">
+          <span class="material-symbols-outlined lang-arrow" [class.rotated]="isLangMenuOpen()">expand_more</span>
         </button>
 
-        <div class="custom-lang-dropdown" *ngIf="isLangMenuOpen()">
-          <div class="lang-option" *ngFor="let lang of languages" (click)="setLanguage(lang.code)" [class.active]="t9n.currentLang() === lang.code">
+        @if (isLangMenuOpen()) {
+        <div class="custom-lang-dropdown">
+          @for (lang of languages; track lang.code) {
+          <div class="lang-option" (click)="setLanguage(lang.code)" [class.active]="t9n.currentLang() === lang.code">
             <img [src]="lang.flagUrl" alt="flag" class="flag-icon">
             <span class="label">{{ lang.label }}</span>
           </div>
+          }
         </div>
+        }
       </div>
 
       <!-- Backdrop to close the menu when clicking outside -->
-      <div *ngIf="isLangMenuOpen()" (click)="isLangMenuOpen.set(false)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 90;"></div>
+      @if (isLangMenuOpen()) {
+      <div class="lang-backdrop" (click)="isLangMenuOpen.set(false)"></div>
+      }
 
       <!-- Install PWA Button -->
-      <button *ngIf="pwaService.canInstall()" (click)="pwaService.installApp()" class="btn-premium" style="padding: 6px 12px; font-size: 0.85rem; height: 36px;">
-        <span class="material-symbols-outlined" style="font-size: 1.1rem; margin-right: 4px;">install_desktop</span>
+      @if (pwaService.canInstall()) {
+      <button (click)="pwaService.installApp()" class="btn-premium pwa-btn">
+        <span class="material-symbols-outlined pwa-icon">install_desktop</span>
         <span class="hide-mobile">{{ t9n.t('nav.install') || 'Installer' }}</span>
       </button>
+      }
 
       <!-- App mode switch -->
       <button (click)="cycleAppMode()" class="icon-btn theme-toggle" [title]="appMode() === 'light' ? 'Mode Sombre' : (appMode() === 'dark' ? 'Mode OLED' : 'Mode Clair')">
-        <span class="material-symbols-outlined" *ngIf="appMode() === 'light'">dark_mode</span>
-        <span class="material-symbols-outlined" *ngIf="appMode() === 'dark'">contrast</span>
-        <span class="material-symbols-outlined" *ngIf="appMode() === 'oled'">light_mode</span>
+        @if (appMode() === 'light') {
+        <span class="material-symbols-outlined">dark_mode</span>
+        } @else if (appMode() === 'dark') {
+        <span class="material-symbols-outlined">contrast</span>
+        } @else {
+        <span class="material-symbols-outlined">light_mode</span>
+        }
       </button>
 
       <!-- Notifications Panel -->
       <app-notification-panel></app-notification-panel>
 
       <!-- Profile dropdown / User Menu -->
-      <a routerLink="/dashboard/profile" class="user-profile-menu flex-center gap-sm" style="text-decoration: none; cursor: pointer; padding: 6px; border-radius: 12px; transition: background 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.05)'" onmouseout="this.style.background='transparent'">
+      <a routerLink="/dashboard/profile" class="user-profile-menu flex-center gap-sm profile-link">
         <img [src]="authService.currentUser()?.avatarUrl" alt="Avatar" class="user-avatar">
         <div class="user-info">
           <span class="user-name">{{ authService.currentUser()?.fullName }}</span>
@@ -65,6 +76,7 @@
 
   </div>
 </header>
+}
 
 <!-- Main content routing window -->
 <main class="main-container">

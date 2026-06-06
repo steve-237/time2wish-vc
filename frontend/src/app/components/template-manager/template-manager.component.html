@@ -15,13 +15,16 @@
       <div class="tm-list-section">
         <h3 class="tm-section-title">{{ t9n.t('template_manager.your_templates') || 'Vos modèles' }}</h3>
         
-        <div *ngIf="templateService.templates().length === 0" class="tm-empty">
+        @if (templateService.templates().length === 0) {
+        <div class="tm-empty">
           <span class="material-symbols-outlined tm-empty-icon">sticky_note_2</span>
           <p>{{ t9n.t('template_manager.empty') || 'Aucun modèle personnalisé. Créez-en un à droite !' }}</p>
         </div>
+        }
 
         <div class="tm-scroll-list">
-          <div *ngFor="let t of templateService.templates()" class="tm-item-card">
+          @for (t of templateService.templates(); track t.id) {
+          <div class="tm-item-card">
             <div class="tm-item-header">
               <span class="tm-item-title">{{ t.title }}</span>
               <span class="tm-badge" [class]="t.category">{{ getCategoryLabel(t.category) }}</span>
@@ -36,6 +39,7 @@
               </button>
             </div>
           </div>
+          }
         </div>
       </div>
 
@@ -60,14 +64,16 @@
 
           <!-- Category -->
           <div class="floating-group">
-            <div class="month-selector-custom" style="width: 100%;">
+            <div class="month-selector-custom w-100">
               <select 
                 id="t-category" 
                 class="custom-select-control" 
                 [ngModel]="category()" 
                 (ngModelChange)="category.set($event)"
                 name="category">
-                <option *ngFor="let cat of categories" [value]="cat">{{ getCategoryLabel(cat) }}</option>
+                @for (cat of categories; track cat) {
+                <option [value]="cat">{{ getCategoryLabel(cat) }}</option>
+                }
               </select>
               <span class="material-symbols-outlined select-chevron">expand_more</span>
             </div>
@@ -89,9 +95,11 @@
           </div>
 
           <div class="tm-form-buttons">
-            <button type="button" *ngIf="isEditing()" class="btn-secondary" (click)="resetForm()">
+            @if (isEditing()) {
+            <button type="button" class="btn-secondary" (click)="resetForm()">
               {{ t9n.t('template_manager.btn_cancel') || 'Annuler' }}
             </button>
+            }
             <button type="submit" class="btn-premium">
               <span class="material-symbols-outlined">save</span>
               {{ isEditing() ? (t9n.t('template_manager.btn_update') || 'Mettre à jour') : (t9n.t('template_manager.btn_save') || 'Enregistrer') }}

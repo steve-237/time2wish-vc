@@ -6,15 +6,15 @@
     <ng-container matColumnDef="avatar">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let element">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div class="avatar-container" [class]="birthdayService.getUrgencyClass(birthdayService.getDaysUntil(element.birthdate))" style="width: 40px; height: 40px; min-width: 40px;">
-            <img [src]="element.photoUrl" alt="{{ element.name }}" class="birthday-avatar" style="width: 100%; height: 100%; border-radius: 50%;">
+        <div class="list-avatar-wrapper">
+          <div class="avatar-container list-avatar-container" [class]="birthdayService.getUrgencyClass(birthdayService.getDaysUntil(element.birthdate))">
+            <img [src]="element.photoUrl" alt="{{ element.name }}" class="birthday-avatar list-avatar-img">
           </div>
           <button 
             (click)="toggleFavorite(element, $event)" 
-            style="background: none; border: none; cursor: pointer; color: #fbbf24; padding: 0;"
+            class="fav-btn"
             [title]="element.isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'">
-            <span class="material-symbols-outlined" [style.font-variation-settings]="element.isFavorite ? '&quot;FILL&quot; 1' : '&quot;FILL&quot; 0'" style="font-size: 1.4rem; transition: font-variation-settings 0.2s;">star</span>
+            <span class="material-symbols-outlined star-icon" [class.filled]="element.isFavorite">star</span>
           </button>
         </div>
       </td>
@@ -26,12 +26,14 @@
       <td mat-cell *matCellDef="let element" class="fw-bold"> 
         {{element.name}}
         <!-- Nouveau Badge -->
-        <span *ngIf="birthdayService.lastAddedBirthdayId() === element.id" class="badge-new" style="margin-left: 8px; font-size: 0.7rem; padding: 2px 6px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 12px; font-weight: bold; animation: pulse-green 2s infinite; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); vertical-align: middle;">
+        @if (birthdayService.lastAddedBirthdayId() === element.id) {
+        <span class="badge-new list-new-badge">
           Nouveau
         </span>
-        <span *ngIf="element.gender === 'Masculin'" class="material-symbols-outlined" style="color: #3b82f6; font-size: 1.1rem; vertical-align: middle; margin-left: 2px;" title="Masculin">male</span>
-        <span *ngIf="element.gender === 'Féminin'" class="material-symbols-outlined" style="color: #ec4899; font-size: 1.1rem; vertical-align: middle; margin-left: 2px;" title="Féminin">female</span>
-        <span *ngIf="element.gender === 'Autre'" class="material-symbols-outlined" style="color: #8b5cf6; font-size: 1.1rem; vertical-align: middle; margin-left: 2px;" title="Autre">transgender</span>
+        }
+        @if (element.gender === 'Masculin') { <span class="material-symbols-outlined gender-icon male" title="Masculin">male</span> }
+        @if (element.gender === 'Féminin') { <span class="material-symbols-outlined gender-icon female" title="Féminin">female</span> }
+        @if (element.gender === 'Autre') { <span class="material-symbols-outlined gender-icon other" title="Autre">transgender</span> }
       </td>
     </ng-container>
 
@@ -39,10 +41,10 @@
     <ng-container matColumnDef="birthdate">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
       <td mat-cell *matCellDef="let element"> 
-        <span class="flex-center gap-sm" style="justify-content: flex-start;">
+        <span class="flex-center gap-sm list-date-wrapper">
           <span class="material-symbols-outlined icon-sm">event</span>
           {{element.birthdate | date:'dd MMMM yyyy'}} 
-          <span [title]="getZodiac(element.birthdate).name" style="cursor:help; font-size: 1.1em;">{{ getZodiac(element.birthdate).emoji }}</span>
+          <span [title]="getZodiac(element.birthdate).name" class="zodiac-icon">{{ getZodiac(element.birthdate).emoji }}</span>
         </span>
       </td>
     </ng-container>
@@ -72,14 +74,14 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let element">
-        <div class="flex-center gap-sm" style="justify-content: flex-start;">
+        <div class="flex-center gap-sm list-actions-wrapper">
+          @if (birthdayService.getDaysUntil(element.birthdate) === 0) {
           <button 
-            *ngIf="birthdayService.getDaysUntil(element.birthdate) === 0" 
             (click)="onSendWish(element, $event)" 
-            class="btn-premium quick-wish-btn" 
-            style="padding: 4px 8px; font-size: 0.75rem; border-radius: 8px;">
+            class="btn-premium quick-wish-btn list-wish-btn">
             <span class="material-symbols-outlined icon-sm">send</span>
           </button>
+          }
           
           <a [routerLink]="['/dashboard/birthday/edit', element.id]" (click)="$event.stopPropagation()" class="action-icon-link" [title]="t9n.t('detail.btn_edit') || 'Modifier'">
             <span class="material-symbols-outlined">edit</span>

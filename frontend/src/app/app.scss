@@ -142,3 +142,62 @@
     padding: 8px;
   }
 }
+
+/* --- Inline Style Replacements --- */
+.lang-menu-wrapper {
+  position: relative;
+}
+
+.lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 1.2rem;
+}
+
+.lang-flag {
+  border-radius: 2px;
+}
+
+.lang-arrow {
+  font-size: 1.2rem;
+  transition: transform 0.2s;
+}
+
+.lang-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.lang-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 90;
+}
+
+.pwa-btn {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  height: 36px;
+}
+
+.pwa-icon {
+  font-size: 1.1rem;
+  margin-right: 4px;
+}
+
+.profile-link {
+  text-decoration: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+.profile-link:hover {
+  background: rgba(0, 0, 0, 0.05);
+}

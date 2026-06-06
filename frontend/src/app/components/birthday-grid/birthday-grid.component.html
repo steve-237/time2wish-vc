@@ -1,57 +1,54 @@
 <div class="birthdays-grid">
-  <div 
-    *ngFor="let b of birthdays; trackBy: trackById" 
-    [routerLink]="['/dashboard/birthday', b.id]"
-    class="glass-card birthday-item glass-card-hover"
-    [class]="'card-' + b.category.toLowerCase()"
-    style="position: relative;">
+  @for (b of birthdays; track trackById($index, b)) {
+  <a [routerLink]="['/dashboard/birthday', b.id]" class="glass-card birthday-item glass-card-hover" [class]="'card-' + b.category.toLowerCase()">
     
     <!-- Top row: Category tag & Star -->
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; z-index: 10;">
-      <span class="tag-category" [class]="'tag-' + b.category.toLowerCase()" style="font-size: 0.75rem; padding: 4px 10px;">{{ b.category }}</span>
+    <div class="grid-top-row">
+      <span class="tag-category grid-cat-tag" [class]="'tag-' + b.category.toLowerCase()">{{ b.category }}</span>
       
       <button 
         (click)="toggleFavorite(b, $event)" 
-        style="background: none; border: none; cursor: pointer; color: #fbbf24; padding: 0; margin-top: -4px; margin-right: -4px;"
+        class="fav-btn"
         [title]="b.isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'">
-        <span class="material-symbols-outlined" [style.font-variation-settings]="b.isFavorite ? '&quot;FILL&quot; 1' : '&quot;FILL&quot; 0'" style="font-size: 1.8rem; transition: font-variation-settings 0.2s; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">star</span>
+        <span class="material-symbols-outlined star-icon" [class.filled]="b.isFavorite">star</span>
       </button>
     </div>
 
     <!-- Center: Avatar & Info -->
-    <div style="display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; justify-content: center; margin-top: -12px; gap: 6px;">
+    <div class="grid-center-info">
       <!-- Profile Photo -->
-      <div class="avatar-container" [class]="birthdayService.getUrgencyClass(birthdayService.getDaysUntil(b.birthdate))" style="width: 86px; height: 86px; flex-shrink: 0; margin-bottom: 4px;">
+      <div class="avatar-container grid-avatar" [class]="birthdayService.getUrgencyClass(birthdayService.getDaysUntil(b.birthdate))">
         <img [src]="b.photoUrl" alt="{{ b.name }}" class="birthday-avatar">
       </div>
 
       <!-- User Info -->
-      <h3 class="birthday-name" style="justify-content: center; font-size: 1.3rem; margin-bottom: 2px;">
+      <h3 class="birthday-name grid-name">
         {{ b.name }}
-        <span *ngIf="b.gender === 'Masculin'" class="material-symbols-outlined" style="color: #3b82f6; font-size: 1.3rem; vertical-align: middle; margin-left: 2px;" title="Masculin">male</span>
-        <span *ngIf="b.gender === 'Féminin'" class="material-symbols-outlined" style="color: #ec4899; font-size: 1.3rem; vertical-align: middle; margin-left: 2px;" title="Féminin">female</span>
-        <span *ngIf="b.gender === 'Autre'" class="material-symbols-outlined" style="color: #8b5cf6; font-size: 1.3rem; vertical-align: middle; margin-left: 2px;" title="Autre">transgender</span>
+        @if (b.gender === 'Masculin') { <span class="material-symbols-outlined gender-icon male" title="Masculin">male</span> }
+        @if (b.gender === 'Féminin') { <span class="material-symbols-outlined gender-icon female" title="Féminin">female</span> }
+        @if (b.gender === 'Autre') { <span class="material-symbols-outlined gender-icon other" title="Autre">transgender</span> }
       </h3>
       
-      <p class="birthday-date" style="justify-content: center; margin-bottom: 6px; font-size: 0.9rem;">
-        <span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: middle;">event</span>
-        {{ b.birthdate | date:'dd MMMM yyyy' }} <span [title]="getZodiac(b.birthdate).name" style="cursor:help; font-size: 1.1em; margin-left: 4px;">{{ getZodiac(b.birthdate).emoji }}</span>
+      <p class="birthday-date grid-date">
+        <span class="material-symbols-outlined date-icon">event</span>
+        {{ b.birthdate | date:'dd MMMM yyyy' }} <span [title]="getZodiac(b.birthdate).name" class="zodiac-icon">{{ getZodiac(b.birthdate).emoji }}</span>
       </p>
 
       <!-- Badges row -->
-      <div style="display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap;">
+      <div class="grid-badges">
         <!-- Nouveau Badge -->
-        <span *ngIf="birthdayService.lastAddedBirthdayId() === b.id" class="badge-new" style="font-size: 0.8rem; padding: 4px 10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 12px; font-weight: bold; animation: pulse-green 2s infinite; box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);">
-          <span class="material-symbols-outlined" style="font-size: 0.9rem; vertical-align: middle;">new_releases</span> Nouveau
+        @if (birthdayService.lastAddedBirthdayId() === b.id) {
+        <span class="badge-new">
+          <span class="material-symbols-outlined new-icon">new_releases</span> Nouveau
         </span>
+        }
 
-        <span *ngIf="b.showAge !== false" class="age-badge" style="font-size: 0.8rem; padding: 4px 10px;">{{ getAge(b.birthdate) }} {{ t9n.currentLang() === 'en' ? 'yrs' : 'ans' }}</span>
+        @if (b.showAge !== false) {
+        <span class="age-badge grid-age">{{ getAge(b.birthdate) }} {{ t9n.currentLang() === 'en' ? 'yrs' : 'ans' }}</span>
+        }
         
-        <span 
-          class="badge-urgency" 
-          [class]="birthdayService.getUrgencyClass(birthdayService.getDaysUntil(b.birthdate))"
-          style="padding: 4px 10px; font-size: 0.8rem;">
-          <span class="material-symbols-outlined" style="font-size: 1rem;">alarm</span>
+        <span class="badge-urgency grid-urgency" [class]="birthdayService.getUrgencyClass(birthdayService.getDaysUntil(b.birthdate))">
+          <span class="material-symbols-outlined urgency-icon">alarm</span>
           {{ getLabel(birthdayService.getCountdownLabel(birthdayService.getDaysUntil(b.birthdate))) }}
         </span>
       </div>
@@ -60,16 +57,14 @@
     <!-- Quick Action Bar -->
     <div class="birthday-actions-bar">
       <!-- Write template wishes if today -->
-      <button 
-        *ngIf="birthdayService.getDaysUntil(b.birthdate) === 0" 
-        (click)="onSendWish(b, $event)" 
-        class="btn-premium quick-wish-btn" 
-        style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px;">
-        <span class="material-symbols-outlined" style="font-size: 0.9rem;">send</span>
+      @if (birthdayService.getDaysUntil(b.birthdate) === 0) {
+      <button (click)="onSendWish(b, $event)" class="btn-premium quick-wish-btn">
+        <span class="material-symbols-outlined wish-icon">send</span>
         {{ t9n.t('dashboard.btn_wish') }}
       </button>
+      }
       
-      <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
+      <div class="action-buttons-right">
         <a [routerLink]="['/dashboard/birthday/edit', b.id]" (click)="$event.stopPropagation()" class="action-icon-link" [title]="t9n.t('detail.btn_edit') || 'Modifier'">
           <span class="material-symbols-outlined">edit</span>
         </a>
@@ -79,5 +74,6 @@
       </div>
     </div>
 
-  </div>
+  </a>
+  }
 </div>

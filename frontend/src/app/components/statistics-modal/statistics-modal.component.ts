@@ -11,25 +11,57 @@ import { DashboardChartsComponent } from '../dashboard-charts/dashboard-charts.c
   imports: [CommonModule, DashboardChartsComponent],
   template: `
     <div class="tm-modal-overlay" (click)="onClose()">
-      <div class="tm-modal-content" style="max-width: 900px; padding: 24px;" (click)="$event.stopPropagation()">
+      <div class="tm-modal-content stats-modal-content" (click)="$event.stopPropagation()">
         <!-- Header -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-          <h1 style="margin: 0; display: flex; align-items: center; gap: 10px;">
-            <span class="material-symbols-outlined" style="color: var(--primary-color);">bar_chart</span>
+        <div class="stats-modal-header">
+          <h1 class="stats-modal-title">
+            <span class="material-symbols-outlined stats-icon">bar_chart</span>
             {{ t9n.t('dashboard.btn_stats') || 'Statistiques Avancées' }}
           </h1>
-          <button class="icon-btn" (click)="onClose()" style="background: none; border: none; cursor: pointer;">
+          <button class="icon-btn close-btn" (click)="onClose()">
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
 
         <!-- Charts -->
-        <div style="max-height: 70vh; overflow-y: auto; overflow-x: hidden; padding-right: 10px;">
+        <div class="stats-charts-container">
           <app-dashboard-charts [birthdays]="birthdayService.birthdays()"></app-dashboard-charts>
         </div>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    .stats-modal-content {
+      max-width: 900px;
+      padding: 24px;
+    }
+    .stats-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .stats-modal-title {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .stats-icon {
+      color: hsl(var(--primary-hsl));
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .stats-charts-container {
+      max-height: 70vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 10px;
+    }
+  `]
 })
 export class StatisticsModalComponent {
   public t9n = inject(TranslationService);

@@ -1,22 +1,22 @@
 <div class="tm-modal-overlay" (click)="onClose()">
-  <div class="tm-modal-content" style="max-width: 600px; padding: 24px;" (click)="$event.stopPropagation()">
+  <div class="tm-modal-content profile-modal-content" (click)="$event.stopPropagation()">
     <!-- Profile Header with Close Button -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-      <h1 style="margin: 0;">{{ t9n.t('profile.title') || 'Mon Profil' }}</h1>
-      <button class="icon-btn" (click)="onClose()" style="background: none; border: none; cursor: pointer;">
+    <div class="profile-header">
+      <h1>{{ t9n.t('profile.title') || 'Mon Profil' }}</h1>
+      <button class="icon-btn profile-close-btn" (click)="onClose()">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
 
     <!-- Main Profile Card -->
-    <div style="padding: 24px;">
+    <div class="profile-body">
     
     <form (ngSubmit)="onSaveProfile()">
       <h2 class="form-section-title">{{ t9n.t('profile.section_info') || 'Informations Personnelles' }}</h2>
 
       <!-- Avatar Upload -->
-      <div style="margin-bottom: 24px;">
-        <label class="form-section-title" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; display: block;">{{ t9n.t('profile.avatar_url') || 'Photo de profil' }}</label>
+      <div class="mb-24">
+        <label class="form-section-title profile-avatar-label">{{ t9n.t('profile.avatar_url') || 'Photo de profil' }}</label>
         <app-image-upload 
           [currentImageUrl]="avatarUrl()" 
           (imageUrlChange)="onAvatarChange($event)">
@@ -42,11 +42,10 @@
         <input 
           type="email" 
           id="p-email" 
-          class="floating-input" 
+          class="floating-input profile-email-input" 
           [ngModel]="authService.currentUser()?.email" 
           name="email" 
           disabled
-          style="opacity: 0.7; cursor: not-allowed;"
           placeholder=" ">
         <label class="floating-label" for="p-email">Email</label>
       </div>
@@ -74,73 +73,79 @@
       </div>
     </form>
 
-    <div style="margin-top: 40px;"></div>
+    <div class="mt-40"></div>
 
     <!-- Application Preferences -->
     <h2 class="form-section-title">{{ t9n.t('profile.section_preferences') || "Préférences d'application" }}</h2>
     
-    <div style="display: flex; gap: 16px; margin-bottom: 20px;">
+    <div class="profile-prefs-row">
       <!-- Language Selector -->
-      <div class="floating-group" style="flex: 1;">
+      <div class="floating-group flex-1">
         <!-- Custom Language Dropdown for Profile -->
-        <div class="custom-lang-menu-container" style="position: relative; width: 100%;">
-          <label class="floating-label" style="top: -10px; font-size: 0.7rem; color: hsl(var(--primary-hsl)); font-weight: 700; z-index: 10;">{{ t9n.t('profile.language') || 'Langue' }}</label>
-          <button type="button" class="custom-lang-btn" (click)="isLangMenuOpen.set(!isLangMenuOpen())" style="display: flex; justify-content: space-between; align-items: center; width: 100%; border-radius: 8px; padding: 12px 16px; background: transparent; border: 1px solid var(--border-card);">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <img [src]="getActiveFlagUrl()" alt="flag" class="flag-icon" style="border-radius: 2px;">
+        <div class="custom-lang-menu-container profile-lang-container">
+          <label class="floating-label profile-lang-label">{{ t9n.t('profile.language') || 'Langue' }}</label>
+          <button type="button" class="custom-lang-btn profile-lang-btn" (click)="isLangMenuOpen.set(!isLangMenuOpen())">
+            <div class="profile-lang-value">
+              <img [src]="getActiveFlagUrl()" alt="flag" class="flag-icon profile-flag">
               <span>{{ t9n.currentLang() === 'fr' ? 'Français' : (t9n.currentLang() === 'de' ? 'Deutsch' : 'English') }}</span>
             </div>
-            <span class="material-symbols-outlined" style="transition: transform 0.2s;" [style.transform]="isLangMenuOpen() ? 'rotate(180deg)' : 'rotate(0)'">expand_more</span>
+            <span class="material-symbols-outlined profile-chevron" [style.transform]="isLangMenuOpen() ? 'rotate(180deg)' : 'rotate(0)'">expand_more</span>
           </button>
 
-          <div class="custom-lang-dropdown" *ngIf="isLangMenuOpen()" style="width: 100%; top: calc(100% + 4px);">
-            <div class="lang-option" *ngFor="let lang of languages" (click)="setLanguage(lang.code)" [class.active]="t9n.currentLang() === lang.code">
+          @if (isLangMenuOpen()) {
+          <div class="custom-lang-dropdown profile-lang-dropdown">
+            @for (lang of languages; track lang.code) {
+            <div class="lang-option" (click)="setLanguage(lang.code)" [class.active]="t9n.currentLang() === lang.code">
               <img [src]="lang.flagUrl" alt="flag" class="flag-icon">
               <span class="label">{{ lang.label }}</span>
             </div>
+            }
           </div>
+          }
         </div>
         <!-- Backdrop to close the menu when clicking outside -->
-        <div *ngIf="isLangMenuOpen()" (click)="isLangMenuOpen.set(false)" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 5;"></div>
+        @if (isLangMenuOpen()) {
+        <div (click)="isLangMenuOpen.set(false)" class="profile-lang-backdrop"></div>
+        }
       </div>
 
       <!-- Theme Toggle -->
-      <div class="floating-group" style="flex: 1;">
-        <div class="month-selector-custom" style="width: 100%;">
+      <div class="floating-group flex-1">
+        <div class="month-selector-custom w-100">
           <select 
             id="p-theme"
-            class="custom-select-control" 
+            class="custom-select-control profile-theme-select" 
             [ngModel]="appMode()"
-            (ngModelChange)="setAppMode($event)"
-            style="padding-top: 20px; padding-bottom: 8px;">
+            (ngModelChange)="setAppMode($event)">
             <option value="light">☀️ Clair</option>
             <option value="dark">🌙 Sombre (Défaut)</option>
             <option value="oled">🌌 Noir OLED</option>
           </select>
-          <label class="floating-label" for="p-theme" style="top: 4px; font-size: 0.7rem; color: hsl(var(--primary-hsl)); font-weight: 700;">{{ t9n.t('profile.theme') || 'Thème' }}</label>
+          <label class="floating-label profile-theme-label" for="p-theme">{{ t9n.t('profile.theme') || 'Thème' }}</label>
           <span class="material-symbols-outlined select-chevron">expand_more</span>
         </div>
       </div>
     </div>
 
     <!-- Color Themes -->
-    <div style="margin-bottom: 24px;">
-      <label class="form-section-title" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; display: block;">{{ t9n.t('profile.color_theme') || 'Couleur principale' }}</label>
-      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+    <div class="mb-24">
+      <label class="form-section-title profile-color-label">{{ t9n.t('profile.color_theme') || 'Couleur principale' }}</label>
+      <div class="profile-colors-row">
+        @for (theme of themes; track theme.id) {
         <button 
-          *ngFor="let theme of themes" 
           type="button"
           (click)="setColorTheme(theme.id)"
           class="theme-color-btn"
           [class.active]="colorTheme() === theme.id"
           [style.background]="'linear-gradient(135deg, ' + theme.color1 + ' 0%, ' + theme.color2 + ' 100%)'"
           [title]="theme.name">
-          <span *ngIf="colorTheme() === theme.id" class="material-symbols-outlined" style="color: white; font-size: 1.2rem;">check</span>
+          @if (colorTheme() === theme.id) { <span class="material-symbols-outlined profile-color-check">check</span> }
         </button>
+        }
       </div>
     </div>
 
-    <div style="margin-top: 40px;"></div>
+    <div class="mt-40"></div>
 
     <form (ngSubmit)="onUpdatePassword()">
       <h2 class="form-section-title">{{ t9n.t('profile.section_password') || 'Sécurité' }}</h2>
@@ -189,7 +194,7 @@
 
       <!-- Actions Password -->
       <div class="form-actions">
-        <button type="submit" class="btn-premium" style="background: hsl(var(--primary-hsl));" [disabled]="isSavingPassword()">
+        <button type="submit" class="btn-premium profile-update-pass-btn" [disabled]="isSavingPassword()">
           <span class="material-symbols-outlined">{{ isSavingPassword() ? 'sync' : 'lock_reset' }}</span>
           {{ t9n.t('profile.btn_update_password') || 'Changer le mot de passe' }}
         </button>

@@ -1,3 +1,32 @@
+/* --- Inline Style Replacements --- */
+.login-lang-container { position: absolute; top: 16px; right: 16px; z-index: 10; }
+.login-lang-menu { position: relative; }
+.login-lang-btn {
+  display: flex; align-items: center; gap: 4px; border-radius: 20px; padding: 4px 12px; font-size: 1.2rem;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);
+}
+.login-flag { border-radius: 2px; }
+.login-chevron { font-size: 1.2rem; transition: transform 0.2s; }
+.login-dropdown { min-width: 130px; }
+.login-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 5; }
+.login-password-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.mb-0 { margin-bottom: 0; }
+.login-forgot-link { font-size: 0.8rem; color: #60a5fa; text-decoration: none; font-weight: 500; }
+.login-submit-btn { width: 100%; margin-top: 10px; }
+.z-modal { z-index: 3000; }
+.forgot-modal-content { padding: 24px; max-width: 400px; }
+.forgot-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.forgot-modal-header h2 { margin: 0; font-size: 1.4rem; }
+.forgot-close-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); }
+.forgot-modal-body { text-align: center; padding: 10px 0; }
+.forgot-icon-send { font-size: 2.5rem; color: #60a5fa; margin-bottom: 12px; }
+.forgot-desc-send { font-size: 0.95rem; color: var(--text-main); margin-bottom: 16px; }
+.mb-16 { margin-bottom: 16px; }
+.w-100 { width: 100%; }
+.forgot-icon-success { font-size: 3rem; color: #10b981; margin-bottom: 16px; }
+.forgot-title-success { margin-bottom: 8px; color: var(--text-main); }
+.forgot-desc-success { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px; }
+
 .login-wrapper {
   position: relative;
   display: flex;

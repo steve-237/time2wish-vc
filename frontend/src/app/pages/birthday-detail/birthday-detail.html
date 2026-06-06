@@ -1,13 +1,14 @@
 <div class="tm-modal-overlay" (click)="onClose()">
-  <div class="tm-modal-content" style="max-width: 600px; padding: 0;" (click)="$event.stopPropagation()">
+  <div class="tm-modal-content detail-modal-content" (click)="$event.stopPropagation()">
     <!-- Added a specific header with close button to top -->
-    <div style="position: absolute; top: 16px; right: 16px; z-index: 10;">
-      <button class="icon-btn" (click)="onClose()" style="background: rgba(255,255,255,0.2); border: none; cursor: pointer; color: white;">
+    <div class="detail-modal-header">
+      <button class="icon-btn detail-close-btn" (click)="onClose()">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
 
-<div class="detail-wrapper" *ngIf="birthday()">
+@if (birthday()) {
+<div class="detail-wrapper">
   
   <div class="detail-card">
     
@@ -20,11 +21,11 @@
       <div class="profile-meta">
         <h1 class="profile-name">
           {{ birthday()?.name }}
-          <span *ngIf="birthday()?.gender === 'Masculin'" class="material-symbols-outlined" style="color: #3b82f6; font-size: 1.8rem; vertical-align: middle;" title="Masculin">male</span>
-          <span *ngIf="birthday()?.gender === 'Féminin'" class="material-symbols-outlined" style="color: #ec4899; font-size: 1.8rem; vertical-align: middle;" title="Féminin">female</span>
-          <span *ngIf="birthday()?.gender === 'Autre'" class="material-symbols-outlined" style="color: #8b5cf6; font-size: 1.8rem; vertical-align: middle;" title="Autre">transgender</span>
+          @if (birthday()?.gender === 'Masculin') { <span class="material-symbols-outlined gender-icon male" title="Masculin">male</span> }
+          @if (birthday()?.gender === 'Féminin') { <span class="material-symbols-outlined gender-icon female" title="Féminin">female</span> }
+          @if (birthday()?.gender === 'Autre') { <span class="material-symbols-outlined gender-icon other" title="Autre">transgender</span> }
         </h1>
-        <div style="display: flex; gap: 8px; align-items: center; justify-content: center; margin-top: 8px;">
+        <div class="profile-tags">
           <span class="tag-category" [class]="'tag-' + birthday()?.category?.toLowerCase()">
             {{ birthday()?.category }}
           </span>
@@ -61,10 +62,11 @@
         <span class="material-symbols-outlined block-icon">sticky_note_2</span>
         <div class="block-content">
           <h3>{{ t9n.t('detail.notes') }}</h3>
-          <p class="notes-text" *ngIf="birthday()?.notes; else noNotes">{{ birthday()?.notes }}</p>
-          <ng-template #noNotes>
+          @if (birthday()?.notes) {
+            <p class="notes-text">{{ birthday()?.notes }}</p>
+          } @else {
             <p class="notes-text empty">{{ t9n.t('detail.no_notes') }}</p>
-          </ng-template>
+          }
         </div>
       </div>
 
@@ -73,33 +75,37 @@
     <!-- ========================================== -->
     <!-- CENTRES D'INTÉRÊT -->
     <!-- ========================================== -->
-    <div class="interests-section" style="margin-top: 24px; padding: 16px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-      <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+    <div class="interests-section">
+      <h3 class="section-title">
         <span class="material-symbols-outlined">favorite</span>
         {{ t9n.t('detail.interests') }}
       </h3>
       
-      <div class="interests-tags" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
-        <span *ngFor="let interest of birthday()?.interests" class="interest-chip" style="background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); color: #c4b5fd; padding: 4px 12px; border-radius: 16px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+      <div class="interests-tags">
+        @for (interest of birthday()?.interests; track interest) {
+        <span class="interest-chip">
           {{ interest }}
-          <button (click)="removeInterest(interest)" style="background: none; border: none; color: inherit; cursor: pointer; padding: 0; display: flex; align-items: center;">
-            <span class="material-symbols-outlined" style="font-size: 1rem;">close</span>
+          <button (click)="removeInterest(interest)" class="remove-interest-btn">
+            <span class="material-symbols-outlined remove-icon">close</span>
           </button>
         </span>
-        <span *ngIf="!birthday()?.interests?.length" style="color: rgba(255,255,255,0.5); font-size: 0.9rem; font-style: italic;">
+        }
+        @if (!birthday()?.interests?.length) {
+        <span class="no-interests-text">
           Aucun centre d'intérêt renseigné.
         </span>
+        }
       </div>
 
-      <div class="add-interest-form" style="display: flex; gap: 8px;">
+      <div class="add-interest-form">
         <input 
           type="text" 
           [ngModel]="newInterest()" 
           (ngModelChange)="newInterest.set($event)"
           (keyup.enter)="addInterest()"
           placeholder="Ex: Jeux vidéo, Voyages..." 
-          style="flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; font-size: 0.9rem;">
-        <button (click)="addInterest()" class="btn-secondary" style="padding: 8px 12px; border-radius: 8px;">
+          class="interest-input">
+        <button (click)="addInterest()" class="btn-secondary add-interest-btn">
           <span class="material-symbols-outlined">add</span>
         </button>
       </div>
@@ -108,13 +114,13 @@
     <!-- ========================================== -->
     <!-- SUGGESTIONS DE CADEAUX (IA) -->
     <!-- ========================================== -->
-    <div class="gifts-section" style="margin-top: 24px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h3 style="margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+    <div class="gifts-section">
+      <div class="gifts-header">
+        <h3 class="section-title">
           <span class="material-symbols-outlined">featured_seasonal_and_gifts</span>
           {{ t9n.t('detail.gift_ideas') }}
         </h3>
-        <button class="btn-premium" (click)="generateGifts()" [disabled]="isGeneratingGifts()" style="padding: 8px 16px; font-size: 0.9rem;">
+        <button class="btn-premium gift-btn" (click)="generateGifts()" [disabled]="isGeneratingGifts()">
           <span class="material-symbols-outlined" [class.rotating]="isGeneratingGifts()">
             {{ isGeneratingGifts() ? 'autorenew' : 'auto_awesome' }}
           </span>
@@ -123,43 +129,51 @@
       </div>
 
       <!-- Loading State -->
-      <div *ngIf="isGeneratingGifts()" style="text-align: center; padding: 32px 0;">
-        <span class="material-symbols-outlined rotating" style="font-size: 2.5rem; color: #a78bfa;">autorenew</span>
-        <p style="margin-top: 12px; color: rgba(255,255,255,0.7);">L'IA analyse les centres d'intérêt...</p>
+      @if (isGeneratingGifts()) {
+      <div class="gifts-loading">
+        <span class="material-symbols-outlined rotating loading-icon">autorenew</span>
+        <p class="loading-text">L'IA analyse les centres d'intérêt...</p>
       </div>
+      }
 
       <!-- Suggestions List -->
-      <div *ngIf="!isGeneratingGifts() && giftSuggestions().length > 0" class="gifts-grid" style="display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));">
-        <div *ngFor="let gift of giftSuggestions()" class="gift-card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 16px;">
-          <h4 style="margin: 0 0 8px 0; font-size: 1.05rem; color: #fff;">{{ gift.name }}</h4>
+      @if (!isGeneratingGifts() && giftSuggestions().length > 0) {
+      <div class="gifts-grid">
+        @for (gift of giftSuggestions(); track gift.name) {
+        <div class="gift-card">
+          <h4 class="gift-title">{{ gift.name }}</h4>
           
-          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px; color: #34d399; font-weight: bold; font-size: 0.95rem;">
-            <span class="material-symbols-outlined" style="font-size: 1.1rem;">payments</span>
+          <div class="gift-price">
+            <span class="material-symbols-outlined gift-price-icon">payments</span>
             {{ gift.estimatedPrice }}
           </div>
           
-          <div style="display: flex; align-items: flex-start; gap: 6px; margin-bottom: 8px; color: rgba(255,255,255,0.8); font-size: 0.85rem;">
-            <span class="material-symbols-outlined" style="font-size: 1rem; margin-top: 2px;">storefront</span>
+          <div class="gift-store">
+            <span class="material-symbols-outlined gift-store-icon">storefront</span>
             <div>
               <span>{{ gift.whereToBuy }}</span>
-              <a *ngIf="gift.purchaseLink && gift.purchaseLink !== '#'" [href]="gift.purchaseLink" target="_blank" style="color: #60a5fa; text-decoration: none; margin-left: 8px;">
+              @if (gift.purchaseLink && gift.purchaseLink !== '#') {
+              <a [href]="gift.purchaseLink" target="_blank" class="gift-link">
                 Voir l'offre ↗
               </a>
+              }
             </div>
           </div>
           
-          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; color: rgba(255,255,255,0.7);">
+          <div class="gift-tips">
             <strong>Conseil :</strong> {{ gift.preparationTips }}
           </div>
         </div>
+        }
       </div>
+      }
     </div>
 
     <!-- Actions Footer -->
     <div class="detail-actions">
       <!-- Favorite Toggle -->
-      <button class="btn-secondary" (click)="toggleFavorite()" [style.color]="birthday()?.isFavorite ? '#fbbf24' : 'inherit'">
-        <span class="material-symbols-outlined" [style.font-variation-settings]="birthday()?.isFavorite ? '&quot;FILL&quot; 1' : '&quot;FILL&quot; 0'">star</span>
+      <button class="btn-secondary fav-toggle-btn" (click)="toggleFavorite()" [class.is-favorite]="birthday()?.isFavorite">
+        <span class="material-symbols-outlined" [class.filled]="birthday()?.isFavorite">star</span>
         {{ birthday()?.isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}
       </button>
 
@@ -175,7 +189,7 @@
       </button>
 
       <div class="danger-actions">
-        <a [routerLink]="['/dashboard/birthday/edit', birthday()?.id]" class="btn-secondary" style="text-decoration: none;">
+        <a [routerLink]="['/dashboard/birthday/edit', birthday()?.id]" class="btn-secondary edit-btn">
           <span class="material-symbols-outlined">edit</span>
           {{ t9n.t('detail.btn_edit') }}
         </a>
@@ -187,88 +201,96 @@
     </div>
 
   </div>
-
 </div>
+
+}
   </div>
 </div>
 
 <!-- Wish Modal Overlay -->
+@if (isWishModalOpen() && birthday()) {
 <app-wish-modal 
-  *ngIf="isWishModalOpen() && birthday()" 
   [birthday]="birthday()!" 
   (close)="isWishModalOpen.set(false)">
 </app-wish-modal>
+}
 
 <!-- Delete Confirmation Modal Overlay -->
-<div class="tm-modal-overlay" *ngIf="isConfirmModalOpen()" style="z-index: 3000;">
-  <div class="tm-modal-content glass-card" style="padding: 24px;" (click)="$event.stopPropagation()">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h2 style="margin: 0; font-size: 1.4rem;">{{ t9n.t('dashboard.confirm_delete_title') || 'Confirmer la suppression' }}</h2>
-      <button class="icon-btn" (click)="cancelDelete()" style="background: none; border: none; cursor: pointer; color: var(--text-muted);">
+@if (isConfirmModalOpen()) {
+<div class="tm-modal-overlay z-modal">
+  <div class="tm-modal-content glass-card delete-modal-content" (click)="$event.stopPropagation()">
+    <div class="delete-modal-header">
+      <h2>{{ t9n.t('dashboard.confirm_delete_title') || 'Confirmer la suppression' }}</h2>
+      <button class="icon-btn delete-close-btn" (click)="cancelDelete()">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
     
-    <div style="text-align: center; padding: 20px 0;">
-      <div style="width: 64px; height: 64px; background: rgba(239, 68, 68, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-        <span class="material-symbols-outlined" style="font-size: 2rem; color: #ef4444;">delete_forever</span>
+    <div class="delete-modal-body">
+      <div class="delete-icon-bg">
+        <span class="material-symbols-outlined delete-icon">delete_forever</span>
       </div>
-      <p style="font-size: 1.1rem; margin-bottom: 8px; font-weight: 500; color: var(--text-main);">
+      <p class="delete-text">
         {{ t9n.t('dashboard.confirm_delete_text') || 'Êtes-vous sûr de vouloir supprimer cet anniversaire ?' }}
       </p>
-      <p style="color: var(--text-muted); font-size: 0.9rem;">
+      <p class="delete-subtext">
         {{ t9n.t('dashboard.confirm_delete_subtext') || 'Cette action est irréversible.' }}
       </p>
     </div>
 
-    <div style="display: flex; gap: 12px; margin-top: 24px;">
-      <button class="btn-secondary" (click)="cancelDelete()" style="flex: 1;">
+    <div class="delete-modal-actions">
+      <button class="btn-secondary delete-btn-cancel" (click)="cancelDelete()">
         {{ t9n.t('dashboard.btn_cancel') || 'Non, annuler' }}
       </button>
-      <button class="btn-premium" (click)="confirmDelete()" style="flex: 1; background: #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);">
+      <button class="btn-premium delete-btn-confirm" (click)="confirmDelete()">
         {{ t9n.t('dashboard.btn_confirm_delete') || 'Oui, supprimer' }}
       </button>
     </div>
   </div>
 </div>
+}
 
 <!-- Share Modal Overlay -->
-<div class="tm-modal-overlay" *ngIf="isShareModalOpen()" style="z-index: 3000;">
-  <div class="tm-modal-content glass-card" style="padding: 24px; max-width: 400px;" (click)="$event.stopPropagation()">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h2 style="margin: 0; font-size: 1.4rem;">{{ t9n.t('detail.share_title') || 'Options de partage' }}</h2>
-      <button class="icon-btn" (click)="isShareModalOpen.set(false)" style="background: none; border: none; cursor: pointer; color: var(--text-muted);">
+@if (isShareModalOpen()) {
+<div class="tm-modal-overlay z-modal">
+  <div class="tm-modal-content glass-card share-modal-content" (click)="$event.stopPropagation()">
+    <div class="share-modal-header">
+      <h2>{{ t9n.t('detail.share_title') || 'Options de partage' }}</h2>
+      <button class="icon-btn share-close-btn" (click)="isShareModalOpen.set(false)">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
     
-    <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px;">
+    <div class="share-modal-actions">
       <!-- Web Share API (only if supported) -->
-      <button *ngIf="canWebShare()" (click)="shareNative()" class="btn-premium" style="display: flex; align-items: center; justify-content: flex-start; gap: 12px; padding: 16px; width: 100%;">
-        <span class="material-symbols-outlined" style="font-size: 1.8rem;">share</span>
-        <div style="text-align: left;">
-          <div style="font-weight: bold; font-size: 1.05rem;">{{ t9n.t('detail.share_native') || 'Partager le profil' }}</div>
-          <div style="font-size: 0.85rem; opacity: 0.8;">{{ t9n.t('detail.share_native_desc') || 'Envoyer via WhatsApp, SMS, Email...' }}</div>
+      @if (canWebShare()) {
+      <button (click)="shareNative()" class="btn-premium share-action-btn">
+        <span class="material-symbols-outlined share-icon">share</span>
+        <div class="share-text-box">
+          <div class="share-title">{{ t9n.t('detail.share_native') || 'Partager le profil' }}</div>
+          <div class="share-desc">{{ t9n.t('detail.share_native_desc') || 'Envoyer via WhatsApp, SMS, Email...' }}</div>
         </div>
       </button>
+      }
 
       <!-- ICS Download -->
-      <button (click)="downloadIcs()" class="btn-secondary" style="display: flex; align-items: center; justify-content: flex-start; gap: 12px; padding: 16px; width: 100%; text-align: left;">
-        <span class="material-symbols-outlined" style="font-size: 1.8rem; color: #60a5fa;">calendar_month</span>
-        <div style="text-align: left;">
-          <div style="font-weight: bold; font-size: 1.05rem; color: white;">{{ t9n.t('detail.share_ics') || "Ajouter à l'agenda" }}</div>
-          <div style="font-size: 0.85rem; color: var(--text-muted);">{{ t9n.t('detail.share_ics_desc') || 'Télécharger le fichier .ics' }}</div>
+      <button (click)="downloadIcs()" class="btn-secondary share-action-btn">
+        <span class="material-symbols-outlined share-icon ics-icon">calendar_month</span>
+        <div class="share-text-box">
+          <div class="share-title text-white">{{ t9n.t('detail.share_ics') || "Ajouter à l'agenda" }}</div>
+          <div class="share-desc text-muted">{{ t9n.t('detail.share_ics_desc') || 'Télécharger le fichier .ics' }}</div>
         </div>
       </button>
 
       <!-- Copy link -->
-      <button (click)="copyLink()" class="btn-secondary" style="display: flex; align-items: center; justify-content: flex-start; gap: 12px; padding: 16px; width: 100%; text-align: left;">
-        <span class="material-symbols-outlined" style="font-size: 1.8rem;">link</span>
-        <div style="text-align: left;">
-          <div style="font-weight: bold; font-size: 1.05rem; color: white;">{{ t9n.t('detail.share_link') || 'Copier le lien' }}</div>
-          <div style="font-size: 0.85rem; color: var(--text-muted);">{{ t9n.t('detail.share_link_desc') || 'Copier le lien direct vers cette page' }}</div>
+      <button (click)="copyLink()" class="btn-secondary share-action-btn">
+        <span class="material-symbols-outlined share-icon">link</span>
+        <div class="share-text-box">
+          <div class="share-title text-white">{{ t9n.t('detail.share_link') || 'Copier le lien' }}</div>
+          <div class="share-desc text-muted">{{ t9n.t('detail.share_link_desc') || 'Copier le lien direct vers cette page' }}</div>
         </div>
       </button>
     </div>
   </div>
 </div>
+}

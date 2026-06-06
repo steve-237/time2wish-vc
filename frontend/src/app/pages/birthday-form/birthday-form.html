@@ -1,9 +1,9 @@
 <div class="tm-modal-overlay" (click)="onCancel()">
-  <div class="tm-modal-content" style="max-width: 600px; padding: 24px;" (click)="$event.stopPropagation()">
+  <div class="tm-modal-content form-modal-content" (click)="$event.stopPropagation()">
     <!-- Added a specific header with close button to top -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-      <h1 style="margin: 0;">{{ t9n.t(isEditMode() ? 'form.title_edit' : 'form.title_add') }}</h1>
-      <button class="icon-btn" (click)="onCancel()" style="background: none; border: none; cursor: pointer;">
+    <div class="form-modal-header">
+      <h1 class="form-title">{{ t9n.t(isEditMode() ? 'form.title_edit' : 'form.title_add') }}</h1>
+      <button class="icon-btn form-close-btn" (click)="onCancel()">
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
@@ -14,10 +14,12 @@
   <div class="form-card">
     
     <!-- Error Message -->
-    <div *ngIf="errorMessage()" class="alert-box">
+    @if (errorMessage()) {
+    <div class="alert-box">
       <span class="material-symbols-outlined">warning</span>
       <span class="alert-text">{{ errorMessage() }}</span>
     </div>
+    }
 
     <!-- Form -->
     <form (ngSubmit)="onSubmit()" class="birthday-form-element">
@@ -31,16 +33,16 @@
           {{ t9n.t('form.section_identity') || 'Identité' }}
         </h3>
         
-        <div class="form-row" style="align-items: flex-start;">
+        <div class="form-row form-identity-row">
           <!-- Photo -->
-          <div style="flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; margin-right: 16px;">
+          <div class="form-photo-upload">
             <app-image-upload [currentImageUrl]="photoUrl()" (imageUrlChange)="photoUrl.set($event)"></app-image-upload>
-            <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px;">{{ t9n.t('form.photo_url') }}</span>
+            <span class="form-photo-label">{{ t9n.t('form.photo_url') }}</span>
           </div>
 
-          <div style="flex: 1; display: flex; flex-direction: column; gap: 16px;">
+          <div class="form-identity-fields">
             <!-- Name -->
-            <div class="floating-group" style="margin-bottom: 0;">
+            <div class="floating-group no-margin-bottom">
               <input 
                 type="text" 
                 id="b-name" 
@@ -55,7 +57,7 @@
 
             <!-- Gender -->
             <div class="gender-selector">
-              <label class="form-section-title" style="margin-bottom: 8px; font-size: 0.85rem; display: block;">{{ t9n.t('form.gender') || 'Genre' }}</label>
+              <label class="form-section-title form-gender-title">{{ t9n.t('form.gender') || 'Genre' }}</label>
               <div class="radio-group">
                 <label class="radio-card">
                   <input type="radio" name="gender" value="Masculin" [ngModel]="gender()" (ngModelChange)="gender.set($event)">
@@ -82,7 +84,7 @@
             </div>
 
             <!-- Birthdate -->
-            <div class="floating-group" style="margin-bottom: 0;">
+            <div class="floating-group no-margin-bottom">
               <input 
                 type="date" 
                 id="b-date" 
@@ -91,24 +93,25 @@
                 (ngModelChange)="birthdate.set($event)"
                 name="birthdate" 
                 required>
-              <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-date">{{ t9n.t('form.birthdate') }}</label>
+              <label class="floating-label date-label" for="b-date">{{ t9n.t('form.birthdate') }}</label>
             </div>
           </div>
         </div>
 
         <!-- Category -->
-        <div class="category-cards-group" style="margin-top: 24px;">
+        <div class="category-cards-group cat-cards-wrapper">
           <label class="form-section-title">{{ t9n.t('form.category') }}</label>
           <div class="category-cards-grid">
+            @for (cat of categories; track cat) {
             <button 
               type="button"
-              *ngFor="let cat of categories" 
               (click)="category.set(cat)"
               [class.active]="category() === cat"
               [class]="'category-card card-' + cat.toLowerCase()">
               <span class="material-symbols-outlined cat-card-icon">{{ getIconForCategory(cat) }}</span>
               <span class="cat-card-label">{{ cat }}</span>
             </button>
+            }
           </div>
         </div>
       </div>
@@ -126,7 +129,7 @@
         
         <div class="form-row">
           <!-- Email -->
-          <div class="floating-group" style="flex: 1; min-width: 200px;">
+          <div class="floating-group flex-1-min-200">
             <input 
               type="email" 
               id="b-email" 
@@ -139,7 +142,7 @@
           </div>
 
           <!-- WhatsApp -->
-          <div class="floating-group" style="flex: 1; min-width: 200px;">
+          <div class="floating-group flex-1-min-200">
             <input 
               type="tel" 
               id="b-whatsapp" 
@@ -164,10 +167,10 @@
           {{ t9n.t('form.section_prefs') || 'Préférences & Notes' }}
         </h3>
 
-        <div class="form-row" style="align-items: center;">
+        <div class="form-row flex-align-center">
           <!-- Reminder Days -->
-          <div class="floating-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
-            <div class="month-selector-custom" style="width: 100%;">
+          <div class="floating-group flex-1-min-200 no-margin-bottom">
+            <div class="month-selector-custom w-100">
               <select 
                 id="b-reminders" 
                 class="custom-select-control" 
@@ -182,12 +185,12 @@
               </select>
               <span class="material-symbols-outlined select-chevron">expand_more</span>
             </div>
-            <label class="floating-label" style="top: 4px; font-size: 0.7rem;" for="b-reminders">{{ t9n.t('form.reminder_days') }}</label>
+            <label class="floating-label date-label" for="b-reminders">{{ t9n.t('form.reminder_days') }}</label>
           </div>
 
           <!-- Show Age Toggle -->
-          <div class="toggle-group" style="flex: 1; display: flex; flex-direction: column; align-items: flex-end;">
-            <label class="form-section-title" style="margin-bottom: 8px; font-size: 0.85rem;">
+          <div class="toggle-group form-age-toggle">
+            <label class="form-section-title form-age-title">
               {{ t9n.t('form.age_display') || 'Afficher l\'âge' }}
             </label>
             <label class="toggle-switch">
@@ -202,7 +205,7 @@
         </div>
 
         <!-- Notes -->
-        <div class="floating-group" style="margin-top: 24px; margin-bottom: 0;">
+        <div class="floating-group form-notes-group">
           <textarea 
             id="b-notes" 
             class="floating-input" 
@@ -217,7 +220,7 @@
 
       <!-- Actions -->
       <div class="form-actions">
-        <a (click)="onCancel()" style="cursor: pointer;" class="btn-secondary">{{ t9n.t('form.btn_cancel') }}</a>
+        <a (click)="onCancel()" class="btn-secondary form-cancel-btn">{{ t9n.t('form.btn_cancel') }}</a>
         <button type="submit" class="btn-premium">
           <span class="material-symbols-outlined">save</span>
           {{ isEditMode() ? t9n.t('form.btn_update') : t9n.t('form.btn_save') }}
