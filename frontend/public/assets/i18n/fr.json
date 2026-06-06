@@ -27,6 +27,7 @@
     "title": "Mon Tableau de Bord 🚀",
     "subtitle": "Suivez et célébrez les anniversaires de vos cercles.",
     "btn_add": "Ajouter un Anniversaire",
+    "btn_stats": "Statistiques",
     "stat_total": "Total Anniversaires",
     "stat_today": "Aujourd'hui 🎂",
     "stat_month": "Ce Mois-ci",
@@ -111,6 +112,7 @@
     "interests": "Centres d'intérêt",
     "gift_ideas": "Idées de Cadeaux",
     "btn_wish": "Souhaiter Joyeux Anniversaire",
+    "btn_share": "Partager",
     "btn_edit": "Modifier",
     "btn_delete": "Supprimer"
   },

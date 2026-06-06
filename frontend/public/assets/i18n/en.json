@@ -26,7 +26,8 @@
   "dashboard": {
     "title": "My Dashboard 🚀",
     "subtitle": "Track and celebrate the birthdays in your circles.",
-    "btn_add": "Add a Birthday",
+    "btn_add": "Add Birthday",
+    "btn_stats": "Statistics",
     "stat_total": "Total Birthdays",
     "stat_today": "Today 🎂",
     "stat_month": "This Month",
@@ -111,6 +112,7 @@
     "interests": "Interests",
     "gift_ideas": "Gift Ideas",
     "btn_wish": "Send Birthday Wish",
+    "btn_share": "Share",
     "btn_edit": "Edit",
     "btn_delete": "Delete"
   },

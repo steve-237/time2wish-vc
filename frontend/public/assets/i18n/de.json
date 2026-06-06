@@ -27,7 +27,8 @@
     "title": "Mein Dashboard 🚀",
     "subtitle": "Verfolge und feiere die Geburtstage in deinen Kreisen.",
     "btn_add": "Geburtstag hinzufügen",
-    "stat_total": "Geburtstage gesamt",
+    "btn_stats": "Statistiken",
+    "stat_total": "Geburtstage Gesamt",
     "stat_today": "Heute 🎂",
     "stat_month": "Diesen Monat",
     "stat_30days": "Nächste 30 Tage",
@@ -111,6 +112,7 @@
     "interests": "Interessen",
     "gift_ideas": "Geschenkideen",
     "btn_wish": "Geburtstagswunsch senden",
+    "btn_share": "Teilen",
     "btn_edit": "Bearbeiten",
     "btn_delete": "Löschen"
   },
