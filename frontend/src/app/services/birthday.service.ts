@@ -89,13 +89,15 @@ export class BirthdayService {
   }
 
   addBirthday(name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre', interests: string[] = []): void {
+    const defaultPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&rounded=true&bold=true`;
+
     const payload = {
       name,
       birthdate,
       category,
       notes,
       reminderDays,
-      photoUrl: photoUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(name)}`,
+      photoUrl: photoUrl || defaultPhoto,
       showAge,
       email,
       whatsapp,

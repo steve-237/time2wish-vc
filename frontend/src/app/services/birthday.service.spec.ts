@@ -182,7 +182,7 @@ describe('BirthdayService', () => {
         category: 'FAMILY',
         isDeleted: false,
         reminderDays: 7,
-        photoUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Eve'
+        photoUrl: 'https://ui-avatars.com/api/?name=Eve&background=random&color=fff&rounded=true&bold=true'
       };
       mockHttp.post.mockReturnValue(of(newBirthday));
 
@@ -195,7 +195,7 @@ describe('BirthdayService', () => {
         category: 'FAMILY',
         notes: undefined,
         reminderDays: 7,
-        photoUrl: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Eve'
+        photoUrl: 'https://ui-avatars.com/api/?name=Eve&background=random&color=fff&rounded=true&bold=true'
       });
       expect(service.birthdays()).toContainEqual(newBirthday);
     });

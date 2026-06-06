@@ -93,7 +93,7 @@ public class AuthController {
                 .email(signUpRequest.getEmail())
                 .password(encoder.encode(signUpRequest.getPassword()))
                 .fullName(signUpRequest.getFullName())
-                .avatarUrl("https://api.dicebear.com/7.x/adventurer/svg?seed=" + signUpRequest.getFullName())
+                .avatarUrl("https://ui-avatars.com/api/?name=" + java.net.URLEncoder.encode(signUpRequest.getFullName(), java.nio.charset.StandardCharsets.UTF_8) + "&background=random&color=fff&rounded=true&bold=true")
                 .status("ACTIVE")
                 .build();
 
