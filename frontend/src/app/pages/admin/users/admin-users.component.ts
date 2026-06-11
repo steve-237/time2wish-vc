@@ -237,14 +237,14 @@ export class AdminUsersComponent implements OnInit {
 
     switch (state.actionType) {
       case 'status':
-        return \`Voulez-vous passer cet utilisateur en statut \${state.actionValue} ?\`;
+        return `Voulez-vous passer cet utilisateur en statut ${state.actionValue} ?`;
       case 'role':
         const roleName = state.actionValue === 'ROLE_ADMIN' ? 'Administrateur' : 'Utilisateur simple';
-        return \`Voulez-vous donner le rôle \${roleName} à ce compte ?\`;
+        return `Voulez-vous donner le rôle ${roleName} à ce compte ?`;
       case 'plan':
-        return \`Voulez-vous attribuer le forfait \${state.actionValue} à cet utilisateur ?\`;
+        return `Voulez-vous attribuer le forfait ${state.actionValue} à cet utilisateur ?`;
       case 'delete':
-        return \`ATTENTION : Voulez-vous supprimer DÉFINITIVEMENT ce compte et toutes ses données associées (anniversaires, etc.) ?\`;
+        return `ATTENTION : Voulez-vous supprimer DÉFINITIVEMENT ce compte et toutes ses données associées (anniversaires, etc.) ?`;
       default:
         return 'Confirmer cette action ?';
     }
