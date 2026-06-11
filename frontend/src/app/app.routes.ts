@@ -16,6 +16,10 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () => import('./pages/admin/dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent)
+      },
+      {
+        path: 'users',
+        loadComponent: () => import('./pages/admin/users/admin-users.component').then(m => m.AdminUsersComponent)
       }
     ]
   },
