@@ -120,12 +120,19 @@
           <span class="material-symbols-outlined">featured_seasonal_and_gifts</span>
           {{ t9n.t('detail.gift_ideas') }}
         </h3>
-        <button class="btn-premium gift-btn" (click)="generateGifts()" [disabled]="isGeneratingGifts()">
-          <span class="material-symbols-outlined" [class.rotating]="isGeneratingGifts()">
-            {{ isGeneratingGifts() ? 'autorenew' : 'auto_awesome' }}
-          </span>
-          {{ isGeneratingGifts() ? 'Génération...' : 'Générer avec l\'IA' }}
-        </button>
+        @if (authService.currentUser()?.plan === 'BASIC') {
+          <div class="locked-feature-badge">
+            <span class="material-symbols-outlined">lock</span>
+            <a routerLink="/dashboard/plans" class="upgrade-link">Passer en PLUS pour l'IA</a>
+          </div>
+        } @else {
+          <button class="btn-premium gift-btn" (click)="generateGifts()" [disabled]="isGeneratingGifts()">
+            <span class="material-symbols-outlined" [class.rotating]="isGeneratingGifts()">
+              {{ isGeneratingGifts() ? 'autorenew' : 'auto_awesome' }}
+            </span>
+            {{ isGeneratingGifts() ? 'Génération...' : 'Générer avec l\'IA' }}
+          </button>
+        }
       </div>
 
       <!-- Loading State -->

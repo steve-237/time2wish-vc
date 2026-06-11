@@ -47,4 +47,8 @@ export class AdminService {
   updateUserRole(id: number, role: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/users/${id}/role`, { role });
   }
+
+  deleteUser(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/users/${id}`);
+  }
 }

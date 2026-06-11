@@ -149,11 +149,16 @@ public class BirthdayController {
     }
 
     @GetMapping("/{id}/gifts")
-    public ResponseEntity<List<GiftSuggestion>> getGiftSuggestions(
+    public ResponseEntity<?> getGiftSuggestions(
             @PathVariable Long id,
             @RequestParam(defaultValue = "fr") String lang,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         User user = getAuthenticatedUser(userDetails);
+        
+        if (user.getPlan() == app.time2wish.model.PlanType.BASIC) {
+            return ResponseEntity.status(403).body(new MessageResponse("FEATURE_LOCKED: AI Gifts are not available on the BASIC plan."));
+        }
+
         return birthdayService.getBirthday(id, user).map(birthday -> {
             Integer age = null;
             if (birthday.getBirthdate() != null) {

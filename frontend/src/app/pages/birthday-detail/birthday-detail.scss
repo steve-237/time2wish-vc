@@ -552,3 +552,26 @@ body.dark-theme .info-block {
 .text-muted {
   color: var(--text-muted);
 }
+
+.locked-feature-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.upgrade-link {
+  color: #ef4444;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  
+  &:hover {
+    color: #dc2626;
+  }
+}

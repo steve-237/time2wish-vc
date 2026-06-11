@@ -15,6 +15,7 @@ public interface BirthdayRepository extends JpaRepository<Birthday, Long> {
     long countByIsDeletedFalse();
     List<Birthday> findByUser(User user);
     Optional<Birthday> findByIdAndUserAndIsDeletedFalse(Long id, User user);
+    void deleteAllByUser(User user);
 
     /**
      * Find all active birthdays where today + reminder_days = upcoming anniversary (same month/day).

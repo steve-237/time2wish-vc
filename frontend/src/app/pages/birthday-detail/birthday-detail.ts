@@ -8,6 +8,7 @@ import { ExportService } from '../../services/export.service';
 import { ToastService } from '../../services/toast.service';
 import { Birthday, GiftSuggestion } from '../../models/birthday.model';
 import { WishModalComponent } from '../../components/wish-modal/wish-modal.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-birthday-detail',
@@ -23,6 +24,7 @@ export class BirthdayDetail implements OnInit {
   toastService = inject(ToastService);
   route = inject(ActivatedRoute);
   router = inject(Router);
+  authService = inject(AuthService);
 
   birthday = signal<Birthday | null>(null);
   daysUntil = signal<number>(0);

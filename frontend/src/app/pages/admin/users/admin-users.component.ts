@@ -32,7 +32,11 @@ import { FormsModule } from '@angular/forms';
                 <td class="font-medium">{{ user.fullName }}</td>
                 <td>{{ user.email }}</td>
                 <td>
-                  <span class="badge role-badge" [class.superadmin]="user.role === 'ROLE_SUPERADMIN'">{{ user.role.replace('ROLE_', '') }}</span>
+                  <span class="badge role-badge" 
+                        [class.admin]="user.role === 'ROLE_ADMIN'"
+                        [class.superadmin]="user.role === 'ROLE_SUPERADMIN'">
+                    {{ user.role.replace('ROLE_', '') }}
+                  </span>
                 </td>
                 <td>
                   <select [ngModel]="user.plan" (ngModelChange)="changePlan(user, $event)" class="form-select" [disabled]="user.role === 'ROLE_SUPERADMIN'">
@@ -51,16 +55,19 @@ import { FormsModule } from '@angular/forms';
                 </td>
                 <td class="actions-cell">
                   @if (user.status === 'ACTIVE') {
-                    <button class="btn btn-danger" (click)="changeStatus(user, 'BLOCKED')" [disabled]="user.role === 'ROLE_SUPERADMIN'">Bloquer</button>
+                    <button class="btn btn-danger" (click)="requestAction(user, 'status', 'BLOCKED')" [disabled]="user.role === 'ROLE_SUPERADMIN'">Bloquer</button>
                   } @else if (user.status === 'BLOCKED') {
-                    <button class="btn btn-success" (click)="changeStatus(user, 'ACTIVE')">Débloquer</button>
+                    <button class="btn btn-success" (click)="requestAction(user, 'status', 'ACTIVE')">Débloquer</button>
                   } @else if (user.status === 'PENDING_APPROVAL') {
-                    <button class="btn btn-primary" (click)="changeStatus(user, 'ACTIVE')">Approuver</button>
+                    <button class="btn btn-primary" (click)="requestAction(user, 'status', 'ACTIVE')">Approuver</button>
                   }
                   
                   @if (isSuperAdmin() && user.role !== 'ROLE_SUPERADMIN') {
-                    <button class="btn btn-secondary" (click)="promoteToAdmin(user)" *ngIf="user.role === 'ROLE_USER'">Promouvoir Admin</button>
-                    <button class="btn btn-secondary" (click)="demoteToUser(user)" *ngIf="user.role === 'ROLE_ADMIN'">Rétrograder User</button>
+                    <button class="btn btn-secondary" (click)="requestAction(user, 'role', 'ROLE_ADMIN')" *ngIf="user.role === 'ROLE_USER'">Admin</button>
+                    <button class="btn btn-secondary" (click)="requestAction(user, 'role', 'ROLE_USER')" *ngIf="user.role === 'ROLE_ADMIN'">User</button>
+                    <button class="btn btn-danger btn-outline" (click)="requestAction(user, 'delete', '')" title="Supprimer">
+                      <span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: middle;">delete</span>
+                    </button>
                   }
                 </td>
               </tr>
@@ -73,6 +80,35 @@ import { FormsModule } from '@angular/forms';
         </table>
       </div>
     </div>
+
+    <!-- Confirmation Modal Overlay -->
+    @if (modalState().isOpen) {
+    <div class="tm-modal-overlay">
+      <div class="tm-modal-content confirm-modal-content">
+        <div class="confirm-modal-header">
+          <h3>Confirmation</h3>
+          <button class="icon-btn" (click)="closeModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="confirm-modal-body">
+          <p>{{ getModalMessage() }}</p>
+          <div class="confirm-user-preview">
+            <strong>{{ modalState().user?.fullName }}</strong> ({{ modalState().user?.email }})
+          </div>
+        </div>
+        <div class="confirm-modal-actions">
+          <button class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+          <button class="btn" 
+                  [class.btn-primary]="modalState().actionType !== 'delete' && modalState().actionValue !== 'BLOCKED'"
+                  [class.btn-danger]="modalState().actionType === 'delete' || modalState().actionValue === 'BLOCKED'"
+                  (click)="confirmAction()">
+            Confirmer
+          </button>
+        </div>
+      </div>
+    </div>
+    }
   `,
   styles: [`
     .users-container { padding: 1rem; }
@@ -82,14 +118,18 @@ import { FormsModule } from '@angular/forms';
     .users-table th, .users-table td { padding: 1rem 1.5rem; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
     .users-table th { background-color: #f9fafb; font-weight: 600; color: #374151; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
     .font-medium { font-weight: 500; color: #111827; }
-    .badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    
+    .badge { padding: 0.3rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
     .status-active { background-color: #d1fae5; color: #065f46; }
     .status-blocked { background-color: #fee2e2; color: #991b1b; }
     .status-pending { background-color: #fef3c7; color: #92400e; }
-    .role-badge { background-color: #e0e7ff; color: #3730a3; }
-    .role-badge.superadmin { background-color: #fce7f3; color: #9d174d; }
-    .actions-cell { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    .btn { padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer; transition: background-color 0.2s; }
+    
+    .role-badge { background-color: #e2e8f0; color: #334155; } /* ROLE_USER (Gris clair / Bleu) */
+    .role-badge.admin { background-color: #ffedd5; color: #c2410c; } /* ROLE_ADMIN (Orange) */
+    .role-badge.superadmin { background-color: #fce7f3; color: #be185d; } /* ROLE_SUPERADMIN (Rose) */
+    
+    .actions-cell { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+    .btn { padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500; border: none; cursor: pointer; transition: background-color 0.2s; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-primary { background-color: #3b82f6; color: white; }
     .btn-primary:hover:not(:disabled) { background-color: #2563eb; }
@@ -97,16 +137,47 @@ import { FormsModule } from '@angular/forms';
     .btn-success:hover { background-color: #059669; }
     .btn-danger { background-color: #ef4444; color: white; }
     .btn-danger:hover { background-color: #dc2626; }
-    .btn-secondary { background-color: #6b7280; color: white; }
-    .btn-secondary:hover { background-color: #4b5563; }
+    .btn-secondary { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    .btn-secondary:hover { background-color: #e2e8f0; }
+    .btn-outline { background-color: transparent; border: 1px solid #ef4444; color: #ef4444; }
+    .btn-outline:hover { background-color: #fef2f2; }
+    
     .form-select { padding: 0.25rem 0.5rem; border-radius: 4px; border: 1px solid #d1d5db; outline: none; }
     .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
+
+    /* Modal Styles */
+    .tm-modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;
+    }
+    .confirm-modal-content {
+      background: white; border-radius: 12px; width: 100%; max-width: 400px; overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+    }
+    .confirm-modal-header {
+      padding: 1rem 1.5rem; border-bottom: 1px solid #e5e7eb;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .confirm-modal-header h3 { margin: 0; font-size: 1.1rem; color: #111827; }
+    .icon-btn { background: none; border: none; cursor: pointer; color: #6b7280; display: flex; }
+    .confirm-modal-body { padding: 1.5rem; color: #374151; }
+    .confirm-user-preview { margin-top: 1rem; padding: 0.75rem; background: #f9fafb; border-radius: 8px; font-size: 0.9rem; }
+    .confirm-modal-actions {
+      padding: 1rem 1.5rem; background: #f9fafb; display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid #e5e7eb;
+    }
   `]
 })
 export class AdminUsersComponent implements OnInit {
   private adminService = inject(AdminService);
   private authService = inject(AuthService);
   users = signal<AdminUserDto[]>([]);
+
+  modalState = signal<{
+    isOpen: boolean;
+    user: AdminUserDto | null;
+    actionType: 'status' | 'role' | 'delete' | null;
+    actionValue: string;
+  }>({ isOpen: false, user: null, actionType: null, actionValue: '' });
 
   ngOnInit() {
     this.loadUsers();
@@ -124,17 +195,6 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
-  changeStatus(user: AdminUserDto, newStatus: string) {
-    if (confirm(`Êtes-vous sûr de vouloir passer ce compte en ${newStatus} ?`)) {
-      this.adminService.updateUserStatus(user.id, newStatus).subscribe({
-        next: () => {
-          this.users.update(list => list.map(u => u.id === user.id ? { ...u, status: newStatus } : u));
-        },
-        error: (err) => alert(err.error?.message || 'Erreur lors de la modification')
-      });
-    }
-  }
-
   changePlan(user: AdminUserDto, newPlan: string) {
     this.adminService.updateUserPlan(user.id, newPlan).subscribe({
       next: () => {
@@ -144,21 +204,74 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
-  promoteToAdmin(user: AdminUserDto) {
-    this.adminService.updateUserRole(user.id, 'ROLE_ADMIN').subscribe({
-      next: () => {
-        this.users.update(list => list.map(u => u.id === user.id ? { ...u, role: 'ROLE_ADMIN' } : u));
-      },
-      error: (err) => alert('Erreur lors de la promotion')
+  // --- Modal Logic ---
+
+  requestAction(user: AdminUserDto, type: 'status' | 'role' | 'delete', value: string) {
+    this.modalState.set({
+      isOpen: true,
+      user,
+      actionType: type,
+      actionValue: value
     });
   }
 
-  demoteToUser(user: AdminUserDto) {
-    this.adminService.updateUserRole(user.id, 'ROLE_USER').subscribe({
-      next: () => {
-        this.users.update(list => list.map(u => u.id === user.id ? { ...u, role: 'ROLE_USER' } : u));
-      },
-      error: (err) => alert('Erreur lors de la rétrogradation')
-    });
+  closeModal() {
+    this.modalState.set({ isOpen: false, user: null, actionType: null, actionValue: '' });
+  }
+
+  getModalMessage(): string {
+    const state = this.modalState();
+    if (!state.user) return '';
+
+    switch (state.actionType) {
+      case 'status':
+        return \`Voulez-vous passer cet utilisateur en statut \${state.actionValue} ?\`;
+      case 'role':
+        const roleName = state.actionValue === 'ROLE_ADMIN' ? 'Administrateur' : 'Utilisateur simple';
+        return \`Voulez-vous donner le rôle \${roleName} à ce compte ?\`;
+      case 'delete':
+        return \`ATTENTION : Voulez-vous supprimer DÉFINITIVEMENT ce compte et toutes ses données associées (anniversaires, etc.) ?\`;
+      default:
+        return 'Confirmer cette action ?';
+    }
+  }
+
+  confirmAction() {
+    const state = this.modalState();
+    if (!state.user || !state.actionType) return;
+
+    const user = state.user;
+
+    switch (state.actionType) {
+      case 'status':
+        this.adminService.updateUserStatus(user.id, state.actionValue).subscribe({
+          next: () => {
+            this.users.update(list => list.map(u => u.id === user.id ? { ...u, status: state.actionValue } : u));
+            this.closeModal();
+          },
+          error: (err) => { alert(err.error?.message || 'Erreur'); this.closeModal(); }
+        });
+        break;
+
+      case 'role':
+        this.adminService.updateUserRole(user.id, state.actionValue).subscribe({
+          next: () => {
+            this.users.update(list => list.map(u => u.id === user.id ? { ...u, role: state.actionValue } : u));
+            this.closeModal();
+          },
+          error: (err) => { alert('Erreur lors de la modification du rôle'); this.closeModal(); }
+        });
+        break;
+
+      case 'delete':
+        this.adminService.deleteUser(user.id).subscribe({
+          next: () => {
+            this.users.update(list => list.filter(u => u.id !== user.id));
+            this.closeModal();
+          },
+          error: (err) => { alert('Erreur lors de la suppression'); this.closeModal(); }
+        });
+        break;
+    }
   }
 }

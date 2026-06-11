@@ -63,6 +63,10 @@ export const routes: Routes = [
           {
             path: 'stats',
             loadComponent: () => import('./components/statistics-modal/statistics-modal.component').then(m => m.StatisticsModalComponent)
+          },
+          {
+            path: 'plans',
+            loadComponent: () => import('./pages/pricing/pricing.component').then(m => m.PricingComponent)
           }
         ]
       },

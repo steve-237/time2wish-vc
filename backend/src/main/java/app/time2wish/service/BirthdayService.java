@@ -25,6 +25,15 @@ public class BirthdayService {
 
     @Transactional
     public Birthday addBirthday(Birthday birthday, User user) {
+        long currentCount = birthdayRepository.findByUserAndIsDeletedFalse(user).size();
+        
+        if (user.getPlan() == app.time2wish.model.PlanType.BASIC && currentCount >= 3) {
+            throw new RuntimeException("LIMIT_REACHED: Vous avez atteint la limite de votre forfait BASIC (3 anniversaires). Veuillez passer au forfait supérieur.");
+        }
+        if (user.getPlan() == app.time2wish.model.PlanType.PLUS && currentCount >= 50) {
+            throw new RuntimeException("LIMIT_REACHED: Vous avez atteint la limite de votre forfait PLUS (50 anniversaires). Veuillez passer au forfait supérieur.");
+        }
+
         birthday.setUser(user);
         birthday.setIsDeleted(false);
         return birthdayRepository.save(birthday);

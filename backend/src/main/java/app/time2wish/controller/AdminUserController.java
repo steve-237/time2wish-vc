@@ -24,6 +24,9 @@ public class AdminUserController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private app.time2wish.repository.BirthdayRepository birthdayRepository;
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<?> getAllUsers() {
@@ -109,5 +112,26 @@ public class AdminUserController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Invalid role type");
         }
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SUPERADMIN')")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        Optional<User> userOpt = userRepository.findById(id);
+        if (userOpt.isEmpty()) return ResponseEntity.notFound().build();
+        User user = userOpt.get();
+
+        if (user.getId() == 1L || user.getRole() == Role.ROLE_SUPERADMIN) {
+            return ResponseEntity.status(403).body("Cannot delete a SuperAdmin");
+        }
+
+        // Delete all birthdays associated with the user first to avoid FK constraint violations
+        birthdayRepository.deleteAllByUser(user);
+        
+        // Delete the user
+        userRepository.delete(user);
+        
+        return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }
 }

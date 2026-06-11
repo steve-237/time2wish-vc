@@ -64,6 +64,12 @@ import { PwaService } from '../../services/pwa.service';
           </button>
           }
 
+          <!-- Pricing/Plans Button -->
+          <a routerLink="/dashboard/plans" class="btn-secondary plans-btn" title="Forfaits" style="display: flex; align-items: center; gap: 4px; border: 1px solid #e2e8f0; background: white; padding: 6px 12px; border-radius: 8px;">
+            <span class="material-symbols-outlined" style="font-size: 1.2rem; color: #8b5cf6;">star</span>
+            <span class="hide-mobile" style="font-weight: 500; font-size: 0.9rem;">Forfaits</span>
+          </a>
+
           <!-- App mode switch -->
           <button (click)="cycleAppMode()" class="icon-btn theme-toggle" [title]="appMode() === 'light' ? 'Mode Sombre' : (appMode() === 'dark' ? 'Mode OLED' : 'Mode Clair')">
             @if (appMode() === 'light') {

@@ -35,11 +35,11 @@
     <input type="file" #csvFileInput (change)="onCSVImport($event)" accept=".csv" class="hidden">
 
     <!-- Add Birthday Button -->
-    @if (userPlan === 'BASIC' && birthdayService.activeBirthdays().length >= 20) {
+    @if (userPlan === 'BASIC' && birthdayService.activeBirthdays().length >= 3) {
       <button
         class="btn-premium dashboard-action-btn dashboard-add-btn disabled"
-        title="Limite de 20 anniversaires atteinte avec le forfait BASIC"
-        (click)="toastService.error('Limite atteinte. Veuillez passer à un forfait supérieur pour ajouter de nouveaux anniversaires.')">
+        title="Limite de 3 anniversaires atteinte avec le forfait BASIC"
+        (click)="toastService.error('Limite atteinte (3 anniversaires max). Veuillez passer au forfait PLUS pour en ajouter d\'autres.')">
         <span class="material-symbols-outlined add-icon">add_circle</span>
         {{ t9n.t('dashboard.btn_add') }}
       </button>

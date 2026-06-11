@@ -47,11 +47,16 @@ public class BirthdayReminderScheduler {
         log.info("[BirthdayReminderScheduler] Found {} birthday(s) to remind about", upcomingBirthdays.size());
 
         for (Birthday birthday : upcomingBirthdays) {
+            if (birthday.getUser() != null && birthday.getUser().getPlan() == app.time2wish.model.PlanType.BASIC) {
+                log.info("[BirthdayReminderScheduler] ⏭️ Skipping reminder for {} (User is on BASIC plan)", birthday.getName());
+                continue;
+            }
+
             try {
                 emailService.sendBirthdayReminder(birthday);
                 log.info("[BirthdayReminderScheduler] ✉️ Reminder sent for: {} (user: {})",
                         birthday.getName(),
-                        birthday.getUser() != null ? birthday.getUser().getEmail() : "N/A");
+                        birthday.getUser().getEmail());
             } catch (Exception e) {
                 log.error("[BirthdayReminderScheduler] ❌ Failed to send reminder for birthday ID {}: {}",
                         birthday.getId(), e.getMessage());
