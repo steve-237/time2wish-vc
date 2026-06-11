@@ -1,8 +1,49 @@
-.pricing-container {
+.pricing-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.pricing-modal-content {
+  position: relative;
+  width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: transparent;
   padding: 4rem 2rem;
   font-family: 'Inter', sans-serif;
+  animation: modalSlideUp 0.3s ease-out forwards;
+}
+
+.close-modal-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  
+  &:hover {
+    background: #f1f5f9;
+  }
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .pricing-header {

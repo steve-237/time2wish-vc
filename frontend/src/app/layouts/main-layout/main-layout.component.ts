@@ -5,11 +5,12 @@ import { TranslationService, Language } from '../../services/translation.service
 import { AuthService } from '../../services/auth.service';
 import { NotificationPanelComponent } from '../../components/notification-panel/notification-panel.component';
 import { PwaService } from '../../services/pwa.service';
+import { PricingComponent } from '../../pages/pricing/pricing.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, CommonModule, NotificationPanelComponent],
+  imports: [RouterOutlet, RouterLink, CommonModule, NotificationPanelComponent, PricingComponent],
   template: `
     @if (authService.isAuthenticated()) {
     <header class="glass-header">
@@ -65,10 +66,10 @@ import { PwaService } from '../../services/pwa.service';
           }
 
           <!-- Pricing/Plans Button -->
-          <a routerLink="/dashboard/plans" class="btn-premium plans-btn" title="Forfaits">
+          <button (click)="isPricingModalOpen.set(true)" class="btn-premium plans-btn" title="Forfaits">
             <span class="material-symbols-outlined plans-icon">star</span>
             <span class="hide-mobile">Forfaits</span>
-          </a>
+          </button>
 
           <!-- App mode switch -->
           <button (click)="cycleAppMode()" class="icon-btn theme-toggle" [title]="appMode() === 'light' ? 'Mode Sombre' : (appMode() === 'dark' ? 'Mode OLED' : 'Mode Clair')">
@@ -107,6 +108,9 @@ import { PwaService } from '../../services/pwa.service';
     <!-- Main content routing window -->
     <main class="main-container">
       <router-outlet></router-outlet>
+      @if (isPricingModalOpen()) {
+        <app-pricing (close)="isPricingModalOpen.set(false)"></app-pricing>
+      }
     </main>
 
     <!-- Footer -->
@@ -137,6 +141,7 @@ export class MainLayoutComponent {
   ];
 
   isLangMenuOpen = signal<boolean>(false);
+  isPricingModalOpen = signal<boolean>(false);
   appMode = signal<'light' | 'dark' | 'oled'>('light');
 
   constructor() {
