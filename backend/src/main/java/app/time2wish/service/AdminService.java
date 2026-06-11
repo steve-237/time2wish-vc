@@ -88,4 +88,14 @@ public class AdminService {
         long totalBirthdays = birthdayRepository.countByIsDeletedFalse();
         return new StatsResponse(totalUsers, totalBirthdays);
     }
+
+    public StatsResponse getStatsForRole(app.time2wish.model.Role role) {
+        long totalUsers = userRepository.findByRole(role).size();
+        // Since we don't easily count birthdays by role in a single query, we'll do it in Java
+        // Or better yet, we just count the birthdays of those users.
+        long totalBirthdays = userRepository.findByRole(role).stream()
+                .mapToLong(u -> birthdayRepository.findByUserAndIsDeletedFalse(u).size())
+                .sum();
+        return new StatsResponse(totalUsers, totalBirthdays);
+    }
 }

@@ -31,6 +31,14 @@ public class AdminController {
 
     @GetMapping("/stats")
     public ResponseEntity<StatsResponse> getStats() {
-        return ResponseEntity.ok(adminService.getStats());
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        boolean isSuperAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_SUPERADMIN"));
+
+        if (isSuperAdmin) {
+            return ResponseEntity.ok(adminService.getStats());
+        } else {
+            return ResponseEntity.ok(adminService.getStatsForRole(app.time2wish.model.Role.ROLE_USER));
+        }
     }
 }

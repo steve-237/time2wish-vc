@@ -39,7 +39,7 @@ import { FormsModule } from '@angular/forms';
                   </span>
                 </td>
                 <td>
-                  <select [ngModel]="user.plan" (ngModelChange)="changePlan(user, $event)" class="form-select" [disabled]="user.role === 'ROLE_SUPERADMIN'">
+                  <select [value]="user.plan" (change)="onPlanChange($event, user)" class="form-select" [disabled]="user.role === 'ROLE_SUPERADMIN'">
                     <option value="BASIC">BASIC</option>
                     <option value="PLUS">PLUS</option>
                     <option value="PRO">PRO</option>
@@ -175,8 +175,9 @@ export class AdminUsersComponent implements OnInit {
   modalState = signal<{
     isOpen: boolean;
     user: AdminUserDto | null;
-    actionType: 'status' | 'role' | 'delete' | null;
+    actionType: 'status' | 'role' | 'delete' | 'plan' | null;
     actionValue: string;
+    triggerEvent?: Event;
   }>({ isOpen: false, user: null, actionType: null, actionValue: '' });
 
   ngOnInit() {
@@ -195,18 +196,23 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
-  changePlan(user: AdminUserDto, newPlan: string) {
-    this.adminService.updateUserPlan(user.id, newPlan).subscribe({
-      next: () => {
-        this.users.update(list => list.map(u => u.id === user.id ? { ...u, plan: newPlan } : u));
-      },
-      error: (err) => alert('Erreur lors de la modification du forfait')
+  onPlanChange(event: Event, user: AdminUserDto) {
+    const select = event.target as HTMLSelectElement;
+    const newPlan = select.value;
+    
+    // Store the event so we can revert the select if canceled
+    this.modalState.set({
+      isOpen: true,
+      user,
+      actionType: 'plan',
+      actionValue: newPlan,
+      triggerEvent: event
     });
   }
 
   // --- Modal Logic ---
 
-  requestAction(user: AdminUserDto, type: 'status' | 'role' | 'delete', value: string) {
+  requestAction(user: AdminUserDto, type: 'status' | 'role' | 'delete' | 'plan', value: string) {
     this.modalState.set({
       isOpen: true,
       user,
@@ -216,6 +222,12 @@ export class AdminUsersComponent implements OnInit {
   }
 
   closeModal() {
+    const state = this.modalState();
+    // Revert the select if it was a plan change that got canceled
+    if (state.actionType === 'plan' && state.triggerEvent && state.user) {
+      const select = state.triggerEvent.target as HTMLSelectElement;
+      select.value = state.user.plan; // revert to original value
+    }
     this.modalState.set({ isOpen: false, user: null, actionType: null, actionValue: '' });
   }
 
@@ -229,6 +241,8 @@ export class AdminUsersComponent implements OnInit {
       case 'role':
         const roleName = state.actionValue === 'ROLE_ADMIN' ? 'Administrateur' : 'Utilisateur simple';
         return \`Voulez-vous donner le rôle \${roleName} à ce compte ?\`;
+      case 'plan':
+        return \`Voulez-vous attribuer le forfait \${state.actionValue} à cet utilisateur ?\`;
       case 'delete':
         return \`ATTENTION : Voulez-vous supprimer DÉFINITIVEMENT ce compte et toutes ses données associées (anniversaires, etc.) ?\`;
       default:
@@ -250,6 +264,17 @@ export class AdminUsersComponent implements OnInit {
             this.closeModal();
           },
           error: (err) => { alert(err.error?.message || 'Erreur'); this.closeModal(); }
+        });
+        break;
+
+      case 'plan':
+        this.adminService.updateUserPlan(user.id, state.actionValue).subscribe({
+          next: () => {
+            this.users.update(list => list.map(u => u.id === user.id ? { ...u, plan: state.actionValue } : u));
+            // Don't revert select, just close
+            this.modalState.set({ isOpen: false, user: null, actionType: null, actionValue: '' });
+          },
+          error: (err) => { alert('Erreur lors de la modification du forfait'); this.closeModal(); }
         });
         break;
 

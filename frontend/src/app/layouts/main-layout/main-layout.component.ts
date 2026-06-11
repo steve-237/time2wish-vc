@@ -65,9 +65,9 @@ import { PwaService } from '../../services/pwa.service';
           }
 
           <!-- Pricing/Plans Button -->
-          <a routerLink="/dashboard/plans" class="btn-secondary plans-btn" title="Forfaits" style="display: flex; align-items: center; gap: 4px; border: 1px solid #e2e8f0; background: white; padding: 6px 12px; border-radius: 8px;">
-            <span class="material-symbols-outlined" style="font-size: 1.2rem; color: #8b5cf6;">star</span>
-            <span class="hide-mobile" style="font-weight: 500; font-size: 0.9rem;">Forfaits</span>
+          <a routerLink="/dashboard/plans" class="btn-premium plans-btn" title="Forfaits">
+            <span class="material-symbols-outlined plans-icon">star</span>
+            <span class="hide-mobile">Forfaits</span>
           </a>
 
           <!-- App mode switch -->
