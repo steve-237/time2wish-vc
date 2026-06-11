@@ -77,6 +77,7 @@ public class AuthController {
                 .fullName(user.getFullName())
                 .bio(user.getBio())
                 .avatarUrl(user.getAvatarUrl())
+                .roles(java.util.Collections.singletonList(user.getRole().name()))
                 .build());
     }
 
@@ -96,6 +97,7 @@ public class AuthController {
                 .fullName(signUpRequest.getFullName())
                 .avatarUrl("https://ui-avatars.com/api/?name=" + java.net.URLEncoder.encode(signUpRequest.getFullName(), java.nio.charset.StandardCharsets.UTF_8) + "&background=" + randomHex + "&color=fff&rounded=true&bold=true")
                 .status("ACTIVE")
+                .role(app.time2wish.model.Role.ROLE_USER)
                 .build();
 
         userRepository.save(user);
@@ -127,6 +129,7 @@ public class AuthController {
                     .fullName(user.getFullName())
                     .bio(user.getBio())
                     .avatarUrl(user.getAvatarUrl())
+                    .roles(java.util.Collections.singletonList(user.getRole().name()))
                     .build());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Invalid token format"));
@@ -175,6 +178,7 @@ public class AuthController {
                 .fullName(user.getFullName())
                 .bio(user.getBio())
                 .avatarUrl(user.getAvatarUrl())
+                .roles(java.util.Collections.singletonList(user.getRole().name()))
                 .build());
     }
 

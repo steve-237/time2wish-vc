@@ -129,14 +129,7 @@ class BirthdayControllerTest {
         when(birthdayService.addBirthday(any(Birthday.class), any(User.class)))
                 .thenReturn(mockBirthday);
 
-        String payload = """
-                {
-                  "name": "Alice",
-                  "birthdate": "1990-06-15",
-                  "category": "Friend",
-                  "reminderDays": 7
-                }
-                """;
+        String payload = "{\"name\": \"Alice\", \"birthdate\": \"1990-06-15\", \"category\": \"Friend\", \"reminderDays\": 7}";
 
         mockMvc.perform(post("/api/birthdays")
                         .with(user(mockUserDetails))

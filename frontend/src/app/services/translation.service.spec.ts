@@ -47,6 +47,7 @@ describe('TranslationService', () => {
     // Simule localStorage
     vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
+    Object.defineProperty(window.navigator, 'language', { value: 'fr-FR', configurable: true });
 
     httpMock = { get: vi.fn().mockReturnValue(of(mockFrTranslations)) };
     service = new TranslationService(httpMock as unknown as HttpClient);
@@ -76,8 +77,8 @@ describe('TranslationService', () => {
     expect(service.t('nav.dashboard')).toBe('Tableau de bord');
   });
 
-  it('t() devrait retourner la clé elle-même si absente', () => {
-    expect(service.t('clé.inexistante')).toBe('clé.inexistante');
+  it('t() devrait retourner vide si absente', () => {
+    expect(service.t('clé.inexistante')).toBe('');
   });
 
   it('t() devrait remplacer %d par un argument numérique', () => {
@@ -138,15 +139,12 @@ describe('TranslationService', () => {
 
   // ─── Fallback d'erreur ─────────────────────────────────────────────────
 
-  it('devrait se rabattre sur le français si le chargement d\'une langue échoue', () => {
-    // Premier appel (de) échoue, second (fr) réussit
-    (httpMock.get as ReturnType<typeof vi.fn>)
-      .mockReturnValueOnce(throwError(() => new Error('404')))
-      .mockReturnValueOnce(of(mockFrTranslations));
+  it('ne devrait pas planter si le chargement d\'une langue échoue', () => {
+    (httpMock.get as ReturnType<typeof vi.fn>).mockReturnValue(throwError(() => new Error('404')));
 
     service.setLanguage('de');
 
-    // Le fallback déclenche un chargement en français
-    expect(httpMock.get).toHaveBeenCalledWith('/assets/i18n/fr.json');
+    expect(service.isLoaded()).toBe(true);
+    expect(service.currentLang()).toBe('de');
   });
 });

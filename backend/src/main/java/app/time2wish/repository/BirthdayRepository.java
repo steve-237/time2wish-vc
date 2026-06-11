@@ -12,6 +12,8 @@ import java.util.Optional;
 @Repository
 public interface BirthdayRepository extends JpaRepository<Birthday, Long> {
     List<Birthday> findByUserAndIsDeletedFalse(User user);
+    long countByIsDeletedFalse();
+    List<Birthday> findByUser(User user);
     Optional<Birthday> findByIdAndUserAndIsDeletedFalse(Long id, User user);
 
     /**

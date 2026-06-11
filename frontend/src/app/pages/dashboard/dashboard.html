@@ -116,7 +116,7 @@
     <select class="custom-select-control" [value]="selectedCategory()" (change)="selectedCategory.set($any($event.target).value)">
       @for (cat of categories; track cat) {
       <option [value]="cat">
-        {{ cat === 'All' ? t9n.t('dashboard.all_categories') : cat }}
+        {{ t9n.t('categories.' + cat) || cat }}
       </option>
       }
     </select>

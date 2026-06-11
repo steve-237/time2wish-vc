@@ -53,15 +53,13 @@ export class ImageUploadComponent {
   }
 
   private uploadFile(file: File) {
-    // Validate file type
     if (!file.type.startsWith('image/')) {
-      this.errorMessage.set(this.t9n.currentLang() === 'en' ? 'Only image files are allowed.' : 'Seuls les fichiers image sont autorisés.');
+      this.errorMessage.set(this.t9n.t('upload.err_type'));
       return;
     }
 
-    // Validate size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      this.errorMessage.set(this.t9n.currentLang() === 'en' ? 'Image size must be less than 5MB.' : 'La taille de l\'image doit être inférieure à 5 Mo.');
+      this.errorMessage.set(this.t9n.t('upload.err_size'));
       return;
     }
 
@@ -80,7 +78,7 @@ export class ImageUploadComponent {
       error: (err) => {
         this.isUploading.set(false);
         console.error('File upload error:', err);
-        this.errorMessage.set(this.t9n.currentLang() === 'en' ? 'Failed to upload image. Please try again.' : 'Échec du téléversement de l\'image. Veuillez réessayer.');
+        this.errorMessage.set(this.t9n.t('upload.err_fail'));
       }
     });
   }

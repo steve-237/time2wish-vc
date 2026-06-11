@@ -1,12 +1,14 @@
 import '@angular/compiler';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { TestBed } from '@angular/core/testing';
 import { BirthdayService } from './birthday.service';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
+import { ToastService } from './toast.service';
+import { TranslationService } from './translation.service';
 import { of } from 'rxjs';
 import { Birthday, BirthdayCategory } from '../models/birthday.model';
 
-// --- Mocks structure ---
 const mockHttp = {
   get: vi.fn(),
   post: vi.fn(),
@@ -18,29 +20,14 @@ const mockAuthService = {
   isAuthenticated: vi.fn().mockReturnValue(true)
 };
 
-// Mocking @angular/core before importing BirthdayService isn't strictly necessary
-// if we mock it globally or via Vitest's hoisting.
-vi.mock('@angular/core', async (importOriginal) => {
-  const original = await importOriginal<typeof import('@angular/core')>();
-  return {
-    ...original,
-    inject: (token: any) => {
-      if (token === HttpClient) {
-        return mockHttp;
-      }
-      if (token === AuthService) {
-        return mockAuthService;
-      }
-      return null;
-    },
-    effect: (cb: () => void) => {
-      cb();
-      return {
-        destroy: () => {}
-      };
-    }
-  };
-});
+const mockToastService = {
+  success: vi.fn(),
+  error: vi.fn()
+};
+
+const mockTranslationService = {
+  t: vi.fn().mockImplementation((key: string, ...args: any[]) => key)
+};
 
 describe('BirthdayService', () => {
   let service: BirthdayService;
@@ -55,7 +42,18 @@ describe('BirthdayService', () => {
     mockHttp.get.mockReturnValue(of([]));
     mockAuthService.isAuthenticated.mockReturnValue(true);
 
-    service = new BirthdayService();
+    TestBed.configureTestingModule({
+      providers: [
+        BirthdayService,
+        { provide: HttpClient, useValue: mockHttp },
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: ToastService, useValue: mockToastService },
+        { provide: TranslationService, useValue: mockTranslationService }
+      ]
+    });
+
+    // We can inject effect directly to prevent actual execution, but TestBed doesn't run effect outside InjectionContext
+    service = TestBed.inject(BirthdayService);
   });
 
   afterEach(() => {
@@ -120,10 +118,10 @@ describe('BirthdayService', () => {
   describe('activeBirthdays & statistics', () => {
     it('should filter deleted birthdays and sort by days until next occurrence', () => {
       const sampleBirthdays: Birthday[] = [
-        { id: 1, name: 'Alice', birthdate: '1990-06-05', category: 'FAMILY', isDeleted: false, reminderDays: 7 }, // Tomorrow (1 day)
-        { id: 2, name: 'Bob', birthdate: '1992-06-04', category: 'FRIENDS', isDeleted: false, reminderDays: 7 },  // Today (0 days)
-        { id: 3, name: 'Charlie', birthdate: '1995-06-03', category: 'WORK', isDeleted: true, reminderDays: 7 },  // Deleted
-        { id: 4, name: 'David', birthdate: '1988-06-10', category: 'FAMILY', isDeleted: false, reminderDays: 7 }  // Next week (6 days)
+        { id: 1, userId: 1, name: 'Alice', birthdate: '1990-06-05', category: 'Family', isDeleted: false, reminderDays: 7 }, // Tomorrow (1 day)
+        { id: 2, userId: 1, name: 'Bob', birthdate: '1992-06-04', category: 'Friend', isDeleted: false, reminderDays: 7 },  // Today (0 days)
+        { id: 3, userId: 1, name: 'Charlie', birthdate: '1995-06-03', category: 'Work', isDeleted: true, reminderDays: 7 },  // Deleted
+        { id: 4, userId: 1, name: 'David', birthdate: '1988-06-10', category: 'Family', isDeleted: false, reminderDays: 7 }  // Next week (6 days)
       ];
 
       service.birthdays.set(sampleBirthdays);
@@ -138,10 +136,10 @@ describe('BirthdayService', () => {
 
     it('should calculate statistics correctly', () => {
       const sampleBirthdays: Birthday[] = [
-        { id: 1, name: 'Alice', birthdate: '1990-06-04', category: 'FAMILY', isDeleted: false, reminderDays: 7 }, // Today (0 days)
-        { id: 2, name: 'Bob', birthdate: '1992-06-14', category: 'FRIENDS', isDeleted: false, reminderDays: 7 },  // This month (June), 10 days away
-        { id: 3, name: 'Charlie', birthdate: '1995-07-01', category: 'FAMILY', isDeleted: false, reminderDays: 7 }, // Next month (July), 27 days away
-        { id: 4, name: 'David', birthdate: '1988-08-01', category: 'WORK', isDeleted: false, reminderDays: 7 }  // Later, > 30 days
+        { id: 1, userId: 1, name: 'Alice', birthdate: '1990-06-04', category: 'Family', isDeleted: false, reminderDays: 7 }, // Today (0 days)
+        { id: 2, userId: 1, name: 'Bob', birthdate: '1992-06-14', category: 'Friend', isDeleted: false, reminderDays: 7 },  // This month (June), 10 days away
+        { id: 3, userId: 1, name: 'Charlie', birthdate: '1995-07-01', category: 'Family', isDeleted: false, reminderDays: 7 }, // Next month (July), 27 days away
+        { id: 4, userId: 1, name: 'David', birthdate: '1988-08-01', category: 'Work', isDeleted: false, reminderDays: 7 }  // Later, > 30 days
       ];
 
       service.birthdays.set(sampleBirthdays);
@@ -152,9 +150,9 @@ describe('BirthdayService', () => {
       expect(stats.thisMonthCount).toBe(2);  // Alice (June 4), Bob (June 14)
       expect(stats.next30DaysCount).toBe(3); // Alice (0), Bob (10), Charlie (27)
       expect(stats.categoryDistribution).toEqual({
-        FAMILY: 2,
-        FRIENDS: 1,
-        WORK: 1
+        Family: 2,
+        Friend: 1,
+        Work: 1
       });
     });
   });
@@ -164,7 +162,7 @@ describe('BirthdayService', () => {
   describe('API actions', () => {
     it('should load birthdays on storage reload', () => {
       const list: Birthday[] = [
-        { id: 1, name: 'Alice', birthdate: '1990-06-04', category: 'FAMILY', isDeleted: false, reminderDays: 7 }
+        { id: 1, userId: 1, name: 'Alice', birthdate: '1990-06-04', category: 'Family', isDeleted: false, reminderDays: 7 }
       ];
       mockHttp.get.mockReturnValue(of(list));
 
@@ -177,9 +175,10 @@ describe('BirthdayService', () => {
     it('should add a birthday and append it to the signal list', () => {
       const newBirthday: Birthday = {
         id: 10,
+        userId: 1,
         name: 'Eve',
         birthdate: '2000-12-25',
-        category: 'FAMILY',
+        category: 'Family',
         isDeleted: false,
         reminderDays: 7,
         photoUrl: 'https://ui-avatars.com/api/?name=Eve&background=random&color=fff&rounded=true&bold=true'
@@ -187,41 +186,53 @@ describe('BirthdayService', () => {
       mockHttp.post.mockReturnValue(of(newBirthday));
 
       service.birthdays.set([]);
-      service.addBirthday('Eve', '2000-12-25', 'FAMILY');
+      service.addBirthday('Eve', '2000-12-25', 'Family');
 
-      expect(mockHttp.post).toHaveBeenCalledWith('http://localhost:8081/api/birthdays', {
+      expect(mockHttp.post).toHaveBeenCalledWith('http://localhost:8081/api/birthdays', expect.objectContaining({
         name: 'Eve',
         birthdate: '2000-12-25',
-        category: 'FAMILY',
+        category: 'Family',
         notes: undefined,
         reminderDays: 7,
-        photoUrl: 'https://ui-avatars.com/api/?name=Eve&background=random&color=fff&rounded=true&bold=true'
-      });
+        photoUrl: expect.stringContaining('https://ui-avatars.com/api/?name=Eve'),
+        showAge: true,
+        email: undefined,
+        whatsapp: undefined,
+        gender: undefined,
+        interests: [],
+        isFavorite: false
+      }));
       expect(service.birthdays()).toContainEqual(newBirthday);
     });
 
     it('should update a birthday in the signal list', () => {
-      const original: Birthday = { id: 5, name: 'Old Name', birthdate: '1990-01-01', category: 'FRIENDS', isDeleted: false, reminderDays: 7 };
-      const updated: Birthday = { id: 5, name: 'New Name', birthdate: '1990-01-01', category: 'FRIENDS', isDeleted: false, reminderDays: 7 };
+      const original: Birthday = { id: 5, userId: 1, name: 'Old Name', birthdate: '1990-01-01', category: 'Friend', isDeleted: false, reminderDays: 7 };
+      const updated: Birthday = { id: 5, userId: 1, name: 'New Name', birthdate: '1990-01-01', category: 'Friend', isDeleted: false, reminderDays: 7 };
       mockHttp.put.mockReturnValue(of(updated));
 
       service.birthdays.set([original]);
-      service.updateBirthday(5, 'New Name', '1990-01-01', 'FRIENDS');
+      service.updateBirthday(5, 'New Name', '1990-01-01', 'Friend');
 
       expect(mockHttp.put).toHaveBeenCalledWith('http://localhost:8081/api/birthdays/5', {
         name: 'New Name',
         birthdate: '1990-01-01',
-        category: 'FRIENDS',
+        category: 'Friend',
         notes: undefined,
         reminderDays: 7,
-        photoUrl: undefined
+        photoUrl: undefined,
+        showAge: true,
+        email: undefined,
+        whatsapp: undefined,
+        gender: undefined,
+        interests: [],
+        isFavorite: false
       });
       expect(service.birthdays()).toContainEqual(updated);
       expect(service.birthdays()).not.toContainEqual(original);
     });
 
     it('should remove the birthday from the signal list on delete', () => {
-      const b: Birthday = { id: 5, name: 'Name', birthdate: '1990-01-01', category: 'FRIENDS', isDeleted: false, reminderDays: 7 };
+      const b: Birthday = { id: 5, userId: 1, name: 'Name', birthdate: '1990-01-01', category: 'Friend', isDeleted: false, reminderDays: 7 };
       mockHttp.delete.mockReturnValue(of({}));
 
       service.birthdays.set([b]);

@@ -31,10 +31,10 @@
   <div class="drop-zone" (click)="fileInput.click()">
     <span class="material-symbols-outlined upload-icon">cloud_upload</span>
     <span class="drop-text">
-      {{ t9n.currentLang() === 'en' ? 'Drag & drop image here or' : 'Glissez-déposez une image ici ou' }}
-      <strong class="browse-link">{{ t9n.currentLang() === 'en' ? 'browse' : 'parcourez' }}</strong>
+      {{ t9n.t('upload.drag_drop') }}
+      <strong class="browse-link">{{ t9n.t('upload.browse') }}</strong>
     </span>
-    <span class="drop-hint">{{ t9n.currentLang() === 'en' ? 'Supports JPG, PNG, GIF up to 5MB' : 'Supporte JPG, PNG, GIF jusqu\'à 5 Mo' }}</span>
+    <span class="drop-hint">{{ t9n.t('upload.supports') }}</span>
   </div>
   }
 
@@ -42,7 +42,7 @@
   @if (isUploading()) {
   <div class="uploading-zone">
     <div class="spinner"></div>
-    <span class="uploading-text">{{ t9n.currentLang() === 'en' ? 'Uploading...' : 'Téléversement en cours...' }}</span>
+    <span class="uploading-text">{{ t9n.t('upload.uploading') }}</span>
   </div>
   }
 

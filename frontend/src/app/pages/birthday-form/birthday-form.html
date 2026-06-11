@@ -8,11 +8,6 @@
       </button>
     </div>
 
-<div class="form-wrapper">
-  
-
-  <div class="form-card">
-    
     <!-- Error Message -->
     @if (errorMessage()) {
     <div class="alert-box">
@@ -30,16 +25,16 @@
       <div class="form-section">
         <h3 class="section-heading">
           <span class="material-symbols-outlined">person</span>
-          {{ t9n.t('form.section_identity') || 'Identité' }}
+          {{ t9n.t('form.section_identity') }}
         </h3>
         
-        <div class="form-row form-identity-row">
-          <!-- Photo -->
-          <div class="form-photo-upload">
-            <app-image-upload [currentImageUrl]="photoUrl()" (imageUrlChange)="photoUrl.set($event)"></app-image-upload>
-            <span class="form-photo-label">{{ t9n.t('form.photo_url') }}</span>
-          </div>
+        <!-- Photo -->
+        <div class="form-photo-upload full-width-upload mb-24">
+          <label class="form-section-title">{{ t9n.t('form.photo_url') }}</label>
+          <app-image-upload [currentImageUrl]="photoUrl()" (imageUrlChange)="photoUrl.set($event)"></app-image-upload>
+        </div>
 
+        <div class="form-row form-identity-row">
           <div class="form-identity-fields">
             <!-- Name -->
             <div class="floating-group no-margin-bottom">
@@ -57,27 +52,27 @@
 
             <!-- Gender -->
             <div class="gender-selector">
-              <label class="form-section-title form-gender-title">{{ t9n.t('form.gender') || 'Genre' }}</label>
+              <label class="form-section-title form-gender-title">{{ t9n.t('form.gender') }}</label>
               <div class="radio-group">
                 <label class="radio-card">
                   <input type="radio" name="gender" value="Masculin" [ngModel]="gender()" (ngModelChange)="gender.set($event)">
                   <span class="radio-content">
                     <span class="material-symbols-outlined">male</span>
-                    Masculin
+                    {{ t9n.t('form.gender_male') }}
                   </span>
                 </label>
                 <label class="radio-card">
                   <input type="radio" name="gender" value="Féminin" [ngModel]="gender()" (ngModelChange)="gender.set($event)">
                   <span class="radio-content">
                     <span class="material-symbols-outlined">female</span>
-                    Féminin
+                    {{ t9n.t('form.gender_female') }}
                   </span>
                 </label>
                 <label class="radio-card">
                   <input type="radio" name="gender" value="Autre" [ngModel]="gender()" (ngModelChange)="gender.set($event)">
                   <span class="radio-content">
                     <span class="material-symbols-outlined">transgender</span>
-                    Autre
+                    {{ t9n.t('form.gender_other') }}
                   </span>
                 </label>
               </div>
@@ -109,7 +104,7 @@
               [class.active]="category() === cat"
               [class]="'category-card card-' + cat.toLowerCase()">
               <span class="material-symbols-outlined cat-card-icon">{{ getIconForCategory(cat) }}</span>
-              <span class="cat-card-label">{{ cat }}</span>
+              <span class="cat-card-label">{{ t9n.t('categories.' + cat) || cat }}</span>
             </button>
             }
           </div>
@@ -124,7 +119,7 @@
       <div class="form-section">
         <h3 class="section-heading">
           <span class="material-symbols-outlined">contact_mail</span>
-          {{ t9n.t('form.section_contact') || 'Coordonnées (Optionnel)' }}
+          {{ t9n.t('form.section_contact') }}
         </h3>
         
         <div class="form-row">
@@ -164,7 +159,7 @@
       <div class="form-section">
         <h3 class="section-heading">
           <span class="material-symbols-outlined">settings</span>
-          {{ t9n.t('form.section_prefs') || 'Préférences & Notes' }}
+          {{ t9n.t('form.section_prefs') }}
         </h3>
 
         <div class="form-row flex-align-center">
@@ -191,7 +186,7 @@
           <!-- Show Age Toggle -->
           <div class="toggle-group form-age-toggle">
             <label class="form-section-title form-age-title">
-              {{ t9n.t('form.age_display') || 'Afficher l\'âge' }}
+              {{ t9n.t('form.age_display') }}
             </label>
             <label class="toggle-switch">
               <input 
@@ -229,7 +224,5 @@
 
     </form>
 
-  </div>
-</div>
   </div>
 </div>

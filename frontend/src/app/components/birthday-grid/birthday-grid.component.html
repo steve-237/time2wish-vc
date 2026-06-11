@@ -4,7 +4,7 @@
     
     <!-- Top row: Category tag & Star -->
     <div class="grid-top-row">
-      <span class="tag-category grid-cat-tag" [class]="'tag-' + b.category.toLowerCase()">{{ b.category }}</span>
+      <span class="tag-category grid-cat-tag" [class]="'tag-' + b.category.toLowerCase()">{{ t9n.t('categories.' + b.category) || b.category }}</span>
       
       <button 
         (click)="toggleFavorite(b, $event)" 

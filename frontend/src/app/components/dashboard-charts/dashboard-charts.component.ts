@@ -184,7 +184,7 @@ export class DashboardChartsComponent implements OnChanges {
     const colors = categories.map(c => colorMap[c] || '#f59e0b');
 
     this.doughnutChartData = {
-      labels: categories,
+      labels: categories.map(c => this.t9n.t('categories.' + c) || c),
       datasets: [
         {
           data: counts,

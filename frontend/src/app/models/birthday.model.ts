@@ -5,6 +5,7 @@ export interface User {
   bio?: string;
   avatarUrl?: string;
   status: 'PENDING' | 'ACTIVE' | 'BANNED' | 'DELETED';
+  roles?: string[];
 }
 
 export type BirthdayCategory = 'Family' | 'Friend' | 'Work' | 'Other';

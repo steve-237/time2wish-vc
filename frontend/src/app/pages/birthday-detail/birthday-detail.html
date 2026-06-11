@@ -27,7 +27,7 @@
         </h1>
         <div class="profile-tags">
           <span class="tag-category" [class]="'tag-' + birthday()?.category?.toLowerCase()">
-            {{ birthday()?.category }}
+            {{ birthday()?.category ? (t9n.t('categories.' + birthday()!.category) || birthday()?.category) : '' }}
           </span>
           <span class="badge-urgency" [class]="birthdayService.getUrgencyClass(daysUntil())">
             {{ getLabel(birthdayService.getCountdownLabel(daysUntil())) }}
