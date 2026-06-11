@@ -83,34 +83,57 @@ import { AuthService } from '../../services/auth.service';
       overflow: hidden;
     }
     .admin-header {
-      height: 60px;
-      background-color: white;
-      border-bottom: 1px solid #e5e7eb;
+      height: 70px;
+      background: var(--header-bg);
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      border-bottom: 1px solid var(--border-card);
+      box-shadow: 0 1px 10px rgba(0, 0, 0, 0.02);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 20px;
+      padding: 0 30px;
+      z-index: 100;
     }
     .header-title {
-      font-weight: 600;
-      color: #111827;
+      font-family: var(--font-title);
+      font-weight: 700;
+      font-size: 1.25rem;
+      background: linear-gradient(135deg, hsl(var(--primary-hsl)) 0%, hsl(var(--accent-hsl)) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 20px;
     }
     .admin-user {
-      font-size: 0.9rem;
-      color: #4b5563;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .logout-btn {
-      padding: 6px 12px;
-      background-color: #ef4444;
-      color: white;
-      border: none;
-      border-radius: 4px;
+      padding: 8px 16px;
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 8px;
+      font-family: var(--font-title);
+      font-weight: 600;
       cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .logout-btn:hover {
+      background: #ef4444;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
     }
     .admin-content {
       flex: 1;
