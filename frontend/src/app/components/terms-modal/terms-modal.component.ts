@@ -19,12 +19,25 @@ import { TranslationService } from '../../services/translation.service';
               <p>{{ t9n.t('terms.content') || 'En utilisant Time2Wish, vous acceptez nos conditions d\\'utilisation. Nous nous engageons à protéger vos données personnelles et à ne les utiliser que pour le bon fonctionnement de l\\'application.' }}</p>
               
               <div class="terms-scroll-area">
-                <p><strong>1. Acceptation des conditions</strong><br>
-                L'utilisation de cette application implique l'acceptation pleine et entière des conditions générales d'utilisation décrites ci-après.</p>
-                <p><strong>2. Gestion des données</strong><br>
-                Vos données sont chiffrées et sécurisées. Elles ne seront jamais revendues à des tiers.</p>
-                <p><strong>3. Responsabilité</strong><br>
-                Time2Wish s'efforce de fournir le meilleur service possible, mais ne peut garantir une absence totale de dysfonctionnements.</p>
+                <p><strong>{{ t9n.t('terms.sec1_title') }}</strong><br>
+                {{ t9n.t('terms.sec1_text') }}</p>
+                
+                <p><strong>{{ t9n.t('terms.sec2_title') }}</strong><br>
+                {{ t9n.t('terms.sec2_text') }}</p>
+                <ul>
+                  <li>{{ t9n.t('terms.sec2_li1') }}</li>
+                  <li>{{ t9n.t('terms.sec2_li2') }}</li>
+                  <li>{{ t9n.t('terms.sec2_li3') }}</li>
+                </ul>
+
+                <p><strong>{{ t9n.t('terms.sec3_title') }}</strong><br>
+                {{ t9n.t('terms.sec3_text') }}</p>
+
+                <p><strong>{{ t9n.t('terms.sec4_title') }}</strong><br>
+                {{ t9n.t('terms.sec4_text') }}</p>
+
+                <p><strong>{{ t9n.t('terms.sec5_title') }}</strong><br>
+                {{ t9n.t('terms.sec5_text') }}</p>
               </div>
             </div>
 
@@ -103,6 +116,14 @@ import { TranslationService } from '../../services/translation.service';
     }
     .terms-scroll-area p:last-child {
       margin-bottom: 0;
+    }
+    .terms-scroll-area ul {
+      margin-top: -0.5rem;
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+    .terms-scroll-area li {
+      margin-bottom: 0.25rem;
     }
     .terms-actions {
       padding: 1.5rem;
