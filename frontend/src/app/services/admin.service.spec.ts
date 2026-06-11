@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { AdminService, StatsResponse, AdminUserDto } from './admin.service';
-import { environment } from '../../../environments/environment';
+
 
 describe('AdminService', () => {
   let service: AdminService;
@@ -32,7 +32,7 @@ describe('AdminService', () => {
       expect(stats.totalBirthdays).toBe(100);
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/admin/stats`);
+    const req = httpMock.expectOne(`http://localhost:8081/api/admin/stats`);
     expect(req.request.method).toBe('GET');
     req.flush(dummyStats);
   });
@@ -47,7 +47,7 @@ describe('AdminService', () => {
       expect(users[0].email).toBe('test@test.com');
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/admin/users`);
+    const req = httpMock.expectOne(`http://localhost:8081/api/admin/users`);
     expect(req.request.method).toBe('GET');
     req.flush(dummyUsers);
   });
@@ -57,7 +57,7 @@ describe('AdminService', () => {
       expect(res).toBeNull();
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/admin/users/1`);
+    const req = httpMock.expectOne(`http://localhost:8081/api/admin/users/1`);
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
   });
@@ -67,7 +67,7 @@ describe('AdminService', () => {
       expect(res).toBeNull();
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/admin/users/1/password`);
+    const req = httpMock.expectOne(`http://localhost:8081/api/admin/users/1/password`);
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual({ newPassword: 'newPass' });
     req.flush(null);
