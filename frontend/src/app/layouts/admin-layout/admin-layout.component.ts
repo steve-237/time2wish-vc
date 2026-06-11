@@ -16,7 +16,6 @@ import { AuthService } from '../../services/auth.service';
         <nav class="sidebar-nav">
           <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item">Dashboard</a>
           <a routerLink="/admin/users" routerLinkActive="active" class="nav-item">Users</a>
-          <a routerLink="/admin/settings" routerLinkActive="active" class="nav-item">Settings</a>
           <a routerLink="/dashboard" class="nav-item back-link">Back to App</a>
         </nav>
       </aside>
@@ -150,7 +149,7 @@ export class AdminLayoutComponent {
 
   onLogout() {
     this.authService.logout().subscribe(() => {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/admin/login']);
     });
   }
 }
