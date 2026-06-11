@@ -7,7 +7,6 @@ import { ToastContainerComponent } from './components/toast-container/toast-cont
   standalone: true,
   imports: [RouterOutlet, ToastContainerComponent],
   templateUrl: './app.html',
-  styleUrl: './app.scss',
   encapsulation: ViewEncapsulation.None
 })
 export class App implements OnInit {
