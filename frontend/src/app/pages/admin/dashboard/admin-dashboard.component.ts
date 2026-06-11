@@ -32,9 +32,14 @@ import { AdminService, StatsResponse } from '../../../services/admin.service';
       padding: 1rem;
     }
     .page-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: #111827;
+      font-family: var(--font-title);
+      font-size: 1.8rem;
+      font-weight: 700;
+      display: inline-block;
+      background: linear-gradient(135deg, hsl(var(--primary-hsl)) 0%, hsl(var(--accent-hsl)) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin-bottom: 2rem;
     }
     .stats-grid {

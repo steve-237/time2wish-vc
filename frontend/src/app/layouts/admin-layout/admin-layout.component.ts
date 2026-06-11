@@ -99,6 +99,7 @@ import { AuthService } from '../../services/auth.service';
       font-family: var(--font-title);
       font-weight: 700;
       font-size: 1.25rem;
+      display: inline-block;
       background: linear-gradient(135deg, hsl(var(--primary-hsl)) 0%, hsl(var(--accent-hsl)) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
