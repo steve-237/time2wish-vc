@@ -31,7 +31,13 @@
     "sec4_title": "4. Verfügbarkeit des Dienstes",
     "sec4_text": "Wir bemühen uns, Time2Wish rund um die Uhr verfügbar zu halten. Wir behalten uns jedoch das Recht vor, den Dienst für Wartungs- oder Aktualisierungsarbeiten vorübergehend auszusetzen.",
     "sec5_title": "5. Kündigung",
-    "sec5_text": "Sie können Ihr Konto jederzeit löschen. Wir behalten uns außerdem das Recht vor, ein Konto im Falle eines Verstoßes gegen diese Bedingungen zu sperren oder zu löschen."
+    "sec5_text": "Sie können Ihr Konto jederzeit löschen. Wir behalten uns außerdem das Recht vor, ein Konto im Falle eines Verstoßes gegen diese Bedingungen zu sperren oder zu löschen.",
+    "content": "Durch die Nutzung von Time2Wish erklären Sie sich mit unseren Nutzungsbedingungen einverstanden. Wir verpflichten uns, Ihre persönlichen Daten zu schützen und sie nur für das ordnungsgemäße Funktionieren der Anwendung zu verwenden.",
+    "accept": "Akzeptieren und fortfahren",
+    "refuse": "Ablehnen",
+    "blocked_title": "Zugriff verweigert",
+    "blocked_content": "Sie müssen die Nutzungsbedingungen akzeptieren, um Time2Wish nutzen zu können.",
+    "rethink": "Bedingungen erneut lesen"
   },
   "support": {
     "title": "Support-Center",

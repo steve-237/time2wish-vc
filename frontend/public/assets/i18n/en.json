@@ -31,7 +31,13 @@
     "sec4_title": "4. Service Availability",
     "sec4_text": "We strive to keep Time2Wish accessible 24/7. However, we reserve the right to temporarily suspend the service for maintenance or updates.",
     "sec5_title": "5. Termination",
-    "sec5_text": "You can delete your account at any time. We also reserve the right to suspend or delete an account in the event of a violation of these terms."
+    "sec5_text": "You can delete your account at any time. We also reserve the right to suspend or delete an account in the event of a violation of these terms.",
+    "content": "By using Time2Wish, you agree to our terms of use. We are committed to protecting your personal data and using it only for the proper functioning of the application.",
+    "accept": "Accept and Continue",
+    "refuse": "Refuse",
+    "blocked_title": "Access Denied",
+    "blocked_content": "You must accept the terms of use to use Time2Wish.",
+    "rethink": "Reread the terms"
   },
   "support": {
     "title": "Support Center",

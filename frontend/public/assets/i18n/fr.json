@@ -31,7 +31,13 @@
     "sec4_title": "4. Disponibilité du service",
     "sec4_text": "Nous nous efforçons de maintenir Time2Wish accessible 24h/24 et 7j/7. Toutefois, nous nous réservons le droit de suspendre temporairement le service pour des opérations de maintenance ou de mise à jour.",
     "sec5_title": "5. Résiliation",
-    "sec5_text": "Vous pouvez supprimer votre compte à tout moment. Nous nous réservons également le droit de suspendre ou de supprimer un compte en cas de violation des présentes conditions."
+    "sec5_text": "Vous pouvez supprimer votre compte à tout moment. Nous nous réservons également le droit de suspendre ou de supprimer un compte en cas de violation des présentes conditions.",
+    "content": "En utilisant Time2Wish, vous acceptez nos conditions d'utilisation. Nous nous engageons à protéger vos données personnelles et à ne les utiliser que pour le bon fonctionnement de l'application.",
+    "accept": "Accepter et Continuer",
+    "refuse": "Refuser",
+    "blocked_title": "Accès Refusé",
+    "blocked_content": "Vous devez accepter les conditions d'utilisation pour pouvoir utiliser Time2Wish.",
+    "rethink": "Relire les conditions"
   },
   "support": {
     "title": "Centre de Support",
