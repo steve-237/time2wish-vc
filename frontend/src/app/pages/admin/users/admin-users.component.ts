@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { AdminService, AdminUserDto } from '../../../services/admin.service';
+import { AuthService } from '../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -124,7 +125,7 @@ export class AdminUsersComponent implements OnInit {
   }
 
   changeStatus(user: AdminUserDto, newStatus: string) {
-    if (confirm(\`Êtes-vous sûr de vouloir passer ce compte en \${newStatus} ?\`)) {
+    if (confirm(`Êtes-vous sûr de vouloir passer ce compte en ${newStatus} ?`)) {
       this.adminService.updateUserStatus(user.id, newStatus).subscribe({
         next: () => {
           this.users.update(list => list.map(u => u.id === user.id ? { ...u, status: newStatus } : u));

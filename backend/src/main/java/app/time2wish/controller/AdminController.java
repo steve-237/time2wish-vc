@@ -27,22 +27,7 @@ public class AdminController {
         return ResponseEntity.ok("Admin access granted.");
     }
 
-    @GetMapping("/users")
-    public ResponseEntity<List<AdminUserDto>> getAllUsers() {
-        return ResponseEntity.ok(adminService.getAllUsers());
-    }
 
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        adminService.deleteUser(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/users/{id}/password")
-    public ResponseEntity<Void> updateUserPassword(@PathVariable Long id, @Valid @RequestBody AdminPasswordUpdateRequest request) {
-        adminService.updateUserPassword(id, request.getNewPassword());
-        return ResponseEntity.noContent().build();
-    }
 
     @GetMapping("/stats")
     public ResponseEntity<StatsResponse> getStats() {

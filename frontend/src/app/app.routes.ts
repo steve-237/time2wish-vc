@@ -4,6 +4,14 @@ import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   {
+    path: 'admin/login',
+    loadComponent: () => import('./pages/admin/auth/admin-login.component').then(m => m.AdminLoginComponent)
+  },
+  {
+    path: 'admin/register',
+    loadComponent: () => import('./pages/admin/auth/admin-register.component').then(m => m.AdminRegisterComponent)
+  },
+  {
     path: 'admin',
     loadComponent: () => import('./layouts/admin-layout/admin-layout.component').then(m => m.AdminLayoutComponent),
     canActivate: [authGuard, adminGuard],
@@ -22,14 +30,6 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/admin/users/admin-users.component').then(m => m.AdminUsersComponent)
       }
     ]
-  },
-  {
-    path: 'admin/login',
-    loadComponent: () => import('./pages/admin/auth/admin-login.component').then(m => m.AdminLoginComponent)
-  },
-  {
-    path: 'admin/register',
-    loadComponent: () => import('./pages/admin/auth/admin-register.component').then(m => m.AdminRegisterComponent)
   },
   {
     path: '',

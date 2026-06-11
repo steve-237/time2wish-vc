@@ -84,7 +84,7 @@ export class AdminLoginComponent {
     this.authService.login(this.email, this.password).subscribe({
       next: (res) => {
         const user = this.authService.currentUser();
-        if (user && (user.roles.includes('ROLE_ADMIN') || user.roles.includes('ROLE_SUPERADMIN'))) {
+        if (user && (user.roles?.includes('ROLE_ADMIN') || user.roles?.includes('ROLE_SUPERADMIN'))) {
           this.toastService.success('Bienvenue sur le portail d\'administration');
           this.router.navigate(['/admin/dashboard']);
         } else {

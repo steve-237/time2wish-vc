@@ -15,7 +15,11 @@ public class DataInitializer {
     @Bean
     public CommandLineRunner initData(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            if (userRepository.findByEmail("superadmin@time2wish.com").isEmpty()) {
+            userRepository.findByEmail("superadmin@time2wish.com").ifPresentOrElse(user -> {
+                user.setRole(Role.ROLE_SUPERADMIN);
+                user.setPlan(PlanType.PRO);
+                userRepository.save(user);
+            }, () -> {
                 User superAdmin = User.builder()
                         .email("superadmin@time2wish.com")
                         .password(passwordEncoder.encode("password123"))
@@ -25,9 +29,13 @@ public class DataInitializer {
                         .plan(PlanType.PRO)
                         .build();
                 userRepository.save(superAdmin);
-            }
+            });
 
-            if (userRepository.findByEmail("demo-admin@time2wish.com").isEmpty()) {
+            userRepository.findByEmail("demo-admin@time2wish.com").ifPresentOrElse(user -> {
+                user.setRole(Role.ROLE_ADMIN);
+                user.setPlan(PlanType.PRO);
+                userRepository.save(user);
+            }, () -> {
                 User admin = User.builder()
                         .email("demo-admin@time2wish.com")
                         .password(passwordEncoder.encode("password123"))
@@ -37,7 +45,7 @@ public class DataInitializer {
                         .plan(PlanType.PRO)
                         .build();
                 userRepository.save(admin);
-            }
+            });
         };
     }
 }
