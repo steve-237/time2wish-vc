@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ViewEncapsulation } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastContainerComponent } from './components/toast-container/toast-container.component';
 
@@ -7,7 +7,8 @@ import { ToastContainerComponent } from './components/toast-container/toast-cont
   standalone: true,
   imports: [RouterOutlet, ToastContainerComponent],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
+  encapsulation: ViewEncapsulation.None
 })
 export class App implements OnInit {
   
