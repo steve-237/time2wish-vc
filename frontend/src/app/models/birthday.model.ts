@@ -4,8 +4,9 @@ export interface User {
   fullName: string;
   bio?: string;
   avatarUrl?: string;
-  status: 'PENDING' | 'ACTIVE' | 'BANNED' | 'DELETED';
+  status: string;
   roles?: string[];
+  plan?: string;
 }
 
 export type BirthdayCategory = 'Family' | 'Friend' | 'Work' | 'Other';

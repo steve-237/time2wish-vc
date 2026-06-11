@@ -7,10 +7,10 @@ export const adminGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   const user = authService.currentUser();
-  if (user && user.roles && user.roles.includes('ROLE_ADMIN')) {
+  if (user && user.roles && (user.roles.includes('ROLE_ADMIN') || user.roles.includes('ROLE_SUPERADMIN'))) {
     return true;
   }
 
-  // Not an admin, redirect to dashboard
-  return router.createUrlTree(['/dashboard']);
+  // Not an admin, redirect to admin login
+  return router.createUrlTree(['/admin/login']);
 };

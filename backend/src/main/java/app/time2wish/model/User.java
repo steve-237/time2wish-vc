@@ -45,6 +45,11 @@ public class User {
     @Builder.Default
     private Role role = Role.ROLE_USER;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private PlanType plan = PlanType.BASIC;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

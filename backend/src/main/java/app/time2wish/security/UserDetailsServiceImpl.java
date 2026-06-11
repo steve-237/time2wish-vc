@@ -19,6 +19,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + email));
+        
+        if ("BLOCKED".equals(user.getStatus())) {
+            throw new org.springframework.security.authentication.LockedException("Account has been blocked.");
+        }
+        
+        if ("PENDING_APPROVAL".equals(user.getStatus())) {
+            throw new org.springframework.security.authentication.DisabledException("Admin account is pending SuperAdmin approval.");
+        }
 
         return UserDetailsImpl.build(user);
     }

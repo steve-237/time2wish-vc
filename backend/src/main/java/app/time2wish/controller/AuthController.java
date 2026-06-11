@@ -78,6 +78,7 @@ public class AuthController {
                 .bio(user.getBio())
                 .avatarUrl(user.getAvatarUrl())
                 .roles(java.util.Collections.singletonList(user.getRole().name()))
+                .plan(user.getPlan().name())
                 .build());
     }
 
@@ -130,6 +131,7 @@ public class AuthController {
                     .bio(user.getBio())
                     .avatarUrl(user.getAvatarUrl())
                     .roles(java.util.Collections.singletonList(user.getRole().name()))
+                    .plan(user.getPlan().name())
                     .build());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Invalid token format"));
@@ -179,6 +181,7 @@ public class AuthController {
                 .bio(user.getBio())
                 .avatarUrl(user.getAvatarUrl())
                 .roles(java.util.Collections.singletonList(user.getRole().name()))
+                .plan(user.getPlan().name())
                 .build());
     }
 

@@ -24,6 +24,14 @@ export const routes: Routes = [
     ]
   },
   {
+    path: 'admin/login',
+    loadComponent: () => import('./pages/admin/auth/admin-login.component').then(m => m.AdminLoginComponent)
+  },
+  {
+    path: 'admin/register',
+    loadComponent: () => import('./pages/admin/auth/admin-register.component').then(m => m.AdminRegisterComponent)
+  },
+  {
     path: '',
     loadComponent: () => import('./layouts/main-layout/main-layout.component').then(m => m.MainLayoutComponent),
     children: [

@@ -17,4 +17,5 @@ public class JwtResponse {
     private String bio;
     private String avatarUrl;
     private java.util.List<String> roles;
+    private String plan;
 }

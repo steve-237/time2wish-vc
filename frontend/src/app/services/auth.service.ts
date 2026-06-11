@@ -12,6 +12,7 @@ interface AuthResponse {
   bio?: string;
   avatarUrl?: string;
   roles: string[];
+  plan?: string;
 }
 
 @Injectable({
@@ -108,7 +109,8 @@ export class AuthService {
       bio: res.bio,
       avatarUrl: res.avatarUrl,
       status: 'ACTIVE',
-      roles: res.roles || []
+      roles: res.roles || [],
+      plan: res.plan || 'BASIC'
     };
     
     this.accessToken.set(res.token);

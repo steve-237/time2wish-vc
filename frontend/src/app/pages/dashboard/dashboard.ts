@@ -15,6 +15,7 @@ import { ToastService } from '../../services/toast.service';
 import { DashboardChartsComponent } from '../../components/dashboard-charts/dashboard-charts.component';
 import { ExportService } from '../../services/export.service';
 import { ConfettiService } from '../../services/confetti.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -31,9 +32,14 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   private notifService = inject(NotificationService);
   private exportService = inject(ExportService);
   private confettiService = inject(ConfettiService);
+  authService = inject(AuthService);
 
   @ViewChild('confettiCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
   private cleanupConfetti?: () => void;
+
+  get userPlan() {
+    return this.authService.currentUser()?.plan || 'BASIC';
+  }
 
   // Filters
   searchQuery = signal<string>('');

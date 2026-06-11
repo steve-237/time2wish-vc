@@ -13,6 +13,7 @@ export interface AdminUserDto {
   lastLoginAt?: string;
   createdAt: string;
   role: string;
+  plan: string;
 }
 
 export interface StatsResponse {
@@ -35,11 +36,15 @@ export class AdminService {
     return this.http.get<AdminUserDto[]>(`${this.apiUrl}/users`);
   }
 
-  deleteUser(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/users/${id}`);
+  updateUserStatus(id: number, status: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/${id}/status`, { status });
   }
 
-  updateUserPassword(id: number, newPassword: string): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/users/${id}/password`, { newPassword });
+  updateUserPlan(id: number, plan: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/${id}/plan`, { plan });
+  }
+
+  updateUserRole(id: number, role: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/${id}/role`, { role });
   }
 }

@@ -21,32 +21,46 @@
     </button>
 
     <!-- Actions Selector -->
-    <div class="month-selector-custom dashboard-month-selector">
-      <select class="custom-select-control" (change)="onActionSelect($event)">
-        <option value="" disabled selected>{{ t9n.t('dashboard.actions') || 'Actions' }}</option>
-        <option value="export-csv">{{ t9n.t('dashboard.export_csv') || 'Exporter CSV' }}</option>
-        <option value="export-ical">{{ t9n.t('dashboard.export_ical') || 'Exporter iCal' }}</option>
-        <option value="import-csv">{{ t9n.t('dashboard.import_csv') || 'Importer CSV' }}</option>
-      </select>
-      <span class="material-symbols-outlined select-chevron">expand_more</span>
-    </div>
+    @if (userPlan !== 'BASIC') {
+      <div class="month-selector-custom dashboard-month-selector">
+        <select class="custom-select-control" (change)="onActionSelect($event)">
+          <option value="" disabled selected>{{ t9n.t('dashboard.actions') || 'Actions' }}</option>
+          <option value="export-csv">{{ t9n.t('dashboard.export_csv') || 'Exporter CSV' }}</option>
+          <option value="export-ical">{{ t9n.t('dashboard.export_ical') || 'Exporter iCal' }}</option>
+          <option value="import-csv">{{ t9n.t('dashboard.import_csv') || 'Importer CSV' }}</option>
+        </select>
+        <span class="material-symbols-outlined select-chevron">expand_more</span>
+      </div>
+    }
     <input type="file" #csvFileInput (change)="onCSVImport($event)" accept=".csv" class="hidden">
 
     <!-- Add Birthday Button -->
-    <a
-      routerLink="/dashboard/birthday/add"
-      class="btn-premium dashboard-action-btn dashboard-add-btn">
-      <span class="material-symbols-outlined add-icon">add_circle</span>
-      {{ t9n.t('dashboard.btn_add') }}
-    </a>
+    @if (userPlan === 'BASIC' && birthdayService.activeBirthdays().length >= 20) {
+      <button
+        class="btn-premium dashboard-action-btn dashboard-add-btn disabled"
+        title="Limite de 20 anniversaires atteinte avec le forfait BASIC"
+        (click)="toastService.error('Limite atteinte. Veuillez passer à un forfait supérieur pour ajouter plus d\\'anniversaires.')">
+        <span class="material-symbols-outlined add-icon">add_circle</span>
+        {{ t9n.t('dashboard.btn_add') }}
+      </button>
+    } @else {
+      <a
+        routerLink="/dashboard/birthday/add"
+        class="btn-premium dashboard-action-btn dashboard-add-btn">
+        <span class="material-symbols-outlined add-icon">add_circle</span>
+        {{ t9n.t('dashboard.btn_add') }}
+      </a>
+    }
 
     <!-- Statistiques Button -->
-    <a
-      routerLink="/dashboard/stats"
-      class="btn-secondary dashboard-action-btn dashboard-stats-btn">
-      <span class="material-symbols-outlined stats-icon">bar_chart</span>
-      {{ t9n.t('dashboard.btn_stats') || 'Statistiques' }}
-    </a>
+    @if (userPlan === 'PRO') {
+      <a
+        routerLink="/dashboard/stats"
+        class="btn-secondary dashboard-action-btn dashboard-stats-btn">
+        <span class="material-symbols-outlined stats-icon">bar_chart</span>
+        {{ t9n.t('dashboard.btn_stats') || 'Statistiques' }}
+      </a>
+    }
   </div>
 </div>
 
@@ -166,30 +180,32 @@
     </button>
   </div>
 
-  <!-- View Mode Toggle -->
-  <div class="view-mode-toggle flex-center">
-    <button 
-      (click)="viewMode.set('grid')" 
-      [class.active]="viewMode() === 'grid'"
-      class="icon-btn" 
-      title="Vue Grille">
-      <span class="material-symbols-outlined">grid_view</span>
-    </button>
-    <button 
-      (click)="viewMode.set('list')" 
-      [class.active]="viewMode() === 'list'"
-      class="icon-btn" 
-      title="Vue Liste">
-      <span class="material-symbols-outlined">view_list</span>
-    </button>
-    <button 
-      (click)="viewMode.set('calendar')" 
-      [class.active]="viewMode() === 'calendar'"
-      class="icon-btn" 
-      title="Vue Calendrier">
-      <span class="material-symbols-outlined">calendar_month</span>
-    </button>
-  </div>
+    <!-- View Mode Toggle -->
+    <div class="view-mode-toggle flex-center">
+      <button 
+        (click)="viewMode.set('grid')" 
+        [class.active]="viewMode() === 'grid'"
+        class="icon-btn" 
+        title="Vue Grille">
+        <span class="material-symbols-outlined">grid_view</span>
+      </button>
+      <button 
+        (click)="viewMode.set('list')" 
+        [class.active]="viewMode() === 'list'"
+        class="icon-btn" 
+        title="Vue Liste">
+        <span class="material-symbols-outlined">view_list</span>
+      </button>
+      @if (userPlan !== 'BASIC') {
+        <button 
+          (click)="viewMode.set('calendar')" 
+          [class.active]="viewMode() === 'calendar'"
+          class="icon-btn" 
+          title="Vue Calendrier">
+          <span class="material-symbols-outlined">calendar_month</span>
+        </button>
+      }
+    </div>
 </div>
 
 <!-- ====== LIST VIEW ====== -->
