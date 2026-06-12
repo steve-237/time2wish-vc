@@ -88,7 +88,7 @@ import { UiService } from '../../services/ui.service';
 
           <!-- Profile dropdown / User Menu -->
           <a routerLink="/dashboard/profile" class="user-profile-menu flex-center gap-sm profile-link">
-            <img [src]="authService.currentUser()?.avatarUrl" alt="Avatar" class="user-avatar">
+            <img [src]="authService.currentUser()?.avatarUrl || 'https://ui-avatars.com/api/?name=' + (authService.currentUser()?.fullName || 'U') + '&background=random'" alt="Avatar" class="user-avatar">
             <div class="user-info">
                <span class="user-name">{{ authService.currentUser()?.fullName }}</span>
                <span class="user-email">{{ authService.currentUser()?.email }}</span>

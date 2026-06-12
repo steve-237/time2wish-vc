@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ToastService } from '../../../services/toast.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-register',
@@ -98,7 +99,7 @@ export class AdminRegisterComponent {
   router = inject(Router);
   toastService = inject(ToastService);
 
-  private API_URL = 'http://localhost:8081/api/admin/auth/';
+  private API_URL = environment.apiUrl + '/admin/auth/';
 
   onSubmit() {
     this.isLoading.set(true);

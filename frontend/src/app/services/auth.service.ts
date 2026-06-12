@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { User } from '../models/birthday.model';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 interface AuthResponse {
   token: string;
@@ -20,7 +21,7 @@ interface AuthResponse {
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:8081/api/auth';
+  private readonly API_URL = environment.apiUrl + '/auth';
   private readonly STORAGE_USER_KEY = 't2w_user_profile';
 
   // Signals

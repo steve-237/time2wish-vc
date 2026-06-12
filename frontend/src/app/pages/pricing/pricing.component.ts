@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { ToastService } from '../../services/toast.service';
 import { Router } from '@angular/router';
 import { TranslationService } from '../../services/translation.service';
-
+import { environment } from '../../environments/environment';
 @Component({
   selector: 'app-pricing',
   standalone: true,
@@ -115,7 +115,7 @@ export class PricingComponent {
     const confirmMsg = this.t9n.t('pricing.confirm_change').replace('%s', plan);
     if (confirm(confirmMsg)) {
       this.isLoading.set(true);
-      this.http.put('http://localhost:8081/api/users/me/plan', { plan }).subscribe({
+      this.http.put(environment.apiUrl + '/users/me/plan', { plan }).subscribe({
         next: (res: any) => {
           const successMsg = this.t9n.t('pricing.success_change').replace('%s', plan);
           this.toastService.success(successMsg);

@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, signal, inject } from '@angular
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { TranslationService } from '../../services/translation.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-image-upload',
@@ -69,7 +70,7 @@ export class ImageUploadComponent {
     const formData = new FormData();
     formData.append('file', file);
 
-    this.http.post<{ url: string; filename: string }>('http://localhost:8081/api/upload', formData).subscribe({
+    this.http.post<{ url: string; filename: string }>(environment.apiUrl + '/upload', formData).subscribe({
       next: (response) => {
         this.isUploading.set(false);
         this.currentImageUrl = response.url;

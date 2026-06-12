@@ -6,6 +6,7 @@ import { Birthday } from '../../models/birthday.model';
 import { TranslationService } from '../../services/translation.service';
 import { TemplateService } from '../../services/template.service';
 import { TemplateManagerComponent } from '../template-manager/template-manager.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-wish-modal',
@@ -50,7 +51,7 @@ export class WishModalComponent implements OnInit {
   // Generate wish via Backend AI API
   generateAiWish() {
     this.isGenerating.set(true);
-    this.http.post<{ message: string }>('http://localhost:8081/api/ai/generate', {
+    this.http.post<{ message: string }>(environment.apiUrl + '/ai/generate', {
       birthdayId: this.birthday.id,
       tone: this.aiTone(),
       extraInstructions: this.aiInstructions(),

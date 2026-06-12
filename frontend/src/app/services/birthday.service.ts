@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 import { effect } from '@angular/core';
 import { ToastService } from './toast.service';
 import { TranslationService } from './translation.service';
-
+import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
@@ -14,7 +14,7 @@ export class BirthdayService {
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
   private readonly t9n = inject(TranslationService);
-  private readonly API_URL = 'http://localhost:8081/api/birthdays';
+  private readonly API_URL = environment.apiUrl + '/birthdays';
 
   // Signals
   readonly birthdays = signal<Birthday[]>([]);

@@ -6,6 +6,7 @@ import { TranslationService } from './translation.service';
 import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,7 @@ export class TemplateService {
   private readonly toastService = inject(ToastService);
   private readonly t9n = inject(TranslationService);
   private readonly authService = inject(AuthService);
-  private readonly API_URL = 'http://localhost:8081/api/templates';
+  private readonly API_URL = environment.apiUrl + '/templates';
 
   // Signal for templates list
   readonly templates = signal<MessageTemplate[]>([]);
