@@ -2,9 +2,9 @@ spring:
   application:
     name: time2wish-backend
   datasource:
-    url: jdbc:postgresql://localhost:5433/time2wish
-    username: time2wish_user
-    password: time2wish_password
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:time2wish}
+    username: ${DB_USER:time2wish_user}
+    password: ${DB_PASSWORD:time2wish_password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -17,10 +17,10 @@ spring:
     enabled: true
     baseline-on-migrate: true
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: your-email@gmail.com
-    password: your-app-password
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USER:}
+    password: ${SMTP_PASSWORD:}
     properties:
       mail:
         smtp:
@@ -38,6 +38,8 @@ server:
       max-request-size: 5MB
 
 app:
+  jwt:
+    secret: ${JWT_SECRET}
   email:
     output-dir: scratch/emails
   gemini:
@@ -55,8 +57,8 @@ spring:
       on-profile: prod
   datasource:
     url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:time2wish}
-    username: ${DB_USER:time2wish_user}
-    password: ${DB_PASSWORD:time2wish_password}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -68,6 +70,5 @@ spring:
 
 app:
   jwt:
-    secret: ${JWT_SECRET:dDJ3U2VjcmV0S2V5TXVzdEJlQXRMZWFzdDMyQnl0ZXNMb25nRm9ySFMyNTZTZWN1cml0eVJlcXVpcmVtZW50Cg==}
-
+    secret: ${JWT_SECRET}
 

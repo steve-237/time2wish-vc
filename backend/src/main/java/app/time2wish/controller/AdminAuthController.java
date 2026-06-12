@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+import app.time2wish.dto.AdminSignupRequest;
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/admin/auth")
 public class AdminAuthController {
@@ -27,8 +29,8 @@ public class AdminAuthController {
     private JwtUtils jwtUtils;
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerAdmin(@RequestBody Map<String, String> signUpRequest) {
-        if (userRepository.existsByEmail(signUpRequest.get("email"))) {
+    public ResponseEntity<?> registerAdmin(@Valid @RequestBody AdminSignupRequest signUpRequest) {
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
                     .body(Map.of("message", "Error: Email is already in use!"));
@@ -36,9 +38,9 @@ public class AdminAuthController {
 
         // Create new admin account with PENDING_APPROVAL status
         User user = User.builder()
-                .email(signUpRequest.get("email"))
-                .password(encoder.encode(signUpRequest.get("password")))
-                .fullName(signUpRequest.get("fullName"))
+                .email(signUpRequest.getEmail())
+                .password(encoder.encode(signUpRequest.getPassword()))
+                .fullName(signUpRequest.getFullName())
                 .role(Role.ROLE_ADMIN)
                 .status("PENDING_APPROVAL")
                 .plan(PlanType.BASIC)

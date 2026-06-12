@@ -15,7 +15,7 @@ public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
     // 256-bit secret key in base64, configurable in prod
-    @Value("${app.jwt.secret:dDJ3U2VjcmV0S2V5TXVzdEJlQXRMZWFzdDMyQnl0ZXNMb25nRm9ySFMyNTZTZWN1cml0eVJlcXVpcmVtZW50Cg==}")
+    @Value("${app.jwt.secret}")
     private String jwtSecret;
     
     // 15 minutes in ms

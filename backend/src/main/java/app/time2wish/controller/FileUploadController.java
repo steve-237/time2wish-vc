@@ -37,7 +37,12 @@ public class FileUploadController {
 	}
 
 	@PostMapping("/upload")
-	public ResponseEntity<Map<String, String>> handleFileUpload(@RequestParam("file") MultipartFile file) {
+	public ResponseEntity<?> handleFileUpload(@RequestParam("file") MultipartFile file) {
+		String contentType = file.getContentType();
+		if (contentType == null || !contentType.startsWith("image/")) {
+			return ResponseEntity.badRequest().body(Map.of("message", "Error: Only image files are allowed."));
+		}
+
 		String filename = storageService.store(file);
 		String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
 				.path("/api/files/")

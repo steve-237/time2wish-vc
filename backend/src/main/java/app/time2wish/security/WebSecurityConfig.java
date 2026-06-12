@@ -20,6 +20,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @EnableWebSecurity
@@ -64,7 +65,7 @@ public class WebSecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> 
                 auth.requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/api/files/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/files/**").permitAll()
                     .requestMatchers("/api/admin/auth/**").permitAll()
                     .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPERADMIN")
                     .anyRequest().authenticated()
