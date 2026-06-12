@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { NotificationPanelComponent } from '../../components/notification-panel/notification-panel.component';
 import { PwaService } from '../../services/pwa.service';
 import { PricingComponent } from '../../pages/pricing/pricing.component';
+import { UiService } from '../../services/ui.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -66,7 +67,7 @@ import { PricingComponent } from '../../pages/pricing/pricing.component';
           }
 
           <!-- Pricing/Plans Button -->
-          <button (click)="isPricingModalOpen.set(true)" class="btn-premium plans-btn" title="Forfaits">
+          <button (click)="uiService.isPricingModalOpen.set(true)" class="btn-premium plans-btn" title="Forfaits">
             <span class="material-symbols-outlined plans-icon">star</span>
             <span class="hide-mobile">Forfaits</span>
           </button>
@@ -89,8 +90,8 @@ import { PricingComponent } from '../../pages/pricing/pricing.component';
           <a routerLink="/dashboard/profile" class="user-profile-menu flex-center gap-sm profile-link">
             <img [src]="authService.currentUser()?.avatarUrl" alt="Avatar" class="user-avatar">
             <div class="user-info">
-              <span class="user-name">{{ authService.currentUser()?.fullName }}</span>
-              <span class="user-email">{{ authService.currentUser()?.email }}</span>
+               <span class="user-name">{{ authService.currentUser()?.fullName }}</span>
+               <span class="user-email">{{ authService.currentUser()?.email }}</span>
             </div>
           </a>
 
@@ -108,8 +109,8 @@ import { PricingComponent } from '../../pages/pricing/pricing.component';
     <!-- Main content routing window -->
     <main class="main-container">
       <router-outlet></router-outlet>
-      @if (isPricingModalOpen()) {
-        <app-pricing (close)="isPricingModalOpen.set(false)"></app-pricing>
+      @if (uiService.isPricingModalOpen()) {
+        <app-pricing (close)="uiService.isPricingModalOpen.set(false)"></app-pricing>
       }
     </main>
 
@@ -134,6 +135,8 @@ export class MainLayoutComponent {
   t9n = inject(TranslationService);
   pwaService = inject(PwaService);
 
+  uiService = inject(UiService);
+
   readonly languages: { code: Language; label: string; flagUrl: string }[] = [
     { code: 'fr', label: 'FR', flagUrl: 'https://flagcdn.com/w40/fr.png' },
     { code: 'en', label: 'EN', flagUrl: 'https://flagcdn.com/w40/gb.png' },
@@ -141,7 +144,6 @@ export class MainLayoutComponent {
   ];
 
   isLangMenuOpen = signal<boolean>(false);
-  isPricingModalOpen = signal<boolean>(false);
   appMode = signal<'light' | 'dark' | 'oled'>('light');
 
   constructor() {

@@ -123,7 +123,7 @@
         @if (authService.currentUser()?.plan === 'BASIC') {
           <div class="locked-feature-badge">
             <span class="material-symbols-outlined">lock</span>
-            <a routerLink="/dashboard/plans" class="upgrade-link">Passer en PLUS pour l'IA</a>
+            <button (click)="uiService.isPricingModalOpen.set(true)" class="upgrade-link">Passer en PLUS pour l'IA</button>
           </div>
         } @else {
           <button class="btn-premium gift-btn" (click)="generateGifts()" [disabled]="isGeneratingGifts()">
