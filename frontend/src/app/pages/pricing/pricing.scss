@@ -1,7 +1,7 @@
 .pricing-modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(15, 23, 42, 0.8);
+  background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(8px);
   z-index: 99999;
   display: flex;
@@ -16,17 +16,18 @@
   max-width: 1200px;
   max-height: 90vh;
   overflow-y: auto;
-  background: transparent;
-  padding: 4rem 2rem;
-  font-family: 'Inter', sans-serif;
+  padding: 3rem 1.5rem;
+  font-family: var(--font-main, 'Inter', sans-serif);
   animation: modalSlideUp 0.3s ease-out forwards;
+  border-radius: 20px;
 }
 
 .close-modal-btn {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: white;
+  background: var(--bg-card);
+  color: var(--text-main);
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -35,9 +36,10 @@
   justify-content: center;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   z-index: 100;
+  border: 1px solid var(--border-card);
   
   &:hover {
-    background: #f1f5f9;
+    background: var(--hover-bg, rgba(255,255,255,0.1));
   }
 }
 
@@ -48,18 +50,18 @@
 
 .pricing-header {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 
   h1 {
     font-size: 2.5rem;
     font-weight: 800;
-    color: #1e293b;
+    color: var(--text-main);
     margin-bottom: 1rem;
   }
 
   p {
     font-size: 1.1rem;
-    color: #64748b;
+    color: var(--text-muted);
   }
 }
 
@@ -71,20 +73,21 @@
 }
 
 .pricing-card {
-  background: white;
+  background: var(--bg-card);
   border-radius: 16px;
   padding: 2.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-card);
   position: relative;
   transition: transform 0.2s, box-shadow 0.2s;
   display: flex;
   flex-direction: column;
   height: 100%;
+  color: var(--text-main);
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
   }
 
   &.active {
@@ -95,7 +98,8 @@
     border: 2px solid #8b5cf6;
     transform: scale(1.05);
     z-index: 10;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    background: var(--bg-card);
 
     &:hover {
       transform: scale(1.05) translateY(-4px);
@@ -120,12 +124,12 @@
 .card-header {
   text-align: center;
   margin-bottom: 2rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-card);
   padding-bottom: 2rem;
 
   h3 {
     font-size: 1.25rem;
-    color: #475569;
+    color: var(--text-muted);
     font-weight: 600;
     margin-bottom: 1rem;
     text-transform: uppercase;
@@ -135,19 +139,19 @@
   .price {
     font-size: 3rem;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--text-main);
     line-height: 1;
 
     span {
       font-size: 1rem;
-      color: #94a3b8;
+      color: var(--text-muted);
       font-weight: 500;
     }
   }
 
   p {
     margin-top: 1rem;
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 0.95rem;
   }
 }
@@ -163,7 +167,7 @@
     align-items: center;
     gap: 12px;
     margin-bottom: 1rem;
-    color: #334155;
+    color: var(--text-main);
     font-size: 0.95rem;
 
     .material-symbols-outlined {
@@ -197,11 +201,13 @@
 }
 
 .btn-select {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-card);
 
   &:hover:not(:disabled) {
-    background: #e2e8f0;
+    background: var(--hover-bg, rgba(255,255,255,0.05));
+    border-color: var(--text-muted);
   }
 }
 

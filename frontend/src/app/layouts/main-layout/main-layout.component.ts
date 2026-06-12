@@ -67,9 +67,8 @@ import { UiService } from '../../services/ui.service';
           }
 
           <!-- Pricing/Plans Button -->
-          <button (click)="uiService.isPricingModalOpen.set(true)" class="btn-premium plans-btn" title="Forfaits">
-            <span class="material-symbols-outlined plans-icon">star</span>
-            <span class="hide-mobile">Forfaits</span>
+          <button (click)="uiService.isPricingModalOpen.set(true)" class="icon-btn plans-btn-small" title="Forfaits" style="color: #fbbf24;">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
           </button>
 
           <!-- App mode switch -->
