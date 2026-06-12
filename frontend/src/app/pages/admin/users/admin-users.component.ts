@@ -4,6 +4,7 @@ import { AdminService, AdminUserDto } from '../../../services/admin.service';
 import { AuthService } from '../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { TranslationService } from '../../../services/translation.service';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -172,6 +173,7 @@ export class AdminUsersComponent implements OnInit {
   private adminService = inject(AdminService);
   private authService = inject(AuthService);
   t9n = inject(TranslationService);
+  toastService = inject(ToastService);
   users = signal<AdminUserDto[]>([]);
 
   modalState = signal<{
@@ -265,7 +267,7 @@ export class AdminUsersComponent implements OnInit {
             this.users.update(list => list.map(u => u.id === user.id ? { ...u, status: state.actionValue } : u));
             this.closeModal();
           },
-          error: (err) => { alert(err.error?.message || 'Erreur'); this.closeModal(); }
+          error: (err) => { this.toastService.error(err.error?.message || 'Erreur'); this.closeModal(); }
         });
         break;
 
@@ -276,7 +278,7 @@ export class AdminUsersComponent implements OnInit {
             // Don't revert select, just close
             this.modalState.set({ isOpen: false, user: null, actionType: null, actionValue: '' });
           },
-          error: (err) => { alert('Erreur lors de la modification du forfait'); this.closeModal(); }
+          error: (err) => { this.toastService.error('Erreur lors de la modification du forfait'); this.closeModal(); }
         });
         break;
 
@@ -286,7 +288,7 @@ export class AdminUsersComponent implements OnInit {
             this.users.update(list => list.map(u => u.id === user.id ? { ...u, role: state.actionValue } : u));
             this.closeModal();
           },
-          error: (err) => { alert('Erreur lors de la modification du rôle'); this.closeModal(); }
+          error: (err) => { this.toastService.error('Erreur lors de la modification du rôle'); this.closeModal(); }
         });
         break;
 
@@ -296,7 +298,7 @@ export class AdminUsersComponent implements OnInit {
             this.users.update(list => list.filter(u => u.id !== user.id));
             this.closeModal();
           },
-          error: (err) => { alert('Erreur lors de la suppression'); this.closeModal(); }
+          error: (err) => { this.toastService.error('Erreur lors de la suppression'); this.closeModal(); }
         });
         break;
     }

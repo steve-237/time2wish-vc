@@ -29,7 +29,7 @@ import { UiService } from '../../services/ui.service';
           <!-- Language Selector Custom Dropdown -->
           <div class="custom-lang-menu-container lang-menu-wrapper">
             <button class="custom-lang-btn lang-btn" (click)="isLangMenuOpen.set(!isLangMenuOpen())">
-              <img [src]="getActiveFlagUrl()" alt="flag" class="flag-icon lang-flag">
+              <span class="flag-icon lang-flag" style="font-size: 1.2rem;">{{ getActiveFlagEmoji() }}</span>
               <span class="material-symbols-outlined lang-arrow" [class.rotated]="isLangMenuOpen()">expand_more</span>
             </button>
 
@@ -37,7 +37,7 @@ import { UiService } from '../../services/ui.service';
             <div class="custom-lang-dropdown">
               @for (lang of languages; track lang.code) {
               <div class="lang-option" (click)="setLanguage(lang.code)" [class.active]="t9n.currentLang() === lang.code">
-                <img [src]="lang.flagUrl" alt="flag" class="flag-icon">
+                <span class="flag-icon" style="font-size: 1.2rem;">{{ lang.flagEmoji }}</span>
                 <span class="label">{{ lang.label }}</span>
               </div>
               }
@@ -68,7 +68,7 @@ import { UiService } from '../../services/ui.service';
 
           <!-- Pricing/Plans Button -->
           <button (click)="uiService.isPricingModalOpen.set(true)" class="premium-nav-btn" [title]="t9n.t('nav.plans') || 'Forfaits'">
-            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+            <span class="material-symbols-outlined">diamond</span>
             <span class="hide-mobile">{{ t9n.t('nav.plans') || 'Forfaits' }}</span>
           </button>
 
@@ -137,10 +137,10 @@ export class MainLayoutComponent {
 
   uiService = inject(UiService);
 
-  readonly languages: { code: Language; label: string; flagUrl: string }[] = [
-    { code: 'fr', label: 'FR', flagUrl: 'https://flagcdn.com/w40/fr.png' },
-    { code: 'en', label: 'EN', flagUrl: 'https://flagcdn.com/w40/gb.png' },
-    { code: 'de', label: 'DE', flagUrl: 'https://flagcdn.com/w40/de.png' },
+  readonly languages: { code: Language; label: string; flagEmoji: string }[] = [
+    { code: 'fr', label: 'FR', flagEmoji: '🇫🇷' },
+    { code: 'en', label: 'EN', flagEmoji: '🇬🇧' },
+    { code: 'de', label: 'DE', flagEmoji: '🇩🇪' },
   ];
 
   isLangMenuOpen = signal<boolean>(false);
@@ -153,8 +153,8 @@ export class MainLayoutComponent {
     }
   }
 
-  getActiveFlagUrl(): string {
-    return this.languages.find(l => l.code === this.t9n.currentLang())?.flagUrl || 'https://flagcdn.com/w40/fr.png';
+  getActiveFlagEmoji(): string {
+    return this.languages.find(l => l.code === this.t9n.currentLang())?.flagEmoji || '🇫🇷';
   }
 
   setLanguage(lang: Language) {

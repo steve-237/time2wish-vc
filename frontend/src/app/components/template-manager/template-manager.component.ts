@@ -27,6 +27,8 @@ export class TemplateManagerComponent {
   content = signal<string>('');
   category = signal<string>('custom');
 
+  idToDelete = signal<number | null>(null);
+
   readonly categories = ['friendly', 'funny', 'formal', 'custom'];
 
   getCategoryLabel(cat: string): string {
@@ -89,8 +91,18 @@ export class TemplateManagerComponent {
   }
 
   onDelete(id: number) {
-    if (confirm(this.t9n.currentLang() === 'en' ? 'Are you sure you want to delete this template?' : 'Êtes-vous sûr de vouloir supprimer ce modèle ?')) {
+    this.idToDelete.set(id);
+  }
+
+  cancelDelete() {
+    this.idToDelete.set(null);
+  }
+
+  confirmDelete() {
+    const id = this.idToDelete();
+    if (id !== null) {
       this.templateService.deleteTemplate(id).subscribe();
+      this.idToDelete.set(null);
     }
   }
 }

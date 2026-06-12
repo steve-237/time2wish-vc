@@ -93,6 +93,24 @@ import { environment } from '../../environments/environment';
           </div>
         </div>
       </div>
+
+      <!-- Confirmation Modal -->
+      @if (planToConfirm()) {
+        <div class="pricing-modal-overlay" style="z-index: 100000;" (click)="cancelPlanChange()">
+          <div class="pricing-modal-content confirm-modal-content glass-panel" (click)="$event.stopPropagation()">
+            <div class="pricing-header" style="margin-bottom: 2rem;">
+              <h2 style="font-size: 1.5rem;">{{ t9n.t('pricing.title') || 'Confirmation' }}</h2>
+            </div>
+            <p style="text-align: center; margin-bottom: 2rem;">
+              {{ t9n.t('pricing.confirm_change').replace('%s', planToConfirm()!) }}
+            </p>
+            <div style="display: flex; justify-content: center; gap: 1rem;">
+              <button class="btn btn-select" style="width: auto;" (click)="cancelPlanChange()">{{ t9n.t('form.btn_cancel') || 'Annuler' }}</button>
+              <button class="btn btn-popular" style="width: auto;" (click)="confirmPlanChange()">{{ t9n.t('form.btn_save') || 'Confirmer' }}</button>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   `,
   styleUrl: './pricing.scss'
@@ -106,15 +124,26 @@ export class PricingComponent {
   t9n = inject(TranslationService);
 
   isLoading = signal(false);
+  planToConfirm = signal<string | null>(null);
 
   currentPlan() {
     return this.authService.currentUser()?.plan || 'BASIC';
   }
 
   selectPlan(plan: string) {
-    const confirmMsg = this.t9n.t('pricing.confirm_change').replace('%s', plan);
-    if (confirm(confirmMsg)) {
-      this.isLoading.set(true);
+    this.planToConfirm.set(plan);
+  }
+
+  cancelPlanChange() {
+    this.planToConfirm.set(null);
+  }
+
+  confirmPlanChange() {
+    const plan = this.planToConfirm();
+    if (!plan) return;
+    
+    this.planToConfirm.set(null);
+    this.isLoading.set(true);
       this.http.put(environment.apiUrl + '/users/me/plan', { plan }).subscribe({
         next: (res: any) => {
           const successMsg = this.t9n.t('pricing.success_change').replace('%s', plan);
@@ -132,6 +161,5 @@ export class PricingComponent {
           this.isLoading.set(false);
         }
       });
-    }
   }
 }
