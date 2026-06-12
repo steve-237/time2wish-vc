@@ -275,6 +275,32 @@ body.theme-blanc .btn-premium {
   background: hsla(var(--primary-hsl), 0.05);
 }
 
+.premium-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(251, 191, 36, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  font-family: var(--font-title);
+  cursor: pointer;
+  transition: all 0.2s;
+
+  .material-symbols-outlined {
+    font-size: 1.1rem;
+  }
+
+  &:hover {
+    background: rgba(251, 191, 36, 0.2);
+    border-color: rgba(251, 191, 36, 0.5);
+    transform: translateY(-1px);
+  }
+}
+
 /* Badges for Urgency states */
 .badge-urgency {
   font-family: var(--font-title);
