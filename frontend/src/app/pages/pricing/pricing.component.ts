@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { ToastService } from '../../services/toast.service';
 import { Router } from '@angular/router';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-pricing',
@@ -16,8 +17,8 @@ import { Router } from '@angular/router';
           <span class="material-symbols-outlined">close</span>
         </button>
         <div class="pricing-header">
-          <h1>Choisissez votre Forfait</h1>
-          <p>Débloquez tout le potentiel de Time2Wish avec nos forfaits pensés pour vous.</p>
+          <h1>{{ t9n.t('pricing.title') }}</h1>
+          <p>{{ t9n.t('pricing.subtitle') }}</p>
         </div>
 
         <div class="pricing-grid">
@@ -25,14 +26,14 @@ import { Router } from '@angular/router';
           <div class="pricing-card" [class.active]="currentPlan() === 'BASIC'">
             <div class="card-header">
               <h3>BASIC</h3>
-              <div class="price">Gratuit</div>
-              <p>Pour commencer en douceur</p>
+              <div class="price">{{ t9n.t('pricing.free') }}</div>
+              <p>{{ t9n.t('pricing.basic_desc') }}</p>
             </div>
             <ul class="features-list">
-              <li><span class="material-symbols-outlined check">check</span> Jusqu'à 3 anniversaires</li>
-              <li><span class="material-symbols-outlined cross">close</span> Idées cadeaux par IA bloquées</li>
-              <li><span class="material-symbols-outlined cross">close</span> Pas de rappel par email</li>
-              <li><span class="material-symbols-outlined check">check</span> Support Standard</li>
+              <li><span class="material-symbols-outlined check">check</span> {{ t9n.t('pricing.basic_f1') }}</li>
+              <li><span class="material-symbols-outlined cross">close</span> {{ t9n.t('pricing.basic_f2') }}</li>
+              <li><span class="material-symbols-outlined cross">close</span> {{ t9n.t('pricing.basic_f3') }}</li>
+              <li><span class="material-symbols-outlined check">check</span> {{ t9n.t('pricing.basic_f4') }}</li>
             </ul>
             <button 
               class="btn" 
@@ -40,23 +41,23 @@ import { Router } from '@angular/router';
               [class.btn-select]="currentPlan() !== 'BASIC'"
               [disabled]="currentPlan() === 'BASIC' || isLoading()"
               (click)="selectPlan('BASIC')">
-              {{ currentPlan() === 'BASIC' ? 'Forfait Actuel' : 'Choisir BASIC' }}
+              {{ currentPlan() === 'BASIC' ? t9n.t('pricing.btn_current') : t9n.t('pricing.btn_choose') + ' BASIC' }}
             </button>
           </div>
 
           <!-- PLUS -->
           <div class="pricing-card popular" [class.active]="currentPlan() === 'PLUS'">
-            <div class="popular-badge">Le plus Populaire</div>
+            <div class="popular-badge">{{ t9n.t('pricing.popular_badge') }}</div>
             <div class="card-header">
               <h3>PLUS</h3>
-              <div class="price">4,99 € <span>/ mois</span></div>
-              <p>Idéal pour la famille</p>
+              <div class="price">4,99 € <span>{{ t9n.t('pricing.per_month') }}</span></div>
+              <p>{{ t9n.t('pricing.plus_desc') }}</p>
             </div>
             <ul class="features-list">
-              <li><span class="material-symbols-outlined check">check</span> Jusqu'à 50 anniversaires</li>
-              <li><span class="material-symbols-outlined check">check</span> Idées cadeaux par IA incluses</li>
-              <li><span class="material-symbols-outlined check">check</span> Rappels par email (1j avant)</li>
-              <li><span class="material-symbols-outlined check">check</span> Support Prioritaire</li>
+              <li><span class="material-symbols-outlined check">check</span> {{ t9n.t('pricing.plus_f1') }}</li>
+              <li><span class="material-symbols-outlined check">check</span> {{ t9n.t('pricing.plus_f2') }}</li>
+              <li><span class="material-symbols-outlined check">check</span> {{ t9n.t('pricing.plus_f3') }}</li>
+              <li><span class="material-symbols-outlined check">check</span> {{ t9n.t('pricing.plus_f4') }}</li>
             </ul>
             <button 
               class="btn" 
@@ -64,7 +65,7 @@ import { Router } from '@angular/router';
               [class.btn-popular]="currentPlan() !== 'PLUS'"
               [disabled]="currentPlan() === 'PLUS' || isLoading()"
               (click)="selectPlan('PLUS')">
-              {{ currentPlan() === 'PLUS' ? 'Forfait Actuel' : 'Choisir PLUS' }}
+              {{ currentPlan() === 'PLUS' ? t9n.t('pricing.btn_current') : t9n.t('pricing.btn_choose') + ' PLUS' }}
             </button>
           </div>
 
@@ -72,14 +73,14 @@ import { Router } from '@angular/router';
           <div class="pricing-card" [class.active]="currentPlan() === 'PRO'">
             <div class="card-header">
               <h3>PRO</h3>
-              <div class="price">9,99 € <span>/ mois</span></div>
-              <p>Aucune limite</p>
+              <div class="price">9,99 € <span>{{ t9n.t('pricing.per_month') }}</span></div>
+              <p>{{ t9n.t('pricing.pro_desc') }}</p>
             </div>
             <ul class="features-list">
-              <li><span class="material-symbols-outlined check">check</span> Anniversaires Illimités</li>
-              <li><span class="material-symbols-outlined check">check</span> IA Ultra-personnalisée</li>
-              <li><span class="material-symbols-outlined check">check</span> Rappels Configurables</li>
-              <li><span class="material-symbols-outlined check">check</span> Support Dédié 24/7</li>
+              <li><span class="material-symbols-outlined check">check</span> {{ t9n.t('pricing.pro_f1') }}</li>
+              <li><span class="material-symbols-outlined check">check</span> {{ t9n.t('pricing.pro_f2') }}</li>
+              <li><span class="material-symbols-outlined check">check</span> {{ t9n.t('pricing.pro_f3') }}</li>
+              <li><span class="material-symbols-outlined check">check</span> {{ t9n.t('pricing.pro_f4') }}</li>
             </ul>
             <button 
               class="btn" 
@@ -87,7 +88,7 @@ import { Router } from '@angular/router';
               [class.btn-select]="currentPlan() !== 'PRO'"
               [disabled]="currentPlan() === 'PRO' || isLoading()"
               (click)="selectPlan('PRO')">
-              {{ currentPlan() === 'PRO' ? 'Forfait Actuel' : 'Choisir PRO' }}
+              {{ currentPlan() === 'PRO' ? t9n.t('pricing.btn_current') : t9n.t('pricing.btn_choose') + ' PRO' }}
             </button>
           </div>
         </div>
@@ -102,6 +103,7 @@ export class PricingComponent {
   http = inject(HttpClient);
   toastService = inject(ToastService);
   router = inject(Router);
+  t9n = inject(TranslationService);
 
   isLoading = signal(false);
 
@@ -110,11 +112,13 @@ export class PricingComponent {
   }
 
   selectPlan(plan: string) {
-    if (confirm(`Voulez-vous vraiment simuler le passage au forfait ${plan} ?`)) {
+    const confirmMsg = this.t9n.t('pricing.confirm_change').replace('%s', plan);
+    if (confirm(confirmMsg)) {
       this.isLoading.set(true);
       this.http.put('http://localhost:8081/api/users/me/plan', { plan }).subscribe({
         next: (res: any) => {
-          this.toastService.success(`Forfait mis à jour vers ${plan} !`);
+          const successMsg = this.t9n.t('pricing.success_change').replace('%s', plan);
+          this.toastService.success(successMsg);
           
           // Mise à jour locale du token/user
           const user = this.authService.currentUser();
@@ -124,7 +128,7 @@ export class PricingComponent {
           this.isLoading.set(false);
         },
         error: (err) => {
-          this.toastService.error('Erreur lors du changement de forfait');
+          this.toastService.error(this.t9n.t('pricing.error_change'));
           this.isLoading.set(false);
         }
       });

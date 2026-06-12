@@ -267,5 +267,32 @@
     "mark_all_read": "Tout marquer comme lu",
     "clear_all": "Effacer",
     "empty": "Aucune notification"
+  },
+  "pricing": {
+    "title": "Choisissez votre Forfait",
+    "subtitle": "Débloquez tout le potentiel de Time2Wish avec nos forfaits pensés pour vous.",
+    "free": "Gratuit",
+    "per_month": "/ mois",
+    "popular_badge": "Le plus Populaire",
+    "btn_current": "Forfait Actuel",
+    "btn_choose": "Choisir",
+    "basic_desc": "Pour commencer en douceur",
+    "basic_f1": "Jusqu'à 3 anniversaires",
+    "basic_f2": "Idées cadeaux par IA bloquées",
+    "basic_f3": "Pas de rappel par email",
+    "basic_f4": "Support Standard",
+    "plus_desc": "Idéal pour la famille",
+    "plus_f1": "Jusqu'à 50 anniversaires",
+    "plus_f2": "Idées cadeaux par IA incluses",
+    "plus_f3": "Rappels par email (1j avant)",
+    "plus_f4": "Support Prioritaire",
+    "pro_desc": "Aucune limite",
+    "pro_f1": "Anniversaires Illimités",
+    "pro_f2": "IA Ultra-personnalisée",
+    "pro_f3": "Rappels Configurables",
+    "pro_f4": "Support Dédié 24/7",
+    "confirm_change": "Voulez-vous vraiment simuler le passage au forfait %s ?",
+    "success_change": "Forfait mis à jour vers %s !",
+    "error_change": "Erreur lors du changement de forfait"
   }
 }

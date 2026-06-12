@@ -267,5 +267,32 @@
     "mark_all_read": "Alle als gelesen markieren",
     "clear_all": "Alle löschen",
     "empty": "Keine Benachrichtigungen"
+  },
+  "pricing": {
+    "title": "Wählen Sie Ihren Plan",
+    "subtitle": "Schalten Sie das volle Potenzial von Time2Wish frei.",
+    "free": "Kostenlos",
+    "per_month": "/ Monat",
+    "popular_badge": "Am beliebtesten",
+    "btn_current": "Aktueller Plan",
+    "btn_choose": "Wählen",
+    "basic_desc": "Für einen reibungslosen Start",
+    "basic_f1": "Bis zu 3 Geburtstage",
+    "basic_f2": "KI-Geschenkideen gesperrt",
+    "basic_f3": "Keine E-Mail-Erinnerungen",
+    "basic_f4": "Standard-Support",
+    "plus_desc": "Ideal für die Familie",
+    "plus_f1": "Bis zu 50 Geburtstage",
+    "plus_f2": "KI-Geschenkideen inbegriffen",
+    "plus_f3": "E-Mail-Erinnerungen (1 Tag vorher)",
+    "plus_f4": "Prioritäts-Support",
+    "pro_desc": "Keine Grenzen",
+    "pro_f1": "Unbegrenzte Geburtstage",
+    "pro_f2": "Ultra-personalisierte KI",
+    "pro_f3": "Konfigurierbare Erinnerungen",
+    "pro_f4": "Dedizierter 24/7-Support",
+    "confirm_change": "Möchten Sie den Wechsel zum %s Plan wirklich simulieren?",
+    "success_change": "Plan erfolgreich auf %s aktualisiert!",
+    "error_change": "Fehler beim Wechseln des Plans"
   }
 }

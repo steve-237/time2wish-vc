@@ -267,5 +267,32 @@
     "mark_all_read": "Mark all as read",
     "clear_all": "Clear all",
     "empty": "No notifications"
+  },
+  "pricing": {
+    "title": "Choose your Plan",
+    "subtitle": "Unlock the full potential of Time2Wish with plans designed for you.",
+    "free": "Free",
+    "per_month": "/ month",
+    "popular_badge": "Most Popular",
+    "btn_current": "Current Plan",
+    "btn_choose": "Choose",
+    "basic_desc": "To get started smoothly",
+    "basic_f1": "Up to 3 birthdays",
+    "basic_f2": "AI gift ideas locked",
+    "basic_f3": "No email reminders",
+    "basic_f4": "Standard Support",
+    "plus_desc": "Ideal for the family",
+    "plus_f1": "Up to 50 birthdays",
+    "plus_f2": "AI gift ideas included",
+    "plus_f3": "Email reminders (1 day before)",
+    "plus_f4": "Priority Support",
+    "pro_desc": "No limits",
+    "pro_f1": "Unlimited Birthdays",
+    "pro_f2": "Ultra-personalized AI",
+    "pro_f3": "Configurable Reminders",
+    "pro_f4": "Dedicated 24/7 Support",
+    "confirm_change": "Are you sure you want to simulate upgrading to the %s plan?",
+    "success_change": "Plan successfully updated to %s!",
+    "error_change": "Error while changing the plan"
   }
 }
