@@ -67,9 +67,9 @@ import { UiService } from '../../services/ui.service';
           }
 
           <!-- Pricing/Plans Button -->
-          <button (click)="uiService.isPricingModalOpen.set(true)" class="premium-nav-btn" title="Forfaits">
+          <button (click)="uiService.isPricingModalOpen.set(true)" class="premium-nav-btn" [title]="t9n.t('nav.plans') || 'Forfaits'">
             <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
-            <span class="hide-mobile">Forfaits</span>
+            <span class="hide-mobile">{{ t9n.t('nav.plans') || 'Forfaits' }}</span>
           </button>
 
           <!-- App mode switch -->

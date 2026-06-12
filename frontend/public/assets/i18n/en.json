@@ -74,7 +74,8 @@
     "logout": "Logout",
     "light_mode": "Switch to light mode",
     "dark_mode": "Switch to dark mode",
-    "install": "Install App"
+    "install": "Install App",
+    "plans": "Pricing Plans"
   },
   "footer": {
     "tagline": "Never miss a birthday again. 💖",

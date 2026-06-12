@@ -74,7 +74,8 @@
     "logout": "Déconnexion",
     "light_mode": "Passer au mode clair",
     "dark_mode": "Passer au mode sombre",
-    "install": "Installer l'App"
+    "install": "Installer l'App",
+    "plans": "Forfaits"
   },
   "footer": {
     "tagline": "Ne manquez plus jamais un anniversaire. 💖",
