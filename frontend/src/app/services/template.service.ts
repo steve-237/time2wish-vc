@@ -48,11 +48,11 @@ export class TemplateService {
       tap({
         next: (saved) => {
           this.templates.update(list => [...list, saved]);
-          this.toastService.success(this.t9n.currentLang() === 'en' ? 'Template created successfully!' : 'Modèle créé avec succès !');
+          this.toastService.success(this.t9n.t('templates.create_success'));
         },
         error: (err) => {
           console.error('Failed to create template', err);
-          this.toastService.error(this.t9n.currentLang() === 'en' ? 'Failed to create template.' : 'Échec de création du modèle.');
+          this.toastService.error(this.t9n.t('templates.create_error'));
         }
       })
     );
@@ -63,11 +63,11 @@ export class TemplateService {
       tap({
         next: (updated) => {
           this.templates.update(list => list.map(t => t.id === id ? updated : t));
-          this.toastService.success(this.t9n.currentLang() === 'en' ? 'Template updated successfully!' : 'Modèle mis à jour avec succès !');
+          this.toastService.success(this.t9n.t('templates.update_success'));
         },
         error: (err) => {
           console.error('Failed to update template', err);
-          this.toastService.error(this.t9n.currentLang() === 'en' ? 'Failed to update template.' : 'Échec de la mise à jour.');
+          this.toastService.error(this.t9n.t('templates.update_error'));
         }
       })
     );
@@ -78,11 +78,11 @@ export class TemplateService {
       tap({
         next: () => {
           this.templates.update(list => list.filter(t => t.id !== id));
-          this.toastService.success(this.t9n.currentLang() === 'en' ? 'Template deleted successfully!' : 'Modèle supprimé avec succès !');
+          this.toastService.success(this.t9n.t('templates.delete_success'));
         },
         error: (err) => {
           console.error('Failed to delete template', err);
-          this.toastService.error(this.t9n.currentLang() === 'en' ? 'Failed to delete template.' : 'Échec de la suppression.');
+          this.toastService.error(this.t9n.t('templates.delete_error'));
         }
       })
     );

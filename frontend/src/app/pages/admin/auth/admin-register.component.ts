@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ToastService } from '../../../services/toast.service';
 import { environment } from '../../../../environments/environment';
-
+import { TranslationService } from '../../../services/translation.service';
 @Component({
   selector: 'app-admin-register',
   standalone: true,
@@ -17,13 +17,13 @@ import { environment } from '../../../../environments/environment';
           <div class="admin-logo">
             <span class="material-symbols-outlined logo-icon">shield_person</span>
           </div>
-          <h1>Devenir Administrateur</h1>
-          <p class="subtitle">Demande d'accès au portail</p>
+          <h1>{{ t9n.t('admin.register.title') }}</h1>
+          <p class="subtitle">{{ t9n.t('admin.register.subtitle') }}</p>
         </div>
 
         <form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="admin-form">
           <div class="form-group">
-            <label for="fullName">Nom Complet</label>
+            <label for="fullName">{{ t9n.t('admin.register.full_name') }}</label>
             <div class="input-with-icon">
               <span class="material-symbols-outlined input-icon">person</span>
               <input 
@@ -38,7 +38,7 @@ import { environment } from '../../../../environments/environment';
           </div>
 
           <div class="form-group">
-            <label for="email">Email Professionnel</label>
+            <label for="email">{{ t9n.t('admin.register.email') }}</label>
             <div class="input-with-icon">
               <span class="material-symbols-outlined input-icon">mail</span>
               <input 
@@ -53,7 +53,7 @@ import { environment } from '../../../../environments/environment';
           </div>
 
           <div class="form-group">
-            <label for="password">Mot de passe</label>
+            <label for="password">{{ t9n.t('admin.register.password') }}</label>
             <div class="input-with-icon">
               <span class="material-symbols-outlined input-icon">lock</span>
               <input 
@@ -69,20 +69,20 @@ import { environment } from '../../../../environments/environment';
 
           <div class="admin-alert admin-alert-info">
             <span class="material-symbols-outlined">info</span>
-            <p>Votre compte devra être approuvé par un Super Administrateur avant de pouvoir vous connecter.</p>
+            <p>{{ t9n.t('admin.register.info') }}</p>
           </div>
 
           <button type="submit" class="admin-btn-primary" [disabled]="!registerForm.form.valid || isLoading()">
             @if (isLoading()) {
               <span class="spinner"></span> Envoi de la demande...
             } @else {
-              <span class="material-symbols-outlined">person_add</span> Soumettre la demande
+              <span class="material-symbols-outlined">person_add</span> {{ t9n.t('admin.register.btn') }}
             }
           </button>
         </form>
 
         <div class="admin-auth-footer">
-          <a routerLink="/admin/login" class="admin-link">J'ai déjà un compte</a>
+          <a routerLink="/admin/login" class="admin-link">{{ t9n.t('admin.register.link_login') }}</a>
         </div>
       </div>
     </div>
@@ -98,6 +98,7 @@ export class AdminRegisterComponent {
   http = inject(HttpClient);
   router = inject(Router);
   toastService = inject(ToastService);
+  t9n = inject(TranslationService);
 
   private API_URL = environment.apiUrl + '/admin/auth/';
 

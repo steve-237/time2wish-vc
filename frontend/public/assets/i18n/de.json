@@ -293,6 +293,67 @@
     "pro_f4": "Dedizierter 24/7-Support",
     "confirm_change": "Möchten Sie den Wechsel zum %s Plan wirklich simulieren?",
     "success_change": "Plan erfolgreich auf %s aktualisiert!",
-    "error_change": "Fehler beim Wechseln des Plans"
+    "error_change": "Fehler beim Tarifwechsel"
+  },
+  "admin": {
+    "login": {
+      "title": "Admin-Portal",
+      "email": "Geschäftliche E-Mail",
+      "password": "Passwort",
+      "btn": "Anmelden",
+      "link_register": "Admin-Zugang anfordern"
+    },
+    "register": {
+      "title": "Administrator werden",
+      "subtitle": "Zugangsanfrage für das Portal",
+      "full_name": "Vollständiger Name",
+      "email": "Geschäftliche E-Mail",
+      "password": "Passwort",
+      "info": "Ihr Konto muss von einem Super-Administrator genehmigt werden, bevor Sie sich anmelden können.",
+      "btn": "Anfrage senden",
+      "link_login": "Ich habe bereits ein Konto"
+    },
+    "dashboard": {
+      "title": "Überblick",
+      "subtitle": "Globale Statistiken",
+      "users": "Registrierte Benutzer",
+      "birthdays": "Erfasste Geburtstage",
+      "nav_dashboard": "Dashboard",
+      "nav_users": "Benutzerverwaltung",
+      "nav_logout": "Abmelden"
+    },
+    "users": {
+      "title": "Benutzerverwaltung",
+      "subtitle": "Zugänge und Tarife verwalten",
+      "col_user": "Benutzer",
+      "col_status": "Status",
+      "col_role": "Rolle",
+      "col_plan": "Tarif",
+      "col_date": "Registrierungsdatum",
+      "col_actions": "Aktionen",
+      "status_active": "Aktiv",
+      "status_banned": "Gesperrt",
+      "status_pending": "Ausstehend",
+      "role_user": "Benutzer",
+      "role_admin": "Admin",
+      "btn_ban": "Sperren",
+      "btn_unban": "Entsperren",
+      "btn_approve": "Genehmigen",
+      "btn_delete": "Löschen",
+      "msg_banned": "Benutzer gesperrt",
+      "msg_unbanned": "Benutzer entsperrt",
+      "msg_approved": "Konto genehmigt",
+      "msg_plan_updated": "Tarif aktualisiert",
+      "msg_role_updated": "Rolle aktualisiert",
+      "msg_deleted": "Benutzer gelöscht"
+    }
+  },
+  "templates": {
+    "create_success": "Vorlage erfolgreich erstellt!",
+    "create_error": "Fehler beim Erstellen der Vorlage.",
+    "update_success": "Vorlage erfolgreich aktualisiert!",
+    "update_error": "Fehler beim Aktualisieren der Vorlage.",
+    "delete_success": "Vorlage erfolgreich gelöscht!",
+    "delete_error": "Fehler beim Löschen der Vorlage."
   }
 }

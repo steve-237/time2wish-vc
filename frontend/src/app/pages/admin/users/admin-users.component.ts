@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { AdminService, AdminUserDto } from '../../../services/admin.service';
 import { AuthService } from '../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
+import { TranslationService } from '../../../services/translation.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -10,19 +11,19 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, DatePipe, FormsModule],
   template: `
     <div class="users-container">
-      <h2 class="page-title">Gestion des Utilisateurs</h2>
+      <h2 class="page-title">{{ t9n.t('admin.users.title') }}</h2>
       
       <div class="table-wrapper">
         <table class="users-table">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Nom Complet</th>
+              <th>{{ t9n.t('admin.users.col_user') }}</th>
               <th>Email</th>
-              <th>Rôle</th>
-              <th>Forfait</th>
-              <th>Statut</th>
-              <th>Actions</th>
+              <th>{{ t9n.t('admin.users.col_role') }}</th>
+              <th>{{ t9n.t('admin.users.col_plan') }}</th>
+              <th>{{ t9n.t('admin.users.col_status') }}</th>
+              <th>{{ t9n.t('admin.users.col_actions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -35,7 +36,7 @@ import { FormsModule } from '@angular/forms';
                   <span class="badge role-badge" 
                         [class.admin]="user.role === 'ROLE_ADMIN'"
                         [class.superadmin]="user.role === 'ROLE_SUPERADMIN'">
-                    {{ user.role.replace('ROLE_', '') }}
+                    {{ user.role === 'ROLE_USER' ? t9n.t('admin.users.role_user') : (user.role === 'ROLE_ADMIN' ? t9n.t('admin.users.role_admin') : 'Super Admin') }}
                   </span>
                 </td>
                 <td>
@@ -50,22 +51,22 @@ import { FormsModule } from '@angular/forms';
                     [class.status-active]="user.status === 'ACTIVE'"
                     [class.status-blocked]="user.status === 'BLOCKED'"
                     [class.status-pending]="user.status === 'PENDING_APPROVAL'">
-                    {{ user.status }}
+                    {{ user.status === 'ACTIVE' ? t9n.t('admin.users.status_active') : (user.status === 'BLOCKED' ? t9n.t('admin.users.status_banned') : t9n.t('admin.users.status_pending')) }}
                   </span>
                 </td>
                 <td class="actions-cell">
                   @if (user.status === 'ACTIVE') {
-                    <button class="btn btn-danger" (click)="requestAction(user, 'status', 'BLOCKED')" [disabled]="user.role === 'ROLE_SUPERADMIN'">Bloquer</button>
+                    <button class="btn btn-danger" (click)="requestAction(user, 'status', 'BLOCKED')" [disabled]="user.role === 'ROLE_SUPERADMIN'">{{ t9n.t('admin.users.btn_ban') }}</button>
                   } @else if (user.status === 'BLOCKED') {
-                    <button class="btn btn-success" (click)="requestAction(user, 'status', 'ACTIVE')">Débloquer</button>
+                    <button class="btn btn-success" (click)="requestAction(user, 'status', 'ACTIVE')">{{ t9n.t('admin.users.btn_unban') }}</button>
                   } @else if (user.status === 'PENDING_APPROVAL') {
-                    <button class="btn btn-primary" (click)="requestAction(user, 'status', 'ACTIVE')">Approuver</button>
+                    <button class="btn btn-primary" (click)="requestAction(user, 'status', 'ACTIVE')">{{ t9n.t('admin.users.btn_approve') }}</button>
                   }
                   
                   @if (isSuperAdmin() && user.role !== 'ROLE_SUPERADMIN') {
                     <button class="btn btn-secondary" (click)="requestAction(user, 'role', 'ROLE_ADMIN')" *ngIf="user.role === 'ROLE_USER'">Admin</button>
                     <button class="btn btn-secondary" (click)="requestAction(user, 'role', 'ROLE_USER')" *ngIf="user.role === 'ROLE_ADMIN'">User</button>
-                    <button class="btn btn-danger btn-outline" (click)="requestAction(user, 'delete', '')" title="Supprimer">
+                    <button class="btn btn-danger btn-outline" (click)="requestAction(user, 'delete', '')" [title]="t9n.t('admin.users.btn_delete')">
                       <span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: middle;">delete</span>
                     </button>
                   }
@@ -98,7 +99,7 @@ import { FormsModule } from '@angular/forms';
           </div>
         </div>
         <div class="confirm-modal-actions">
-          <button class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+          <button class="btn btn-secondary" (click)="closeModal()">{{ t9n.t('form.btn_cancel') }}</button>
           <button class="btn" 
                   [class.btn-primary]="modalState().actionType !== 'delete' && modalState().actionValue !== 'BLOCKED'"
                   [class.btn-danger]="modalState().actionType === 'delete' || modalState().actionValue === 'BLOCKED'"
@@ -170,6 +171,7 @@ import { FormsModule } from '@angular/forms';
 export class AdminUsersComponent implements OnInit {
   private adminService = inject(AdminService);
   private authService = inject(AuthService);
+  t9n = inject(TranslationService);
   users = signal<AdminUserDto[]>([]);
 
   modalState = signal<{

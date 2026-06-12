@@ -293,6 +293,67 @@
     "pro_f4": "Dedicated 24/7 Support",
     "confirm_change": "Are you sure you want to simulate upgrading to the %s plan?",
     "success_change": "Plan successfully updated to %s!",
-    "error_change": "Error while changing the plan"
+    "error_change": "Error changing plan"
+  },
+  "admin": {
+    "login": {
+      "title": "Admin Portal",
+      "email": "Work Email",
+      "password": "Password",
+      "btn": "Login",
+      "link_register": "Request admin access"
+    },
+    "register": {
+      "title": "Become an Administrator",
+      "subtitle": "Portal access request",
+      "full_name": "Full Name",
+      "email": "Work Email",
+      "password": "Password",
+      "info": "Your account will need to be approved by a Super Administrator before you can log in.",
+      "btn": "Submit request",
+      "link_login": "I already have an account"
+    },
+    "dashboard": {
+      "title": "Overview",
+      "subtitle": "Global statistics",
+      "users": "Registered Users",
+      "birthdays": "Tracked Birthdays",
+      "nav_dashboard": "Dashboard",
+      "nav_users": "User Management",
+      "nav_logout": "Logout"
+    },
+    "users": {
+      "title": "User Management",
+      "subtitle": "Manage access and plans",
+      "col_user": "User",
+      "col_status": "Status",
+      "col_role": "Role",
+      "col_plan": "Plan",
+      "col_date": "Registration Date",
+      "col_actions": "Actions",
+      "status_active": "Active",
+      "status_banned": "Banned",
+      "status_pending": "Pending",
+      "role_user": "User",
+      "role_admin": "Admin",
+      "btn_ban": "Ban",
+      "btn_unban": "Unban",
+      "btn_approve": "Approve",
+      "btn_delete": "Delete",
+      "msg_banned": "User banned",
+      "msg_unbanned": "User unbanned",
+      "msg_approved": "Account approved",
+      "msg_plan_updated": "Plan updated",
+      "msg_role_updated": "Role updated",
+      "msg_deleted": "User deleted"
+    }
+  },
+  "templates": {
+    "create_success": "Template created successfully!",
+    "create_error": "Failed to create template.",
+    "update_success": "Template updated successfully!",
+    "update_error": "Failed to update template.",
+    "delete_success": "Template deleted successfully!",
+    "delete_error": "Failed to delete template."
   }
 }

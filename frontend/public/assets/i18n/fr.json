@@ -294,5 +294,66 @@
     "confirm_change": "Voulez-vous vraiment simuler le passage au forfait %s ?",
     "success_change": "Forfait mis à jour vers %s !",
     "error_change": "Erreur lors du changement de forfait"
+  },
+  "admin": {
+    "login": {
+      "title": "Portail d'Administration",
+      "email": "Email Professionnel",
+      "password": "Mot de passe",
+      "btn": "Se connecter",
+      "link_register": "Demander un accès admin"
+    },
+    "register": {
+      "title": "Devenir Administrateur",
+      "subtitle": "Demande d'accès au portail",
+      "full_name": "Nom Complet",
+      "email": "Email Professionnel",
+      "password": "Mot de passe",
+      "info": "Votre compte devra être approuvé par un Super Administrateur avant de pouvoir vous connecter.",
+      "btn": "Soumettre la demande",
+      "link_login": "J'ai déjà un compte"
+    },
+    "dashboard": {
+      "title": "Vue d'ensemble",
+      "subtitle": "Statistiques globales",
+      "users": "Utilisateurs Inscrits",
+      "birthdays": "Anniversaires Suivis",
+      "nav_dashboard": "Tableau de Bord",
+      "nav_users": "Gestion Utilisateurs",
+      "nav_logout": "Déconnexion"
+    },
+    "users": {
+      "title": "Gestion des Utilisateurs",
+      "subtitle": "Gérez les accès et forfaits",
+      "col_user": "Utilisateur",
+      "col_status": "Statut",
+      "col_role": "Rôle",
+      "col_plan": "Forfait",
+      "col_date": "Date d'inscription",
+      "col_actions": "Actions",
+      "status_active": "Actif",
+      "status_banned": "Banni",
+      "status_pending": "En attente",
+      "role_user": "Utilisateur",
+      "role_admin": "Admin",
+      "btn_ban": "Bannir",
+      "btn_unban": "Débannir",
+      "btn_approve": "Approuver",
+      "btn_delete": "Supprimer",
+      "msg_banned": "Utilisateur banni",
+      "msg_unbanned": "Utilisateur réactivé",
+      "msg_approved": "Compte approuvé",
+      "msg_plan_updated": "Forfait mis à jour",
+      "msg_role_updated": "Rôle mis à jour",
+      "msg_deleted": "Utilisateur supprimé"
+    }
+  },
+  "templates": {
+    "create_success": "Modèle créé avec succès !",
+    "create_error": "Échec de création du modèle.",
+    "update_success": "Modèle mis à jour avec succès !",
+    "update_error": "Échec de la mise à jour.",
+    "delete_success": "Modèle supprimé avec succès !",
+    "delete_error": "Échec de la suppression."
   }
 }

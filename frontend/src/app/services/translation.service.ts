@@ -18,9 +18,10 @@ export class TranslationService {
 
   constructor(http: HttpClient) {
     this.http = http;
-    // Toujours utiliser la langue du système au démarrage, comme demandé
+    // Restaurer la langue du localStorage ou utiliser la langue du système
+    const savedLang = localStorage.getItem('t2w_lang') as Language;
     const browserLang = navigator.language.substring(0, 2).toLowerCase();
-    const detected = (['fr', 'en', 'de'].includes(browserLang) ? browserLang : 'en') as Language;
+    const detected = savedLang || (['fr', 'en', 'de'].includes(browserLang) ? browserLang : 'en') as Language;
     
     this.currentLang.set(detected);
     this.loadLanguage(detected);

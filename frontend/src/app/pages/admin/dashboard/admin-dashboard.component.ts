@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminService, StatsResponse } from '../../../services/admin.service';
+import { TranslationService } from '../../../services/translation.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -8,20 +9,20 @@ import { AdminService, StatsResponse } from '../../../services/admin.service';
   imports: [CommonModule],
   template: `
     <div class="dashboard-container">
-      <h2 class="page-title">Global Statistics</h2>
+      <h2 class="page-title">{{ t9n.t('admin.dashboard.subtitle') }}</h2>
       <div class="stats-grid">
         <div class="stat-card users-card">
           <div class="stat-icon">👥</div>
           <div class="stat-info">
             <span class="stat-value">{{ stats()?.totalUsers || 0 }}</span>
-            <span class="stat-label">Total Users</span>
+            <span class="stat-label">{{ t9n.t('admin.dashboard.users') }}</span>
           </div>
         </div>
         <div class="stat-card birthdays-card">
           <div class="stat-icon">🎂</div>
           <div class="stat-info">
             <span class="stat-value">{{ stats()?.totalBirthdays || 0 }}</span>
-            <span class="stat-label">Active Birthdays</span>
+            <span class="stat-label">{{ t9n.t('admin.dashboard.birthdays') }}</span>
           </div>
         </div>
       </div>
@@ -98,6 +99,7 @@ import { AdminService, StatsResponse } from '../../../services/admin.service';
 })
 export class AdminDashboardComponent implements OnInit {
   private adminService = inject(AdminService);
+  t9n = inject(TranslationService);
   stats = signal<StatsResponse | null>(null);
 
   ngOnInit() {

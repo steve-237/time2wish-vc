@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
@@ -15,6 +15,14 @@ import { TranslationService } from '../../services/translation.service';
 export class DashboardChartsComponent implements OnChanges {
   @Input() birthdays: Birthday[] = [];
   t9n = inject(TranslationService);
+
+  constructor() {
+    effect(() => {
+      // Create dependency on translations
+      this.t9n.isLoaded();
+      this.updateCharts();
+    });
+  }
 
   // === Bar Chart (Birthdays by Month) ===
   public barChartOptions: ChartConfiguration['options'] = {
@@ -150,9 +158,9 @@ export class DashboardChartsComponent implements OnChanges {
       }
     });
     
-    const monthLabels = this.t9n.t('dashboard.months') || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthLabels = this.t9n.getMonths().length > 0 ? this.t9n.getMonths() : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     this.barChartData = {
-      labels: monthLabels as string[],
+      labels: monthLabels,
       datasets: [
         { 
           data: months, 
@@ -208,7 +216,7 @@ export class DashboardChartsComponent implements OnChanges {
     });
 
     this.genderChartData = {
-      labels: ['Masculin', 'Féminin', 'Autre', 'Non spécifié'],
+      labels: [this.t9n.t('gender.male') || 'Masculin', this.t9n.t('gender.female') || 'Féminin', this.t9n.t('gender.other') || 'Autre', this.t9n.t('gender.unspecified') || 'Non spécifié'],
       datasets: [{
         data: [maleCount, femaleCount, otherCount, unspecifiedCount],
         backgroundColor: ['#3b82f6', '#ec4899', '#8b5cf6', '#9ca3af'],
@@ -231,7 +239,7 @@ export class DashboardChartsComponent implements OnChanges {
       labels: Object.keys(ageGroups),
       datasets: [{
         data: Object.values(ageGroups),
-        label: 'Personnes',
+        label: this.t9n.t('charts.people') || 'Personnes',
         backgroundColor: 'rgba(16, 185, 129, 0.7)',
         hoverBackgroundColor: 'rgba(16, 185, 129, 1)',
         borderRadius: 4
@@ -281,7 +289,7 @@ export class DashboardChartsComponent implements OnChanges {
       labels: sortedInterests.map(i => i[0]),
       datasets: [{
         data: sortedInterests.map(i => i[1]),
-        label: 'Personnes',
+        label: this.t9n.t('charts.people') || 'Personnes',
         backgroundColor: 'rgba(245, 158, 11, 0.7)',
         hoverBackgroundColor: 'rgba(245, 158, 11, 1)',
         borderRadius: 4
@@ -297,7 +305,7 @@ export class DashboardChartsComponent implements OnChanges {
     });
 
     this.favoritesChartData = {
-      labels: ['Favoris', 'Standards'],
+      labels: [this.t9n.t('charts.favorites') || 'Favoris', this.t9n.t('charts.standards') || 'Standards'],
       datasets: [{
         data: [favCount, notFavCount],
         backgroundColor: ['#fbbf24', '#e5e7eb'],
@@ -315,10 +323,10 @@ export class DashboardChartsComponent implements OnChanges {
     });
 
     this.weekdayChartData = {
-      labels: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+      labels: this.t9n.t('dashboard.weekdays') ? (this.t9n.t('dashboard.weekdays') as unknown as string[]) : ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
       datasets: [{
         data: weekdaysCount,
-        label: 'Naissances',
+        label: this.t9n.t('charts.birthdays') || 'Naissances',
         backgroundColor: 'rgba(59, 130, 246, 0.4)',
         borderColor: '#3b82f6',
         pointBackgroundColor: '#3b82f6'
