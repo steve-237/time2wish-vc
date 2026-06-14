@@ -40,6 +40,7 @@ export class Login implements OnInit {
   isForgotModalOpen = signal<boolean>(false);
   forgotEmail = signal<string>('');
   isForgotEmailSent = signal<boolean>(false);
+  timeoutMessage = signal<string>('');
 
   constructor() {
     // Redirect if already authenticated
@@ -59,8 +60,7 @@ export class Login implements OnInit {
           de: 'Sie wurden wegen Inaktivität abgemeldet (3 Minuten).'
         };
         const msg = messages[lang] || messages['fr'];
-        // Use timeout to let the UI initialize before toasting
-        setTimeout(() => this.toastService.warning(msg), 200);
+        this.timeoutMessage.set(msg);
       }
     });
   }

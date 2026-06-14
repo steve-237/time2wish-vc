@@ -116,6 +116,13 @@
         @if (isLoading()) { <span class="btn-spinner"></span> }
         {{ isLoading() ? (t9n.currentLang() === 'en' ? 'Loading...' : (t9n.currentLang() === 'de' ? 'Laden...' : 'Chargement...')) : (isLoginTab() ? t9n.t('login.btn_login') : t9n.t('login.btn_register')) }}
       </button>
+
+      @if (timeoutMessage()) {
+      <div class="timeout-alert mt-16" style="margin-top: 16px; padding: 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; color: #ef4444; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined" style="font-size: 1.2rem;">schedule</span>
+        <span>{{ timeoutMessage() }}</span>
+      </div>
+      }
     </form>
 
     @if (isLoginTab()) {
