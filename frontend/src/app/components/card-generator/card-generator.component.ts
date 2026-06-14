@@ -377,12 +377,12 @@ export class CardGeneratorComponent {
   selectedFallback = signal<string | null>(null);
 
   readonly fallbackImages = [
-    'assets/images/cards/card-1.png',
-    'assets/images/cards/card-2.png',
-    'assets/images/cards/card-3.png',
-    'assets/images/cards/card-4.png',
-    'assets/images/cards/card-5.png',
-    'assets/images/cards/card-6.png'
+    '/assets/images/cards/card-1.png',
+    '/assets/images/cards/card-2.png',
+    '/assets/images/cards/card-3.png',
+    '/assets/images/cards/card-4.png',
+    '/assets/images/cards/card-5.png',
+    '/assets/images/cards/card-6.png'
   ];
 
   generateCard() {
