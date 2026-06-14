@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: time2wish-db
+    environment:
+      POSTGRES_USER: time2wish_user
+      POSTGRES_PASSWORD: time2wish_password
+      POSTGRES_DB: time2wish
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: time2wish-backend
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=time2wish
+      - DB_USER=time2wish_user
+      - DB_PASSWORD=time2wish_password
+      - JWT_SECRET=${JWT_SECRET:-please_set_a_secure_secret_in_env_file}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY:-}
+      - SPRING_PROFILES_ACTIVE=prod
+    ports:
+      - "8081:8081"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: time2wish-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

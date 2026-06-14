@@ -1,0 +1,46 @@
+image: docker:24.0.5
+
+services:
+  - docker:24.0.5-dind
+
+stages:
+  - build
+  - test
+  # - deploy
+
+variables:
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
+
+cache:
+  paths:
+    - .m2/repository
+    - frontend/node_modules/
+
+build_backend:
+  image: eclipse-temurin:21-jdk
+  stage: build
+  script:
+    - cd backend
+    - ./mvnw $MAVEN_CLI_OPTS clean package -DskipTests
+  artifacts:
+    paths:
+      - backend/target/*.jar
+
+build_frontend:
+  image: node:20-alpine
+  stage: build
+  script:
+    - cd frontend
+    - npm ci
+    - npm run build --prod
+  artifacts:
+    paths:
+      - frontend/dist/
+
+# deploy_prod:
+#   stage: deploy
+#   script:
+#     - echo "Deploying to production server..."
+#   only:
+#     - main
