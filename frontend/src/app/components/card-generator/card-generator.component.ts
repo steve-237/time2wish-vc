@@ -16,15 +16,27 @@ import { Birthday } from '../../models/birthday.model';
       <div class="tm-card cg-card" (click)="$event.stopPropagation()">
         
         <div class="tm-header">
-          <h2><span class="material-symbols-outlined tm-header-icon">image</span> {{ t9n.t('card_gen.title') || 'Générateur de Carte IA' }}</h2>
+          <h2><span class="material-symbols-outlined tm-header-icon">image</span> {{ t9n.t('card_gen.title') || 'Générateur de Carte' }}</h2>
           <button class="tm-close-btn" (click)="close.emit()">
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
 
-        <div class="tm-body cg-body">
+        <div class="tabs-container">
+          <button class="tab-btn" [class.active]="mode() === 'ai'" (click)="mode.set('ai')">
+            <span class="material-symbols-outlined tab-icon">auto_awesome</span>
+            Générateur IA
+          </button>
+          <button class="tab-btn" [class.active]="mode() === 'gallery'" (click)="mode.set('gallery')">
+            <span class="material-symbols-outlined tab-icon">photo_library</span>
+            Galerie d'images
+          </button>
+        </div>
+
+        @if (mode() === 'ai') {
+        <div class="tm-body cg-body animate-fade">
           <div class="cg-prompt-section">
-            <p class="cg-desc">{{ t9n.t('card_gen.desc') || 'Décrivez la carte d\'anniversaire parfaite pour ' + birthday?.name }}</p>
+            <p class="cg-desc">{{ t9n.t('card_gen.desc') || "Décrivez la carte d'anniversaire parfaite pour " + birthday?.name }}</p>
             
             <div class="floating-group">
               <textarea 
@@ -53,7 +65,7 @@ import { Birthday } from '../../models/birthday.model';
             } @else if (imageUrl()) {
               <div class="cg-result">
                 <img [src]="imageUrl()" alt="Generated card" class="cg-image">
-                <a [href]="imageUrl()" [download]="'carte_' + birthday?.name + '.jpg'" class="btn-secondary cg-download-btn">
+                <a [href]="imageUrl()" [download]="'carte_' + birthday?.name + '.jpg'" target="_blank" class="btn-secondary cg-download-btn">
                   <span class="material-symbols-outlined">download</span>
                   {{ t9n.t('card_gen.btn_download') || 'Télécharger' }}
                 </a>
@@ -62,15 +74,45 @@ import { Birthday } from '../../models/birthday.model';
               <div class="cg-placeholder error-placeholder">
                 <span class="material-symbols-outlined">broken_image</span>
                 <p>{{ errorMsg() }}</p>
+                <button class="btn-secondary mt-2" (click)="mode.set('gallery')">
+                  Voir la galerie d'images
+                </button>
               </div>
             } @else {
               <div class="cg-placeholder">
                 <span class="material-symbols-outlined">image_search</span>
-                <p>{{ t9n.t('card_gen.preview_empty') || 'L\'image générée apparaîtra ici.' }}</p>
+                <p>{{ t9n.t('card_gen.preview_empty') || "L'image générée apparaîtra ici." }}</p>
               </div>
             }
           </div>
         </div>
+        }
+
+        @if (mode() === 'gallery') {
+        <div class="tm-body animate-fade">
+          <p class="cg-desc mb-4">Si l'IA est indisponible, choisissez l'une de ces belles images prêtes à être partagées :</p>
+          <div class="gallery-grid">
+            @for (img of fallbackImages; track img) {
+              <div class="gallery-item" (click)="selectFallback(img)" [class.selected]="selectedFallback() === img">
+                <img [src]="img" alt="Carte d'anniversaire">
+                @if (selectedFallback() === img) {
+                  <div class="gallery-item-overlay">
+                    <span class="material-symbols-outlined">check_circle</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="gallery-actions" [class.visible]="selectedFallback()">
+            <a [href]="selectedFallback()" target="_blank" class="btn-premium">
+              <span class="material-symbols-outlined">download</span>
+              Télécharger l'image sélectionnée
+            </a>
+          </div>
+        </div>
+        }
+
       </div>
     </div>
   `,
@@ -78,6 +120,43 @@ import { Birthday } from '../../models/birthday.model';
     .cg-card {
       max-width: 800px;
       width: 90%;
+      padding-bottom: 24px;
+    }
+    .tabs-container {
+      display: flex;
+      background: rgba(0, 0, 0, 0.03);
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 4px;
+      margin: 0 24px 20px;
+    }
+    body.dark-theme .tabs-container {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-family: var(--font-title);
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+    .tab-btn.active {
+      background: var(--bg-card);
+      color: hsl(var(--primary-hsl));
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
     .cg-body {
       display: grid;
@@ -95,6 +174,12 @@ import { Birthday } from '../../models/birthday.model';
     .cg-desc {
       color: var(--text-muted);
       margin-bottom: 8px;
+    }
+    .mb-4 {
+      margin-bottom: 16px;
+    }
+    .mt-2 {
+      margin-top: 12px;
     }
     .cg-textarea {
       resize: none;
@@ -158,6 +243,91 @@ import { Birthday } from '../../models/birthday.model';
       background: white;
       transform: translateY(-2px);
     }
+    
+    /* Gallery Styles */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+    
+    /* Custom Scrollbar for Gallery */
+    .gallery-grid::-webkit-scrollbar {
+      width: 6px;
+    }
+    .gallery-grid::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.05);
+      border-radius: 4px;
+    }
+    .gallery-grid::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.2);
+      border-radius: 4px;
+    }
+    
+    .gallery-item {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      aspect-ratio: 4/3;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .gallery-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    .gallery-item.selected {
+      border-color: hsl(var(--primary-hsl));
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .gallery-item-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(236, 72, 153, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gallery-item-overlay .material-symbols-outlined {
+      font-size: 3rem;
+      color: white;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    }
+    .gallery-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+    }
+    .gallery-actions.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .animate-fade {
+      animation: fadeIn 0.2s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   `]
 })
 export class CardGeneratorComponent {
@@ -168,10 +338,22 @@ export class CardGeneratorComponent {
   @Input() birthday?: Birthday;
   @Output() close = new EventEmitter<void>();
 
+  mode = signal<'ai' | 'gallery'>('ai');
   prompt = signal<string>('');
   isLoading = signal<boolean>(false);
   imageUrl = signal<string | null>(null);
   errorMsg = signal<string | null>(null);
+  
+  selectedFallback = signal<string | null>(null);
+
+  readonly fallbackImages = [
+    'https://images.unsplash.com/photo-1558435189-d91d1e4eb41b?w=600&q=80',
+    'https://images.unsplash.com/photo-1530103862676-de8c9de0f8ea?w=600&q=80',
+    'https://images.unsplash.com/photo-1502635385003-ee1e6a1a742d?w=600&q=80',
+    'https://images.unsplash.com/photo-1527525443983-6e60c75fff50?w=600&q=80',
+    'https://images.unsplash.com/photo-1589156229687-496a31ad1d1f?w=600&q=80',
+    'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600&q=80'
+  ];
 
   generateCard() {
     if (!this.prompt().trim()) return;
@@ -193,14 +375,13 @@ export class CardGeneratorComponent {
       error: (err) => {
         this.isLoading.set(false);
         if (err.status === 503) {
-          // Special fallback message
           const reader = new FileReader();
           reader.onload = () => {
             try {
               const res = JSON.parse(reader.result as string);
               this.errorMsg.set(res.message);
             } catch {
-              this.errorMsg.set(this.t9n.currentLang() === 'en' ? 'Image generation API is not configured yet.' : 'L\'API de génération d\'images n\'est pas encore configurée.');
+              this.errorMsg.set(this.t9n.currentLang() === 'en' ? 'Image generation API is not configured yet.' : "L'API de génération d'images n'est pas encore configurée.");
             }
           };
           reader.readAsText(err.error);
@@ -209,5 +390,9 @@ export class CardGeneratorComponent {
         }
       }
     });
+  }
+
+  selectFallback(img: string) {
+    this.selectedFallback.set(img);
   }
 }
