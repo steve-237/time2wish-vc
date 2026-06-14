@@ -147,12 +147,12 @@ body.dark-theme .info-block {
 .danger-actions {
   display: flex;
   gap: 12px;
-  justify-content: center;
+  width: 100%;
 }
 
 .danger-actions a, .danger-actions button {
   flex: 1;
-  max-width: 200px;
+  width: 100%;
 }
 
 .delete-btn:hover {
