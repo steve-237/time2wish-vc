@@ -24,7 +24,7 @@ import { Birthday } from '../../models/birthday.model';
 
         <div class="tm-body cg-body">
           <div class="cg-prompt-section">
-            <p class="cg-desc">{{ t9n.t('card_gen.desc') || 'Décrivez la carte d\\'anniversaire parfaite pour ' + birthday?.name }}</p>
+            <p class="cg-desc">{{ t9n.t('card_gen.desc') || 'Décrivez la carte d\'anniversaire parfaite pour ' + birthday?.name }}</p>
             
             <div class="floating-group">
               <textarea 
@@ -66,7 +66,7 @@ import { Birthday } from '../../models/birthday.model';
             } @else {
               <div class="cg-placeholder">
                 <span class="material-symbols-outlined">image_search</span>
-                <p>{{ t9n.t('card_gen.preview_empty') || 'L\\'image générée apparaîtra ici.' }}</p>
+                <p>{{ t9n.t('card_gen.preview_empty') || 'L\'image générée apparaîtra ici.' }}</p>
               </div>
             }
           </div>
@@ -181,7 +181,7 @@ export class CardGeneratorComponent {
     this.imageUrl.set(null);
 
     this.http.post(
-      \`\${environment.apiUrl}/ai/card\`,
+      environment.apiUrl + '/ai/card',
       { prompt: this.prompt() },
       { responseType: 'blob', withCredentials: true }
     ).subscribe({
@@ -200,7 +200,7 @@ export class CardGeneratorComponent {
               const res = JSON.parse(reader.result as string);
               this.errorMsg.set(res.message);
             } catch {
-              this.errorMsg.set(this.t9n.currentLang() === 'en' ? 'Image generation API is not configured yet.' : 'L\\'API de génération d\\'images n\\'est pas encore configurée.');
+              this.errorMsg.set(this.t9n.currentLang() === 'en' ? 'Image generation API is not configured yet.' : 'L\'API de génération d\'images n\'est pas encore configurée.');
             }
           };
           reader.readAsText(err.error);

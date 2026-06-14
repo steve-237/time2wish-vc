@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { ToastService } from '../../services/toast.service';
 import { Router } from '@angular/router';
 import { TranslationService } from '../../services/translation.service';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-pricing',
   standalone: true,

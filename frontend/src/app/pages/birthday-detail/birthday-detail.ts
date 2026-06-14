@@ -1,7 +1,6 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { BirthdayService } from '../../services/birthday.service';
 import { TranslationService } from '../../services/translation.service';
@@ -174,7 +173,6 @@ export class BirthdayDetail implements OnInit {
     this.isWishModalOpen.set(true);
   }
 
-  isConfirmModalOpen = signal<boolean>(false);
 
   onDelete() {
     this.isConfirmModalOpen.set(true);

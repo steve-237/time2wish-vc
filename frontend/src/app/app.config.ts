@@ -8,9 +8,10 @@ import { CustomMatPaginatorIntl } from './services/custom-paginator-intl';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { provideServiceWorker } from '@angular/service-worker';
 import { AuthService } from './services/auth.service';
+import { firstValueFrom } from 'rxjs';
 
 export function initializeAuth(authService: AuthService) {
-  return () => authService.refreshSession();
+  return () => firstValueFrom(authService.refreshSession());
 }
 
 export const appConfig: ApplicationConfig = {
