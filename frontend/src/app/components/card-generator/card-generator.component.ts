@@ -13,7 +13,7 @@ import { Birthday } from '../../models/birthday.model';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="tm-modal-overlay" style="z-index: 3000;" (click)="close.emit()">
-      <div class="tm-card cg-card" (click)="$event.stopPropagation()">
+      <div class="glass-card cg-card" (click)="$event.stopPropagation()">
         
         <div class="tm-header">
           <h2><span class="material-symbols-outlined tm-header-icon">image</span> {{ t9n.t('card_gen.title') || 'Générateur de Carte' }}</h2>
@@ -347,12 +347,9 @@ export class CardGeneratorComponent {
   selectedFallback = signal<string | null>(null);
 
   readonly fallbackImages = [
-    'https://images.unsplash.com/photo-1558435189-d91d1e4eb41b?w=600&q=80',
-    'https://images.unsplash.com/photo-1530103862676-de8c9de0f8ea?w=600&q=80',
-    'https://images.unsplash.com/photo-1502635385003-ee1e6a1a742d?w=600&q=80',
-    'https://images.unsplash.com/photo-1527525443983-6e60c75fff50?w=600&q=80',
-    'https://images.unsplash.com/photo-1589156229687-496a31ad1d1f?w=600&q=80',
-    'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=600&q=80'
+    'assets/images/cards/card-1.png',
+    'assets/images/cards/card-2.png',
+    'assets/images/cards/card-3.png'
   ];
 
   generateCard() {
