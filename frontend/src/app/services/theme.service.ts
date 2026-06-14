@@ -19,10 +19,17 @@ export class ThemeService {
   }
 
   private loadTheme(userId?: number) {
-    const modeKey = userId ? `t2w_app_mode_${userId}` : 't2w_app_mode';
-    const colorKey = userId ? `t2w_color_theme_${userId}` : 't2w_color_theme';
+    let storedMode: string | null = null;
+    let storedColor: string | null = null;
 
-    const storedMode = localStorage.getItem(modeKey) || localStorage.getItem('t2w_app_mode');
+    if (userId) {
+      storedMode = localStorage.getItem(`t2w_app_mode_${userId}`);
+      storedColor = localStorage.getItem(`t2w_color_theme_${userId}`);
+    } else {
+      storedMode = localStorage.getItem('t2w_app_mode');
+      storedColor = localStorage.getItem('t2w_color_theme');
+    }
+
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
     let mode: 'light' | 'dark' | 'oled' = 'light';
@@ -32,7 +39,7 @@ export class ThemeService {
       mode = 'dark';
     }
 
-    const color = localStorage.getItem(colorKey) || localStorage.getItem('t2w_color_theme') || 'theme-ocean';
+    const color = storedColor || 'theme-ocean';
 
     this.appMode.set(mode);
     this.colorTheme.set(color);
