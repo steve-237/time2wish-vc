@@ -8,7 +8,11 @@ import app.time2wish.model.User;
 import app.time2wish.repository.UserRepository;
 import app.time2wish.service.BirthdayService;
 import app.time2wish.service.GeminiService;
+import app.time2wish.service.ImageGenerationService;
 import app.time2wish.security.UserDetailsImpl;
+import app.time2wish.dto.AiCardRequest;
+import org.springframework.http.MediaType;
+import org.springframework.http.HttpHeaders;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +27,9 @@ public class AiController {
 
     @Autowired
     private GeminiService geminiService;
+
+    @Autowired
+    private ImageGenerationService imageGenerationService;
 
     @Autowired
     private BirthdayService birthdayService;
@@ -73,5 +80,24 @@ public class AiController {
         );
 
         return ResponseEntity.ok(new AiResponse(wish));
+    }
+
+    @PostMapping("/card")
+    public ResponseEntity<?> generateCard(
+            @Valid @RequestBody AiCardRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        
+        // Ensure user is authenticated
+        getAuthenticatedUser(userDetails);
+        
+        byte[] imageBytes = imageGenerationService.generateImage(request.getPrompt());
+        
+        if (imageBytes == null) {
+            return ResponseEntity.status(503).body(new MessageResponse("L'API de génération d'images n'est pas configurée pour le moment."));
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        return new ResponseEntity<>(imageBytes, headers, 200);
     }
 }

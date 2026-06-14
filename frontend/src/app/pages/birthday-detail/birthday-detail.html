@@ -190,6 +190,12 @@
         {{ t9n.t('detail.btn_share') || 'Partager' }}
       </button>
 
+      <!-- Generate Card -->
+      <button class="btn-premium" (click)="isCardModalOpen.set(true)" style="background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%); border-color: transparent;">
+        <span class="material-symbols-outlined">image</span>
+        {{ t9n.t('detail.btn_card') || 'Créer une carte' }}
+      </button>
+
       <button class="btn-premium" (click)="isWishModalOpen.set(true)">
         <span class="material-symbols-outlined">auto_awesome</span>
         {{ t9n.t('detail.btn_wish') }}
@@ -220,6 +226,14 @@
   [birthday]="birthday()!" 
   (close)="isWishModalOpen.set(false)">
 </app-wish-modal>
+}
+
+<!-- Card Generator Modal Overlay -->
+@if (isCardModalOpen() && birthday()) {
+<app-card-generator 
+  [birthday]="birthday()!" 
+  (close)="isCardModalOpen.set(false)">
+</app-card-generator>
 }
 
 <!-- Delete Confirmation Modal Overlay -->

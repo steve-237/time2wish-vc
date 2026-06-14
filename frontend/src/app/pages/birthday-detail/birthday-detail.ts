@@ -2,19 +2,21 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { BirthdayService } from '../../services/birthday.service';
 import { TranslationService } from '../../services/translation.service';
 import { ExportService } from '../../services/export.service';
 import { ToastService } from '../../services/toast.service';
 import { Birthday, GiftSuggestion } from '../../models/birthday.model';
 import { WishModalComponent } from '../../components/wish-modal/wish-modal.component';
+import { CardGeneratorComponent } from '../../components/card-generator/card-generator.component';
 import { AuthService } from '../../services/auth.service';
 import { UiService } from '../../services/ui.service';
 
 @Component({
   selector: 'app-birthday-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, WishModalComponent],
+  imports: [CommonModule, FormsModule, RouterLink, RouterModule, WishModalComponent, CardGeneratorComponent],
   templateUrl: './birthday-detail.html',
   styleUrl: './birthday-detail.scss'
 })
@@ -61,7 +63,9 @@ export class BirthdayDetail implements OnInit {
     return rawLabel;
   }
 
+  isConfirmModalOpen = signal<boolean>(false);
   isShareModalOpen = signal<boolean>(false);
+  isCardModalOpen = signal<boolean>(false);
   canWebShare = signal<boolean>(!!navigator.share);
 
   onClose() {
