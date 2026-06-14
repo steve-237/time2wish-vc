@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewEncapsulation, HostListener, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ViewEncapsulation, HostListener, NgZone } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { ToastContainerComponent } from './components/toast-container/toast-container.component';
@@ -11,18 +11,19 @@ import { TermsModalComponent } from './components/terms-modal/terms-modal.compon
   templateUrl: './app.html',
   encapsulation: ViewEncapsulation.None
 })
-export class App implements OnInit {
+export class App implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
   
   private idleTimeout: any;
-  private readonly IDLE_TIME = 3 * 60 * 1000; // 3 minutes
+  private readonly IDLE_TIME = 3 * 60 * 1000; // 3 minutes of inactivity
 
   @HostListener('window:mousemove')
   @HostListener('window:keydown')
   @HostListener('window:click')
   @HostListener('window:scroll')
+  @HostListener('window:touchstart')
   resetIdleTimer() {
     if (this.authService.isAuthenticated()) {
       clearTimeout(this.idleTimeout);
@@ -69,5 +70,9 @@ export class App implements OnInit {
 
     // Initialize the idle timer
     this.resetIdleTimer();
+  }
+
+  ngOnDestroy() {
+    clearTimeout(this.idleTimeout);
   }
 }

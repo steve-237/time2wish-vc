@@ -52,11 +52,15 @@ export class Login implements OnInit {
     // Check for timeout reason
     this.route.queryParams.subscribe(params => {
       if (params['reason'] === 'timeout') {
-        const msg = this.t9n.currentLang() === 'en' 
-          ? 'You have been disconnected due to inactivity.' 
-          : 'Vous avez été déconnecté pour inactivité.';
+        const lang = this.t9n.currentLang();
+        const messages: Record<string, string> = {
+          fr: 'Vous avez été déconnecté pour cause d\'inactivité (3 minutes).',
+          en: 'You have been disconnected due to inactivity (3 minutes).',
+          de: 'Sie wurden wegen Inaktivität abgemeldet (3 Minuten).'
+        };
+        const msg = messages[lang] || messages['fr'];
         // Use timeout to let the UI initialize before toasting
-        setTimeout(() => this.toastService.error(msg), 100);
+        setTimeout(() => this.toastService.warning(msg), 200);
       }
     });
   }

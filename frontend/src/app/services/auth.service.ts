@@ -23,15 +23,16 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly API_URL = environment.apiUrl + '/auth';
   private readonly STORAGE_USER_KEY = 't2w_user_profile';
+  private readonly STORAGE_TOKEN_KEY = 't2w_access_token';
 
   // Signals
-  readonly accessToken = signal<string | null>(null);
+  readonly accessToken = signal<string | null>(this.getStoredToken());
   readonly currentUser = signal<User | null>(this.getStoredProfile());
   readonly isAuthenticated = computed(() => this.accessToken() !== null && this.currentUser() !== null);
   readonly isLoaded = signal<boolean>(false);
 
   constructor() {
-    // Session initialization is now handled by APP_INITIALIZER in app.config.ts
+    // Session initialization is handled by APP_INITIALIZER in app.config.ts
   }
 
   private getStoredProfile(): User | null {
@@ -41,6 +42,10 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  private getStoredToken(): string | null {
+    return localStorage.getItem(this.STORAGE_TOKEN_KEY);
   }
 
   login(email: string, password: string): Observable<boolean> {
@@ -74,16 +79,42 @@ export class AuthService {
   }
 
   refreshSession(): Observable<boolean> {
+    const storedToken = this.getStoredToken();
+    const storedUser = this.getStoredProfile();
+
+    // If we have a stored token, try to validate it via the refresh endpoint
+    // Otherwise, if we have stored user info + cookie, try cookie-based refresh
+    if (storedToken && storedUser) {
+      // We already have credentials in localStorage — restore them into signals
+      this.accessToken.set(storedToken);
+      this.currentUser.set(storedUser);
+
+      // Try to refresh the token from the backend to get a fresh JWT
+      return this.http.post<AuthResponse>(`${this.API_URL}/refresh`, {}, { withCredentials: true }).pipe(
+        tap(res => {
+          this.saveSession(res);
+          this.isLoaded.set(true);
+        }),
+        map(() => true),
+        catchError(() => {
+          // Refresh failed but we still have the stored token — keep the session alive
+          // The token may still be valid (it will fail on API calls if truly expired)
+          this.isLoaded.set(true);
+          return of(true);
+        })
+      );
+    }
+
+    // No stored credentials at all — try cookie-only refresh as last resort
     return this.http.post<AuthResponse>(`${this.API_URL}/refresh`, {}, { withCredentials: true }).pipe(
       tap(res => {
         this.saveSession(res);
         this.isLoaded.set(true);
       }),
       map(() => true),
-      catchError(err => {
+      catchError(() => {
         this.clearSession();
         this.isLoaded.set(true);
-        // We catch the error and return true so APP_INITIALIZER doesn't block the app loading
         return of(true);
       })
     );
@@ -114,12 +145,14 @@ export class AuthService {
     
     this.accessToken.set(res.token);
     this.currentUser.set(user);
+    localStorage.setItem(this.STORAGE_TOKEN_KEY, res.token);
     localStorage.setItem(this.STORAGE_USER_KEY, JSON.stringify(user));
   }
 
   private clearSession(): void {
     this.accessToken.set(null);
     this.currentUser.set(null);
+    localStorage.removeItem(this.STORAGE_TOKEN_KEY);
     localStorage.removeItem(this.STORAGE_USER_KEY);
   }
 }

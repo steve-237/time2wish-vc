@@ -85,6 +85,24 @@ npm run start
 
 ---
 
+## 🌍 Production Deployment & Environment Variables
+
+When deploying the application to a production environment, you **must** configure the following environment variables (defined in `.env` or your CI/CD platform) to ensure security and proper functionality:
+
+### Backend Variables
+- **`JWT_SECRET`**: A strong, randomly generated string used to sign JSON Web Tokens. **Crucial for security**. Do not use the default development secret in production.
+- **`DB_HOST`**, **`DB_PORT`**, **`DB_NAME`**: Connection details for your production PostgreSQL instance (defaults to `postgres`, `5432`, `time2wish` in Docker).
+- **`DB_USER`**, **`DB_PASSWORD`**: Credentials for your production database.
+- **`SPRING_PROFILES_ACTIVE=prod`**: Instructs Spring Boot to run in production mode (turns off SQL logging, uses production configurations).
+- **`GEMINI_API_KEY`**: Your Google Gemini API Key for text generation features.
+- **`HUGGINGFACE_API_KEY`**: Your Hugging Face API Key for AI image generation.
+- **`SMTP_HOST`**, **`SMTP_PORT`**, **`SMTP_USER`**, **`SMTP_PASSWORD`**: Your SMTP server credentials to enable real reminder emails (e.g., SendGrid, Mailgun, or Gmail App Passwords).
+
+### Frontend Variables
+- Modify `frontend/src/environments/environment.prod.ts` to ensure `apiUrl` points to your production backend (e.g., `https://api.time2wish.com/api`).
+
+---
+
 ## 📱 How to Install the PWA
 
 Time2Wish is a Progressive Web App (PWA), meaning you can install it like a native app on your phone or computer for a better experience and offline access!

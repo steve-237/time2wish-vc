@@ -64,7 +64,7 @@ public class AuthController {
                 .secure(false) // Set to true in prod, false in dev localhost
                 .path("/")
                 .maxAge(30 * 24 * 60 * 60) // 30 days
-                .sameSite("Strict")
+                .sameSite("Lax")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
@@ -108,7 +108,11 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@CookieValue(name = "t2w_refresh", required = false) String requestRefreshToken) {
+        System.out.println("======> /api/auth/refresh CALLED <======");
+        System.out.println("t2w_refresh Cookie Value: " + requestRefreshToken);
+
         if (requestRefreshToken == null || requestRefreshToken.isEmpty()) {
+            System.out.println("Refresh token missing, returning 400");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Refresh Token is missing"));
         }
 
@@ -152,7 +156,7 @@ public class AuthController {
                 .httpOnly(true)
                 .path("/")
                 .maxAge(0) // delete immediately
-                .sameSite("Strict")
+                .sameSite("Lax")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
