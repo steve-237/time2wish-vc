@@ -31,20 +31,20 @@ public class DataInitializer {
                 userRepository.save(superAdmin);
             });
 
-            userRepository.findByEmail("demo-admin@time2wish.com").ifPresentOrElse(user -> {
-                user.setRole(Role.ROLE_ADMIN);
-                user.setPlan(PlanType.PRO);
+            userRepository.findByEmail("demo@time2wish.com").ifPresentOrElse(user -> {
+                user.setRole(Role.ROLE_USER);
+                user.setPlan(PlanType.BASIC);
                 userRepository.save(user);
             }, () -> {
-                User admin = User.builder()
-                        .email("demo-admin@time2wish.com")
-                        .password(passwordEncoder.encode("password123"))
-                        .fullName("Admin Démo")
-                        .role(Role.ROLE_ADMIN)
+                User demo = User.builder()
+                        .email("demo@time2wish.com")
+                        .password(passwordEncoder.encode("password"))
+                        .fullName("Utilisateur Démo")
+                        .role(Role.ROLE_USER)
                         .status("ACTIVE")
-                        .plan(PlanType.PRO)
+                        .plan(PlanType.BASIC)
                         .build();
-                userRepository.save(admin);
+                userRepository.save(demo);
             });
         };
     }

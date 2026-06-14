@@ -55,7 +55,7 @@ import { ThemeService } from '../../services/theme.service';
           @if (isAdmin()) {
           <a routerLink="/admin" class="btn-secondary admin-btn" title="Administration">
             <span class="material-symbols-outlined admin-icon">admin_panel_settings</span>
-            <span class="hide-mobile">Admin</span>
+            <span class="hide-mobile">Admin panel</span>
           </a>
           }
 
