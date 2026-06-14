@@ -15,9 +15,9 @@ import { Birthday } from '../../models/birthday.model';
     <div class="tm-modal-overlay" style="z-index: 3000;" (click)="close.emit()">
       <div class="glass-card cg-card" (click)="$event.stopPropagation()">
         
-        <div class="tm-header">
+        <div class="cg-header flex-between">
           <h2><span class="material-symbols-outlined tm-header-icon">image</span> {{ t9n.t('card_gen.title') || 'Générateur de Carte' }}</h2>
-          <button class="tm-close-btn" (click)="close.emit()">
+          <button class="icon-btn cg-close-btn" (click)="close.emit()">
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
@@ -51,7 +51,8 @@ import { Birthday } from '../../models/birthday.model';
             <button 
               class="btn-premium cg-generate-btn" 
               (click)="generateCard()" 
-              [disabled]="isLoading() || !prompt().trim()">
+              [disabled]="isLoading() || !prompt().trim()"
+              [class.disabled]="isLoading() || !prompt().trim()">
               <span class="material-symbols-outlined">{{ isLoading() ? 'sync' : 'magic_button' }}</span>
               {{ isLoading() ? (t9n.t('card_gen.loading') || 'Génération en cours...') : (t9n.t('card_gen.btn_generate') || 'Générer la carte') }}
             </button>
@@ -90,7 +91,7 @@ import { Birthday } from '../../models/birthday.model';
 
         @if (mode() === 'gallery') {
         <div class="tm-body animate-fade">
-          <p class="cg-desc mb-4">Si l'IA est indisponible, choisissez l'une de ces belles images prêtes à être partagées :</p>
+          <p class="cg-desc mb-4">Choisissez l'une de ces belles images prêtes à être partagées :</p>
           <div class="gallery-grid">
             @for (img of fallbackImages; track img) {
               <div class="gallery-item" (click)="selectFallback(img)" [class.selected]="selectedFallback() === img">
@@ -121,6 +122,35 @@ import { Birthday } from '../../models/birthday.model';
       max-width: 800px;
       width: 90%;
       padding-bottom: 24px;
+    }
+    .cg-header {
+      padding: 24px 24px 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-card);
+    }
+    .cg-header h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cg-close-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+    .cg-close-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--text-main);
     }
     .tabs-container {
       display: flex;
@@ -347,9 +377,9 @@ export class CardGeneratorComponent {
   selectedFallback = signal<string | null>(null);
 
   readonly fallbackImages = [
-    'assets/images/cards/card-1.png',
-    'assets/images/cards/card-2.png',
-    'assets/images/cards/card-3.png'
+    'https://images.unsplash.com/photo-1558435189-d91d1e4eb41b?w=600&q=80',
+    'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=600&q=80',
+    'https://images.unsplash.com/photo-1583875762487-5f8f7c718d14?w=600&q=80'
   ];
 
   generateCard() {
