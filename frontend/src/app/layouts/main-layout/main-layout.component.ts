@@ -167,7 +167,7 @@ export class MainLayoutComponent implements OnInit {
 
   isAdmin(): boolean {
     const user = this.authService.currentUser();
-    return user?.roles?.includes('ROLE_ADMIN') ?? false;
+    return user?.roles?.includes('ROLE_ADMIN') || user?.roles?.includes('ROLE_SUPERADMIN') || false;
   }
 
   onLogout() {
