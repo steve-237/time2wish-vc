@@ -31,14 +31,7 @@ export class AuthService {
   readonly isLoaded = signal<boolean>(false);
 
   constructor() {
-    // Attempt auto-login on startup using refresh token cookie
-    this.refreshSession().subscribe({
-      next: () => this.isLoaded.set(true),
-      error: () => {
-        this.clearSession();
-        this.isLoaded.set(true);
-      }
-    });
+    // Session initialization is now handled by APP_INITIALIZER in app.config.ts
   }
 
   private getStoredProfile(): User | null {
@@ -82,11 +75,16 @@ export class AuthService {
 
   refreshSession(): Observable<boolean> {
     return this.http.post<AuthResponse>(`${this.API_URL}/refresh`, {}, { withCredentials: true }).pipe(
-      tap(res => this.saveSession(res)),
+      tap(res => {
+        this.saveSession(res);
+        this.isLoaded.set(true);
+      }),
       map(() => true),
       catchError(err => {
         this.clearSession();
-        throw err;
+        this.isLoaded.set(true);
+        // We catch the error and return true so APP_INITIALIZER doesn't block the app loading
+        return of(true);
       })
     );
   }

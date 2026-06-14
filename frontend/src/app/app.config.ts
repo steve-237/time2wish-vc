@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, isDevMode } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, isDevMode, APP_INITIALIZER } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
@@ -7,6 +7,11 @@ import { MatPaginatorIntl } from '@angular/material/paginator';
 import { CustomMatPaginatorIntl } from './services/custom-paginator-intl';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { provideServiceWorker } from '@angular/service-worker';
+import { AuthService } from './services/auth.service';
+
+export function initializeAuth(authService: AuthService) {
+  return () => authService.refreshSession();
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,6 +19,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
     { provide: MatPaginatorIntl, useClass: CustomMatPaginatorIntl },
+    { provide: APP_INITIALIZER, useFactory: initializeAuth, deps: [AuthService], multi: true },
     provideCharts(withDefaultRegisterables()),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),

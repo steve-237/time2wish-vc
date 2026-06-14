@@ -6,17 +6,28 @@ Time2Wish is a modern and premium web application designed to help you track, or
 
 ## 🛠️ Project Architecture
 
-The project is split into two distinct parts:
+**Architecture Type:** **Containerized Monolithic REST API with a Standalone SPA (Single Page Application)**.
+The project is built on a modern decoupled client-server model communicating via HTTP REST, using secure stateless authentication. It is fully containerized using Docker for seamless deployments.
 
-*   **`backend/` (Spring Boot 3.x & PostgreSQL):**
-    *   Secure REST API (JWT, refresh via HTTP-only cookies).
-    *   PostgreSQL database management.
-    *   Automated task scheduler for daily checks and reminder email dispatches.
-*   **`frontend/` (Angular 18+ & Angular Material):**
-    *   Modern and animated user interface (Glassmorphism design).
-    *   Reactive state management using **Angular Signals**.
-    *   Native Audio Synthesizer for sound feedback.
-    *   Internationalization support (French, English, German).
+The system is split into three main layers:
+
+*   **1. `backend/` (Spring Boot 3.x & Java 21):**
+    *   **Architecture:** Monolithic REST API.
+    *   **Security:** Stateless JWT authentication stored in HTTP-Only Cookies (against XSS attacks), with automatic refresh endpoints.
+    *   **AI Integration:** Services for Google Gemini (Text generation) and Hugging Face (Image generation).
+    *   **Task Scheduling:** Cron jobs for daily checks and reminder email dispatches via SMTP.
+*   **2. `frontend/` (Angular 18+ & Node 20):**
+    *   **Architecture:** SPA (Single Page Application) / PWA.
+    *   **State Management:** Reactive architecture using modern **Angular Signals** instead of RxJS for local state.
+    *   **Design:** Custom Glassmorphism UI (Vanilla CSS/SCSS) focused on premium aesthetics and animations.
+    *   **Robustness:** Utilizes `APP_INITIALIZER` for synchronous startup state hydration and global `@HostListener` for inactivity auto-logout tracking.
+*   **3. `database/` (PostgreSQL 15):**
+    *   **Architecture:** Relational Database.
+    *   **Migrations:** Managed seamlessly via Flyway scripts (`db/migration`).
+*   **4. `DevOps & CI/CD` (Docker & GitHub Actions):**
+    *   Multi-stage Dockerfiles for both Frontend and Backend to keep images lean.
+    *   `docker-compose.yml` for unified local/production deployments.
+    *   Automated CI/CD pipelines via GitHub Actions and GitLab CI configurations.
 
 ---
 

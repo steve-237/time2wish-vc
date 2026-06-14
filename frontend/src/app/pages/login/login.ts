@@ -1,9 +1,10 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { TranslationService } from '../../services/translation.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -12,10 +13,12 @@ import { TranslationService } from '../../services/translation.service';
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })
-export class Login {
+export class Login implements OnInit {
   authService = inject(AuthService);
   t9n = inject(TranslationService);
   router = inject(Router);
+  route = inject(ActivatedRoute);
+  toastService = inject(ToastService);
 
   readonly languages: { code: string; label: string; flagUrl: string }[] = [
     { code: 'fr', label: 'FR', flagUrl: 'https://flagcdn.com/w40/fr.png' },
@@ -43,6 +46,19 @@ export class Login {
     if (this.authService.isAuthenticated()) {
       this.router.navigate(['/dashboard']);
     }
+  }
+
+  ngOnInit() {
+    // Check for timeout reason
+    this.route.queryParams.subscribe(params => {
+      if (params['reason'] === 'timeout') {
+        const msg = this.t9n.currentLang() === 'en' 
+          ? 'You have been disconnected due to inactivity.' 
+          : 'Vous avez été déconnecté pour inactivité.';
+        // Use timeout to let the UI initialize before toasting
+        setTimeout(() => this.toastService.error(msg), 100);
+      }
+    });
   }
 
   toggleTab() {

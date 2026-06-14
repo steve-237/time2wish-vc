@@ -1,5 +1,6 @@
-import { Component, OnInit, inject, ViewEncapsulation } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit, inject, ViewEncapsulation, HostListener, NgZone } from '@angular/core';
+import { RouterOutlet, Router } from '@angular/router';
+import { AuthService } from './services/auth.service';
 import { ToastContainerComponent } from './components/toast-container/toast-container.component';
 import { TermsModalComponent } from './components/terms-modal/terms-modal.component';
 
@@ -11,6 +12,35 @@ import { TermsModalComponent } from './components/terms-modal/terms-modal.compon
   encapsulation: ViewEncapsulation.None
 })
 export class App implements OnInit {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly ngZone = inject(NgZone);
+  
+  private idleTimeout: any;
+  private readonly IDLE_TIME = 3 * 60 * 1000; // 3 minutes
+
+  @HostListener('window:mousemove')
+  @HostListener('window:keydown')
+  @HostListener('window:click')
+  @HostListener('window:scroll')
+  resetIdleTimer() {
+    if (this.authService.isAuthenticated()) {
+      clearTimeout(this.idleTimeout);
+      this.ngZone.runOutsideAngular(() => {
+        this.idleTimeout = setTimeout(() => {
+          this.ngZone.run(() => this.handleInactivity());
+        }, this.IDLE_TIME);
+      });
+    }
+  }
+
+  private handleInactivity() {
+    if (this.authService.isAuthenticated()) {
+      this.authService.logout().subscribe(() => {
+        this.router.navigate(['/login'], { queryParams: { reason: 'timeout' } });
+      });
+    }
+  }
   
   ngOnInit() {
     // Load app mode preference
@@ -36,5 +66,8 @@ export class App implements OnInit {
     } else {
       document.body.classList.add('theme-ocean');
     }
+
+    // Initialize the idle timer
+    this.resetIdleTimer();
   }
 }
