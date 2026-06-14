@@ -201,7 +201,8 @@
     "share_link": "Copier le lien",
     "share_link_desc": "Copier le lien direct vers cette page",
     "btn_edit": "Modifier",
-    "btn_delete": "Supprimer"
+    "btn_delete": "Supprimer",
+    "btn_card": "Créer une carte"
   },
   "countdown": {
     "today": "🎂 Aujourd'hui !",
@@ -355,5 +356,19 @@
     "update_error": "Échec de la mise à jour.",
     "delete_success": "Modèle supprimé avec succès !",
     "delete_error": "Échec de la suppression."
+  },
+  "card_gen": {
+    "title": "Générateur de Carte",
+    "desc": "Décrivez la carte d'anniversaire parfaite pour ",
+    "prompt_label": "Ex: Un gâteau au chocolat sur une plage au coucher du soleil...",
+    "btn_generate": "Générer la carte",
+    "loading": "Génération en cours...",
+    "btn_download": "Télécharger",
+    "preview_empty": "L'image générée apparaîtra ici.",
+    "tab_ai": "Générateur IA",
+    "tab_gallery": "Galerie d'images",
+    "gallery_desc": "Choisissez l'une de ces belles images prêtes à être partagées :",
+    "btn_view_gallery": "Voir la galerie d'images",
+    "btn_download_selected": "Télécharger l'image sélectionnée"
   }
 }

@@ -201,7 +201,8 @@
     "share_link": "Link kopieren",
     "share_link_desc": "Kopieren Sie den direkten Link zu dieser Seite",
     "btn_edit": "Bearbeiten",
-    "btn_delete": "Löschen"
+    "btn_delete": "Löschen",
+    "btn_card": "Karte erstellen"
   },
   "countdown": {
     "today": "🎂 Heute!",
@@ -355,5 +356,19 @@
     "update_error": "Fehler beim Aktualisieren der Vorlage.",
     "delete_success": "Vorlage erfolgreich gelöscht!",
     "delete_error": "Fehler beim Löschen der Vorlage."
+  },
+  "card_gen": {
+    "title": "Karten-Generator",
+    "desc": "Beschreiben Sie die perfekte Geburtstagskarte für ",
+    "prompt_label": "Bsp: Ein Schokoladenkuchen am Strand bei Sonnenuntergang...",
+    "btn_generate": "Karte generieren",
+    "loading": "Generierung läuft...",
+    "btn_download": "Herunterladen",
+    "preview_empty": "Das generierte Bild wird hier angezeigt.",
+    "tab_ai": "KI-Generator",
+    "tab_gallery": "Bildergalerie",
+    "gallery_desc": "Wählen Sie eines dieser schönen, teilfertigen Bilder:",
+    "btn_view_gallery": "Bildergalerie anzeigen",
+    "btn_download_selected": "Ausgewähltes Bild herunterladen"
   }
 }

@@ -25,11 +25,11 @@ import { Birthday } from '../../models/birthday.model';
         <div class="tabs-container">
           <button class="tab-btn" [class.active]="mode() === 'ai'" (click)="mode.set('ai')">
             <span class="material-symbols-outlined tab-icon">auto_awesome</span>
-            Générateur IA
+            {{ t9n.t('card_gen.tab_ai') || 'Générateur IA' }}
           </button>
           <button class="tab-btn" [class.active]="mode() === 'gallery'" (click)="mode.set('gallery')">
             <span class="material-symbols-outlined tab-icon">photo_library</span>
-            Galerie d'images
+            {{ t9n.t('card_gen.tab_gallery') || "Galerie d'images" }}
           </button>
         </div>
 
@@ -76,7 +76,7 @@ import { Birthday } from '../../models/birthday.model';
                 <span class="material-symbols-outlined">broken_image</span>
                 <p>{{ errorMsg() }}</p>
                 <button class="btn-secondary mt-2" (click)="mode.set('gallery')">
-                  Voir la galerie d'images
+                  {{ t9n.t('card_gen.btn_view_gallery') || "Voir la galerie d'images" }}
                 </button>
               </div>
             } @else {
@@ -91,7 +91,7 @@ import { Birthday } from '../../models/birthday.model';
 
         @if (mode() === 'gallery') {
         <div class="tm-body animate-fade">
-          <p class="cg-desc mb-4">Choisissez l'une de ces belles images prêtes à être partagées :</p>
+          <p class="cg-desc mb-4">{{ t9n.t('card_gen.gallery_desc') || "Choisissez l'une de ces belles images prêtes à être partagées :" }}</p>
           <div class="gallery-grid">
             @for (img of fallbackImages; track img) {
               <div class="gallery-item" (click)="selectFallback(img)" [class.selected]="selectedFallback() === img">
@@ -108,7 +108,7 @@ import { Birthday } from '../../models/birthday.model';
           <div class="gallery-actions" [class.visible]="selectedFallback()">
             <a [href]="selectedFallback()" target="_blank" class="btn-premium">
               <span class="material-symbols-outlined">download</span>
-              Télécharger l'image sélectionnée
+              {{ t9n.t('card_gen.btn_download_selected') || "Télécharger l'image sélectionnée" }}
             </a>
           </div>
         </div>

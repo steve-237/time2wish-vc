@@ -201,7 +201,8 @@
     "share_link": "Copy link",
     "share_link_desc": "Copy the direct link to this page",
     "btn_edit": "Edit",
-    "btn_delete": "Delete"
+    "btn_delete": "Delete",
+    "btn_card": "Create a Card"
   },
   "countdown": {
     "today": "🎂 Today!",
@@ -355,5 +356,19 @@
     "update_error": "Failed to update template.",
     "delete_success": "Template deleted successfully!",
     "delete_error": "Failed to delete template."
+  },
+  "card_gen": {
+    "title": "Card Generator",
+    "desc": "Describe the perfect birthday card for ",
+    "prompt_label": "Ex: A chocolate cake on a beach at sunset...",
+    "btn_generate": "Generate Card",
+    "loading": "Generating...",
+    "btn_download": "Download",
+    "preview_empty": "The generated image will appear here.",
+    "tab_ai": "AI Generator",
+    "tab_gallery": "Image Gallery",
+    "gallery_desc": "Choose one of these beautiful ready-to-share images:",
+    "btn_view_gallery": "View Image Gallery",
+    "btn_download_selected": "Download Selected Image"
   }
 }
