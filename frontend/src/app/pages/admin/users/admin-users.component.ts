@@ -114,12 +114,12 @@ import { ToastService } from '../../../services/toast.service';
   `,
   styles: [`
     .users-container { padding: 1rem; }
-    .page-title { font-size: 1.5rem; font-weight: 600; color: #111827; margin-bottom: 2rem; }
-    .table-wrapper { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); overflow-x: auto; }
-    .users-table { width: 100%; border-collapse: collapse; text-align: left; }
-    .users-table th, .users-table td { padding: 1rem 1.5rem; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
-    .users-table th { background-color: #f9fafb; font-weight: 600; color: #374151; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
-    .font-medium { font-weight: 500; color: #111827; }
+    .page-title { font-size: 1.5rem; font-weight: 600; color: var(--text-main); margin-bottom: 2rem; }
+    .table-wrapper { background: var(--bg-card); border-radius: 12px; box-shadow: var(--glass-shadow); backdrop-filter: blur(var(--glass-blur)); overflow-x: auto; border: 1px solid var(--border-card); }
+    .users-table { width: 100%; border-collapse: collapse; text-align: left; color: var(--text-main); }
+    .users-table th, .users-table td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-card); vertical-align: middle; }
+    .users-table th { background-color: rgba(0,0,0,0.05); font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+    .font-medium { font-weight: 500; color: var(--text-main); }
     
     .badge { padding: 0.3rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
     .status-active { background-color: #d1fae5; color: #065f46; }
@@ -153,19 +153,22 @@ import { ToastService } from '../../../services/toast.service';
       background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;
     }
     .confirm-modal-content {
-      background: white; border-radius: 12px; width: 100%; max-width: 400px; overflow: hidden;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+      background: var(--bg-card); border-radius: 12px; width: 100%; max-width: 400px; overflow: hidden;
+      box-shadow: var(--glass-shadow); backdrop-filter: blur(var(--glass-blur)); border: 1px solid var(--border-card);
+      color: var(--text-main);
     }
     .confirm-modal-header {
-      padding: 1rem 1.5rem; border-bottom: 1px solid #e5e7eb;
+      padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-card);
       display: flex; justify-content: space-between; align-items: center;
     }
-    .confirm-modal-header h3 { margin: 0; font-size: 1.1rem; color: #111827; }
-    .icon-btn { background: none; border: none; cursor: pointer; color: #6b7280; display: flex; }
-    .confirm-modal-body { padding: 1.5rem; color: #374151; }
-    .confirm-user-preview { margin-top: 1rem; padding: 0.75rem; background: #f9fafb; border-radius: 8px; font-size: 0.9rem; }
+    .confirm-modal-header h3 { margin: 0; font-size: 1.1rem; color: var(--text-main); }
+    .icon-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; }
+    .confirm-modal-body {
+      padding: 1.5rem; color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;
+    }
+    .confirm-user-preview { margin-top: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.05); border-radius: 8px; font-size: 0.9rem; }
     .confirm-modal-actions {
-      padding: 1rem 1.5rem; background: #f9fafb; display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid #e5e7eb;
+      padding: 1rem 1.5rem; background: rgba(0,0,0,0.02); display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid var(--border-card);
     }
   `]
 })
