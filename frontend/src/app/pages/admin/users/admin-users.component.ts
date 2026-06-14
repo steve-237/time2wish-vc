@@ -131,8 +131,10 @@ import { ToastService } from '../../../services/toast.service';
   styles: [`
     .users-container { padding: 1rem; }
     .page-title { font-size: 1.5rem; font-weight: 600; color: var(--text-main); margin-bottom: 2rem; }
-    .table-wrapper { background: var(--bg-card); border-radius: 12px; box-shadow: var(--glass-shadow); backdrop-filter: blur(var(--glass-blur)); overflow-x: auto; border: 1px solid var(--border-card); }
-    .users-table { width: 100%; border-collapse: collapse; text-align: left; color: var(--text-main); }
+    .table-wrapper { background: #ffffff; border-radius: 12px; box-shadow: var(--glass-shadow); overflow-x: auto; border: 1px solid var(--border-card); }
+    :host-context(body.dark-theme) .table-wrapper { background: #1e293b; }
+    :host-context(body.oled-theme) .table-wrapper { background: #0f0f0f; }
+    .users-table { width: 100%; border-collapse: collapse; text-align: left; color: var(--text-main); background: transparent; }
     .users-table th, .users-table td { padding: 1.25rem 1rem; border-bottom: 1px solid var(--border-card); vertical-align: middle; }
     .users-table th { background-color: transparent; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; border-bottom: 2px solid var(--border-card); }
     .users-table tbody tr { transition: background-color 0.2s; }
