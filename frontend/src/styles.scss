@@ -254,6 +254,16 @@ body.theme-blanc .btn-premium {
   transform: translateY(0);
 }
 
+.btn-premium:disabled,
+.btn-premium.disabled {
+  background: var(--border-card);
+  color: var(--text-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.6;
+}
+
 .btn-secondary {
   display: inline-flex;
   align-items: center;

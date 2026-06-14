@@ -377,9 +377,12 @@ export class CardGeneratorComponent {
   selectedFallback = signal<string | null>(null);
 
   readonly fallbackImages = [
-    'https://images.unsplash.com/photo-1558435189-d91d1e4eb41b?w=600&q=80',
-    'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=600&q=80',
-    'https://images.unsplash.com/photo-1583875762487-5f8f7c718d14?w=600&q=80'
+    'https://img.freepik.com/free-vector/happy-birthday-background-with-golden-balloons_1361-2675.jpg',
+    'https://img.freepik.com/free-vector/elegant-happy-birthday-background_23-2148157321.jpg',
+    'https://img.freepik.com/free-photo/birthday-cake-with-candles-macarons_23-2148006691.jpg',
+    'https://img.freepik.com/free-vector/birthday-greeting-card-design-with-balloons-confetti_1017-31681.jpg',
+    'https://img.freepik.com/free-photo/arrangement-with-happy-birthday-lettering_23-2148404283.jpg',
+    'https://img.freepik.com/free-vector/flat-happy-birthday-background-with-balloons_23-2148943675.jpg'
   ];
 
   generateCard() {
