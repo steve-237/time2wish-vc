@@ -134,9 +134,9 @@ import { ToastService } from '../../../services/toast.service';
     .table-wrapper { background: var(--bg-card); border-radius: 12px; box-shadow: var(--glass-shadow); backdrop-filter: blur(var(--glass-blur)); overflow-x: auto; border: 1px solid var(--border-card); }
     .users-table { width: 100%; border-collapse: collapse; text-align: left; color: var(--text-main); }
     .users-table th, .users-table td { padding: 1.25rem 1rem; border-bottom: 1px solid var(--border-card); vertical-align: middle; }
-    .users-table th { background-color: rgba(0,0,0,0.02); font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; border-bottom: 2px solid var(--border-card); }
+    .users-table th { background-color: transparent; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; border-bottom: 2px solid var(--border-card); }
     .users-table tbody tr { transition: background-color 0.2s; }
-    .users-table tbody tr:hover { background-color: rgba(0,0,0,0.02); }
+    .users-table tbody tr:hover { background-color: rgba(var(--primary-hsl), 0.05); }
     .id-cell { color: var(--text-muted); font-size: 0.85rem; font-family: monospace; }
     
     .user-profile-cell { display: flex; align-items: center; gap: 0.75rem; }
@@ -147,9 +147,9 @@ import { ToastService } from '../../../services/toast.service';
     .badge { padding: 0.35rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; letter-spacing: 0.02em; }
     .status-active { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
     .status-blocked { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
-    .status-pending { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .status-pending { background-color: rgba(245, 158, 11, 0.15); color: #f59e0b; }
     
-    .role-badge { background-color: rgba(100, 116, 139, 0.1); color: var(--text-muted); }
+    .role-badge { background-color: rgba(var(--primary-hsl), 0.1); color: var(--text-main); }
     .role-badge.admin { background-color: rgba(249, 115, 22, 0.1); color: #f97316; }
     .role-badge.superadmin { background-color: rgba(192, 38, 211, 0.1); color: #c026d3; }
     
@@ -193,9 +193,9 @@ import { ToastService } from '../../../services/toast.service';
     .confirm-modal-body {
       padding: 1.5rem; color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;
     }
-    .confirm-user-preview { margin-top: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.05); border-radius: 8px; font-size: 0.9rem; }
+    .confirm-user-preview { margin-top: 1rem; padding: 0.75rem; background: rgba(var(--primary-hsl), 0.05); border-radius: 8px; font-size: 0.9rem; }
     .confirm-modal-actions {
-      padding: 1rem 1.5rem; background: rgba(0,0,0,0.02); display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid var(--border-card);
+      padding: 1rem 1.5rem; background: transparent; display: flex; justify-content: flex-end; gap: 0.5rem; border-top: 1px solid var(--border-card);
     }
   `]
 })
