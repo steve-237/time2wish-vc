@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslationService, Language } from '../../services/translation.service';
@@ -7,6 +7,7 @@ import { NotificationPanelComponent } from '../../components/notification-panel/
 import { PwaService } from '../../services/pwa.service';
 import { PricingComponent } from '../../pages/pricing/pricing.component';
 import { UiService } from '../../services/ui.service';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -73,14 +74,10 @@ import { UiService } from '../../services/ui.service';
           </button>
 
           <!-- App mode switch -->
-          <button (click)="cycleAppMode()" class="icon-btn theme-toggle" [title]="appMode() === 'light' ? 'Mode Sombre' : (appMode() === 'dark' ? 'Mode OLED' : 'Mode Clair')">
-            @if (appMode() === 'light') {
-            <span class="material-symbols-outlined">dark_mode</span>
-            } @else if (appMode() === 'dark') {
-            <span class="material-symbols-outlined">contrast</span>
-            } @else {
-            <span class="material-symbols-outlined">light_mode</span>
-            }
+          <button (click)="cycleAppMode()" class="icon-btn theme-toggle" [title]="themeService.appMode() === 'light' ? 'Mode Sombre' : (themeService.appMode() === 'dark' ? 'Mode OLED' : 'Mode Clair')">
+            <span class="material-symbols-outlined">
+              {{ themeService.appMode() === 'light' ? 'dark_mode' : (themeService.appMode() === 'dark' ? 'contrast' : 'light_mode') }}
+            </span>
           </button>
 
           <!-- Notifications Panel -->
@@ -129,13 +126,13 @@ import { UiService } from '../../services/ui.service';
     </footer>
   `
 })
-export class MainLayoutComponent {
-  authService = inject(AuthService);
-  router = inject(Router);
+export class MainLayoutComponent implements OnInit {
+  readonly authService = inject(AuthService);
+  readonly uiService = inject(UiService);
+  readonly themeService = inject(ThemeService);
+  private readonly router = inject(Router);
   t9n = inject(TranslationService);
   pwaService = inject(PwaService);
-
-  uiService = inject(UiService);
 
   readonly languages: { code: Language; label: string; flagUrl: string }[] = [
     { code: 'fr', label: 'FR', flagUrl: 'https://flagcdn.com/w40/fr.png' },
@@ -144,13 +141,9 @@ export class MainLayoutComponent {
   ];
 
   isLangMenuOpen = signal<boolean>(false);
-  appMode = signal<'light' | 'dark' | 'oled'>('light');
+  isSidebarOpen = signal<boolean>(false);
 
-  constructor() {
-    const storedMode = localStorage.getItem('t2w_app_mode') as 'light' | 'dark' | 'oled';
-    if (storedMode) {
-      this.appMode.set(storedMode);
-    }
+  ngOnInit() {
   }
 
   getActiveFlagUrl(): string {
@@ -162,26 +155,13 @@ export class MainLayoutComponent {
     this.isLangMenuOpen.set(false);
   }
 
-  setAppMode(mode: 'light' | 'dark' | 'oled') {
-    this.appMode.set(mode);
-    document.body.classList.remove('dark-theme', 'oled-theme');
-    
-    if (mode === 'dark') {
-      document.body.classList.add('dark-theme');
-    } else if (mode === 'oled') {
-      document.body.classList.add('oled-theme');
-    }
-    
-    localStorage.setItem('t2w_app_mode', mode);
-  }
-
   cycleAppMode() {
-    if (this.appMode() === 'light') {
-      this.setAppMode('dark');
-    } else if (this.appMode() === 'dark') {
-      this.setAppMode('oled');
+    if (this.themeService.appMode() === 'light') {
+      this.themeService.setAppMode('dark');
+    } else if (this.themeService.appMode() === 'dark') {
+      this.themeService.setAppMode('oled');
     } else {
-      this.setAppMode('light');
+      this.themeService.setAppMode('light');
     }
   }
 

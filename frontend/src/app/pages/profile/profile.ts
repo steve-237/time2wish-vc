@@ -5,6 +5,7 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { TranslationService } from '../../services/translation.service';
 import { ToastService } from '../../services/toast.service';
+import { ThemeService } from '../../services/theme.service';
 import { ImageUploadComponent } from '../../components/image-upload/image-upload.component';
 
 @Component({
@@ -18,6 +19,7 @@ export class Profile implements OnInit {
   public authService = inject(AuthService);
   public t9n = inject(TranslationService);
   public toastService = inject(ToastService);
+  public themeService = inject(ThemeService);
   private router = inject(Router);
 
   // Note: We need access to App component methods, but it's simpler to directly manipulate the body class and localStorage 
@@ -50,20 +52,6 @@ export class Profile implements OnInit {
       this.bio.set(user.bio || '');
       this.avatarUrl.set(user.avatarUrl || '');
     }
-    const storedMode = localStorage.getItem('t2w_app_mode');
-    const legacyDark = localStorage.getItem('t2w_dark_mode') === 'true';
-    const oldStoredTheme = localStorage.getItem('t2w_theme'); // legacy
-
-    if (storedMode === 'dark' || storedMode === 'oled') {
-      this.appMode.set(storedMode);
-    } else if (legacyDark || oldStoredTheme === 'dark') {
-      this.appMode.set('dark');
-    }
-
-    const storedColorTheme = localStorage.getItem('t2w_color_theme');
-    if (storedColorTheme) {
-      this.colorTheme.set(storedColorTheme);
-    }
   }
 
   onAvatarChange(newUrl: string) {
@@ -78,8 +66,7 @@ export class Profile implements OnInit {
   }
 
   // Application Preferences State
-  appMode = signal<'light' | 'dark' | 'oled'>('light');
-  colorTheme = signal<string>('theme-ocean');
+  // App mode and Color theme are now managed by ThemeService
 
   themes = [
     { id: 'theme-ocean', name: 'Océan', color1: '#2563eb', color2: '#7c3aed' },
@@ -106,23 +93,11 @@ export class Profile implements OnInit {
   }
 
   setAppMode(mode: 'light' | 'dark' | 'oled') {
-    this.appMode.set(mode);
-    document.body.classList.remove('dark-theme', 'oled-theme');
-    
-    if (mode === 'dark') {
-      document.body.classList.add('dark-theme');
-    } else if (mode === 'oled') {
-      document.body.classList.add('oled-theme');
-    }
-    
-    localStorage.setItem('t2w_app_mode', mode);
+    this.themeService.setAppMode(mode);
   }
 
   setColorTheme(themeId: string) {
-    document.body.classList.remove(this.colorTheme());
-    document.body.classList.add(themeId);
-    this.colorTheme.set(themeId);
-    localStorage.setItem('t2w_color_theme', themeId);
+    this.themeService.setColorTheme(themeId);
     
     const themeName = this.themes.find(t => t.id === themeId)?.name || themeId;
     this.toastService.success(this.t9n.currentLang() === 'en' ? `Theme ${themeName} applied` : `Thème ${themeName} appliqué`);

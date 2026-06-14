@@ -115,7 +115,7 @@
           <select 
             id="p-theme"
             class="custom-select-control profile-theme-select" 
-            [ngModel]="appMode()"
+            [ngModel]="themeService.appMode()"
             (ngModelChange)="setAppMode($event)">
             <option value="light">☀️ Clair</option>
             <option value="dark">🌙 Sombre (Défaut)</option>
@@ -136,10 +136,10 @@
           type="button"
           (click)="setColorTheme(theme.id)"
           class="theme-color-btn"
-          [class.active]="colorTheme() === theme.id"
+          [class.active]="themeService.colorTheme() === theme.id"
           [style.background]="'linear-gradient(135deg, ' + theme.color1 + ' 0%, ' + theme.color2 + ' 100%)'"
           [title]="theme.name">
-          @if (colorTheme() === theme.id) { <span class="material-symbols-outlined profile-color-check">check</span> }
+          @if (themeService.colorTheme() === theme.id) { <span class="material-symbols-outlined profile-color-check">check</span> }
         </button>
         }
       </div>

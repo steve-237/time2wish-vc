@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, ViewEncapsulation, HostListener, NgZone } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
 import { AuthService } from './services/auth.service';
+import { ThemeService } from './services/theme.service';
 import { ToastContainerComponent } from './components/toast-container/toast-container.component';
 import { TermsModalComponent } from './components/terms-modal/terms-modal.component';
 
@@ -15,6 +16,8 @@ export class App implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
+  private readonly themeService = inject(ThemeService); // Initializes the theme listeners
+  
   
   private idleTimeout: any;
   private readonly IDLE_TIME = 3 * 60 * 1000; // 3 minutes of inactivity
@@ -44,30 +47,6 @@ export class App implements OnInit, OnDestroy {
   }
   
   ngOnInit() {
-    // Load app mode preference
-    const storedMode = localStorage.getItem('t2w_app_mode');
-    const legacyDark = localStorage.getItem('t2w_dark_mode') === 'true';
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    let modeToApply: 'light' | 'dark' | 'oled' = 'light';
-    
-    if (storedMode === 'dark' || storedMode === 'oled') {
-      modeToApply = storedMode;
-    } else if (legacyDark || (!storedMode && prefersDark)) {
-      modeToApply = 'dark';
-    }
-
-    if (modeToApply === 'dark') document.body.classList.add('dark-theme');
-    if (modeToApply === 'oled') document.body.classList.add('oled-theme');
-
-    // Load color theme
-    const storedColorTheme = localStorage.getItem('t2w_color_theme');
-    if (storedColorTheme) {
-      document.body.classList.add(storedColorTheme);
-    } else {
-      document.body.classList.add('theme-ocean');
-    }
-
     // Initialize the idle timer
     this.resetIdleTimer();
   }
