@@ -53,14 +53,12 @@
     }
 
     <!-- Statistiques Button -->
-    @if (userPlan === 'PRO') {
-      <a
-        routerLink="/dashboard/stats"
-        class="btn-secondary dashboard-action-btn dashboard-stats-btn">
-        <span class="material-symbols-outlined stats-icon">bar_chart</span>
-        {{ t9n.t('dashboard.btn_stats') || 'Statistiques' }}
-      </a>
-    }
+    <a
+      routerLink="/dashboard/stats"
+      class="btn-secondary dashboard-action-btn dashboard-stats-btn">
+      <span class="material-symbols-outlined stats-icon">bar_chart</span>
+      {{ t9n.t('dashboard.btn_stats') || 'Statistiques' }}
+    </a>
   </div>
 </div>
 

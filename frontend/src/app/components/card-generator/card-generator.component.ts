@@ -12,7 +12,7 @@ import { Birthday } from '../../models/birthday.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="tm-overlay" (click)="close.emit()">
+    <div class="tm-modal-overlay" style="z-index: 3000;" (click)="close.emit()">
       <div class="tm-card cg-card" (click)="$event.stopPropagation()">
         
         <div class="tm-header">
