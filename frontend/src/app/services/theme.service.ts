@@ -27,7 +27,8 @@ export class ThemeService {
       storedColor = localStorage.getItem(`t2w_color_theme_${userId}`);
     } else {
       storedMode = localStorage.getItem('t2w_app_mode');
-      storedColor = localStorage.getItem('t2w_color_theme');
+      // For unauthenticated users (e.g. login screen), ALWAYS use ocean theme
+      storedColor = 'theme-ocean';
     }
 
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
