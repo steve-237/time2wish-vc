@@ -4,10 +4,6 @@
     {
       "source": "/api/(.*)",
       "destination": "https://time2wish-vc.onrender.com/api/$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
     }
   ]
 }
