@@ -22,6 +22,10 @@ WORKDIR /app
 
 # Create a non-root user for security
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Change ownership of /app so the non-root user can create storage directories (uploads, scratch)
+RUN chown -R appuser:appgroup /app
+
 USER appuser
 
 # Copy the generated JAR file from build stage
