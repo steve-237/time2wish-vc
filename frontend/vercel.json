@@ -12,7 +12,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://time2wish-backend.onrender.com/api/$1"
+      "destination": "https://time2wish-vc.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
