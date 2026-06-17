@@ -67,6 +67,70 @@ time2wish-ai/
 
 ---
 
+## 🐳 Docker & Containerization Strategy
+
+Time2Wish heavily relies on **Docker** to ensure the application runs identically on any computer, whether it's your local development machine or a production server in the cloud.
+
+### Why do we use Docker?
+Before Docker, a developer had to manually install Java, Node.js, and PostgreSQL on their computer. If the server had a different version of Java, the app might crash ("It works on my machine" problem).
+Docker solves this by packaging the application and its exact dependencies into an isolated box called a **Container**.
+
+### 1. Dockerfile (The Recipe)
+A `Dockerfile` is a text file that acts as a step-by-step recipe to build a Docker Image. We have one for the backend and one for the frontend.
+
+```mermaid
+graph LR
+    A[Source Code <br> Java/Angular] -->|Read by Dockerfile| B(Docker Image <br> Contains OS + Java/Node + App)
+    B -->|Run| C[(Container 1)]
+    B -->|Run| D[(Container 2)]
+    
+    style A fill:#2d3748,stroke:#4a5568,color:#fff
+    style B fill:#3182ce,stroke:#2b6cb0,color:#fff
+    style C fill:#48bb78,stroke:#38a169,color:#fff
+    style D fill:#48bb78,stroke:#38a169,color:#fff
+```
+
+**Advantages of our Multi-Stage Dockerfiles:**
+- **Lean Images:** We build the app in a "Builder" stage (which contains heavy tools like Maven/NPM), but we only copy the final compiled files into the "Runner" stage. This keeps our production images extremely lightweight and fast to deploy.
+- **Security:** We create a restricted `appuser` so the container doesn't run as `root`.
+
+### 2. Docker Compose (The Orchestra Conductor)
+While a `Dockerfile` builds a single app, our project has three parts: Frontend, Backend, and Database. `docker-compose.yml` is the script that connects them all together.
+
+#### How it is used in Development (`docker-compose.dev.yml`)
+During development, we only use Docker to run the PostgreSQL database. This allows us to run the Backend (from IntelliJ/Eclipse) and Frontend (via `npm start`) locally for fast hot-reloading.
+
+```mermaid
+flowchart TD
+    subgraph Your Computer
+        A[Angular CLI <br> npm start] -.->|HTTP| B[Spring Boot <br> mvnw spring-boot:run]
+        B ===|JDBC| C[(PostgreSQL <br> Docker Container)]
+    end
+    
+    style C fill:#3182ce,stroke:#2b6cb0,color:#fff
+```
+
+#### How it is used in Production (`docker-compose.yml`)
+When deploying to a VPS (Virtual Private Server), `docker-compose.yml` spins up the entire stack in isolated networks. The frontend container talks to the backend container, and the backend talks to the database, without exposing the database to the internet.
+
+```mermaid
+flowchart TD
+    subgraph Cloud Server (VPS)
+        A[Frontend Container <br> Nginx + Angular] <-->|API Calls| B[Backend Container <br> Spring Boot + Java 21]
+        B <-->|Secure Network| C[(Database Container <br> PostgreSQL 15)]
+    end
+    
+    User((User)) <-->|Internet| A
+    
+    style A fill:#48bb78,stroke:#38a169,color:#fff
+    style B fill:#d69e2e,stroke:#b7791f,color:#fff
+    style C fill:#3182ce,stroke:#2b6cb0,color:#fff
+```
+
+*(Note: In our Free-Tier Cloud deployment via Render and Vercel, we don't use `docker-compose`. Instead, Render builds our Backend `Dockerfile` directly, and Vercel builds our Frontend natively.)*
+
+---
+
 ## 🔐 Authentication & Session Management
 
 Time2Wish uses a **stateless JWT-based authentication** system. Here is the complete lifecycle of a user session, from login to logout:
