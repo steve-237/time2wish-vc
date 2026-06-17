@@ -262,52 +262,94 @@ Time2Wish is designed to be easily deployable on modern, free-tier Cloud PaaS (P
 
 ### Step 1: Database Setup (Neon.tech)
 1. Create a free account on [Neon.tech](https://neon.tech/).
-2. Create a new PostgreSQL project.
-3. Retrieve your connection details (Host, Database Name, User, Password). Note that Neon requires a secure connection, so we append `?sslmode=require` to our JDBC URL via the `DB_OPTIONS` variable.
+2. Create a new PostgreSQL project (e.g., `time2wish-db`).
+3. Retrieve your connection details. Neon requires a secure SSL connection.
+   *Example of values to note down:*
+   - **Host:** `ep-lucky-sound-ahfimxig-pooler.c-3.us-east-1.aws.neon.tech`
+   - **Database Name:** `time2wish-db`
+   - **User:** `neondb_owner`
+   - **Password:** `your_secure_password`
 
 ### Step 2: Backend Deployment (Render.com)
 1. Create a free account on [Render.com](https://render.com/).
 2. Create a new **Web Service** connected to your GitHub repository.
-3. Set the Root Directory to `backend` and Environment to `Docker`.
-4. Configure the following **Environment Variables**:
+3. Set the **Root Directory** to `backend` and **Environment** to `Docker`.
+4. Configure the following **Environment Variables**. *Example:*
    - `SPRING_PROFILES_ACTIVE` = `prod`
-   - `DB_HOST` = `<your-neon-host>`
+   - `DB_HOST` = `ep-lucky-sound-ahfimxig-pooler.c-3.us-east-1.aws.neon.tech`
    - `DB_PORT` = `5432`
-   - `DB_NAME` = `<your-neon-database>`
-   - `DB_USER` = `<your-neon-user>`
-   - `DB_PASSWORD` = `<your-neon-password>`
-   - `DB_OPTIONS` = `?sslmode=require`
-   - `JWT_SECRET` = `<a-secure-random-string>`
-5. Deploy the service and copy your assigned Render URL (e.g., `https://time2wish-backend.onrender.com`).
+   - `DB_NAME` = `time2wish-db`
+   - `DB_USER` = `neondb_owner`
+   - `DB_PASSWORD` = `your_secure_password`
+   - `DB_OPTIONS` = `?sslmode=require` *(Crucial for Neon.tech to enforce SSL)*
+   - `JWT_SECRET` = `a_very_long_secure_random_string_for_production_2026`
+5. Deploy the service. Once finished, Render will provide a public URL (e.g., `https://time2wish-backend.onrender.com`).
 
 ### Step 3: Frontend Deployment (Vercel.com)
-1. In your project code, open `frontend/vercel.json` and ensure the `destination` URL points to your new Render Backend URL.
+1. In your local code, open `frontend/vercel.json` and ensure the `destination` URL points to your new Render Backend URL.
+   *Example `vercel.json`:*
+   ```json
+   {
+     "version": 2,
+     "rewrites": [
+       {
+         "source": "/api/(.*)",
+         "destination": "https://time2wish-backend.onrender.com/api/$1"
+       }
+     ]
+   }
+   ```
 2. Go to [Vercel.com](https://vercel.com/) and create a new project.
 3. Import your GitHub repository, selecting `frontend` as the **Root Directory**.
-4. Vercel will automatically detect the Angular framework and configure the build settings.
-5. Click **Deploy**. Vercel will handle the routing and proxy your `/api` calls directly to Render, bypassing any CORS issues!
+4. Vercel will automatically detect the Angular framework.
+5. Click **Deploy**. Vercel proxy your `/api` calls directly to Render, avoiding any CORS issues.
 
 ---
 
 ### ⚠️ Deployment Troubleshooting & Known Solutions
 
-During deployment, you might encounter the following issues. Here is how we resolved them in this repository:
+During deployment, we encountered and resolved several issues. Here are the detailed explanations and solutions:
 
 #### 1. Backend Crash: `StorageException: Could not initialize storage`
-- **Problem:** Render runs Docker containers as a non-root user for security. Our backend tries to create an `uploads/` directory on startup, resulting in a permission denied error.
-- **Solution:** We modified the backend `Dockerfile` to change directory ownership (`RUN chown -R appuser:appgroup /app`) before switching to the restricted `appuser`.
+- **Problem:** Render runs Docker containers as a non-root user (`appuser`) for security. Our backend tries to create an `uploads/` directory inside `/app` on startup, resulting in a permission denied error because `/app` was owned by `root`.
+- **Solution:** We modified the backend `Dockerfile` to change the ownership of the working directory before switching to the restricted user.
+  *Code Change in `Dockerfile`:*
+  ```dockerfile
+  # Create a non-root user for security
+  RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+  
+  # Change ownership so the non-root user can create storage directories
+  RUN chown -R appuser:appgroup /app
+  
+  USER appuser
+  ```
 
 #### 2. Frontend Build Error: `Conflicting peer dependency` on Vercel
-- **Problem:** NPM strict peer dependency resolution fails on Vercel because `@angular/service-worker` version (`21.2.16`) did not perfectly match `@angular/core` (`21.2.13`).
-- **Solution:** We manually aligned the versions in `package.json` to `^21.2.13` and regenerated the `package-lock.json`. (Alternative: Add an `.npmrc` file with `legacy-peer-deps=true`).
+- **Problem:** NPM strict peer dependency resolution fails on Vercel because `@angular/service-worker` version was strictly set to `^21.2.16` while `@angular/core` and `@angular/build` were at `^21.2.13`.
+- **Solution:** We manually aligned the versions in `package.json` to match the builder and regenerated the `package-lock.json`.
+  *Code Change in `package.json`:*
+  ```diff
+  - "@angular/service-worker": "^21.2.16",
+  + "@angular/service-worker": "^21.2.13",
+  ```
 
 #### 3. Vercel Deployment Succeeds but shows `404 NOT_FOUND`
-- **Problem:** In Angular 17/18 using the new `application` builder, the output directory defaults to `dist/<project-name>/browser`. If Vercel isn't aware of this, it serves the wrong folder.
-- **Solution:** We explicitly defined `"outputPath": "dist/frontend"` in `frontend/angular.json`. Alternatively, you can override the **Output Directory** in Vercel's Project Settings to `dist/frontend/browser`.
+- **Problem:** In Angular 17/18 using the new `@angular/build:application` builder, the output directory defaults to `dist/<project-name>/browser`. Because `outputPath` was missing in our `angular.json`, Vercel didn't know where to find the compiled HTML/JS files and served an empty directory.
+- **Solution:** We explicitly defined the `outputPath` in `frontend/angular.json`.
+  *Code Change in `angular.json`:*
+  ```json
+  "architect": {
+    "build": {
+      "builder": "@angular/build:application",
+      "options": {
+        "outputPath": "dist/frontend",
+        "browser": "src/main.ts"
+  ```
+  *(Note: Vercel automatically appends `/browser` when it detects the application builder).*
 
 #### 4. White Screen after Vercel Deployment (JS files failing to load)
-- **Problem:** Adding a manual SPA fallback rewrite (`"source": "/(.*)", "destination": "/index.html"`) in `vercel.json` intercepts static Javascript files, causing the browser to download HTML instead of JS.
-- **Solution:** We removed the manual SPA rewrite from `vercel.json`. Vercel natively handles SPA routing for Angular automatically, so only the `/api` proxy rewrite is needed.
+- **Problem:** To handle SPA (Single Page Application) routing, we initially added a fallback rewrite (`"source": "/(.*)", "destination": "/index.html"`) in `vercel.json`. However, Vercel intercepted requests for static files (like `main.js`), returning the HTML of `index.html` instead. This caused a `SyntaxError` in the browser console, resulting in a blank page.
+- **Solution:** We removed the manual SPA rewrite from `vercel.json`. Vercel natively handles SPA routing for Angular automatically, so only the `/api` proxy rewrite is required.
 
 ---
 
