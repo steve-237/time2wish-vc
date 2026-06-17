@@ -134,7 +134,6 @@ export class MainLayoutComponent implements OnInit {
   t9n = inject(TranslationService);
   pwaService = inject(PwaService);
 
-  uiService = inject(UiService);
   readonly languages: { code: Language; label: string; flagUrl: string }[] = [
     { code: 'fr', label: 'FR', flagUrl: 'https://flagcdn.com/w40/fr.png' },
     { code: 'en', label: 'EN', flagUrl: 'https://flagcdn.com/w40/gb.png' },
