@@ -21,7 +21,9 @@ jobs:
         
     - name: Build Backend with Maven
       working-directory: ./backend
-      run: ./mvnw clean package -DskipTests
+      run: |
+        chmod +x mvnw
+        ./mvnw clean package -DskipTests
       
   build-frontend:
     runs-on: ubuntu-latest
