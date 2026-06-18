@@ -316,57 +316,50 @@ npm run start
 
 ---
 
-## 🌍 Free-Tier Cloud Deployment Guide
+## 🌍 Free-Tier Cloud Deployment Guide (Staging & Production)
 
-Time2Wish is designed to be easily deployable on modern, free-tier Cloud PaaS (Platform as a Service) providers. We utilize a decoupled architecture with the following services:
+Time2Wish utilizes a professional dual-environment strategy using free-tier Cloud PaaS providers:
+- **Staging Environment (Test):** Automatically updated every time code is pushed to the `main` branch.
+- **Production Environment (Public):** Only updated when an official **GitHub Release** (Tag) is created.
 
+We utilize a decoupled architecture with the following services:
 - **Database:** [Neon.tech](https://neon.tech/) (Serverless PostgreSQL)
 - **Backend:** [Render.com](https://render.com/) (Spring Boot Docker Container)
 - **Frontend:** [Vercel.com](https://vercel.com/) (Angular SPA)
 
 ### Step 1: Database Setup (Neon.tech)
-1. Create a free account on [Neon.tech](https://neon.tech/).
-2. Create a new PostgreSQL project (e.g., `time2wish-db`).
-3. Retrieve your connection details. Neon requires a secure SSL connection.
-   *Example of values to note down:*
-   - **Host:** `ep-lucky-sound-ahfimxig-pooler.c-3.us-east-1.aws.neon.tech`
-   - **Database Name:** `time2wish-db`
-   - **User:** `neondb_owner`
-   - **Password:** `your_secure_password`
+1. Create a free account on [Neon.tech](https://neon.tech/) and a new PostgreSQL project (e.g., `time2wish-db`).
+2. **Branching:** In Neon, create two branches: `staging` and `production`.
+3. Note down the secure SSL connection details for both branches.
+   - Example Host: `ep-lucky-sound-ahfimxig-pooler.c-3.us-east-1.aws.neon.tech`
 
 ### Step 2: Backend Deployment (Render.com)
-1. Create a free account on [Render.com](https://render.com/).
-2. Create a new **Web Service** connected to your GitHub repository.
-3. Set the **Root Directory** to `backend` and **Environment** to `Docker`.
-4. Configure the following **Environment Variables**. *Example:*
+You need to create **two** Web Services connected to your GitHub repository (Directory: `backend`, Environment: `Docker`).
+
+**A. Staging Backend (`time2wish-backend-staging`)**
+1. Set to deploy automatically on the `main` branch.
+2. **Environment Variables:**
+   - `DB_HOST` = `<your-neon-staging-host>`
+   - `DB_OPTIONS` = `?sslmode=require`
    - `SPRING_PROFILES_ACTIVE` = `prod`
-   - `DB_HOST` = `ep-lucky-sound-ahfimxig-pooler.c-3.us-east-1.aws.neon.tech`
-   - `DB_PORT` = `5432`
-   - `DB_NAME` = `time2wish-db`
-   - `DB_USER` = `neondb_owner`
-   - `DB_PASSWORD` = `your_secure_password`
-   - `DB_OPTIONS` = `?sslmode=require` *(Crucial for Neon.tech to enforce SSL)*
-   - `JWT_SECRET` = `a_very_long_secure_random_string_for_production_2026`
-5. Deploy the service. Once finished, Render will provide a public URL (e.g., `https://time2wish-backend.onrender.com`).
+
+**B. Production Backend (`time2wish-backend-prod`)**
+1. Set to deploy on the `main` branch, but **disable Auto-Deploy**.
+2. **Environment Variables:**
+   - `DB_HOST` = `<your-neon-production-host>`
+   - `DB_OPTIONS` = `?sslmode=require`
+   - `SPRING_PROFILES_ACTIVE` = `prod`
+3. **Deploy Hook:** Copy the Render Deploy Hook URL. Add this URL as a repository secret in GitHub named `RENDER_DEPLOY_HOOK_PROD`. Our GitHub Actions workflow (`release.yml`) will call this URL automatically when you publish a Release!
 
 ### Step 3: Frontend Deployment (Vercel.com)
-1. In your local code, open `frontend/vercel.json` and ensure the `destination` URL points to your new Render Backend URL.
-   *Example `vercel.json`:*
-   ```json
-   {
-     "version": 2,
-     "rewrites": [
-       {
-         "source": "/api/(.*)",
-         "destination": "https://time2wish-backend.onrender.com/api/$1"
-       }
-     ]
-   }
-   ```
-2. Go to [Vercel.com](https://vercel.com/) and create a new project.
-3. Import your GitHub repository, selecting `frontend` as the **Root Directory**.
-4. Vercel will automatically detect the Angular framework.
-5. Click **Deploy**. Vercel proxy your `/api` calls directly to Render, avoiding any CORS issues.
+1. Go to [Vercel.com](https://vercel.com/) and import your GitHub repository (Root Directory: `frontend`).
+2. Go to **Settings > Git** and change the **Production Branch** to `v*` or `production`. This ensures `main` pushes become Preview/Staging deployments.
+3. Because we have two backends, we use environment variable injection for the API URL. Go to **Settings > Environment Variables** and add:
+   - For **Production** environment: `API_URL` = `https://time2wish-backend-prod.onrender.com/api`
+   - For **Preview** environment: `API_URL` = `https://time2wish-backend-staging.onrender.com/api`
+4. Change your Build Command in Vercel to `npm run build:vercel`. This script automatically replaces the `/api` endpoint in `environment.prod.ts` with the provided `API_URL`.
+
+*(Note: Ensure your `vercel.json` proxy rewrites are removed or configured to handle full URLs if you rely on the proxy for CORS. Currently, the backend CORS is configured to allow `https://*.vercel.app`, allowing direct API calls from the frontend.)*
 
 ---
 

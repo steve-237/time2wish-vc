@@ -1,9 +1,3 @@
 {
-  "version": 2,
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://time2wish-vc.onrender.com/api/$1"
-    }
-  ]
+  "version": 2
 }

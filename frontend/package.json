@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:vercel": "if [ -n \"$API_URL\" ]; then sed -i \"s|/api|$API_URL|g\" src/environments/environment.prod.ts; fi && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:unit": "vitest run",
