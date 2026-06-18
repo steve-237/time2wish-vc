@@ -322,6 +322,38 @@ Time2Wish utilizes a professional dual-environment strategy using free-tier Clou
 - **Staging Environment (Test):** Automatically updated every time code is pushed to the `main` branch.
 - **Production Environment (Public):** Only updated when an official **GitHub Release** (Tag) is created.
 
+### ⚙️ The Automated GitOps Workflow
+
+Here is exactly what happens from the moment you write code to the moment your users see it:
+
+```mermaid
+sequenceDiagram
+    actor Dev as Developer
+    participant Git as GitHub (main)
+    participant CI as GitHub Actions
+    participant Stage as Staging (Render/Vercel)
+    participant Prod as Production (Render/Vercel)
+    
+    %% STAGING FLOW
+    Note over Dev,Stage: 🛠️ 1. DAILY DEVELOPMENT (STAGING)
+    Dev->>Git: git push origin main
+    Git->>CI: Trigger Maven/Node CI tests
+    Git-->>Stage: Webhook triggered automatically
+    Stage-->>Stage: Auto-builds Staging Backend & Frontend
+    Stage-->>Dev: Accessible on staging URL for testing!
+    
+    %% PRODUCTION FLOW
+    Note over Dev,Prod: 🚀 2. OFFICIAL RELEASE (PRODUCTION)
+    Dev->>Git: Create GitHub Release (v1.x.x)
+    Git->>CI: Trigger Release Action (release.yml)
+    CI->>Prod: Call Render Secret Deploy Hook
+    Git-->>Prod: Vercel detects Tag -> Auto-deploys Prod
+    Prod-->>Prod: Builds Production Backend & Frontend
+    Prod-->>Dev: Accessible on Public URL for users!
+```
+
+### 🛠️ Architecture Setup
+
 We utilize a decoupled architecture with the following services:
 - **Database:** [Neon.tech](https://neon.tech/) (Serverless PostgreSQL)
 - **Backend:** [Render.com](https://render.com/) (Spring Boot Docker Container)
