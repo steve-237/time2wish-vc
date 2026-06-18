@@ -395,6 +395,33 @@ You need to create **two** Web Services connected to your GitHub repository (Dir
 
 ---
 
+### 🤖 Step 4: External API Configuration (AI & Email)
+
+To fully unlock the application's features, you need to provide API keys for the AI generators and an SMTP server for the reminder emails. Add these as **Environment Variables** in your Render Web Services (Staging and Production).
+
+#### 1. Google Gemini AI (Wish & Gift Generator)
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey).
+2. Create a free API Key.
+3. In Render, add: `GEMINI_API_KEY` = `your_google_api_key`
+
+#### 2. Hugging Face (Custom Card Generator)
+1. Go to [Hugging Face](https://huggingface.co/settings/tokens).
+2. Create a free "Read" Access Token.
+3. In Render, add: `HUGGINGFACE_API_KEY` = `your_hf_token`
+
+#### 3. Free SMTP Email Provider (Brevo)
+We recommend **Brevo** (formerly Sendinblue) as it offers a generous free tier of **300 emails per day**, which is more than enough for birthday reminders.
+1. Create a free account on [Brevo.com](https://www.brevo.com/).
+2. Go to your Account Menu (top right) > **SMTP & API**.
+3. Under the **SMTP** tab, generate a new SMTP key.
+4. In Render, add the following variables:
+   - `SMTP_HOST` = `smtp-relay.brevo.com`
+   - `SMTP_PORT` = `587`
+   - `SMTP_USER` = `your_brevo_login_email`
+   - `SMTP_PASSWORD` = `your_generated_smtp_key`
+
+---
+
 ### ⚠️ Deployment Troubleshooting & Known Solutions
 
 During deployment, we encountered and resolved several issues. Here are the detailed explanations and solutions:

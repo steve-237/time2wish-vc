@@ -45,6 +45,9 @@ app:
   gemini:
     api-key: ${GEMINI_API_KEY:}
     model: gemini-1.5-flash
+  huggingface:
+    api-key: ${HUGGINGFACE_API_KEY:}
+    model: ${HUGGINGFACE_MODEL:stabilityai/stable-diffusion-xl-base-1.0}
 
 # spring:
 #   sendgrid:
