@@ -278,6 +278,20 @@ User presses F5:
 
 ## 📥 Quick Start Guide
 
+### 💻 Local Development Architecture
+
+```mermaid
+flowchart TD
+    subgraph local_machine ["Your Local Machine"]
+        A["🎨 Frontend (Angular) <br> npm run start <br> :4200"] <-->|HTTP Proxy| B["⚙️ Backend (Spring Boot) <br> ./mvnw spring-boot:run <br> :8081"]
+        B <-->|JDBC| C[("🗄️ Database (PostgreSQL) <br> docker compose up <br> :5433")]
+    end
+    
+    style A fill:#e23237,stroke:#b5282c,color:#fff
+    style B fill:#6db33f,stroke:#578e32,color:#fff
+    style C fill:#336791,stroke:#285274,color:#fff
+```
+
 ### Prerequisites
 *   **Java 21** or higher.
 *   **Node.js 18** or higher (with npm).
@@ -324,7 +338,26 @@ Time2Wish utilizes a professional dual-environment strategy using free-tier Clou
 
 ### ⚙️ The Automated GitOps Workflow
 
-Here is exactly what happens from the moment you write code to the moment your users see it:
+#### 1. Environments Pipeline
+
+```mermaid
+flowchart LR
+    A["💻 Local Code <br> (Your PC)"] -->|git push| B("🌿 main branch")
+    A -->|Create Release| C("🏷️ v1.x.x Tag")
+    
+    B -->|Auto Deploy| D["🧪 STAGING ENV <br> (Preview URL)"]
+    C -->|Auto Deploy| E["🚀 PRODUCTION ENV <br> (Public URL)"]
+    
+    style A fill:#4a5568,stroke:#2d3748,color:#fff
+    style B fill:#3182ce,stroke:#2b6cb0,color:#fff
+    style C fill:#805ad5,stroke:#553c9a,color:#fff
+    style D fill:#d69e2e,stroke:#b7791f,color:#fff
+    style E fill:#38a169,stroke:#276749,color:#fff
+```
+
+#### 2. Technical Sequence
+
+Here is exactly what happens under the hood:
 
 ```mermaid
 sequenceDiagram
