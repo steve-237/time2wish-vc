@@ -1,2 +1,0 @@
-# Implementer Working Directory
-Created.
