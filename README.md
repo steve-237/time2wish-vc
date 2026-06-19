@@ -102,9 +102,9 @@ During development, we only use Docker to run the PostgreSQL database. This allo
 
 ```mermaid
 flowchart TD
-    subgraph Your Computer
-        A[Angular CLI <br> npm start] -.->|HTTP| B[Spring Boot <br> mvnw spring-boot:run]
-        B ===|JDBC| C[(PostgreSQL <br> Docker Container)]
+    subgraph local_env ["Your Computer"]
+        A["Angular CLI <br> npm start"] -.->|HTTP| B["Spring Boot <br> mvnw spring-boot:run"]
+        B ===|JDBC| C[("PostgreSQL <br> Docker Container")]
     end
     
     style C fill:#3182ce,stroke:#2b6cb0,color:#fff
@@ -115,12 +115,12 @@ When deploying to a VPS (Virtual Private Server), `docker-compose.yml` spins up 
 
 ```mermaid
 flowchart TD
-    subgraph Cloud Server (VPS)
-        A[Frontend Container <br> Nginx + Angular] <-->|API Calls| B[Backend Container <br> Spring Boot + Java 21]
-        B <-->|Secure Network| C[(Database Container <br> PostgreSQL 15)]
+    subgraph vps_env ["Cloud Server (VPS)"]
+        A["Frontend Container <br> Nginx + Angular"] <-->|API Calls| B["Backend Container <br> Spring Boot + Java 21"]
+        B <-->|Secure Network| C[("Database Container <br> PostgreSQL 15")]
     end
     
-    User((User)) <-->|Internet| A
+    User(("User")) <-->|Internet| A
     
     style A fill:#48bb78,stroke:#38a169,color:#fff
     style B fill:#d69e2e,stroke:#b7791f,color:#fff
