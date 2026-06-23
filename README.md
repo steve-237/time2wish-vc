@@ -334,7 +334,9 @@ npm run start
 
 Time2Wish utilizes a professional dual-environment strategy using free-tier Cloud PaaS providers:
 - **Staging Environment (Test):** Automatically updated every time code is pushed to the `main` branch.
-- **Production Environment (Public):** Only updated when an official **GitHub Release** (Tag) is created.
+- **Production Environment (Public):** 
+  - **Frontend:** Updated when code is merged into the `production` branch.
+  - **Backend:** Updated when an official **GitHub Release** (Tag) is created.
 
 ### ⚙️ The Automated GitOps Workflow
 
@@ -343,16 +345,20 @@ Time2Wish utilizes a professional dual-environment strategy using free-tier Clou
 ```mermaid
 flowchart LR
     A["💻 Local Code <br> (Your PC)"] -->|git push| B("🌿 main branch")
-    A -->|Create Release| C("🏷️ v1.x.x Tag")
+    B -->|Merge PR| C("🌿 production branch")
+    C -->|Create Release| D("🏷️ v1.x.x Tag")
     
-    B -->|Auto Deploy| D["🧪 STAGING ENV <br> (Preview URL)"]
-    C -->|Auto Deploy| E["🚀 PRODUCTION ENV <br> (Public URL)"]
+    B -->|Auto Deploy| E["🧪 STAGING ENV <br> (Preview URL)"]
+    C -->|Vercel Auto Deploy| F["🚀 PRODUCTION FRONTEND <br> (Public URL)"]
+    D -->|Render Deploy Hook| G["🚀 PRODUCTION BACKEND <br> (Public API)"]
     
     style A fill:#4a5568,stroke:#2d3748,color:#fff
     style B fill:#3182ce,stroke:#2b6cb0,color:#fff
     style C fill:#805ad5,stroke:#553c9a,color:#fff
-    style D fill:#d69e2e,stroke:#b7791f,color:#fff
-    style E fill:#38a169,stroke:#276749,color:#fff
+    style D fill:#d53f8c,stroke:#b83280,color:#fff
+    style E fill:#d69e2e,stroke:#b7791f,color:#fff
+    style F fill:#38a169,stroke:#276749,color:#fff
+    style G fill:#38a169,stroke:#276749,color:#fff
 ```
 
 #### 2. Technical Sequence
