@@ -64,6 +64,9 @@ public class Birthday {
     @Column(name = "interest")
     private List<String> interests = new ArrayList<>();
 
+    @Column(name = "share_token", length = 36, unique = true)
+    private String shareToken;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

@@ -1,0 +1,96 @@
+.gifts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.gift-card {
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-card);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &.reserved {
+    opacity: 0.7;
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.05);
+  }
+
+  &:hover:not(.reserved) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color);
+  }
+
+  .gift-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0 0 0.5rem 0;
+  }
+
+  .gift-price, .gift-store {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .gift-price-icon, .gift-store-icon {
+    font-size: 18px;
+    color: var(--text-muted);
+  }
+
+  .gift-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.85rem;
+    display: inline-block;
+    margin-top: 4px;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .gift-reserved-badge {
+    margin-top: auto;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-muted);
+    border-radius: 8px;
+    font-weight: 500;
+    text-align: center;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    .material-symbols-outlined {
+      font-size: 16px;
+    }
+  }
+
+  .delete-btn {
+    margin-top: 12px;
+    width: 100%;
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #ef4444;
+    font-weight: 500;
+
+    &:hover {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: #ef4444;
+    }
+  }
+}

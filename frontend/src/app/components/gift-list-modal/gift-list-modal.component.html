@@ -1,0 +1,85 @@
+<div class="tm-modal-overlay z-modal" (click)="close.emit()">
+  <div class="tm-modal-content glass-card" (click)="$event.stopPropagation()" style="max-width: 800px; width: 90%; max-height: 90vh; display: flex; flex-direction: column;">
+    <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 24px; border-bottom: 1px solid var(--border-card);">
+      <h2 style="display: flex; align-items: center; gap: 8px; font-size: 1.5rem; color: var(--text-main);">
+        <span class="material-symbols-outlined" style="color: var(--primary-color);">redeem</span>
+        Ma Liste de Cadeaux
+      </h2>
+      <button class="icon-btn" (click)="close.emit()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div class="modal-body" style="padding: 24px; overflow-y: auto; flex: 1;">
+      
+      <div class="share-section" style="background: rgba(0, 0, 0, 0.015); padding: 16px; border-radius: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-card);">
+        <div>
+          <h4 style="font-size: 1rem; color: var(--text-main); margin-bottom: 4px;">Lien de partage secret</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Envoyez ce lien à vos proches pour qu'ils puissent réserver un cadeau.</p>
+        </div>
+        <div>
+          @if (gifts.length > 0) {
+            @if (birthday.shareToken) {
+              <button class="btn-secondary" (click)="copyShareLink()">
+                <span class="material-symbols-outlined">link</span>
+                Copier le lien public
+              </button>
+            } @else {
+              <button class="btn-premium" (click)="onGenerateShare()">
+                <span class="material-symbols-outlined">public</span>
+                Générer un lien
+              </button>
+            }
+          } @else {
+            <span style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">Ajoutez des cadeaux d'abord</span>
+          }
+        </div>
+      </div>
+
+      @if (gifts.length === 0) {
+        <div style="text-align: center; padding: 40px 20px;">
+          <span class="material-symbols-outlined" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;">featured_seasonal_and_gifts</span>
+          <p style="color: #64748b; font-size: 1.1rem;">Votre liste est vide.</p>
+          <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 8px;">Fermez cette fenêtre et générez des idées avec l'IA pour commencer !</p>
+        </div>
+      } @else {
+        <div class="gifts-grid">
+          @for (gift of gifts; track gift.id) {
+            <div class="gift-card" [class.reserved]="gift.isReserved">
+              <h4 class="gift-title">{{ gift.name }}</h4>
+              
+              <div class="gift-price">
+                <span class="material-symbols-outlined gift-price-icon">payments</span>
+                {{ gift.priceRange }}
+              </div>
+              
+              <div class="gift-store">
+                <span class="material-symbols-outlined gift-store-icon">info</span>
+                <div>
+                  <span>{{ gift.description }}</span>
+                  @if (gift.url && gift.url !== '#') {
+                  <a [href]="gift.url" target="_blank" class="gift-link">
+                    Voir l'offre ↗
+                  </a>
+                  }
+                </div>
+              </div>
+
+              @if (gift.isReserved) {
+                <div class="gift-reserved-badge">
+                  <span class="material-symbols-outlined">lock</span>
+                  Réservé par {{ gift.reservedByName }}
+                </div>
+              }
+
+              <button class="btn-secondary delete-btn" (click)="onDelete(gift.id)">
+                <span class="material-symbols-outlined">delete</span>
+                Retirer
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

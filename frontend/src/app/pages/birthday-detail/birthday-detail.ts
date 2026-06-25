@@ -6,16 +6,17 @@ import { BirthdayService } from '../../services/birthday.service';
 import { TranslationService } from '../../services/translation.service';
 import { ExportService } from '../../services/export.service';
 import { ToastService } from '../../services/toast.service';
-import { Birthday, GiftSuggestion } from '../../models/birthday.model';
+import { Birthday, GiftSuggestion, Gift } from '../../models/birthday.model';
 import { WishModalComponent } from '../../components/wish-modal/wish-modal.component';
 import { CardGeneratorComponent } from '../../components/card-generator/card-generator.component';
+import { GiftListModalComponent } from '../../components/gift-list-modal/gift-list-modal.component';
 import { AuthService } from '../../services/auth.service';
 import { UiService } from '../../services/ui.service';
 
 @Component({
   selector: 'app-birthday-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterModule, WishModalComponent, CardGeneratorComponent],
+  imports: [CommonModule, FormsModule, RouterLink, RouterModule, WishModalComponent, CardGeneratorComponent, GiftListModalComponent],
   templateUrl: './birthday-detail.html',
   styleUrl: './birthday-detail.scss'
 })
@@ -36,6 +37,7 @@ export class BirthdayDetail implements OnInit {
   newInterest = signal<string>('');
   isGeneratingGifts = signal<boolean>(false);
   giftSuggestions = signal<GiftSuggestion[]>([]);
+  savedGifts = signal<Gift[]>([]);
 
   ngOnInit() {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -45,6 +47,7 @@ export class BirthdayDetail implements OnInit {
       if (b) {
         this.birthday.set(b);
         this.daysUntil.set(this.birthdayService.getDaysUntil(b.birthdate));
+        this.loadGifts(b.id);
       } else {
         this.router.navigate(['/dashboard']);
       }
@@ -65,6 +68,7 @@ export class BirthdayDetail implements OnInit {
   isConfirmModalOpen = signal<boolean>(false);
   isShareModalOpen = signal<boolean>(false);
   isCardModalOpen = signal<boolean>(false);
+  isGiftListModalOpen = signal<boolean>(false);
   canWebShare = signal<boolean>(!!navigator.share);
 
   onClose() {
@@ -166,6 +170,81 @@ export class BirthdayDetail implements OnInit {
         this.isGeneratingGifts.set(false);
         alert(this.t9n.t('toasts.error') || 'Une erreur est survenue lors de la génération.');
       }
+    });
+  }
+
+  loadGifts(birthdayId: number) {
+    this.birthdayService.getSavedGifts(birthdayId).subscribe({
+      next: (gifts) => this.savedGifts.set(gifts),
+      error: (err) => console.error('Failed to load gifts', err)
+    });
+  }
+
+  saveGift(sugg: GiftSuggestion) {
+    const bId = this.birthday()?.id;
+    if (!bId) return;
+
+    const newGift: Partial<Gift> = {
+      name: sugg.name,
+      description: sugg.preparationTips || sugg.whereToBuy,
+      priceRange: sugg.estimatedPrice,
+      url: sugg.purchaseLink
+    };
+
+    this.birthdayService.saveGift(bId, newGift).subscribe({
+      next: (gift) => {
+        this.savedGifts.update(g => [...g, gift]);
+        this.toastService.success(this.t9n.t('detail.share_success') || 'Cadeau ajouté à la liste !');
+      },
+      error: (err) => {
+        console.error('Failed to save gift', err);
+        this.toastService.error('Erreur lors de la sauvegarde du cadeau.');
+      }
+    });
+  }
+
+  deleteGift(giftId: number) {
+    const bId = this.birthday()?.id;
+    if (!bId) return;
+
+    this.birthdayService.deleteGift(bId, giftId).subscribe({
+      next: () => {
+        this.savedGifts.update(g => g.filter(gift => gift.id !== giftId));
+        this.toastService.success('Cadeau supprimé de la liste.');
+      },
+      error: (err) => {
+        console.error('Failed to delete gift', err);
+        this.toastService.error('Erreur lors de la suppression.');
+      }
+    });
+  }
+
+  generateShareLink() {
+    const b = this.birthday();
+    if (!b || !b.id) return;
+
+    this.birthdayService.generateShareToken(b.id).subscribe({
+      next: (res) => {
+        this.birthday.update(current => current ? { ...current, shareToken: res.token } : current);
+        this.toastService.success('Lien de partage généré !');
+      },
+      error: (err) => {
+        console.error('Failed to generate share link', err);
+        this.toastService.error('Erreur lors de la génération du lien.');
+      }
+    });
+  }
+
+  copyShareLink() {
+    const token = this.birthday()?.shareToken;
+    if (!token) return;
+    
+    const url = `${window.location.origin}/shared/${token}`;
+    navigator.clipboard.writeText(url).then(() => {
+      this.toastService.success('Lien de partage copié dans le presse-papier !');
+    }).catch(err => {
+      console.error('Could not copy text: ', err);
+      this.toastService.error('Erreur lors de la copie du lien.');
     });
   }
 

@@ -27,6 +27,7 @@ export interface Birthday {
   isDeleted: boolean;
   interests?: string[];
   isFavorite?: boolean;
+  shareToken?: string;
 }
 
 export interface GiftSuggestion {
@@ -35,6 +36,27 @@ export interface GiftSuggestion {
   whereToBuy: string;
   purchaseLink: string;
   preparationTips: string;
+}
+
+export interface Gift {
+  id: number;
+  birthdayId: number;
+  name: string;
+  description: string;
+  priceRange: string;
+  url: string;
+  isReserved: boolean;
+  reservedByName?: string;
+  createdAt: string;
+}
+
+export interface SharedBirthday {
+  id: number;
+  name: string;
+  birthdate: string;
+  showAge: boolean;
+  gender?: 'Masculin' | 'Féminin' | 'Autre';
+  gifts: Gift[];
 }
 
 export function getZodiacSign(birthdate: string): { name: string; emoji: string } {

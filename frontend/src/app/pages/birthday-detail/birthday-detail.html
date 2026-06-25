@@ -116,10 +116,14 @@
     <!-- ========================================== -->
     <div class="gifts-section">
       <div class="gifts-header">
-        <h3 class="section-title">
+        <h3 class="section-title" style="display: flex; align-items: center; gap: 8px;">
           <span class="material-symbols-outlined">featured_seasonal_and_gifts</span>
           {{ t9n.t('detail.gift_ideas') }}
         </h3>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <button class="btn-secondary" (click)="isGiftListModalOpen.set(true)" title="Ma Liste">
+            🎁 {{ savedGifts().length }}
+          </button>
         @if (authService.currentUser()?.plan === 'BASIC') {
           <div class="locked-feature-badge">
             <span class="material-symbols-outlined">lock</span>
@@ -133,6 +137,7 @@
             {{ isGeneratingGifts() ? 'Génération...' : 'Générer avec l\'IA' }}
           </button>
         }
+        </div>
       </div>
 
       <!-- Loading State -->
@@ -170,6 +175,11 @@
           <div class="gift-tips">
             <strong>Conseil :</strong> {{ gift.preparationTips }}
           </div>
+
+          <button class="btn-secondary" style="margin-top: 12px; width: 100%;" (click)="saveGift(gift)">
+            <span class="material-symbols-outlined">bookmark_add</span>
+            Ajouter à ma liste
+          </button>
         </div>
         }
       </div>
@@ -234,6 +244,17 @@
   [birthday]="birthday()!" 
   (close)="isCardModalOpen.set(false)">
 </app-card-generator>
+}
+
+<!-- Gift List Modal Overlay -->
+@if (isGiftListModalOpen() && birthday()) {
+<app-gift-list-modal
+  [birthday]="birthday()!"
+  [gifts]="savedGifts()"
+  (close)="isGiftListModalOpen.set(false)"
+  (deleteGift)="deleteGift($event)"
+  (generateShare)="generateShareLink()">
+</app-gift-list-modal>
 }
 
 <!-- Delete Confirmation Modal Overlay -->

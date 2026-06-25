@@ -1,0 +1,105 @@
+<div class="page-container tm-fade-in">
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="material-symbols-outlined rotating">autorenew</span>
+      <p>Chargement de la liste secrète...</p>
+    </div>
+  } @else if (error()) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon" style="color: #ef4444;">error</span>
+      <h2>Oops !</h2>
+      <p class="empty-state-text">{{ error() }}</p>
+    </div>
+  } @else if (birthday()) {
+    
+    <div class="shared-header glass-panel">
+      <h1>🎂 L'anniversaire de {{ birthday()?.name }}</h1>
+      <p class="subtitle">
+        {{ birthday()?.birthdate | date:'dd MMMM yyyy' }} 
+        @if (birthday()?.showAge) {
+          (Bientôt une année de plus !)
+        }
+      </p>
+      <p class="description" style="margin-top: 16px; color: #4b5563;">
+        Vous avez été invité(e) à consulter cette liste secrète d'idées cadeaux. 
+        Si un cadeau vous intéresse, vous pouvez le "réserver" pour éviter les doublons !
+      </p>
+    </div>
+
+    <div class="gifts-grid" style="margin-top: 32px;">
+      @for (gift of birthday()?.gifts; track gift.id) {
+        <div class="gift-card" [class.reserved]="gift.isReserved">
+          <h4 class="gift-title">{{ gift.name }}</h4>
+          
+          <div class="gift-price">
+            <span class="material-symbols-outlined gift-price-icon">payments</span>
+            {{ gift.priceRange }}
+          </div>
+          
+          <div class="gift-store">
+            <span class="material-symbols-outlined gift-store-icon">info</span>
+            <div>
+              <span>{{ gift.description }}</span>
+              @if (gift.url && gift.url !== '#') {
+              <a [href]="gift.url" target="_blank" class="gift-link" style="display: block; margin-top: 4px;">
+                Voir l'offre ↗
+              </a>
+              }
+            </div>
+          </div>
+
+          @if (gift.isReserved) {
+            <div class="gift-reserved-badge" style="margin-top: 16px; padding: 12px; background: #fef3c7; color: #d97706; border-radius: 12px; font-weight: 600; text-align: center;">
+              <span class="material-symbols-outlined" style="font-size: 20px; vertical-align: bottom;">lock</span>
+              Réservé par {{ gift.reservedByName }}
+            </div>
+          } @else {
+            <button class="btn-premium gift-btn" style="margin-top: 16px; width: 100%;" (click)="openReserveModal(gift)">
+              <span class="material-symbols-outlined">redeem</span>
+              Je réserve ce cadeau !
+            </button>
+          }
+        </div>
+      } @empty {
+        <div class="empty-state" style="grid-column: 1 / -1;">
+          <span class="material-symbols-outlined empty-icon">redeem</span>
+          <p class="empty-state-text">La liste de cadeaux est vide pour l'instant.</p>
+        </div>
+      }
+    </div>
+
+  }
+</div>
+
+<!-- Reserve Modal -->
+@if (isReserveModalOpen() && selectedGift()) {
+<div class="tm-modal-overlay z-modal">
+  <div class="tm-modal-content glass-card" (click)="$event.stopPropagation()">
+    <div class="delete-modal-header">
+      <h2>🎁 Réserver ce cadeau</h2>
+      <button class="icon-btn" (click)="closeReserveModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div class="delete-modal-body" style="padding: 24px;">
+      <p style="margin-bottom: 24px; color: #4b5563;">
+        Vous êtes sur le point de réserver <strong>{{ selectedGift()?.name }}</strong>. 
+        Pour que les autres sachent qu'il est déjà pris, merci d'entrer votre prénom !
+      </p>
+
+      <div class="form-group">
+        <label>Votre prénom</label>
+        <input type="text" class="tm-input" [(ngModel)]="guestName" placeholder="Ex: Tata Jacqueline" (keyup.enter)="confirmReservation()">
+      </div>
+
+      <div class="form-actions" style="margin-top: 24px; display: flex; gap: 16px;">
+        <button class="btn-secondary" (click)="closeReserveModal()" style="flex: 1;">Annuler</button>
+        <button class="btn-primary" (click)="confirmReservation()" [disabled]="!guestName().trim()" style="flex: 1;">
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}

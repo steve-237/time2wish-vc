@@ -15,6 +15,7 @@ public interface BirthdayRepository extends JpaRepository<Birthday, Long> {
     long countByIsDeletedFalse();
     List<Birthday> findByUser(User user);
     Optional<Birthday> findByIdAndUserAndIsDeletedFalse(Long id, User user);
+    Optional<Birthday> findByShareTokenAndIsDeletedFalse(String shareToken);
     void deleteAllByUser(User user);
 
     /**

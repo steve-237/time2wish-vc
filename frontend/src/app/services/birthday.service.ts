@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Birthday, BirthdayStats, BirthdayCategory, GiftSuggestion } from '../models/birthday.model';
+import { Birthday, BirthdayStats, BirthdayCategory, GiftSuggestion, Gift, SharedBirthday } from '../models/birthday.model';
 import { AuthService } from './auth.service';
 import { effect } from '@angular/core';
 import { ToastService } from './toast.service';
@@ -250,8 +250,34 @@ export class BirthdayService {
   }
 
   generateGiftSuggestions(id: number, lang: string) {
-    return this.http.get<GiftSuggestion[]>(`${this.API_URL}/${id}/gifts?lang=${lang}`);
+    return this.http.get<GiftSuggestion[]>(`${this.API_URL}/${id}/generate-gifts?lang=${lang}`);
   }
+
+  // --- Gift Sharing Phase 7 ---
+  getSavedGifts(birthdayId: number) {
+    return this.http.get<Gift[]>(`${this.API_URL}/${birthdayId}/gifts`);
+  }
+
+  saveGift(birthdayId: number, gift: Partial<Gift>) {
+    return this.http.post<Gift>(`${this.API_URL}/${birthdayId}/gifts`, gift);
+  }
+
+  deleteGift(birthdayId: number, giftId: number) {
+    return this.http.delete(`${this.API_URL}/${birthdayId}/gifts/${giftId}`);
+  }
+
+  generateShareToken(birthdayId: number) {
+    return this.http.post<{token: string}>(`${this.API_URL}/${birthdayId}/gifts/share`, {});
+  }
+
+  getSharedList(token: string) {
+    return this.http.get<SharedBirthday>(`${environment.apiUrl}/public/shared/${token}`);
+  }
+
+  reserveGift(token: string, giftId: number, guestName: string) {
+    return this.http.post<Gift>(`${environment.apiUrl}/public/shared/${token}/gifts/${giftId}/reserve`, { guestName });
+  }
+  // -----------------------------
 
   /** Triggers the backend reminder scheduler manually. Returns observable with result. */
   triggerReminders() {

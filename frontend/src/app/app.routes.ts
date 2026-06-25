@@ -79,6 +79,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/legal/support.component').then(m => m.SupportComponent)
       },
       {
+        path: 'shared/:token',
+        loadComponent: () => import('./pages/shared-list/shared-list.component').then(m => m.SharedListComponent)
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'

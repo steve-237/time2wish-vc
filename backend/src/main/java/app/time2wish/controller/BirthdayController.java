@@ -148,7 +148,7 @@ public class BirthdayController {
         }
     }
 
-    @GetMapping("/{id}/gifts")
+    @GetMapping("/{id}/generate-gifts")
     public ResponseEntity<?> getGiftSuggestions(
             @PathVariable Long id,
             @RequestParam(defaultValue = "fr") String lang,
