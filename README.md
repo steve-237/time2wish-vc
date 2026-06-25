@@ -271,7 +271,7 @@ User presses F5:
 14. **SMTP Email Integration:** Automated reminder emails sent out via a real SMTP server integration using Spring Boot Mail.
 15. **Astrology & Zodiac:** Automatic calculation and display of Zodiac signs based on birthdates across all dashboard views.
 16. **Interests Management:** Seamlessly add and manage tags for personal interests within the contact details to keep track of their hobbies.
-17. **AI Gift Generator:** Leverages Google's Gemini AI (with a smart local fallback engine) to generate personalized gift suggestions based on age, gender, category, and interests.
+17. **Gift Management & Secret Sharing:** Leverages Google's Gemini AI (with a smart local fallback engine) to generate personalized gift suggestions based on age, gender, category, and interests. Users can save gifts to a personal wishlist and generate a secure, public **Secret Sharing Link**. Friends and family can use this link to view the wishlist and anonymously reserve gifts without needing an account.
 18. **Internationalization (i18n):** Full support for French, English, and German languages with dynamic switching.
 
 ---
