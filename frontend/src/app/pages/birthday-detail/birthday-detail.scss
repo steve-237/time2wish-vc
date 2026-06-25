@@ -583,3 +583,147 @@ body.dark-theme .info-block {
     color: #dc2626;
   }
 }
+
+/* ================================================
+   TABS NAVIGATION
+   ================================================ */
+.detail-tabs {
+  display: flex;
+  gap: 0;
+  margin: 0 -32px;
+  padding: 0 32px;
+  border-bottom: 1px solid var(--border-card);
+  overflow-x: auto;
+
+  &::-webkit-scrollbar { display: none; }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  .tab-icon {
+    font-size: 20px;
+  }
+
+  &:hover {
+    color: var(--text-main);
+    background: rgba(var(--primary-rgb), 0.04);
+  }
+
+  &.active {
+    color: hsl(var(--primary-hsl));
+    border-bottom-color: hsl(var(--primary-hsl));
+  }
+}
+
+.tab-content {
+  padding: 24px 0 0;
+  text-align: left;
+}
+
+/* ================================================
+   FAB ACTIONS BAR (STICKY FOOTER)
+   ================================================ */
+.fab-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: 0;
+  padding: 16px;
+  border-top: 1px solid var(--border-card);
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  /* Match the modal's border radius exactly */
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.fab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+
+  .material-symbols-outlined {
+    font-size: 22px;
+  }
+
+  &:hover {
+    color: hsl(var(--primary-hsl));
+    background: rgba(var(--primary-rgb), 0.08);
+  }
+}
+
+.fab-btn.fav-toggle-btn.is-favorite {
+  color: #fbbf24;
+}
+
+.fab-delete {
+  &:hover {
+    color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.08) !important;
+  }
+}
+
+/* ================================================
+   CARDS TAB CONTENT
+   ================================================ */
+.cards-tab-content {
+  text-align: center;
+  padding: 32px 16px;
+
+  .cards-hero-icon {
+    font-size: 48px;
+    color: hsl(var(--primary-hsl));
+    margin-bottom: 12px;
+  }
+
+  h3 {
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+  }
+
+  .cards-desc {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+}
+
+/* Mobile adjustments for tabs */
+@media (max-width: 600px) {
+  .detail-tabs {
+    margin: 0 -24px;
+    padding: 0 24px;
+  }
+}

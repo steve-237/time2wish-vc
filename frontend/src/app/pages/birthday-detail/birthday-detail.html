@@ -35,151 +35,169 @@
         </div>
       </div>
     </div>
-
-    <!-- Info Sections Grid -->
-    <div class="info-sections">
-      
-      <!-- Date -->
-      <div class="info-block">
-        <span class="material-symbols-outlined block-icon">cake</span>
-        <div class="block-content">
-          <h3>{{ t9n.t('detail.birthdate') }}</h3>
-          <p>{{ birthday()?.birthdate | date:'dd MMMM yyyy' }}</p>
-        </div>
-      </div>
-
-      <!-- Reminder setting -->
-      <div class="info-block">
-        <span class="material-symbols-outlined block-icon">notifications_active</span>
-        <div class="block-content">
-          <h3>{{ t9n.t('detail.reminder') }}</h3>
-          <p>{{ t9n.t('detail.reminder_text', birthday()?.reminderDays ?? 7) }}</p>
-        </div>
-      </div>
-
-      <!-- Notes -->
-      <div class="info-block notes-block">
-        <span class="material-symbols-outlined block-icon">sticky_note_2</span>
-        <div class="block-content">
-          <h3>{{ t9n.t('detail.notes') }}</h3>
-          @if (birthday()?.notes) {
-            <p class="notes-text">{{ birthday()?.notes }}</p>
-          } @else {
-            <p class="notes-text empty">{{ t9n.t('detail.no_notes') }}</p>
-          }
-        </div>
-      </div>
-
+    <!-- ========== TABS NAVIGATION ========== -->
+    <div class="detail-tabs">
+      <button class="tab-btn" [class.active]="activeTab() === 'info'" (click)="activeTab.set('info')">
+        <span class="material-symbols-outlined tab-icon">info</span>
+        {{ t9n.t('detail.tab_info') || 'Informations' }}
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'gifts'" (click)="activeTab.set('gifts')">
+        <span class="material-symbols-outlined tab-icon">redeem</span>
+        {{ t9n.t('detail.tab_gifts') || 'Cadeaux' }}
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'cards'" (click)="activeTab.set('cards')">
+        <span class="material-symbols-outlined tab-icon">mail</span>
+        {{ t9n.t('detail.tab_cards') || 'Cartes & Vœux' }}
+      </button>
     </div>
 
-    <!-- ========================================== -->
-    <!-- CENTRES D'INTÉRÊT -->
-    <!-- ========================================== -->
-    <div class="interests-section">
-      <h3 class="section-title">
-        <span class="material-symbols-outlined">favorite</span>
-        {{ t9n.t('detail.interests') }}
-      </h3>
-      
-      <div class="interests-tags">
-        @for (interest of birthday()?.interests; track interest) {
-        <span class="interest-chip">
-          {{ interest }}
-          <button (click)="removeInterest(interest)" class="remove-interest-btn">
-            <span class="material-symbols-outlined remove-icon">close</span>
-          </button>
-        </span>
-        }
-        @if (!birthday()?.interests?.length) {
-        <span class="no-interests-text">
-          Aucun centre d'intérêt renseigné.
-        </span>
-        }
-      </div>
+    <!-- ========== TAB CONTENT ========== -->
+    <div class="tab-content">
 
-      <div class="add-interest-form">
-        <input 
-          type="text" 
-          [ngModel]="newInterest()" 
-          (ngModelChange)="newInterest.set($event)"
-          (keyup.enter)="addInterest()"
-          placeholder="Ex: Jeux vidéo, Voyages..." 
-          class="interest-input">
-        <button (click)="addInterest()" class="btn-secondary add-interest-btn">
-          <span class="material-symbols-outlined">add</span>
-        </button>
-      </div>
-    </div>
+      <!-- ===== TAB: INFORMATIONS ===== -->
+      @if (activeTab() === 'info') {
+        <div class="info-sections">
+          <div class="info-block">
+            <span class="material-symbols-outlined block-icon">cake</span>
+            <div class="block-content">
+              <h3>{{ t9n.t('detail.birthdate') }}</h3>
+              <p>{{ birthday()?.birthdate | date:'dd MMMM yyyy' }}</p>
+            </div>
+          </div>
+          <div class="info-block">
+            <span class="material-symbols-outlined block-icon">notifications_active</span>
+            <div class="block-content">
+              <h3>{{ t9n.t('detail.reminder') }}</h3>
+              <p>{{ t9n.t('detail.reminder_text', birthday()?.reminderDays ?? 7) }}</p>
+            </div>
+          </div>
+          <div class="info-block notes-block">
+            <span class="material-symbols-outlined block-icon">sticky_note_2</span>
+            <div class="block-content">
+              <h3>{{ t9n.t('detail.notes') }}</h3>
+              @if (birthday()?.notes) {
+                <p class="notes-text">{{ birthday()?.notes }}</p>
+              } @else {
+                <p class="notes-text empty">{{ t9n.t('detail.no_notes') }}</p>
+              }
+            </div>
+          </div>
+        </div>
 
-    <!-- ========================================== -->
-    <!-- SUGGESTIONS DE CADEAUX (IA) -->
-    <!-- ========================================== -->
-    <!-- GESTION DES CADEAUX -->
-    <div class="gifts-section" style="text-align: center; padding: 24px; background: rgba(0, 0, 0, 0.02); border-radius: 16px; margin: 24px 0;">
-      <span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary-color); margin-bottom: 12px;">featured_seasonal_and_gifts</span>
-      <h3 style="margin-bottom: 8px;">Idées & Liste de Cadeaux</h3>
-      
-      @if (authService.currentUser()?.plan !== 'BASIC') {
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
-          Générez des idées avec l'IA, organisez votre liste et partagez-la avec vos proches.
-        </p>
-        <button class="btn-premium" (click)="isGiftListModalOpen.set(true)" style="margin: 0 auto;">
-          <span class="material-symbols-outlined">redeem</span>
-          Gérer les cadeaux
-        </button>
-      } @else {
-        <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 16px; margin-top: 12px;">
-          <span class="material-symbols-outlined" style="color: #ef4444; font-size: 24px; margin-bottom: 8px;">lock</span>
-          <p style="color: var(--text-main); font-weight: 600; margin: 0 0 4px 0;">Fonctionnalité Premium</p>
-          <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0 0 16px 0;">
-            Passez au forfait supérieur pour générer des idées de cadeaux avec l'IA et organiser vos listes.
+        <!-- Centres d'intérêt -->
+        <div class="interests-section">
+          <h3 class="section-title">
+            <span class="material-symbols-outlined">favorite</span>
+            {{ t9n.t('detail.interests') }}
+          </h3>
+          <div class="interests-tags">
+            @for (interest of birthday()?.interests; track interest) {
+            <span class="interest-chip">
+              {{ interest }}
+              <button (click)="removeInterest(interest)" class="remove-interest-btn">
+                <span class="material-symbols-outlined remove-icon">close</span>
+              </button>
+            </span>
+            }
+            @if (!birthday()?.interests?.length) {
+            <span class="no-interests-text">
+              {{ t9n.t('detail.no_interests') || 'Aucun centre d\'intérêt renseigné.' }}
+            </span>
+            }
+          </div>
+          <div class="add-interest-form">
+            <input 
+              type="text" 
+              [ngModel]="newInterest()" 
+              (ngModelChange)="newInterest.set($event)"
+              (keyup.enter)="addInterest()"
+              placeholder="{{ t9n.t('detail.interest_placeholder') || 'Ex: Jeux vidéo, Voyages...' }}" 
+              class="interest-input">
+            <button (click)="addInterest()" class="btn-secondary add-interest-btn">
+              <span class="material-symbols-outlined">add</span>
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- ===== TAB: CADEAUX ===== -->
+      @if (activeTab() === 'gifts') {
+        @if (authService.currentUser()?.plan !== 'BASIC') {
+          <app-gift-list-modal
+            [birthday]="birthday()!"
+            [gifts]="savedGifts()"
+            [isGeneratingGifts]="isGeneratingGifts()"
+            [aiError]="aiError()"
+            [giftSource]="giftSource()"
+            [giftSuggestions]="giftSuggestions()"
+            (deleteGift)="deleteGift($event)"
+            (generateShare)="generateShareLink()"
+            (addGift)="addManualGift($event)"
+            (updateGift)="updateGift($event.id, $event.data)"
+            (generateGifts)="generateGifts()">
+          </app-gift-list-modal>
+        } @else {
+          <div class="gifts-section" style="text-align: center; padding: 24px; background: rgba(0, 0, 0, 0.02); border-radius: 16px; margin: 24px 0;">
+            <span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary-color); margin-bottom: 12px;">featured_seasonal_and_gifts</span>
+            <h3 style="margin-bottom: 8px;">{{ t9n.t('gifts.section_title') || 'Idées &amp; Liste de Cadeaux' }}</h3>
+            <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 16px; margin-top: 12px;">
+              <span class="material-symbols-outlined" style="color: #ef4444; font-size: 24px; margin-bottom: 8px;">lock</span>
+              <p style="color: var(--text-main); font-weight: 600; margin: 0 0 4px 0;">{{ t9n.t('gifts.premium_feature') || 'Fonctionnalité Premium' }}</p>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0 0 16px 0;">
+                {{ t9n.t('gifts.premium_desc') || 'Passez au forfait supérieur pour générer des idées de cadeaux avec l\'IA et organiser vos listes.' }}
+              </p>
+              <button class="btn-premium" (click)="uiService.isPricingModalOpen.set(true)" style="margin: 0 auto; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                <span class="material-symbols-outlined">upgrade</span>
+                {{ t9n.t('gifts.upgrade_btn') || 'Mettre à niveau mon forfait' }}
+              </button>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- ===== TAB: CARTES & VŒUX ===== -->
+      @if (activeTab() === 'cards') {
+        <div class="cards-tab-content">
+          <span class="material-symbols-outlined cards-hero-icon">mail</span>
+          <h3>{{ t9n.t('detail.cards_title') || 'Cartes d\'Anniversaire' }}</h3>
+          <p class="cards-desc">
+            {{ t9n.t('detail.cards_desc') || 'Générez une carte d\'anniversaire personnalisée avec notre IA et envoyez-la instantanément.' }}
           </p>
-          <button class="btn-premium" (click)="uiService.isPricingModalOpen.set(true)" style="margin: 0 auto; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
-            <span class="material-symbols-outlined">upgrade</span>
-            Mettre à niveau mon forfait
+          <button class="btn-premium" (click)="isCardModalOpen.set(true)" style="margin: 0 auto; background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%); border-color: transparent;">
+            <span class="material-symbols-outlined">auto_awesome</span>
+            {{ t9n.t('detail.generate_card_btn') || 'Générer une carte (IA)' }}
+          </button>
+
+          <button class="btn-premium" (click)="isWishModalOpen.set(true)" style="margin: 12px auto 0; ">
+            <span class="material-symbols-outlined">celebration</span>
+            {{ t9n.t('detail.btn_wish') || 'Envoyer un vœu' }}
           </button>
         </div>
       }
-    </div>
 
-    <!-- Actions Footer -->
-    <div class="detail-actions">
-      <!-- Favorite Toggle -->
-      <button class="btn-secondary fav-toggle-btn" (click)="toggleFavorite()" [class.is-favorite]="birthday()?.isFavorite">
-        <span class="material-symbols-outlined" [class.filled]="birthday()?.isFavorite">star</span>
-        {{ birthday()?.isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris' }}
-      </button>
+    </div> <!-- /tab-content -->
 
-      <!-- Send Wish -->
-      <button class="btn-secondary" (click)="onShareClick()">
-        <span class="material-symbols-outlined">ios_share</span>
-        {{ t9n.t('detail.btn_share') || 'Partager' }}
-      </button>
+  </div> <!-- /detail-card -->
+</div> <!-- /detail-wrapper -->
 
-      <!-- Generate Card -->
-      <button class="btn-premium" (click)="isCardModalOpen.set(true)" style="background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%); border-color: transparent;">
-        <span class="material-symbols-outlined">image</span>
-        {{ t9n.t('detail.btn_card') || 'Créer une carte' }}
-      </button>
-
-      <button class="btn-premium" (click)="isWishModalOpen.set(true)">
-        <span class="material-symbols-outlined">auto_awesome</span>
-        {{ t9n.t('detail.btn_wish') }}
-      </button>
-
-      <div class="danger-actions">
-        <a [routerLink]="['/dashboard/birthday/edit', birthday()?.id]" class="btn-secondary edit-btn">
-          <span class="material-symbols-outlined">edit</span>
-          {{ t9n.t('detail.btn_edit') }}
-        </a>
-        <button (click)="onDelete()" class="btn-secondary delete-btn">
-          <span class="material-symbols-outlined">delete</span>
-          {{ t9n.t('detail.btn_delete') }}
-        </button>
-      </div>
-    </div>
-
-  </div>
+<!-- ========== FAB ACTIONS BAR (Sticky Footer) ========== -->
+<div class="fab-actions">
+  <button class="fab-btn fav-toggle-btn" (click)="toggleFavorite()" [class.is-favorite]="birthday()?.isFavorite">
+    <span class="material-symbols-outlined" [class.filled]="birthday()?.isFavorite">star</span>
+    {{ t9n.t('detail.fab_favorite') || 'Favoris' }}
+  </button>
+  <button class="fab-btn" (click)="onShareClick()">
+    <span class="material-symbols-outlined">ios_share</span>
+    {{ t9n.t('detail.fab_share') || 'Partager' }}
+  </button>
+  <a class="fab-btn" [routerLink]="['/dashboard/birthday/edit', birthday()?.id]">
+    <span class="material-symbols-outlined">edit</span>
+    {{ t9n.t('detail.fab_edit') || 'Modifier' }}
+  </a>
+  <button class="fab-btn fab-delete" (click)="onDelete()">
+    <span class="material-symbols-outlined">delete</span>
+    {{ t9n.t('detail.fab_delete') || 'Supprimer' }}
+  </button>
 </div>
 
 }
@@ -202,23 +220,7 @@
 </app-card-generator>
 }
 
-<!-- Gift List Modal Overlay -->
-@if (isGiftListModalOpen() && birthday()) {
-<app-gift-list-modal
-  [birthday]="birthday()!"
-  [gifts]="savedGifts()"
-  [isGeneratingGifts]="isGeneratingGifts()"
-  [aiError]="aiError()"
-  [giftSource]="giftSource()"
-  [giftSuggestions]="giftSuggestions()"
-  (close)="isGiftListModalOpen.set(false)"
-  (deleteGift)="deleteGift($event)"
-  (generateShare)="generateShareLink()"
-  (addGift)="addManualGift($event)"
-  (updateGift)="updateGift($event.id, $event.data)"
-  (generateGifts)="generateGifts()">
-</app-gift-list-modal>
-}
+
 
 <!-- Delete Confirmation Modal Overlay -->
 @if (isConfirmModalOpen()) {

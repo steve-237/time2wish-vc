@@ -1,3 +1,4 @@
+import { TranslationService } from '../../services/translation.service';
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,14 +13,13 @@ import { ToastService } from '../../services/toast.service';
   styleUrl: './gift-list-modal.component.scss'
 })
 export class GiftListModalComponent {
+  t9n = inject(TranslationService);
   @Input({ required: true }) birthday!: Birthday;
   @Input({ required: true }) gifts: Gift[] = [];
   @Input() isGeneratingGifts = false;
   @Input() aiError = false;
   @Input() giftSource = '';
   @Input() giftSuggestions: any[] = [];
-  
-  @Output() close = new EventEmitter<void>();
   @Output() deleteGift = new EventEmitter<number>();
   @Output() generateShare = new EventEmitter<void>();
   @Output() addGift = new EventEmitter<{name: string, description: string, priceRange: string, url: string}>();

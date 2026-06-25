@@ -71,6 +71,7 @@ export class BirthdayDetail implements OnInit {
   isShareModalOpen = signal<boolean>(false);
   isCardModalOpen = signal<boolean>(false);
   isGiftListModalOpen = signal<boolean>(false);
+  activeTab = signal<'info' | 'gifts' | 'cards'>('info');
   canWebShare = signal<boolean>(!!navigator.share);
 
   onClose() {
@@ -89,6 +90,23 @@ export class BirthdayDetail implements OnInit {
 
   onShareClick() {
     this.isShareModalOpen.set(true);
+  }
+
+  onDeleteClick() {
+    this.isConfirmModalOpen.set(true);
+  }
+
+  updateNotes(newNotes: string) {
+    const b = this.birthday();
+    if (b) {
+      this.birthday.update(current => current ? { ...current, notes: newNotes } : current);
+      // Backend sync
+      this.birthdayService.updateBirthday(
+        b.id, b.name, b.birthdate, b.category, newNotes, 
+        b.reminderDays, b.photoUrl, b.showAge, b.email, 
+        b.whatsapp, b.gender, b.interests, b.isFavorite
+      );
+    }
   }
 
   shareNative() {

@@ -126,7 +126,20 @@
     "filter_past": "Vergangen",
     "filter_favorites": "Nur Favoriten",
     "filter_all": "Alle",
-    "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
+    "months": [
+      "Januar",
+      "Februar",
+      "März",
+      "April",
+      "Mai",
+      "Juni",
+      "Juli",
+      "August",
+      "September",
+      "Oktober",
+      "November",
+      "Dezember"
+    ]
   },
   "charts": {
     "birthdays_by_month": "Geburtstage pro Monat",
@@ -202,7 +215,17 @@
     "share_link_desc": "Kopieren Sie den direkten Link zu dieser Seite",
     "btn_edit": "Bearbeiten",
     "btn_delete": "Löschen",
-    "btn_card": "Karte erstellen"
+    "btn_card": "Karte erstellen",
+    "tab_info": "Informationen",
+    "tab_gifts": "Geschenke",
+    "tab_cards": "Karten & Wünsche",
+    "interests_title": "Interessen",
+    "no_interests": "Keine Interessen",
+    "no_interests_desc": "Fügen Sie Leidenschaften hinzu, damit die KI das perfekte Geschenk findet!",
+    "interest_placeholder": "Z.B. Videospiele, Reisen...",
+    "cards_title": "Geburtstagskarten",
+    "cards_desc": "Generieren Sie eine personalisierte Geburtstagskarte mit unserer KI und versenden Sie sie sofort.",
+    "generate_card_btn": "Karte generieren (KI)"
   },
   "countdown": {
     "today": "🎂 Heute!",
@@ -370,5 +393,41 @@
     "gallery_desc": "Wählen Sie eines dieser schönen, teilfertigen Bilder:",
     "btn_view_gallery": "Bildergalerie anzeigen",
     "btn_download_selected": "Ausgewähltes Bild herunterladen"
+  },
+  "gifts": {
+    "section_title": "Geschenkideen & Liste",
+    "section_desc": "Generieren Sie Ideen mit KI, organisieren Sie Ihre Liste und teilen Sie sie mit Ihren Liebsten.",
+    "manage_btn": "Geschenke verwalten",
+    "premium_feature": "Premium-Funktion",
+    "premium_desc": "Führen Sie ein Upgrade durch, um Geschenkideen mit KI zu generieren und Ihre Listen zu organisieren.",
+    "upgrade_btn": "Meinen Plan aktualisieren",
+    "tab_my_list": "Meine Liste",
+    "tab_ai": "KI-Inspirationen",
+    "list_link": "Listen-Link",
+    "open": "Öffnen",
+    "copy_link": "Link kopieren",
+    "added_gifts": "Hinzugefügte Geschenke",
+    "see_offer": "Angebot ansehen ↗",
+    "add_gift": "Geschenk hinzufügen",
+    "gift_name": "Name des Geschenks",
+    "gift_link": "Link (optional)",
+    "gift_price": "Geschätzter Preis (z.B. 20€ - 50€)",
+    "gift_where": "Wo kaufen oder Tipps",
+    "add_to_list": "Zu meiner Liste hinzufügen",
+    "generate_ai": "Mit KI generieren",
+    "generating": "Wird generiert...",
+    "ai_info": "Die KI analysiert die Interessen von %s, um perfekte Ideen zu finden.",
+    "ai_analyzing": "Die KI analysiert die Interessen...",
+    "error_generation": "Bei der Generierung ist ein technischer Fehler aufgetreten.",
+    "error_fallback": "Bitte versuchen Sie es später erneut oder fügen Sie Ihre Geschenke manuell über \"Meine Liste\" hinzu.",
+    "ai_unavailable": "Der KI-Dienst ist derzeit nicht verfügbar.",
+    "app_generated": "Die Anwendung hat diese Vorschläge basierend auf den Interessen automatisch generiert.",
+    "ai_source": "Diese Vorschläge stammen von der KI",
+    "app_source": "Von der Anwendung generierte Vorschläge",
+    "no_gifts": "Noch keine Geschenke hinzugefügt. Klicken Sie auf \"Geschenk hinzufügen\" oder nutzen Sie den Tab \"KI-Inspirationen\".",
+    "err_no_id": "Fehler: Geburtstags-ID nicht gefunden.",
+    "launching": "Generierung starten...",
+    "success": "Geschenke erfolgreich generiert!",
+    "err_tech": "Technischer Fehler (siehe Konsole)."
   }
 }

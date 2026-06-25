@@ -126,7 +126,20 @@
     "filter_past": "Passés",
     "filter_favorites": "Favoris uniquement",
     "filter_all": "Tous",
-    "months": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
+    "months": [
+      "Janvier",
+      "Février",
+      "Mars",
+      "Avril",
+      "Mai",
+      "Juin",
+      "Juillet",
+      "Août",
+      "Septembre",
+      "Octobre",
+      "Novembre",
+      "Décembre"
+    ]
   },
   "charts": {
     "birthdays_by_month": "Anniversaires par Mois",
@@ -202,7 +215,17 @@
     "share_link_desc": "Copier le lien direct vers cette page",
     "btn_edit": "Modifier",
     "btn_delete": "Supprimer",
-    "btn_card": "Créer une carte"
+    "btn_card": "Créer une carte",
+    "tab_info": "Informations",
+    "tab_gifts": "Cadeaux",
+    "tab_cards": "Cartes & Vœux",
+    "interests_title": "Centres d'intérêt",
+    "no_interests": "Aucun centre d'intérêt",
+    "no_interests_desc": "Ajoutez des passions pour aider l'IA à trouver le cadeau idéal !",
+    "interest_placeholder": "Ex: Jeux vidéo, Voyages...",
+    "cards_title": "Cartes d'Anniversaire",
+    "cards_desc": "Générez une carte d'anniversaire personnalisée avec notre IA et envoyez-la instantanément.",
+    "generate_card_btn": "Générer une carte (IA)"
   },
   "countdown": {
     "today": "🎂 Aujourd'hui !",
@@ -370,5 +393,41 @@
     "gallery_desc": "Choisissez l'une de ces belles images prêtes à être partagées :",
     "btn_view_gallery": "Voir la galerie d'images",
     "btn_download_selected": "Télécharger l'image sélectionnée"
+  },
+  "gifts": {
+    "section_title": "Idées & Liste de Cadeaux",
+    "section_desc": "Générez des idées avec l'IA, organisez votre liste et partagez-la avec vos proches.",
+    "manage_btn": "Gérer les cadeaux",
+    "premium_feature": "Fonctionnalité Premium",
+    "premium_desc": "Passez au forfait supérieur pour générer des idées de cadeaux avec l'IA et organiser vos listes.",
+    "upgrade_btn": "Mettre à niveau mon forfait",
+    "tab_my_list": "Ma Liste",
+    "tab_ai": "Inspirations IA",
+    "list_link": "Lien de la liste",
+    "open": "Ouvrir",
+    "copy_link": "Copier le lien",
+    "added_gifts": "Cadeaux Ajoutés",
+    "see_offer": "Voir l'offre ↗",
+    "add_gift": "Ajouter un cadeau",
+    "gift_name": "Nom du cadeau",
+    "gift_link": "Lien (optionnel)",
+    "gift_price": "Prix estimé (ex: 20€ - 50€)",
+    "gift_where": "Où l'acheter ou conseils",
+    "add_to_list": "Ajouter à ma liste",
+    "generate_ai": "Générer avec l'IA",
+    "generating": "Génération en cours...",
+    "ai_info": "L'IA va analyser les centres d'intérêt de %s pour trouver des idées parfaites.",
+    "ai_analyzing": "L'IA analyse les centres d'intérêt...",
+    "error_generation": "Une erreur technique est survenue lors de la génération.",
+    "error_fallback": "Veuillez réessayer plus tard ou ajouter vos cadeaux manuellement via \"Ma Liste\".",
+    "ai_unavailable": "Le service IA est indisponible pour le moment.",
+    "app_generated": "L'application a généré ces suggestions automatiquement en fonction des centres d'intérêt.",
+    "ai_source": "Ces suggestions proviennent de l'IA",
+    "app_source": "Suggestions générées par l'application",
+    "no_gifts": "Aucun cadeau n'a encore été ajouté. Cliquez sur \"Ajouter un cadeau\" ou utilisez l'onglet \"Inspirations IA\".",
+    "err_no_id": "Erreur : ID de l'anniversaire introuvable.",
+    "launching": "Lancement de la génération...",
+    "success": "Cadeaux générés avec succès !",
+    "err_tech": "Erreur technique (voir console)."
   }
 }
