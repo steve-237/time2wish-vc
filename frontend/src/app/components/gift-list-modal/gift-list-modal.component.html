@@ -1,117 +1,221 @@
 <div class="tm-modal-overlay z-modal" (click)="close.emit()">
   <div class="tm-modal-content glass-card" (click)="$event.stopPropagation()" style="max-width: 800px; width: 90%; max-height: 90vh; display: flex; flex-direction: column;">
-    <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 24px; border-bottom: 1px solid var(--border-card);">
-      <h2 style="display: flex; align-items: center; gap: 8px; font-size: 1.5rem; color: var(--text-main);">
-        <span class="material-symbols-outlined" style="color: var(--primary-color);">redeem</span>
-        Ma Liste de Cadeaux
-      </h2>
-      <button class="icon-btn" (click)="close.emit()">
-        <span class="material-symbols-outlined">close</span>
-      </button>
+    
+    <div class="modal-header" style="display: flex; flex-direction: column; gap: 16px; padding: 24px; padding-bottom: 0; border-bottom: 1px solid var(--border-card);">
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <h2 style="display: flex; align-items: center; gap: 8px; font-size: 1.5rem; color: var(--text-main); margin: 0;">
+          <span class="material-symbols-outlined" style="color: var(--primary-color);">redeem</span>
+          Gestion des Cadeaux
+        </h2>
+        <button class="close-btn" (click)="close.emit()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="tabs-container" style="display: flex; gap: 16px;">
+        <button class="tab-btn" [class.active]="activeTab === 'list'" (click)="activeTab = 'list'">
+          🎁 Ma Liste ({{ gifts.length }})
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'ai'" (click)="activeTab = 'ai'">
+          ✨ Inspirations IA
+        </button>
+      </div>
     </div>
     
     <div class="modal-body" style="padding: 24px; overflow-y: auto; flex: 1;">
       
-      <div class="share-section" style="background: rgba(0, 0, 0, 0.015); padding: 16px; border-radius: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-card);">
-        <div>
-          <h4 style="font-size: 1rem; color: var(--text-main); margin-bottom: 4px;">Lien de partage secret</h4>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Envoyez ce lien à vos proches pour qu'ils puissent réserver un cadeau.</p>
-        </div>
-        <div>
-          @if (gifts.length > 0) {
-            @if (birthday.shareToken) {
-              <button class="btn-secondary" (click)="copyShareLink()">
-                <span class="material-symbols-outlined">link</span>
-                Copier le lien public
-              </button>
+      @if (activeTab === 'list') {
+        <div class="share-section" style="background: rgba(0, 0, 0, 0.015); padding: 16px; border-radius: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-card);">
+          <div>
+            <h4 style="font-size: 1rem; color: var(--text-main); margin-bottom: 4px;">Lien de partage secret</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Envoyez ce lien à vos proches pour qu'ils puissent réserver un cadeau.</p>
+          </div>
+          <div>
+            @if (gifts.length > 0) {
+              @if (birthday.shareToken) {
+                <button class="btn-secondary" (click)="copyShareLink()">
+                  <span class="material-symbols-outlined">link</span>
+                  Copier le lien public
+                </button>
+              } @else {
+                <button class="btn-premium" (click)="onGenerateShare()">
+                  <span class="material-symbols-outlined">public</span>
+                  Générer un lien
+                </button>
+              }
             } @else {
-              <button class="btn-premium" (click)="onGenerateShare()">
-                <span class="material-symbols-outlined">public</span>
-                Générer un lien
-              </button>
+              <span style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">Ajoutez des cadeaux d'abord</span>
             }
+          </div>
+        </div>
+
+        <!-- Add Manual Gift Section -->
+        <div style="margin-bottom: 24px;">
+          @if (!showManualForm) {
+            <button class="btn-secondary" (click)="showManualForm = true" style="width: 100%; justify-content: center;">
+              <span class="material-symbols-outlined">add</span>
+              Ajouter un cadeau manuellement
+            </button>
           } @else {
-            <span style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">Ajoutez des cadeaux d'abord</span>
+            <div class="glass-card" style="padding: 16px; border: 1px dashed var(--border-card);">
+              <h4 style="margin-bottom: 12px; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                <span class="material-symbols-outlined" style="font-size: 20px;">edit_note</span>
+                {{ editingGiftId ? 'Modifier le Cadeau' : 'Nouveau Cadeau' }}
+              </h4>
+              <div class="form-group" style="margin-bottom: 12px;">
+                <input type="text" class="form-control" placeholder="Nom du cadeau *" [(ngModel)]="newGift.name">
+              </div>
+              <div class="form-group" style="margin-bottom: 12px;">
+                <input type="text" class="form-control" placeholder="Prix estimé (ex: 20€ - 50€)" [(ngModel)]="newGift.priceRange">
+              </div>
+              <div class="form-group" style="margin-bottom: 12px;">
+                <input type="text" class="form-control" placeholder="Lien d'achat (URL complète commençant par http...)" [(ngModel)]="newGift.url">
+              </div>
+              <div class="form-group" style="margin-bottom: 16px;">
+                <textarea class="form-control" placeholder="Description ou détails supplémentaires..." [(ngModel)]="newGift.description" rows="2"></textarea>
+              </div>
+              <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button class="btn-secondary" (click)="cancelEdit()">Annuler</button>
+                <button class="btn-premium" (click)="onAddManualGift()" [disabled]="!newGift.name">
+                  {{ editingGiftId ? 'Enregistrer' : 'Ajouter' }}
+                </button>
+              </div>
+            </div>
           }
         </div>
-      </div>
 
-      <!-- Add Manual Gift Section -->
-      <div style="margin-bottom: 24px;">
-        @if (!showManualForm) {
-          <button class="btn-secondary" (click)="showManualForm = true" style="width: 100%; justify-content: center;">
-            <span class="material-symbols-outlined">add</span>
-            Ajouter un cadeau manuellement
-          </button>
+        @if (gifts.length === 0) {
+          <div style="text-align: center; padding: 40px 20px;">
+            <span class="material-symbols-outlined" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;">featured_seasonal_and_gifts</span>
+            <p style="color: #64748b; font-size: 1.1rem;">Votre liste est vide.</p>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 8px;">Générez des idées avec l'IA ou ajoutez-en manuellement !</p>
+          </div>
         } @else {
-          <div class="glass-card" style="padding: 16px; border: 1px dashed var(--border-card);">
-            <h4 style="margin-bottom: 12px; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
-              <span class="material-symbols-outlined" style="font-size: 20px;">edit_note</span>
-              Nouveau Cadeau
-            </h4>
-            <div class="form-group" style="margin-bottom: 12px;">
-              <input type="text" class="form-control" placeholder="Nom du cadeau *" [(ngModel)]="newGift.name">
-            </div>
-            <div class="form-group" style="margin-bottom: 12px;">
-              <input type="text" class="form-control" placeholder="Prix estimé (ex: 20€ - 50€)" [(ngModel)]="newGift.priceRange">
-            </div>
-            <div class="form-group" style="margin-bottom: 12px;">
-              <input type="text" class="form-control" placeholder="Lien d'achat (URL complète commençant par http...)" [(ngModel)]="newGift.url">
-            </div>
-            <div class="form-group" style="margin-bottom: 16px;">
-              <textarea class="form-control" placeholder="Description ou détails supplémentaires..." [(ngModel)]="newGift.description" rows="2"></textarea>
-            </div>
-            <div style="display: flex; gap: 8px; justify-content: flex-end;">
-              <button class="btn-secondary" (click)="showManualForm = false">Annuler</button>
-              <button class="btn-premium" (click)="onAddManualGift()" [disabled]="!newGift.name">Ajouter</button>
-            </div>
+          <div class="gifts-grid">
+            @for (gift of gifts; track gift.id) {
+              <div class="gift-card" [class.reserved]="gift.isReserved">
+                <h4 class="gift-title">{{ gift.name }}</h4>
+                
+                <div class="gift-price">
+                  <span class="material-symbols-outlined gift-price-icon">payments</span>
+                  {{ gift.priceRange || 'Prix non précisé' }}
+                </div>
+                
+                <div class="gift-store">
+                  <span class="material-symbols-outlined gift-store-icon">info</span>
+                  <div style="display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
+                    <span>{{ gift.description }}</span>
+                    @if (gift.url && gift.url !== '#') {
+                    <a [href]="gift.url" target="_blank" class="gift-link" title="{{ gift.url }}">
+                      Voir l'offre ↗
+                    </a>
+                    }
+                  </div>
+                </div>
+
+                @if (gift.isReserved) {
+                  <div class="gift-reserved-badge">
+                    <span class="material-symbols-outlined">lock</span>
+                    Réservé par {{ gift.reservedByName }}
+                  </div>
+                }
+
+                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                  <button class="btn-secondary" (click)="onEditGift(gift)" style="flex: 1; padding: 6px 12px; font-size: 0.85rem;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">edit</span>
+                    Modifier
+                  </button>
+                  <button class="btn-secondary delete-btn" (click)="onDelete(gift.id)" style="flex: 1; margin-top: 0; padding: 6px 12px; font-size: 0.85rem;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">delete</span>
+                    Retirer
+                  </button>
+                </div>
+              </div>
+            }
           </div>
         }
-      </div>
+      }
 
-      @if (gifts.length === 0) {
-        <div style="text-align: center; padding: 40px 20px;">
-          <span class="material-symbols-outlined" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;">featured_seasonal_and_gifts</span>
-          <p style="color: #64748b; font-size: 1.1rem;">Votre liste est vide.</p>
-          <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 8px;">Générez des idées avec l'IA ou ajoutez-en manuellement !</p>
+      @if (activeTab === 'ai') {
+        <div style="text-align: center; margin-bottom: 24px;">
+          <button class="btn-premium gift-btn" (click)="generateGifts.emit()" [disabled]="isGeneratingGifts" style="padding: 12px 24px; font-size: 1rem;">
+            <span class="material-symbols-outlined" [class.rotating]="isGeneratingGifts">
+              {{ isGeneratingGifts ? 'autorenew' : 'auto_awesome' }}
+            </span>
+            {{ isGeneratingGifts ? 'Génération en cours...' : 'Générer avec l\'IA' }}
+          </button>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">
+            L'IA va analyser les centres d'intérêt de {{ birthday.name }} pour trouver des idées parfaites.
+          </p>
         </div>
-      } @else {
-        <div class="gifts-grid">
-          @for (gift of gifts; track gift.id) {
-            <div class="gift-card" [class.reserved]="gift.isReserved">
-              <h4 class="gift-title">{{ gift.name }}</h4>
-              
-              <div class="gift-price">
-                <span class="material-symbols-outlined gift-price-icon">payments</span>
-                {{ gift.priceRange || 'Prix non précisé' }}
-              </div>
-              
-              <div class="gift-store">
-                <span class="material-symbols-outlined gift-store-icon">info</span>
-                <div style="display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
-                  <span>{{ gift.description }}</span>
-                  @if (gift.url && gift.url !== '#') {
-                  <a [href]="gift.url" target="_blank" class="gift-link" title="{{ gift.url }}">
-                    Voir l'offre ↗
-                  </a>
-                  }
-                </div>
-              </div>
 
-              @if (gift.isReserved) {
-                <div class="gift-reserved-badge">
-                  <span class="material-symbols-outlined">lock</span>
-                  Réservé par {{ gift.reservedByName }}
-                </div>
-              }
+        @if (isGeneratingGifts) {
+          <div class="gifts-loading" style="text-align: center; padding: 40px 0;">
+            <span class="material-symbols-outlined rotating loading-icon" style="font-size: 48px; color: var(--primary-color);">autorenew</span>
+            <p class="loading-text" style="color: var(--text-muted); margin-top: 16px;">L'IA analyse les centres d'intérêt...</p>
+          </div>
+        }
 
-              <button class="btn-secondary delete-btn" (click)="onDelete(gift.id)">
-                <span class="material-symbols-outlined">delete</span>
-                Retirer
-              </button>
+        @if (aiError) {
+          <div class="glass-card" style="margin-top: 16px; padding: 24px; text-align: center; border-color: rgba(239, 68, 68, 0.3);">
+            <span class="material-symbols-outlined" style="font-size: 32px; color: #ef4444; margin-bottom: 8px;">error_outline</span>
+            <p style="color: var(--text-main); font-weight: 600;">Une erreur technique est survenue lors de la génération.</p>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Veuillez réessayer plus tard ou ajouter vos cadeaux manuellement via "Ma Liste".</p>
+          </div>
+        }
+
+        @if (!isGeneratingGifts && !aiError && giftSuggestions && giftSuggestions.length > 0) {
+          @if (giftSource === 'LOCAL') {
+            <div class="glass-card" style="margin-bottom: 16px; padding: 16px 24px; text-align: center; border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05);">
+              <span class="material-symbols-outlined" style="font-size: 32px; color: #ef4444; margin-bottom: 8px;">cloud_off</span>
+              <p style="color: var(--text-main); font-weight: 600; margin-bottom: 4px;">Le service IA est indisponible pour le moment.</p>
+              <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">L'application a généré ces suggestions automatiquement en fonction des centres d'intérêt.</p>
             </div>
           }
-        </div>
+
+          @if (giftSource === 'AI') {
+            <div style="margin: 16px 0; display: flex; align-items: center; justify-content: center; gap: 8px; color: #8b5cf6; font-size: 0.9rem; font-weight: 600; background: rgba(139, 92, 246, 0.1); padding: 8px; border-radius: 8px;">
+              <span class="material-symbols-outlined" style="font-size: 18px;">auto_awesome</span>
+              Ces suggestions proviennent de l'IA
+            </div>
+          } @else if (giftSource === 'LOCAL') {
+            <div style="margin: 16px 0; display: flex; align-items: center; justify-content: center; gap: 8px; color: #64748b; font-size: 0.9rem; font-weight: 600; background: rgba(100, 116, 139, 0.1); padding: 8px; border-radius: 8px;">
+              <span class="material-symbols-outlined" style="font-size: 18px;">settings_suggest</span>
+              Suggestions générées par l'application
+            </div>
+          }
+          <div class="gifts-grid">
+            @for (gift of giftSuggestions; track gift.name) {
+              <div class="gift-card">
+                <h4 class="gift-title">{{ gift.name }}</h4>
+                
+                <div class="gift-price">
+                  <span class="material-symbols-outlined gift-price-icon">payments</span>
+                  {{ gift.estimatedPrice }}
+                </div>
+                
+                <div class="gift-store">
+                  <span class="material-symbols-outlined gift-store-icon">storefront</span>
+                  <div style="display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
+                    <span>{{ gift.preparationTips || gift.whereToBuy }}</span>
+                    @if (gift.purchaseLink && gift.purchaseLink !== '#') {
+                      <a [href]="gift.purchaseLink" target="_blank" class="gift-link" title="{{ gift.purchaseLink }}">
+                        Voir l'offre ↗
+                      </a>
+                    }
+                  </div>
+                </div>
+
+                <div style="margin-top: 12px;">
+                  <button class="btn-secondary" style="width: 100%; justify-content: center; color: var(--primary-color); border-color: var(--primary-color);" (click)="addGift.emit({name: gift.name, description: gift.preparationTips || gift.whereToBuy, priceRange: gift.estimatedPrice, url: gift.purchaseLink})">
+                    <span class="material-symbols-outlined">add</span>
+                    Ajouter à Ma Liste
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
       }
     </div>
   </div>

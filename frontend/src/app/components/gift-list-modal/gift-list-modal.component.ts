@@ -14,15 +14,23 @@ import { ToastService } from '../../services/toast.service';
 export class GiftListModalComponent {
   @Input({ required: true }) birthday!: Birthday;
   @Input({ required: true }) gifts: Gift[] = [];
+  @Input() isGeneratingGifts = false;
+  @Input() aiError = false;
+  @Input() giftSource = '';
+  @Input() giftSuggestions: any[] = [];
   
   @Output() close = new EventEmitter<void>();
   @Output() deleteGift = new EventEmitter<number>();
   @Output() generateShare = new EventEmitter<void>();
   @Output() addGift = new EventEmitter<{name: string, description: string, priceRange: string, url: string}>();
+  @Output() updateGift = new EventEmitter<{id: number, data: {name: string, description: string, priceRange: string, url: string}}>();
+  @Output() generateGifts = new EventEmitter<void>();
 
   toastService = inject(ToastService);
 
+  activeTab: 'list' | 'ai' = 'list';
   showManualForm = false;
+  editingGiftId: number | null = null;
   newGift = {
     name: '',
     description: '',
@@ -38,11 +46,36 @@ export class GiftListModalComponent {
     this.generateShare.emit();
   }
 
+  onEditGift(gift: Gift) {
+    this.editingGiftId = gift.id;
+    this.newGift = {
+      name: gift.name,
+      description: gift.description,
+      priceRange: gift.priceRange,
+      url: gift.url
+    };
+    this.showManualForm = true;
+    // Scroll to form (optional, could use window.scrollTo)
+  }
+
   onAddManualGift() {
     if (!this.newGift.name) return;
-    this.addGift.emit({ ...this.newGift });
+    
+    if (this.editingGiftId) {
+      this.updateGift.emit({ id: this.editingGiftId, data: { ...this.newGift } });
+    } else {
+      this.addGift.emit({ ...this.newGift });
+    }
+    
     // Reset form
     this.newGift = { name: '', description: '', priceRange: '', url: '' };
+    this.editingGiftId = null;
+    this.showManualForm = false;
+  }
+
+  cancelEdit() {
+    this.newGift = { name: '', description: '', priceRange: '', url: '' };
+    this.editingGiftId = null;
     this.showManualForm = false;
   }
 

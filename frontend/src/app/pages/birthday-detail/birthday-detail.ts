@@ -36,6 +36,8 @@ export class BirthdayDetail implements OnInit {
   
   newInterest = signal<string>('');
   isGeneratingGifts = signal<boolean>(false);
+  aiError = signal<boolean>(false);
+  giftSource = signal<string>('');
   giftSuggestions = signal<GiftSuggestion[]>([]);
   savedGifts = signal<Gift[]>([]);
 
@@ -140,12 +142,12 @@ export class BirthdayDetail implements OnInit {
     }
   }
 
+  // ... (keep loadBirthday logic as it was, but we are replacing from line 145 so we just replace generateGifts and keeping other things untouched)
   removeInterest(interest: string) {
     const bId = this.birthday()?.id;
     if (bId) {
       this.birthdayService.removeInterest(bId, interest);
       
-      // Update local signal to reflect immediately
       this.birthday.update(b => {
         if (!b) return b;
         return { ...b, interests: (b.interests || []).filter(i => i !== interest) };
@@ -155,20 +157,28 @@ export class BirthdayDetail implements OnInit {
 
   generateGifts() {
     const bId = this.birthday()?.id;
-    if (!bId) return;
+    if (!bId) {
+      this.toastService.error('Erreur : ID de l\'anniversaire introuvable.');
+      return;
+    }
 
     this.isGeneratingGifts.set(true);
+    this.aiError.set(false);
     const lang = this.t9n.currentLang();
+    this.toastService.info('Lancement de la génération...');
 
     this.birthdayService.generateGiftSuggestions(bId, lang).subscribe({
-      next: (gifts) => {
-        this.giftSuggestions.set(gifts);
+      next: (response) => {
+        this.toastService.success('Cadeaux générés avec succès !');
+        this.giftSuggestions.set(response.suggestions);
+        this.giftSource.set(response.source);
         this.isGeneratingGifts.set(false);
       },
       error: (err) => {
         console.error('Failed to generate gifts', err);
+        this.toastService.error('Erreur technique (voir console).');
         this.isGeneratingGifts.set(false);
-        alert(this.t9n.t('toasts.error') || 'Une erreur est survenue lors de la génération.');
+        this.aiError.set(true);
       }
     });
   }
@@ -215,6 +225,22 @@ export class BirthdayDetail implements OnInit {
       error: (err) => {
         console.error('Failed to save manual gift', err);
         this.toastService.error('Erreur lors de l\'ajout du cadeau.');
+      }
+    });
+  }
+
+  updateGift(giftId: number, giftData: {name: string, description: string, priceRange: string, url: string}) {
+    const bId = this.birthday()?.id;
+    if (!bId) return;
+
+    this.birthdayService.updateGift(bId, giftId, giftData).subscribe({
+      next: (updatedGift) => {
+        this.savedGifts.update(g => g.map(gift => gift.id === giftId ? updatedGift : gift));
+        this.toastService.success('Cadeau modifié avec succès !');
+      },
+      error: (err) => {
+        console.error('Failed to update gift', err);
+        this.toastService.error('Erreur lors de la modification du cadeau.');
       }
     });
   }

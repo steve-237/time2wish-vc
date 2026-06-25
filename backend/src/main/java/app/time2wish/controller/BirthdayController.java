@@ -155,24 +155,23 @@ public class BirthdayController {
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         User user = getAuthenticatedUser(userDetails);
         
-        if (user.getPlan() == app.time2wish.model.PlanType.BASIC) {
-            return ResponseEntity.status(403).body(new MessageResponse("FEATURE_LOCKED: AI Gifts are not available on the BASIC plan."));
-        }
-
         return birthdayService.getBirthday(id, user).map(birthday -> {
             Integer age = null;
             if (birthday.getBirthdate() != null) {
                 age = Period.between(birthday.getBirthdate(), LocalDate.now()).getYears();
             }
-            List<GiftSuggestion> suggestions = geminiService.generateGiftSuggestions(
-                    birthday.getName(),
-                    age,
-                    birthday.getGender(),
-                    birthday.getCategory(),
-                    birthday.getInterests(),
-                    lang
-            );
-            return ResponseEntity.ok(suggestions);
+            
+            app.time2wish.dto.GiftSuggestionResponse response;
+            if (user.getPlan() == app.time2wish.model.PlanType.BASIC) {
+                response = geminiService.generateLocalFallbackResponse(
+                        birthday.getName(), age, birthday.getGender(), birthday.getCategory(), birthday.getInterests(), lang
+                );
+            } else {
+                response = geminiService.generateGiftSuggestions(
+                        birthday.getName(), age, birthday.getGender(), birthday.getCategory(), birthday.getInterests(), lang
+                );
+            }
+            return ResponseEntity.ok(response);
         }).orElse(ResponseEntity.notFound().build());
     }
 

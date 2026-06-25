@@ -114,75 +114,31 @@
     <!-- ========================================== -->
     <!-- SUGGESTIONS DE CADEAUX (IA) -->
     <!-- ========================================== -->
-    <div class="gifts-section">
-      <div class="gifts-header">
-        <h3 class="section-title" style="display: flex; align-items: center; gap: 8px;">
-          <span class="material-symbols-outlined">featured_seasonal_and_gifts</span>
-          {{ t9n.t('detail.gift_ideas') }}
-        </h3>
-        <div style="display: flex; gap: 12px; align-items: center;">
-          <button class="btn-secondary" (click)="isGiftListModalOpen.set(true)" title="Ma Liste">
-            🎁 {{ savedGifts().length }}
-          </button>
-        @if (authService.currentUser()?.plan === 'BASIC') {
-          <div class="locked-feature-badge">
-            <span class="material-symbols-outlined">lock</span>
-            <button (click)="uiService.isPricingModalOpen.set(true)" class="upgrade-link">Passer en PLUS pour l'IA</button>
-          </div>
-        } @else {
-          <button class="btn-premium gift-btn" (click)="generateGifts()" [disabled]="isGeneratingGifts()">
-            <span class="material-symbols-outlined" [class.rotating]="isGeneratingGifts()">
-              {{ isGeneratingGifts() ? 'autorenew' : 'auto_awesome' }}
-            </span>
-            {{ isGeneratingGifts() ? 'Génération...' : 'Générer avec l\'IA' }}
-          </button>
-        }
-        </div>
-      </div>
-
-      <!-- Loading State -->
-      @if (isGeneratingGifts()) {
-      <div class="gifts-loading">
-        <span class="material-symbols-outlined rotating loading-icon">autorenew</span>
-        <p class="loading-text">L'IA analyse les centres d'intérêt...</p>
-      </div>
-      }
-
-      <!-- Suggestions List -->
-      @if (!isGeneratingGifts() && giftSuggestions().length > 0) {
-      <div class="gifts-grid">
-        @for (gift of giftSuggestions(); track gift.name) {
-        <div class="gift-card">
-          <h4 class="gift-title">{{ gift.name }}</h4>
-          
-          <div class="gift-price">
-            <span class="material-symbols-outlined gift-price-icon">payments</span>
-            {{ gift.estimatedPrice }}
-          </div>
-          
-          <div class="gift-store">
-            <span class="material-symbols-outlined gift-store-icon">storefront</span>
-            <div>
-              <span>{{ gift.whereToBuy }}</span>
-              @if (gift.purchaseLink && gift.purchaseLink !== '#') {
-              <a [href]="gift.purchaseLink" target="_blank" class="gift-link">
-                Voir l'offre ↗
-              </a>
-              }
-            </div>
-          </div>
-          
-          <div class="gift-tips">
-            <strong>Conseil :</strong> {{ gift.preparationTips }}
-          </div>
-
-          <button class="btn-secondary" style="margin-top: 12px; width: 100%;" (click)="saveGift(gift)">
-            <span class="material-symbols-outlined">bookmark_add</span>
-            Ajouter à ma liste
+    <!-- GESTION DES CADEAUX -->
+    <div class="gifts-section" style="text-align: center; padding: 24px; background: rgba(0, 0, 0, 0.02); border-radius: 16px; margin: 24px 0;">
+      <span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary-color); margin-bottom: 12px;">featured_seasonal_and_gifts</span>
+      <h3 style="margin-bottom: 8px;">Idées & Liste de Cadeaux</h3>
+      
+      @if (authService.currentUser()?.plan !== 'BASIC') {
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+          Générez des idées avec l'IA, organisez votre liste et partagez-la avec vos proches.
+        </p>
+        <button class="btn-premium" (click)="isGiftListModalOpen.set(true)" style="margin: 0 auto;">
+          <span class="material-symbols-outlined">redeem</span>
+          Gérer les cadeaux
+        </button>
+      } @else {
+        <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 16px; margin-top: 12px;">
+          <span class="material-symbols-outlined" style="color: #ef4444; font-size: 24px; margin-bottom: 8px;">lock</span>
+          <p style="color: var(--text-main); font-weight: 600; margin: 0 0 4px 0;">Fonctionnalité Premium</p>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0 0 16px 0;">
+            Passez au forfait supérieur pour générer des idées de cadeaux avec l'IA et organiser vos listes.
+          </p>
+          <button class="btn-premium" (click)="uiService.isPricingModalOpen.set(true)" style="margin: 0 auto; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+            <span class="material-symbols-outlined">upgrade</span>
+            Mettre à niveau mon forfait
           </button>
         </div>
-        }
-      </div>
       }
     </div>
 
@@ -251,10 +207,16 @@
 <app-gift-list-modal
   [birthday]="birthday()!"
   [gifts]="savedGifts()"
+  [isGeneratingGifts]="isGeneratingGifts()"
+  [aiError]="aiError()"
+  [giftSource]="giftSource()"
+  [giftSuggestions]="giftSuggestions()"
   (close)="isGiftListModalOpen.set(false)"
   (deleteGift)="deleteGift($event)"
   (generateShare)="generateShareLink()"
-  (addGift)="addManualGift($event)">
+  (addGift)="addManualGift($event)"
+  (updateGift)="updateGift($event.id, $event.data)"
+  (generateGifts)="generateGifts()">
 </app-gift-list-modal>
 }
 

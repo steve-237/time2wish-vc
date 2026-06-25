@@ -250,7 +250,7 @@ export class BirthdayService {
   }
 
   generateGiftSuggestions(id: number, lang: string) {
-    return this.http.get<GiftSuggestion[]>(`${this.API_URL}/${id}/generate-gifts?lang=${lang}`);
+    return this.http.get<{suggestions: GiftSuggestion[], source: string}>(`${this.API_URL}/${id}/generate-gifts?lang=${lang}`);
   }
 
   // --- Gift Sharing Phase 7 ---
@@ -260,6 +260,10 @@ export class BirthdayService {
 
   saveGift(birthdayId: number, gift: Partial<Gift>) {
     return this.http.post<Gift>(`${this.API_URL}/${birthdayId}/gifts`, gift);
+  }
+
+  updateGift(birthdayId: number, giftId: number, gift: Partial<Gift>) {
+    return this.http.put<Gift>(`${this.API_URL}/${birthdayId}/gifts/${giftId}`, gift);
   }
 
   deleteGift(birthdayId: number, giftId: number) {

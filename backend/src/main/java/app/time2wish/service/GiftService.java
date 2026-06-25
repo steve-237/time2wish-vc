@@ -60,6 +60,26 @@ public class GiftService {
         giftRepository.delete(gift);
     }
 
+    public GiftDto updateGift(Long birthdayId, Long giftId, User user, GiftCreateDto dto) {
+        Birthday birthday = birthdayRepository.findByIdAndUserAndIsDeletedFalse(birthdayId, user)
+                .orElseThrow(() -> new RuntimeException("Birthday not found"));
+
+        Gift gift = giftRepository.findById(giftId)
+                .orElseThrow(() -> new RuntimeException("Gift not found"));
+
+        if (!gift.getBirthday().getId().equals(birthday.getId())) {
+            throw new RuntimeException("Gift does not belong to this birthday");
+        }
+
+        gift.setName(dto.getName());
+        gift.setDescription(dto.getDescription());
+        gift.setPriceRange(dto.getPriceRange());
+        gift.setUrl(dto.getUrl());
+
+        gift = giftRepository.save(gift);
+        return mapToDto(gift);
+    }
+
     public String generateShareToken(Long birthdayId, User user) {
         Birthday birthday = birthdayRepository.findByIdAndUserAndIsDeletedFalse(birthdayId, user)
                 .orElseThrow(() -> new RuntimeException("Birthday not found"));

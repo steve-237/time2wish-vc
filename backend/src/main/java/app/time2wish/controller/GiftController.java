@@ -45,6 +45,15 @@ public class GiftController {
         return ResponseEntity.ok(giftService.addGift(birthdayId, getAuthenticatedUser(userDetails), dto));
     }
 
+    @PutMapping("/{giftId}")
+    public ResponseEntity<GiftDto> updateGift(
+            @PathVariable Long birthdayId,
+            @PathVariable Long giftId,
+            @Valid @RequestBody GiftCreateDto dto,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(giftService.updateGift(birthdayId, giftId, getAuthenticatedUser(userDetails), dto));
+    }
+
     @DeleteMapping("/{giftId}")
     public ResponseEntity<MessageResponse> removeGift(
             @PathVariable Long birthdayId,

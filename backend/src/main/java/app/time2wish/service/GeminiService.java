@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import app.time2wish.dto.GiftSuggestion;
+import app.time2wish.dto.GiftSuggestionResponse;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
@@ -128,9 +129,9 @@ public class GeminiService {
         }
     }
 
-    public List<GiftSuggestion> generateGiftSuggestions(String name, Integer age, String gender, String category, List<String> interests, String lang) {
+    public GiftSuggestionResponse generateGiftSuggestions(String name, Integer age, String gender, String category, List<String> interests, String lang) {
         if (apiKey == null || apiKey.trim().isEmpty()) {
-            return generateLocalFallbackGifts(name, age, gender, category, interests, lang);
+            return new GiftSuggestionResponse(generateLocalFallbackGifts(name, age, gender, category, interests, lang), "LOCAL");
         }
 
         StringBuilder prompt = new StringBuilder();
@@ -187,7 +188,8 @@ public class GeminiService {
                                 }
                                 generatedText = generatedText.trim();
                                 ObjectMapper mapper = new ObjectMapper();
-                                return mapper.readValue(generatedText, new TypeReference<List<GiftSuggestion>>() {});
+                                List<GiftSuggestion> suggestions = mapper.readValue(generatedText, new TypeReference<List<GiftSuggestion>>() {});
+                                return new GiftSuggestionResponse(suggestions, "AI");
                             }
                         }
                     }
@@ -197,7 +199,11 @@ public class GeminiService {
             System.err.println("Error calling Gemini API for gift suggestions: " + e.getMessage());
         }
 
-        return generateLocalFallbackGifts(name, age, gender, category, interests, lang);
+        return new GiftSuggestionResponse(generateLocalFallbackGifts(name, age, gender, category, interests, lang), "LOCAL");
+    }
+
+    public GiftSuggestionResponse generateLocalFallbackResponse(String name, Integer age, String gender, String category, List<String> interests, String lang) {
+        return new GiftSuggestionResponse(generateLocalFallbackGifts(name, age, gender, category, interests, lang), "LOCAL");
     }
 
     private List<GiftSuggestion> generateLocalFallbackGifts(String name, Integer age, String gender, String category, List<String> interests, String lang) {
