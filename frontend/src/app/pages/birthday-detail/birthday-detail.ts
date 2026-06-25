@@ -203,6 +203,22 @@ export class BirthdayDetail implements OnInit {
     });
   }
 
+  addManualGift(giftData: {name: string, description: string, priceRange: string, url: string}) {
+    const bId = this.birthday()?.id;
+    if (!bId) return;
+
+    this.birthdayService.saveGift(bId, giftData).subscribe({
+      next: (gift) => {
+        this.savedGifts.update(g => [...g, gift]);
+        this.toastService.success('Cadeau ajouté manuellement !');
+      },
+      error: (err) => {
+        console.error('Failed to save manual gift', err);
+        this.toastService.error('Erreur lors de l\'ajout du cadeau.');
+      }
+    });
+  }
+
   deleteGift(giftId: number) {
     const bId = this.birthday()?.id;
     if (!bId) return;

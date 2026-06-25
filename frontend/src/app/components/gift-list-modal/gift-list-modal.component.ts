@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Birthday, Gift } from '../../models/birthday.model';
 import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-gift-list-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './gift-list-modal.component.html',
   styleUrl: './gift-list-modal.component.scss'
 })
@@ -17,8 +18,17 @@ export class GiftListModalComponent {
   @Output() close = new EventEmitter<void>();
   @Output() deleteGift = new EventEmitter<number>();
   @Output() generateShare = new EventEmitter<void>();
+  @Output() addGift = new EventEmitter<{name: string, description: string, priceRange: string, url: string}>();
 
   toastService = inject(ToastService);
+
+  showManualForm = false;
+  newGift = {
+    name: '',
+    description: '',
+    priceRange: '',
+    url: ''
+  };
 
   onDelete(giftId: number) {
     this.deleteGift.emit(giftId);
@@ -26,6 +36,14 @@ export class GiftListModalComponent {
 
   onGenerateShare() {
     this.generateShare.emit();
+  }
+
+  onAddManualGift() {
+    if (!this.newGift.name) return;
+    this.addGift.emit({ ...this.newGift });
+    // Reset form
+    this.newGift = { name: '', description: '', priceRange: '', url: '' };
+    this.showManualForm = false;
   }
 
   copyShareLink() {

@@ -253,7 +253,8 @@
   [gifts]="savedGifts()"
   (close)="isGiftListModalOpen.set(false)"
   (deleteGift)="deleteGift($event)"
-  (generateShare)="generateShareLink()">
+  (generateShare)="generateShareLink()"
+  (addGift)="addManualGift($event)">
 </app-gift-list-modal>
 }
 
