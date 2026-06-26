@@ -11,14 +11,16 @@
     
     <!-- Options Menu (3 dots) -->
     <div class="dashboard-options-menu" style="position: relative;">
-      <button class="icon-btn btn-secondary" (click)="isOptionsMenuOpen.set(!isOptionsMenuOpen())" style="padding: 10px; border-radius: 12px;" title="Options">
-        <span class="material-symbols-outlined">more_vert</span>
+      <button class="btn-secondary flex-center" (click)="isOptionsMenuOpen.set(!isOptionsMenuOpen())" style="padding: 10px 16px; border-radius: 12px; gap: 8px; font-weight: 500;" title="Outils">
+        <span class="material-symbols-outlined" style="font-size: 1.1rem;">build</span>
+        <span class="hide-mobile">Outils</span>
+        <span class="material-symbols-outlined" [style.transform]="isOptionsMenuOpen() ? 'rotate(180deg)' : 'none'" style="transition: transform 0.3s; font-size: 1.1rem; margin-left: -4px;">expand_more</span>
       </button>
 
       @if (isOptionsMenuOpen()) {
         <div class="profile-backdrop" (click)="isOptionsMenuOpen.set(false)" style="position: fixed; inset: 0; z-index: 99;"></div>
         
-        <div class="options-dropdown glass-card" style="position: absolute; right: 0; top: calc(100% + 8px); width: 220px; z-index: 100; padding: 8px; border-radius: 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+        <div class="options-dropdown" style="position: absolute; right: 0; top: calc(100% + 8px); width: 220px; z-index: 100; padding: 8px; border-radius: 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); background: var(--bg-dropdown); border: 1px solid var(--border-card);">
           
           <!-- Test Reminders Button -->
           <button
