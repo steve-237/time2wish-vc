@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit, HostListener, ElementRef } from '@angular/core';
 import { RouterOutlet, RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslationService, Language } from '../../services/translation.service';
@@ -51,8 +51,7 @@ import { ThemeService } from '../../services/theme.service';
             </button>
 
             @if (isProfileMenuOpen()) {
-              <!-- Backdrop -->
-              <div class="profile-backdrop" (click)="isProfileMenuOpen.set(false)" style="position: fixed; inset: 0; z-index: 99;"></div>
+              <!-- Removed backdrop in favor of HostListener -->
               
               <!-- Dropdown Box -->
               <div class="profile-dropdown" style="position: absolute; right: 0; top: calc(100% + 10px); width: 280px; z-index: 100; padding: 8px; border-radius: 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); background: var(--bg-dropdown); border: 1px solid var(--border-card);">
@@ -143,6 +142,7 @@ export class MainLayoutComponent implements OnInit {
   private readonly router = inject(Router);
   t9n = inject(TranslationService);
   pwaService = inject(PwaService);
+  private readonly elementRef = inject(ElementRef);
 
   readonly languages: { code: Language; label: string; flagUrl: string }[] = [
     { code: 'fr', label: 'FR', flagUrl: 'https://flagcdn.com/w40/fr.png' },
@@ -155,6 +155,15 @@ export class MainLayoutComponent implements OnInit {
   isProfileMenuOpen = signal<boolean>(false);
 
   ngOnInit() {
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    // Close profile menu if click is outside the profile menu container
+    const profileContainer = this.elementRef.nativeElement.querySelector('.profile-menu-container');
+    if (this.isProfileMenuOpen() && profileContainer && !profileContainer.contains(event.target as Node)) {
+      this.isProfileMenuOpen.set(false);
+    }
   }
 
   getActiveFlagUrl(): string {

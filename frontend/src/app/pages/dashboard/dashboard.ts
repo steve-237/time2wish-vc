@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, OnInit, AfterViewInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { Component, signal, computed, inject, OnInit, AfterViewInit, ElementRef, ViewChild, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -33,6 +33,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   exportService = inject(ExportService);
   private confettiService = inject(ConfettiService);
   authService = inject(AuthService);
+  private hostElement = inject(ElementRef);
 
   isOptionsMenuOpen = signal<boolean>(false);
   isAdvancedFiltersOpen = signal<boolean>(false);
@@ -127,6 +128,14 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     this.birthdayService.loadFromStorage();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    const optionsMenuContainer = this.hostElement.nativeElement.querySelector('.dashboard-options-menu');
+    if (this.isOptionsMenuOpen() && optionsMenuContainer && !optionsMenuContainer.contains(event.target as Node)) {
+      this.isOptionsMenuOpen.set(false);
+    }
   }
 
   ngAfterViewInit() {
