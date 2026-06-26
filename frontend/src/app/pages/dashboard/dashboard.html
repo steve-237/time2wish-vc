@@ -210,50 +210,50 @@
 
   <!-- Advanced Filters Panel (Collapsible) -->
   @if (isAdvancedFiltersOpen()) {
-    <div class="advanced-filters-panel" style="width: 100%; display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border-card); animation: slideDown 0.3s ease-out forwards; transform-origin: top;">
+    <div class="advanced-filters-panel" style="width: 100%; display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-card); animation: slideDown 0.3s ease-out forwards; transform-origin: top;">
       
       <!-- Category Selection -->
       <div class="month-selector-custom dashboard-cat-selector">
-        <span style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; display: block; padding-left: 4px;">Catégorie</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 2px; display: block; padding-left: 4px;">Catégorie</span>
         <div style="position: relative;">
-          <select class="custom-select-control" [value]="selectedCategory()" (change)="selectedCategory.set($any($event.target).value)" style="border-radius: 10px; padding: 10px 14px;">
+          <select class="custom-select-control" [value]="selectedCategory()" (change)="selectedCategory.set($any($event.target).value)" style="border-radius: 8px; padding: 6px 10px; font-size: 0.9rem;">
             @for (cat of categories; track cat) {
             <option [value]="cat">
               {{ t9n.t('categories.' + cat) || cat }}
             </option>
             }
           </select>
-          <span class="material-symbols-outlined select-chevron">expand_more</span>
+          <span class="material-symbols-outlined select-chevron" style="right: 8px;">expand_more</span>
         </div>
       </div>
 
       <!-- Month selection -->
       <div class="month-selector-custom">
-        <span style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; display: block; padding-left: 4px;">Mois</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 2px; display: block; padding-left: 4px;">Mois</span>
         <div style="position: relative;">
           <select 
             class="custom-select-control" 
             [ngModel]="selectedMonth()" 
-            (ngModelChange)="selectedMonth.set(+$event)" style="border-radius: 10px; padding: 10px 14px;">
+            (ngModelChange)="selectedMonth.set(+$event)" style="border-radius: 8px; padding: 6px 10px; font-size: 0.9rem;">
             <option [value]="-1">{{ t9n.t('dashboard.all_months') }}</option>
             @for (m of months(); track m; let i = $index) {
             <option [value]="i">{{ m }}</option>
             }
           </select>
-          <span class="material-symbols-outlined select-chevron">expand_more</span>
+          <span class="material-symbols-outlined select-chevron" style="right: 8px;">expand_more</span>
         </div>
       </div>
 
       <!-- Favorite Filter -->
       <div class="favorite-filter-container" style="display: flex; flex-direction: column; justify-content: flex-end;">
-        <span style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; display: block; padding-left: 4px;">Favoris</span>
+        <span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 2px; display: block; padding-left: 4px;">Favoris</span>
         <button 
           (click)="filterFavorite.set(!filterFavorite())" 
           [class.active]="filterFavorite()"
           class="btn-secondary fav-filter-btn" 
           [title]="filterFavorite() ? (t9n.t('dashboard.filter_all') || 'Tous') : (t9n.t('dashboard.filter_favorites') || 'Favoris uniquement')"
-          style="padding: 10px 16px; border-radius: 10px; gap: 8px;">
-          <span class="material-symbols-outlined" [class.filled]="filterFavorite()" style="color: #fbbf24;">star</span>
+          style="padding: 6px 12px; border-radius: 8px; gap: 6px; font-size: 0.9rem;">
+          <span class="material-symbols-outlined" [class.filled]="filterFavorite()" style="color: #fbbf24; font-size: 1.1rem;">star</span>
           {{ filterFavorite() ? 'Favoris' : 'Tous' }}
         </button>
       </div>
@@ -261,8 +261,8 @@
       <!-- Reset Filters -->
       @if (selectedCategory() !== 'All' || selectedMonth() !== -1 || filterFavorite()) {
         <div style="display: flex; flex-direction: column; justify-content: flex-end; margin-left: auto;">
-          <button class="btn-secondary text-error" (click)="selectedCategory.set('All'); selectedMonth.set(-1); filterFavorite.set(false)" style="padding: 10px 16px; border-radius: 10px; border: none; background: rgba(239, 68, 68, 0.1); color: #ef4444; gap: 8px;">
-            <span class="material-symbols-outlined">close</span>
+          <button class="btn-secondary text-error" (click)="selectedCategory.set('All'); selectedMonth.set(-1); filterFavorite.set(false)" style="padding: 6px 12px; border-radius: 8px; border: none; background: rgba(239, 68, 68, 0.1); color: #ef4444; gap: 6px; font-size: 0.9rem;">
+            <span class="material-symbols-outlined" style="font-size: 1.1rem;">close</span>
             Réinitialiser
           </button>
         </div>
