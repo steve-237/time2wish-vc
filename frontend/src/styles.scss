@@ -12,6 +12,7 @@
   /* Light Theme Variables */
   --bg-app: #f8fafc;
   --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-dropdown: #ffffff;
   --border-card: rgba(226, 232, 240, 0.8);
   --text-main: #0f172a;
   --text-muted: #64748b;
@@ -89,6 +90,7 @@ body.theme-blanc {
 body.dark-theme {
   --bg-app: #0f172a;
   --bg-card: rgba(30, 41, 59, 0.7);
+  --bg-dropdown: #1e293b;
   --border-card: rgba(255, 255, 255, 0.06);
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
@@ -100,6 +102,7 @@ body.dark-theme {
 body.oled-theme {
   --bg-app: #000000;
   --bg-card: rgba(15, 15, 15, 0.7);
+  --bg-dropdown: #111111;
   --border-card: rgba(255, 255, 255, 0.08);
   --text-main: #ffffff;
   --text-muted: #a1a1aa;

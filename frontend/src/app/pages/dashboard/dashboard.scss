@@ -67,12 +67,10 @@
 /* Filters Panel */
 .filters-panel {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 32px;
-  padding: 16px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 24px;
+  padding: 14px 16px;
 }
 
 .search-box {
@@ -94,6 +92,7 @@
 
 .month-selector-custom {
   min-width: 160px;
+  position: relative;
 }
 
 .hidden { display: none; }
