@@ -572,3 +572,15 @@ body.dark-theme .switch-option.active {
   box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);
 }
 
+
+/* Stats Cards Modernization */
+.stat-card { transition: transform 0.3s ease, box-shadow 0.3s ease; position: relative; overflow: hidden; }
+.stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1); }
+body.dark-theme .stat-card:hover { box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3); }
+.stat-icon { position: relative; z-index: 1; }
+.stat-icon::before { content: ''; position: absolute; top: 50%; left: 50%; width: 150%; height: 150%; background: inherit; border-radius: 50%; transform: translate(-50%, -50%); filter: blur(12px); opacity: 0.4; z-index: -1; transition: opacity 0.3s ease; }
+.stat-card:hover .stat-icon::before { opacity: 0.7; }
+@keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
+.stat-card.highlight .stat-icon { animation: pulseGlow 2s infinite; }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+

@@ -1108,3 +1108,7 @@ select.custom-select-control option {
 .profile-link:hover {
   background: rgba(0, 0, 0, 0.05);
 }
+
+.dropdown-item-hover:hover { background: rgba(0, 0, 0, 0.04); }
+body.dark-theme .dropdown-item-hover:hover { background: rgba(255, 255, 255, 0.05); }
+

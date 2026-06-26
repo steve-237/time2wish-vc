@@ -27,76 +27,86 @@ import { ThemeService } from '../../services/theme.service';
         <!-- Toolbar actions -->
         <div class="toolbar-actions flex-center gap-sm">
           
-          <!-- Language Selector Custom Dropdown -->
-          <div class="custom-lang-menu-container lang-menu-wrapper">
-            <button class="custom-lang-btn lang-btn" (click)="isLangMenuOpen.set(!isLangMenuOpen())">
-              <img [src]="getActiveFlagUrl()" alt="flag" class="flag-icon lang-flag" style="width: 20px; height: 14px; object-fit: cover;">
-              <span class="material-symbols-outlined lang-arrow" [class.rotated]="isLangMenuOpen()">expand_more</span>
-            </button>
-
-            @if (isLangMenuOpen()) {
-            <div class="custom-lang-dropdown">
-              @for (lang of languages; track lang.code) {
-              <div class="lang-option" (click)="setLanguage(lang.code)" [class.active]="t9n.currentLang() === lang.code">
-                <img [src]="lang.flagUrl" alt="flag" class="flag-icon" style="width: 20px; height: 14px; object-fit: cover;">
-                <span class="label">{{ lang.label }}</span>
-              </div>
-              }
-            </div>
-            }
-          </div>
-
-          <!-- Backdrop to close the menu when clicking outside -->
-          @if (isLangMenuOpen()) {
-          <div class="lang-backdrop" (click)="isLangMenuOpen.set(false)"></div>
-          }
-
-          <!-- Admin Panel Button -->
-          @if (isAdmin()) {
-          <a routerLink="/admin" class="btn-secondary admin-btn" title="Administration">
-            <span class="material-symbols-outlined admin-icon">admin_panel_settings</span>
-            <span class="hide-mobile">Admin panel</span>
-          </a>
-          }
-
-          <!-- Install PWA Button -->
-          @if (pwaService.canInstall()) {
-          <button (click)="pwaService.installApp()" class="btn-premium pwa-btn">
-            <span class="material-symbols-outlined pwa-icon">install_desktop</span>
-            <span class="hide-mobile">{{ t9n.t('nav.install') || 'Installer' }}</span>
-          </button>
-          }
-
           <!-- Pricing/Plans Button -->
           <button (click)="uiService.isPricingModalOpen.set(true)" class="premium-nav-btn" [title]="t9n.t('nav.plans') || 'Forfaits'">
             <span class="material-symbols-outlined">diamond</span>
             <span class="hide-mobile">{{ t9n.t('nav.plans') || 'Forfaits' }}</span>
           </button>
 
-          <!-- App mode switch -->
-          <button (click)="cycleAppMode()" class="icon-btn theme-toggle" [title]="themeService.appMode() === 'light' ? 'Mode Sombre' : (themeService.appMode() === 'dark' ? 'Mode OLED' : 'Mode Clair')">
-            <span class="material-symbols-outlined">
-              {{ themeService.appMode() === 'light' ? 'dark_mode' : (themeService.appMode() === 'dark' ? 'contrast' : 'light_mode') }}
-            </span>
+          <!-- Install PWA Button -->
+          @if (pwaService.canInstall()) {
+          <button (click)="pwaService.installApp()" class="btn-secondary pwa-btn" title="Installer l'application" style="padding: 8px; border-radius: 50%;">
+            <span class="material-symbols-outlined pwa-icon" style="margin:0;">install_desktop</span>
           </button>
+          }
 
           <!-- Notifications Panel -->
           <app-notification-panel></app-notification-panel>
 
-          <!-- Profile dropdown / User Menu -->
-          <a routerLink="/dashboard/profile" class="user-profile-menu flex-center gap-sm profile-link">
-            <img [src]="authService.currentUser()?.avatarUrl || 'https://ui-avatars.com/api/?name=' + (authService.currentUser()?.fullName || 'U') + '&background=random'" alt="Avatar" class="user-avatar">
-            <div class="user-info">
-               <span class="user-name">{{ authService.currentUser()?.fullName }}</span>
-               <span class="user-email">{{ authService.currentUser()?.email }}</span>
-            </div>
-          </a>
+          <!-- Profile Dropdown Menu Container -->
+          <div class="profile-menu-container" style="position: relative;">
+            <button class="profile-toggle-btn flex-center" (click)="isProfileMenuOpen.set(!isProfileMenuOpen())" style="background: none; border: none; cursor: pointer; padding: 4px; border-radius: 30px; gap: 4px; transition: background 0.2s;">
+              <img [src]="authService.currentUser()?.avatarUrl || 'https://ui-avatars.com/api/?name=' + (authService.currentUser()?.fullName || 'U') + '&background=random'" alt="Avatar" class="user-avatar" style="width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--border-card);">
+              <span class="material-symbols-outlined profile-chevron" [style.transform]="isProfileMenuOpen() ? 'rotate(180deg)' : 'none'" style="transition: transform 0.3s; color: var(--text-muted); font-size: 1.2rem;">expand_more</span>
+            </button>
 
-          <!-- Logout -->
-          <button (click)="onLogout()" class="btn-secondary logout-btn">
-            <span class="material-symbols-outlined logout-icon">logout</span>
-            <span class="logout-text">{{ t9n.t('nav.logout') }}</span>
-          </button>
+            @if (isProfileMenuOpen()) {
+              <!-- Backdrop -->
+              <div class="profile-backdrop" (click)="isProfileMenuOpen.set(false)" style="position: fixed; inset: 0; z-index: 99;"></div>
+              
+              <!-- Dropdown Box -->
+              <div class="profile-dropdown glass-card" style="position: absolute; right: 0; top: calc(100% + 10px); width: 280px; z-index: 100; padding: 8px; border-radius: 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                
+                <!-- User Info Header -->
+                <a routerLink="/dashboard/profile" class="dropdown-user-info dropdown-item-hover" (click)="isProfileMenuOpen.set(false)" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid var(--border-card); margin-bottom: 4px; text-decoration: none; color: var(--text-main); border-radius: 12px;">
+                  <img [src]="authService.currentUser()?.avatarUrl || 'https://ui-avatars.com/api/?name=' + (authService.currentUser()?.fullName || 'U') + '&background=random'" alt="Avatar" class="user-avatar" style="width: 44px; height: 44px; border-radius: 50%;">
+                  <div style="display: flex; flex-direction: column; overflow: hidden;">
+                     <span style="font-weight: 600; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 0.95rem;">{{ authService.currentUser()?.fullName }}</span>
+                     <span style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{ authService.currentUser()?.email }}</span>
+                  </div>
+                </a>
+
+                <!-- Admin Panel Button -->
+                @if (isAdmin()) {
+                <a routerLink="/admin" class="dropdown-item dropdown-item-hover" (click)="isProfileMenuOpen.set(false)" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; text-decoration: none; color: var(--text-main); border-radius: 10px; font-size: 0.9rem;">
+                  <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.2rem;">admin_panel_settings</span>
+                  <span>Administration</span>
+                </a>
+                }
+
+                <!-- App mode switch -->
+                <button (click)="cycleAppMode()" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 10px; font-size: 0.9rem;">
+                  <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.2rem;">
+                    {{ themeService.appMode() === 'light' ? 'dark_mode' : (themeService.appMode() === 'dark' ? 'contrast' : 'light_mode') }}
+                  </span>
+                  <span>
+                    {{ themeService.appMode() === 'light' ? 'Mode Sombre' : (themeService.appMode() === 'dark' ? 'Mode OLED' : 'Mode Clair') }}
+                  </span>
+                </button>
+
+                <!-- Language Selector -->
+                <div class="dropdown-item-group" style="padding: 10px 12px; margin-top: 4px; border-top: 1px solid var(--border-card);">
+                  <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; display: block;">Langue</span>
+                  <div style="display: flex; gap: 8px;">
+                    @for (lang of languages; track lang.code) {
+                      <button (click)="setLanguage(lang.code)" class="lang-pill" [style.background]="t9n.currentLang() === lang.code ? 'rgba(37, 99, 235, 0.1)' : 'transparent'" [style.borderColor]="t9n.currentLang() === lang.code ? 'var(--primary-color)' : 'var(--border-card)'" [style.color]="t9n.currentLang() === lang.code ? 'var(--primary-color)' : 'var(--text-main)'" style="border: 1px solid; border-radius: 20px; padding: 6px 12px; font-size: 0.85rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; flex: 1; justify-content: center;">
+                        <img [src]="lang.flagUrl" alt="flag" style="width: 16px; height: 11px; object-fit: cover; border-radius: 2px;">
+                        {{ lang.label }}
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                <!-- Logout -->
+                <button (click)="onLogout()" class="dropdown-item dropdown-item-hover text-error" style="display: flex; align-items: center; gap: 12px; padding: 12px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: #ef4444; border-top: 1px solid var(--border-card); margin-top: 4px; border-radius: 0 0 16px 16px; font-size: 0.9rem; font-weight: 500;">
+                  <span class="material-symbols-outlined" style="font-size: 1.2rem;">logout</span>
+                  <span>{{ t9n.t('nav.logout') || 'Déconnexion' }}</span>
+                </button>
+
+              </div>
+            }
+          </div>
+
         </div>
 
       </div>
@@ -142,6 +152,7 @@ export class MainLayoutComponent implements OnInit {
 
   isLangMenuOpen = signal<boolean>(false);
   isSidebarOpen = signal<boolean>(false);
+  isProfileMenuOpen = signal<boolean>(false);
 
   ngOnInit() {
   }

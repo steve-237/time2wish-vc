@@ -7,58 +7,85 @@
     <h1>{{ t9n.t('dashboard.title') }}</h1>
     <p class="subtitle">{{ t9n.t('dashboard.subtitle') }}</p>
   </div>
-  <div class="dashboard-header-actions">
-    <!-- Test Reminders Button -->
-    <button
-      id="btn-test-reminders"
-      (click)="onTriggerReminders()"
-      [disabled]="reminderStatus() === 'loading'"
-      class="btn-secondary dashboard-action-btn">
-      <span class="material-symbols-outlined action-btn-icon">
-        {{ reminderStatus() === 'loading' ? 'sync' : 'notifications' }}
-      </span>
-      {{ reminderStatus() === 'loading' ? '...' : t9n.t('dashboard.btn_test_reminders') }}
-    </button>
+  <div class="dashboard-header-actions" style="display: flex; gap: 12px; align-items: center;">
+    
+    <!-- Options Menu (3 dots) -->
+    <div class="dashboard-options-menu" style="position: relative;">
+      <button class="icon-btn btn-secondary" (click)="isOptionsMenuOpen.set(!isOptionsMenuOpen())" style="padding: 10px; border-radius: 12px;" title="Options">
+        <span class="material-symbols-outlined">more_vert</span>
+      </button>
 
-    <!-- Actions Selector -->
-    @if (userPlan !== 'BASIC') {
-      <div class="month-selector-custom dashboard-month-selector">
-        <select class="custom-select-control" (change)="onActionSelect($event)">
-          <option value="" disabled selected>{{ t9n.t('dashboard.actions') || 'Actions' }}</option>
-          <option value="export-csv">{{ t9n.t('dashboard.export_csv') || 'Exporter CSV' }}</option>
-          <option value="export-ical">{{ t9n.t('dashboard.export_ical') || 'Exporter iCal' }}</option>
-          <option value="import-csv">{{ t9n.t('dashboard.import_csv') || 'Importer CSV' }}</option>
-        </select>
-        <span class="material-symbols-outlined select-chevron">expand_more</span>
-      </div>
-    }
+      @if (isOptionsMenuOpen()) {
+        <div class="profile-backdrop" (click)="isOptionsMenuOpen.set(false)" style="position: fixed; inset: 0; z-index: 99;"></div>
+        
+        <div class="options-dropdown glass-card" style="position: absolute; right: 0; top: calc(100% + 8px); width: 220px; z-index: 100; padding: 8px; border-radius: 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+          
+          <!-- Test Reminders Button -->
+          <button
+            (click)="onTriggerReminders(); isOptionsMenuOpen.set(false)"
+            [disabled]="reminderStatus() === 'loading'"
+            class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 10px; font-size: 0.9rem;">
+            <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.2rem;">
+              {{ reminderStatus() === 'loading' ? 'sync' : 'notifications' }}
+            </span>
+            <span>{{ reminderStatus() === 'loading' ? '...' : t9n.t('dashboard.btn_test_reminders') }}</span>
+          </button>
+
+          <!-- Statistiques Button -->
+          <a
+            routerLink="/dashboard/stats"
+            (click)="isOptionsMenuOpen.set(false)"
+            class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; text-decoration: none; color: var(--text-main); border-radius: 10px; font-size: 0.9rem;">
+            <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.2rem;">bar_chart</span>
+            <span>{{ t9n.t('dashboard.btn_stats') || 'Statistiques' }}</span>
+          </a>
+
+          <!-- Actions Selector (Premium) -->
+          @if (userPlan !== 'BASIC') {
+            <div class="dropdown-item-group" style="padding: 10px 12px; margin-top: 4px; border-top: 1px solid var(--border-card);">
+              <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; display: block;">Actions</span>
+              
+              <button (click)="exportService.exportToCSV(birthdayService.activeBirthdays()); isOptionsMenuOpen.set(false)" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 8px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 8px; font-size: 0.85rem;">
+                <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.1rem;">download</span>
+                <span>{{ t9n.t('dashboard.export_csv') || 'Exporter CSV' }}</span>
+              </button>
+              
+              <button (click)="exportService.exportListToICal(birthdayService.activeBirthdays()); isOptionsMenuOpen.set(false)" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 8px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 8px; font-size: 0.85rem;">
+                <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.1rem;">event</span>
+                <span>{{ t9n.t('dashboard.export_ical') || 'Exporter iCal' }}</span>
+              </button>
+
+              <button (click)="csvFileInput.click(); isOptionsMenuOpen.set(false)" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 8px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 8px; font-size: 0.85rem;">
+                <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.1rem;">upload</span>
+                <span>{{ t9n.t('dashboard.import_csv') || 'Importer CSV' }}</span>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Hidden CSV input -->
     <input type="file" #csvFileInput (change)="onCSVImport($event)" accept=".csv" class="hidden">
 
-    <!-- Add Birthday Button -->
+    <!-- Add Birthday Button (Main Action) -->
     @if (userPlan === 'BASIC' && birthdayService.activeBirthdays().length >= 3) {
       <button
         class="btn-premium dashboard-action-btn dashboard-add-btn disabled"
         title="Limite de 3 anniversaires atteinte avec le forfait BASIC"
-        (click)="toastService.error('Limite atteinte (3 anniversaires max). Veuillez passer au forfait PLUS pour en ajouter d\'autres.')">
+        (click)="toastService.error('Limite atteinte (3 anniversaires max). Veuillez passer au forfait PLUS pour en ajouter d\'autres.')" style="padding: 12px 24px; border-radius: 12px; font-size: 1rem; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);">
         <span class="material-symbols-outlined add-icon">add_circle</span>
         {{ t9n.t('dashboard.btn_add') }}
       </button>
     } @else {
       <a
         routerLink="/dashboard/birthday/add"
-        class="btn-premium dashboard-action-btn dashboard-add-btn">
+        class="btn-premium dashboard-action-btn dashboard-add-btn" style="padding: 12px 24px; border-radius: 12px; font-size: 1rem; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);">
         <span class="material-symbols-outlined add-icon">add_circle</span>
         {{ t9n.t('dashboard.btn_add') }}
       </a>
     }
 
-    <!-- Statistiques Button -->
-    <a
-      routerLink="/dashboard/stats"
-      class="btn-secondary dashboard-action-btn dashboard-stats-btn">
-      <span class="material-symbols-outlined stats-icon">bar_chart</span>
-      {{ t9n.t('dashboard.btn_stats') || 'Statistiques' }}
-    </a>
   </div>
 </div>
 
@@ -111,72 +138,47 @@
 </div>
 
 <!-- Filters Section -->
-<div class="filters-panel glass-card">
-  <!-- Search -->
-  <div class="search-box">
-    <span class="material-symbols-outlined search-icon">search</span>
-    <input 
-      type="text" 
-      class="form-control search-input" 
-      [placeholder]="t9n.t('dashboard.search_placeholder')"
-      [ngModel]="searchQuery()" 
-      (ngModelChange)="searchQuery.set($event)">
-  </div>
-
-  <!-- Category Selection -->
-  <div class="month-selector-custom dashboard-cat-selector">
-    <select class="custom-select-control" [value]="selectedCategory()" (change)="selectedCategory.set($any($event.target).value)">
-      @for (cat of categories; track cat) {
-      <option [value]="cat">
-        {{ t9n.t('categories.' + cat) || cat }}
-      </option>
-      }
-    </select>
-    <span class="material-symbols-outlined select-chevron">expand_more</span>
-  </div>
-
-  <!-- Time Filter Switch (Upcoming / Past) -->
-  <div class="time-filter-switch">
-    <div 
-      class="switch-option" 
-      [class.active]="timeFilter() === 'upcoming'"
-      (click)="timeFilter.set('upcoming')">
-      <span class="material-symbols-outlined">event_upcoming</span>
-      {{ t9n.t('dashboard.filter_upcoming') || 'À venir' }}
+<div class="filters-panel glass-card" style="padding: 12px 16px; border-radius: 20px;">
+  <div class="filters-top-row" style="display: flex; gap: 16px; align-items: center; width: 100%; flex-wrap: wrap;">
+    
+    <!-- Search (Expanded) -->
+    <div class="search-box" style="flex: 1; min-width: 200px;">
+      <span class="material-symbols-outlined search-icon">search</span>
+      <input 
+        type="text" 
+        class="form-control search-input" 
+        [placeholder]="t9n.t('dashboard.search_placeholder')"
+        [ngModel]="searchQuery()" 
+        (ngModelChange)="searchQuery.set($event)"
+        style="border-radius: 12px; background: rgba(0,0,0,0.03);">
     </div>
-    <div 
-      class="switch-option" 
-      [class.active]="timeFilter() === 'past'"
-      (click)="timeFilter.set('past')">
-      <span class="material-symbols-outlined">history</span>
-      {{ t9n.t('dashboard.filter_past') || 'Passés' }}
+
+    <!-- Time Filter Switch (Upcoming / Past) -->
+    <div class="time-filter-switch" style="min-width: fit-content;">
+      <div 
+        class="switch-option" 
+        [class.active]="timeFilter() === 'upcoming'"
+        (click)="timeFilter.set('upcoming')">
+        <span class="material-symbols-outlined" style="font-size: 1.1rem;">event_upcoming</span>
+        {{ t9n.t('dashboard.filter_upcoming') || 'À venir' }}
+      </div>
+      <div 
+        class="switch-option" 
+        [class.active]="timeFilter() === 'past'"
+        (click)="timeFilter.set('past')">
+        <span class="material-symbols-outlined" style="font-size: 1.1rem;">history</span>
+        {{ t9n.t('dashboard.filter_past') || 'Passés' }}
+      </div>
     </div>
-  </div>
 
-  <!-- Month selection -->
-  <div class="month-selector-custom">
-    <select 
-      class="custom-select-control" 
-      [ngModel]="selectedMonth()" 
-      (ngModelChange)="selectedMonth.set(+$event)">
-      <option [value]="-1">{{ t9n.t('dashboard.all_months') }}</option>
-      @for (m of months(); track m; let i = $index) {
-      <option [value]="i">{{ m }}</option>
+    <!-- Advanced Filters Toggle -->
+    <button class="btn-secondary flex-center" (click)="isAdvancedFiltersOpen.set(!isAdvancedFiltersOpen())" [class.active]="isAdvancedFiltersOpen()" style="padding: 8px 16px; border-radius: 12px; gap: 8px;" title="Filtres avancés">
+      <span class="material-symbols-outlined" style="font-size: 1.2rem;">tune</span>
+      <span class="hide-mobile">Filtres</span>
+      @if (selectedCategory() !== 'All' || selectedMonth() !== -1 || filterFavorite()) {
+        <span class="filter-badge" style="background: hsl(var(--primary-hsl)); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; margin-left: -4px;">!</span>
       }
-    </select>
-    <span class="material-symbols-outlined select-chevron">expand_more</span>
-  </div>
-
-  <!-- Favorite Filter -->
-  <div class="favorite-filter-toggle flex-center dashboard-fav-toggle">
-    <button 
-      (click)="filterFavorite.set(!filterFavorite())" 
-      [class.active]="filterFavorite()"
-      class="icon-btn fav-filter-btn" 
-      [title]="filterFavorite() ? (t9n.t('dashboard.filter_all') || 'Tous') : (t9n.t('dashboard.filter_favorites') || 'Favoris uniquement')">
-      <span class="material-symbols-outlined" [class.filled]="filterFavorite()">star</span>
     </button>
-  </div>
 
     <!-- View Mode Toggle -->
     <div class="view-mode-toggle flex-center">
@@ -204,6 +206,70 @@
         </button>
       }
     </div>
+  </div>
+
+  <!-- Advanced Filters Panel (Collapsible) -->
+  @if (isAdvancedFiltersOpen()) {
+    <div class="advanced-filters-panel" style="width: 100%; display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border-card); animation: slideDown 0.3s ease-out forwards; transform-origin: top;">
+      
+      <!-- Category Selection -->
+      <div class="month-selector-custom dashboard-cat-selector">
+        <span style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; display: block; padding-left: 4px;">Catégorie</span>
+        <div style="position: relative;">
+          <select class="custom-select-control" [value]="selectedCategory()" (change)="selectedCategory.set($any($event.target).value)" style="border-radius: 10px; padding: 10px 14px;">
+            @for (cat of categories; track cat) {
+            <option [value]="cat">
+              {{ t9n.t('categories.' + cat) || cat }}
+            </option>
+            }
+          </select>
+          <span class="material-symbols-outlined select-chevron">expand_more</span>
+        </div>
+      </div>
+
+      <!-- Month selection -->
+      <div class="month-selector-custom">
+        <span style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; display: block; padding-left: 4px;">Mois</span>
+        <div style="position: relative;">
+          <select 
+            class="custom-select-control" 
+            [ngModel]="selectedMonth()" 
+            (ngModelChange)="selectedMonth.set(+$event)" style="border-radius: 10px; padding: 10px 14px;">
+            <option [value]="-1">{{ t9n.t('dashboard.all_months') }}</option>
+            @for (m of months(); track m; let i = $index) {
+            <option [value]="i">{{ m }}</option>
+            }
+          </select>
+          <span class="material-symbols-outlined select-chevron">expand_more</span>
+        </div>
+      </div>
+
+      <!-- Favorite Filter -->
+      <div class="favorite-filter-container" style="display: flex; flex-direction: column; justify-content: flex-end;">
+        <span style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; display: block; padding-left: 4px;">Favoris</span>
+        <button 
+          (click)="filterFavorite.set(!filterFavorite())" 
+          [class.active]="filterFavorite()"
+          class="btn-secondary fav-filter-btn" 
+          [title]="filterFavorite() ? (t9n.t('dashboard.filter_all') || 'Tous') : (t9n.t('dashboard.filter_favorites') || 'Favoris uniquement')"
+          style="padding: 10px 16px; border-radius: 10px; gap: 8px;">
+          <span class="material-symbols-outlined" [class.filled]="filterFavorite()" style="color: #fbbf24;">star</span>
+          {{ filterFavorite() ? 'Favoris' : 'Tous' }}
+        </button>
+      </div>
+
+      <!-- Reset Filters -->
+      @if (selectedCategory() !== 'All' || selectedMonth() !== -1 || filterFavorite()) {
+        <div style="display: flex; flex-direction: column; justify-content: flex-end; margin-left: auto;">
+          <button class="btn-secondary text-error" (click)="selectedCategory.set('All'); selectedMonth.set(-1); filterFavorite.set(false)" style="padding: 10px 16px; border-radius: 10px; border: none; background: rgba(239, 68, 68, 0.1); color: #ef4444; gap: 8px;">
+            <span class="material-symbols-outlined">close</span>
+            Réinitialiser
+          </button>
+        </div>
+      }
+
+    </div>
+  }
 </div>
 
 <!-- ====== LIST VIEW ====== -->

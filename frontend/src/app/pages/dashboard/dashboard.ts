@@ -30,9 +30,12 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   toastService = inject(ToastService);
   private audioService = inject(AudioService);
   private notifService = inject(NotificationService);
-  private exportService = inject(ExportService);
+  exportService = inject(ExportService);
   private confettiService = inject(ConfettiService);
   authService = inject(AuthService);
+
+  isOptionsMenuOpen = signal<boolean>(false);
+  isAdvancedFiltersOpen = signal<boolean>(false);
 
   @ViewChild('confettiCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
   private cleanupConfetti?: () => void;
