@@ -55,7 +55,7 @@ import { ThemeService } from '../../services/theme.service';
               <div class="profile-backdrop" (click)="isProfileMenuOpen.set(false)" style="position: fixed; inset: 0; z-index: 99;"></div>
               
               <!-- Dropdown Box -->
-              <div class="profile-dropdown glass-card" style="position: absolute; right: 0; top: calc(100% + 10px); width: 280px; z-index: 100; padding: 8px; border-radius: 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+              <div class="profile-dropdown glass-card" style="position: absolute; right: 0; top: calc(100% + 10px); width: 280px; z-index: 100; padding: 8px; border-radius: 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); background: var(--bg-card); backdrop-filter: blur(20px);">
                 
                 <!-- User Info Header -->
                 <a routerLink="/dashboard/profile" class="dropdown-user-info dropdown-item-hover" (click)="isProfileMenuOpen.set(false)" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid var(--border-card); margin-bottom: 4px; text-decoration: none; color: var(--text-main); border-radius: 12px;">
