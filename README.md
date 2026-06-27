@@ -14,7 +14,7 @@ The system is split into the following layers:
 ### 1. `backend/` — Spring Boot 3.x & Java 21
 *   **Architecture:** Monolithic REST API.
 *   **Security:** Stateless JWT authentication with HTTP-Only Refresh Token Cookies and Bearer Access Tokens. See [Authentication Flow](#-authentication--session-management) below.
-*   **AI Integration:** Services for Google Gemini (Text generation) and Hugging Face (Image generation).
+*   **AI Integration:** Services using Pollinations.ai for free, zero-configuration Text and Image generation.
 *   **Task Scheduling:** Cron jobs for daily checks and reminder email dispatches via SMTP.
 
 ### 2. `frontend/` — Angular 18+ & Node 20
@@ -257,8 +257,8 @@ User presses F5:
 
 1.  **Reactive Dashboard:** Clear visualization with stats (total, today, this month, next 30 days) and advanced filters (text search, categories, month).
 2.  **Triple View Modes:** Grid mode (polished graphic cards), List mode (professional `Mat-Table` with sorting and pagination), and **Calendar View** (monthly calendar grid showing birthdays).
-3.  **AI-Powered Wish Generator:** Generate personalized birthday wishes using Google's Gemini AI, specifying tones (Friendly, Funny, Formal, Poetic) and custom instructions.
-4.  **AI Card Generator:** Generate custom birthday card images using Hugging Face's Stable Diffusion API (with graceful fallback when API is unconfigured).
+3.  **AI-Powered Wish Generator:** Generate personalized birthday wishes using Pollinations.ai, specifying tones (Friendly, Funny, Formal, Poetic) and custom instructions.
+4.  **AI Card Generator:** Generate custom birthday card images using Pollinations.ai directly.
 5.  **Custom Message Templates:** A complete template management system to save, edit, and reuse your favorite birthday messages.
 6.  **Rich Contact Profiles:** Full contact support with Email, WhatsApp integration, profile image uploads, and customizable age display toggles.
 7.  **Data Management:** Easily import and export your birthdays from/to CSV files, or export them to standard yearly recurring iCal `.ics` files for Google Calendar, Outlook, and Apple Calendar.
@@ -271,7 +271,7 @@ User presses F5:
 14. **SMTP Email Integration:** Automated reminder emails sent out via a real SMTP server integration using Spring Boot Mail.
 15. **Astrology & Zodiac:** Automatic calculation and display of Zodiac signs based on birthdates across all dashboard views.
 16. **Interests Management:** Seamlessly add and manage tags for personal interests within the contact details to keep track of their hobbies.
-17. **Gift Management & Secret Sharing:** Leverages Google's Gemini AI (with a smart local fallback engine) to generate personalized gift suggestions based on age, gender, category, and interests. Users can save gifts to a personal wishlist and generate a secure, public **Secret Sharing Link**. Friends and family can use this link to view the wishlist and anonymously reserve gifts without needing an account.
+17. **Gift Management & Secret Sharing:** Leverages AI (with a smart local fallback engine) to generate personalized gift suggestions based on age, gender, category, and interests. Users can save gifts to a personal wishlist and generate a secure, public **Secret Sharing Link**. Friends and family can use this link to view the wishlist and anonymously reserve gifts without needing an account.
 18. **Internationalization (i18n):** Full support for French, English, and German languages with dynamic switching.
 
 ---
@@ -434,19 +434,11 @@ You need to create **two** Web Services connected to your GitHub repository (Dir
 
 ---
 
-### 🤖 Step 4: External API Configuration (AI & Email)
+### 🤖 Step 4: External API Configuration (Email)
 
-To fully unlock the application's features, you need to provide API keys for the AI generators and an SMTP server for the reminder emails. Add these as **Environment Variables** in your Render Web Services (Staging and Production).
+To fully unlock the application's features, you need to provide an SMTP server for the reminder emails. Add these as **Environment Variables** in your Render Web Services (Staging and Production).
 
-#### 1. Google Gemini AI (Wish & Gift Generator)
-1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey).
-2. Create a free API Key.
-3. In Render, add: `GEMINI_API_KEY` = `your_google_api_key`
-
-#### 2. Hugging Face (Custom Card Generator)
-1. Go to [Hugging Face](https://huggingface.co/settings/tokens).
-2. Create a free "Read" Access Token.
-3. In Render, add: `HUGGINGFACE_API_KEY` = `your_hf_token`
+*(Note: The AI text and image generation features use Pollinations.ai and are 100% free and require zero configuration or API keys!)*
 
 #### 3. Free SMTP Email Provider (Brevo)
 We recommend **Brevo** (formerly Sendinblue) as it offers a generous free tier of **300 emails per day**, which is more than enough for birthday reminders.
