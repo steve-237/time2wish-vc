@@ -9,7 +9,7 @@ import app.time2wish.repository.UserRepository;
 import app.time2wish.scheduler.BirthdayReminderScheduler;
 import app.time2wish.security.UserDetailsImpl;
 import app.time2wish.service.BirthdayService;
-import app.time2wish.service.GeminiService;
+import app.time2wish.service.IAService;
 import app.time2wish.dto.GiftSuggestion;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
@@ -30,7 +30,7 @@ public class BirthdayController {
     private BirthdayService birthdayService;
 
     @Autowired
-    private GeminiService geminiService;
+    private IAService IAService;
 
     @Autowired
     private UserRepository userRepository;
@@ -163,11 +163,11 @@ public class BirthdayController {
             
             app.time2wish.dto.GiftSuggestionResponse response;
             if (user.getPlan() == app.time2wish.model.PlanType.BASIC) {
-                response = geminiService.generateLocalFallbackResponse(
+                response = IAService.generateLocalFallbackResponse(
                         birthday.getName(), age, birthday.getGender(), birthday.getCategory(), birthday.getInterests(), lang
                 );
             } else {
-                response = geminiService.generateGiftSuggestions(
+                response = IAService.generateGiftSuggestions(
                         birthday.getName(), age, birthday.getGender(), birthday.getCategory(), birthday.getInterests(), lang
                 );
             }

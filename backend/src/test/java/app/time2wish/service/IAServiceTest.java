@@ -16,10 +16,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-class GeminiServiceTest {
+class IAServiceTest {
 
     @InjectMocks
-    private GeminiService geminiService;
+    private IAService IAService;
 
     @Mock
     private RestTemplate restTemplate;
@@ -28,7 +28,7 @@ class GeminiServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         // Inject the mocked RestTemplate into the service since it's instantiated directly
-        ReflectionTestUtils.setField(geminiService, "restTemplate", restTemplate);
+        ReflectionTestUtils.setField(IAService, "restTemplate", restTemplate);
     }
 
     @Test
@@ -36,7 +36,7 @@ class GeminiServiceTest {
         String mockResponse = "Happy Birthday, test user!";
         when(restTemplate.getForObject(anyString(), eq(String.class))).thenReturn(mockResponse);
 
-        String result = geminiService.generateWish("Steve", 30, "Friend", "Likes coding", "funny", "en", null);
+        String result = IAService.generateWish("Steve", 30, "Friend", "Likes coding", "funny", "en", null);
 
         assertNotNull(result);
         assertEquals(mockResponse, result);
@@ -46,7 +46,7 @@ class GeminiServiceTest {
     void testGenerateWish_FallbackOnError() {
         when(restTemplate.getForObject(anyString(), eq(String.class))).thenThrow(new RuntimeException("API error"));
 
-        String result = geminiService.generateWish("Steve", 30, "Friend", "Likes coding", "funny", "en", null);
+        String result = IAService.generateWish("Steve", 30, "Friend", "Likes coding", "funny", "en", null);
 
         assertNotNull(result);
         assertTrue(result.contains("Happy birthday"));
@@ -68,7 +68,7 @@ class GeminiServiceTest {
                 "```";
         when(restTemplate.getForObject(anyString(), eq(String.class))).thenReturn(mockJsonResponse);
 
-        GiftSuggestionResponse response = geminiService.generateGiftSuggestions("Steve", 30, "Male", "Friend", List.of("coding"), "en");
+        GiftSuggestionResponse response = IAService.generateGiftSuggestions("Steve", 30, "Male", "Friend", List.of("coding"), "en");
 
         assertNotNull(response);
         assertEquals("AI", response.getSource());
@@ -80,7 +80,7 @@ class GeminiServiceTest {
     void testGenerateGiftSuggestions_FallbackOnError() {
         when(restTemplate.getForObject(anyString(), eq(String.class))).thenThrow(new RuntimeException("API error"));
 
-        GiftSuggestionResponse response = geminiService.generateGiftSuggestions("Steve", 30, "Male", "Friend", List.of("coding"), "en");
+        GiftSuggestionResponse response = IAService.generateGiftSuggestions("Steve", 30, "Male", "Friend", List.of("coding"), "en");
 
         assertNotNull(response);
         assertEquals("LOCAL", response.getSource());

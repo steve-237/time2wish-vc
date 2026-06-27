@@ -7,7 +7,7 @@ import app.time2wish.model.Birthday;
 import app.time2wish.model.User;
 import app.time2wish.repository.UserRepository;
 import app.time2wish.service.BirthdayService;
-import app.time2wish.service.GeminiService;
+import app.time2wish.service.IAService;
 import app.time2wish.service.ImageGenerationService;
 import app.time2wish.security.UserDetailsImpl;
 import app.time2wish.dto.AiCardRequest;
@@ -26,7 +26,7 @@ import java.time.Period;
 public class AiController {
 
     @Autowired
-    private GeminiService geminiService;
+    private IAService IAService;
 
     @Autowired
     private ImageGenerationService imageGenerationService;
@@ -69,7 +69,7 @@ public class AiController {
 
         String lang = request.getLang() != null ? request.getLang() : "fr";
 
-        String wish = geminiService.generateWish(
+        String wish = IAService.generateWish(
                 birthday.getName(),
                 age,
                 birthday.getCategory(),

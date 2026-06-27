@@ -10,12 +10,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 
 @Service
-public class GeminiService {
+public class IAService {
 
-    @Value("${app.gemini.api-key:}")
+    @Value("${app.IA.api-key:}")
     private String apiKey;
 
-    @Value("${app.gemini.model:gemini-1.5-flash}")
+    @Value("${app.IA.model:IA-1.5-flash}")
     private String model;
 
     private final RestTemplate restTemplate = new RestTemplate();
