@@ -21,44 +21,18 @@ public class GeminiService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public String generateWish(String name, Integer age, String category, String notes, String tone, String lang, String extraInstructions) {
-        if (apiKey == null || apiKey.trim().isEmpty()) {
-            return generateLocalFallback(name, age, category, notes, tone, lang, extraInstructions);
-        }
-
         String prompt = buildPrompt(name, age, category, notes, tone, lang, extraInstructions);
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
 
         try {
-            // Build request payload for Gemini API
-            Map<String, Object> requestBody = new HashMap<>();
+            String encodedPrompt = java.net.URLEncoder.encode(prompt, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
+            String url = "https://text.pollinations.ai/" + encodedPrompt;
             
-            Map<String, Object> textPart = new HashMap<>();
-            textPart.put("text", prompt);
-            
-            Map<String, Object> partsContainer = new HashMap<>();
-            partsContainer.put("parts", List.of(textPart));
-            
-            requestBody.put("contents", List.of(partsContainer));
-
-            // Call API
-            Map<String, Object> response = restTemplate.postForObject(url, requestBody, Map.class);
-            if (response != null) {
-                List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.get("candidates");
-                if (candidates != null && !candidates.isEmpty()) {
-                    Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
-                    if (content != null) {
-                        List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
-                        if (parts != null && !parts.isEmpty()) {
-                            String generatedText = (String) parts.get(0).get("text");
-                            if (generatedText != null) {
-                                return generatedText.trim();
-                            }
-                        }
-                    }
-                }
+            String generatedText = restTemplate.getForObject(url, String.class);
+            if (generatedText != null && !generatedText.trim().isEmpty()) {
+                return generatedText.trim();
             }
         } catch (Exception e) {
-            System.err.println("Error calling Gemini API: " + e.getMessage());
+            System.err.println("Error calling Pollinations AI for text: " + e.getMessage());
         }
 
         // Fallback if API fails
@@ -130,10 +104,6 @@ public class GeminiService {
     }
 
     public GiftSuggestionResponse generateGiftSuggestions(String name, Integer age, String gender, String category, List<String> interests, String lang) {
-        if (apiKey == null || apiKey.trim().isEmpty()) {
-            return new GiftSuggestionResponse(generateLocalFallbackGifts(name, age, gender, category, interests, lang), "LOCAL");
-        }
-
         StringBuilder prompt = new StringBuilder();
         prompt.append("Suggest 3 gift ideas for a person with the following details:\n");
         prompt.append("- Name: ").append(name).append("\n");
@@ -156,47 +126,30 @@ public class GeminiService {
         prompt.append("- purchaseLink: an example search link\n");
         prompt.append("- preparationTips: how to present it or why it's a good idea\n");
 
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
-
         try {
-            Map<String, Object> requestBody = new HashMap<>();
-            Map<String, Object> textPart = new HashMap<>();
-            textPart.put("text", prompt.toString());
-            Map<String, Object> partsContainer = new HashMap<>();
-            partsContainer.put("parts", List.of(textPart));
-            requestBody.put("contents", List.of(partsContainer));
+            String encodedPrompt = java.net.URLEncoder.encode(prompt.toString(), java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
+            String url = "https://text.pollinations.ai/" + encodedPrompt;
 
-            Map<String, Object> response = restTemplate.postForObject(url, requestBody, Map.class);
-            if (response != null) {
-                List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.get("candidates");
-                if (candidates != null && !candidates.isEmpty()) {
-                    Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
-                    if (content != null) {
-                        List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
-                        if (parts != null && !parts.isEmpty()) {
-                            String generatedText = (String) parts.get(0).get("text");
-                            if (generatedText != null) {
-                                generatedText = generatedText.trim();
-                                if (generatedText.startsWith("```json")) {
-                                    generatedText = generatedText.substring(7);
-                                }
-                                if (generatedText.startsWith("```")) {
-                                    generatedText = generatedText.substring(3);
-                                }
-                                if (generatedText.endsWith("```")) {
-                                    generatedText = generatedText.substring(0, generatedText.length() - 3);
-                                }
-                                generatedText = generatedText.trim();
-                                ObjectMapper mapper = new ObjectMapper();
-                                List<GiftSuggestion> suggestions = mapper.readValue(generatedText, new TypeReference<List<GiftSuggestion>>() {});
-                                return new GiftSuggestionResponse(suggestions, "AI");
-                            }
-                        }
-                    }
+            String generatedText = restTemplate.getForObject(url, String.class);
+            
+            if (generatedText != null && !generatedText.trim().isEmpty()) {
+                generatedText = generatedText.trim();
+                if (generatedText.startsWith("```json")) {
+                    generatedText = generatedText.substring(7);
                 }
+                if (generatedText.startsWith("```")) {
+                    generatedText = generatedText.substring(3);
+                }
+                if (generatedText.endsWith("```")) {
+                    generatedText = generatedText.substring(0, generatedText.length() - 3);
+                }
+                generatedText = generatedText.trim();
+                ObjectMapper mapper = new ObjectMapper();
+                List<GiftSuggestion> suggestions = mapper.readValue(generatedText, new TypeReference<List<GiftSuggestion>>() {});
+                return new GiftSuggestionResponse(suggestions, "AI");
             }
         } catch (Exception e) {
-            System.err.println("Error calling Gemini API for gift suggestions: " + e.getMessage());
+            System.err.println("Error calling Pollinations AI for gift suggestions: " + e.getMessage());
         }
 
         return new GiftSuggestionResponse(generateLocalFallbackGifts(name, age, gender, category, interests, lang), "LOCAL");
