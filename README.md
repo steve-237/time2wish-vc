@@ -440,16 +440,15 @@ To fully unlock the application's features, you need to provide an SMTP server f
 
 *(Note: The AI text and image generation features use Pollinations.ai and are 100% free and require zero configuration or API keys!)*
 
-#### 3. Free SMTP Email Provider (Brevo)
-We recommend **Brevo** (formerly Sendinblue) as it offers a generous free tier of **300 emails per day**, which is more than enough for birthday reminders.
-1. Create a free account on [Brevo.com](https://www.brevo.com/).
-2. Go to your Account Menu (top right) > **SMTP & API**.
-3. Under the **SMTP** tab, generate a new SMTP key.
-4. In Render, add the following variables:
-   - `SMTP_HOST` = `smtp-relay.brevo.com`
-   - `SMTP_PORT` = `587`
-   - `SMTP_USER` = `your_brevo_login_email`
-   - `SMTP_PASSWORD` = `your_generated_smtp_key`
+#### 3. Free SMTP Email Provider (Resend)
+We recommend **Resend** as it is a modern, developer-friendly email API offering a generous free tier of **3,000 emails per month**.
+1. Create a free account on [Resend.com](https://resend.com/).
+2. Go to **API Keys** and create a new key. This key will act as your SMTP password.
+3. In Render, add the following variables:
+   - `SMTP_HOST` = `smtp.resend.com`
+   - `SMTP_PORT` = `465`
+   - `SMTP_USER` = `resend`
+   - `SMTP_PASSWORD` = `your_resend_api_key`
 
 ---
 
