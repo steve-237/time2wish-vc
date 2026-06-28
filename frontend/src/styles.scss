@@ -682,28 +682,10 @@ body.oled-theme .mat-mdc-paginator .mat-mdc-icon-button:hover:not([disabled]) {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-.select-chevron {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  pointer-events: none;
-  font-size: 1.2rem !important;
-  transition: transform 0.2s ease;
-}
-
-.custom-select-control:focus ~ .select-chevron {
-  transform: translateY(-50%) rotate(180deg);
-  color: hsl(var(--primary-hsl));
-}
-
 /* ====== Global Native <select> Normalization ====== */
-/* Applies a CSS-only chevron to select.floating-input elements that
-   do NOT have a sibling HTML chevron icon. select.custom-select-control
-   already uses an HTML <span class="select-chevron"> so it is excluded. */
 
-select.floating-input {
+select.floating-input,
+select.custom-select-control {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -716,17 +698,22 @@ select.floating-input {
   transition: all 0.2s ease;
 }
 
-select.floating-input:focus {
+select.floating-input:focus,
+select.custom-select-control:focus {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
 }
 
 body.dark-theme select.floating-input,
-body.oled-theme select.floating-input {
+body.oled-theme select.floating-input,
+body.dark-theme select.custom-select-control,
+body.oled-theme select.custom-select-control {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
 }
 
 body.dark-theme select.floating-input:focus,
-body.oled-theme select.floating-input:focus {
+body.oled-theme select.floating-input:focus,
+body.dark-theme select.custom-select-control:focus,
+body.oled-theme select.custom-select-control:focus {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%237c3aed' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
 }
 

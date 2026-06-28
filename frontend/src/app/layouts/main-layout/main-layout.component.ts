@@ -54,7 +54,7 @@ import { ThemeService } from '../../services/theme.service';
               <!-- Removed backdrop in favor of HostListener -->
               
               <!-- Dropdown Box -->
-              <div class="profile-dropdown" style="position: absolute; right: 0; top: calc(100% + 10px); width: 280px; z-index: 100; padding: 8px; border-radius: 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); background: var(--bg-dropdown); border: 1px solid var(--border-card);">
+              <div class="profile-dropdown" style="position: absolute; right: 0; top: calc(100% + 10px); width: 280px; z-index: 100; padding: 8px; border-radius: 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); background: var(--bg-card); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid var(--border-card);">
                 
                 <!-- User Info Header -->
                 <a routerLink="/dashboard/profile" class="dropdown-user-info dropdown-item-hover" (click)="isProfileMenuOpen.set(false)" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid var(--border-card); margin-bottom: 4px; text-decoration: none; color: var(--text-main); border-radius: 12px;">
