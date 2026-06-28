@@ -211,9 +211,17 @@ export class BirthdayDetail implements OnInit {
       },
       error: (err) => {
         console.error('Failed to generate gifts', err);
-        this.toastService.error('Erreur technique (voir console).');
+        if (err.status === 429) {
+          this.toastService.error(err.error.message || "Génération bloquée par le délai.");
+          this.authService.refreshSession().subscribe();
+        } else if (err.status === 403) {
+          this.toastService.info("La génération d'idées de cadeaux nécessite le forfait PLUS ou PREMIUM.");
+          this.uiService.isPricingModalOpen.set(true);
+        } else {
+          this.toastService.error('Erreur technique (voir console).');
+          this.aiError.set(true);
+        }
         this.isGeneratingGifts.set(false);
-        this.aiError.set(true);
       }
     });
   }

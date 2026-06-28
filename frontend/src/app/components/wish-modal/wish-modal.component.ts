@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, inject, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -49,9 +49,25 @@ export class WishModalComponent implements OnInit {
     return this.authService.currentUser()?.plan || 'BASIC';
   }
 
+  aiCountdown = computed(() => {
+    const user = this.authService.currentUser();
+    if (!user || user.plan !== 'BASIC' || !user.lastAiWishGeneration) return null;
+    
+    const lastGen = new Date(user.lastAiWishGeneration);
+    const nextGen = new Date(lastGen.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    
+    if (now >= nextGen) return null;
+    
+    const diff = nextGen.getTime() - now.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    
+    return `${days}j ${hours}h`;
+  });
+
   ngOnInit() {
-    // Generate default AI wish on init if plan allows
-    if (this.userPlan !== 'BASIC') {
+    if (this.userPlan !== 'BASIC' || !this.aiCountdown()) {
       this.generateAiWish();
     } else {
       this.selectedMode.set('custom');
@@ -64,12 +80,8 @@ export class WishModalComponent implements OnInit {
     this.updateCustomTemplateMessage();
   }
 
-  // Generate wish via Backend AI API
   generateAiWish() {
-    if (this.userPlan === 'BASIC') {
-      this.toastService.info("La génération magique par IA nécessite le forfait PLUS.");
-      this.uiService.isPricingModalOpen.set(true);
-      this.selectedMode.set('custom');
+    if (this.userPlan === 'BASIC' && this.aiCountdown()) {
       return;
     }
 
@@ -83,11 +95,23 @@ export class WishModalComponent implements OnInit {
       next: (res) => {
         this.customMessage = res.message;
         this.isGenerating.set(false);
+        if (this.userPlan === 'BASIC') {
+          // Update session to fetch the new lastAiWishGeneration
+          this.authService.refreshSession().subscribe();
+        }
       },
       error: (err) => {
         console.error('Failed to generate AI wish', err);
-        // Fallback locally
-        this.customMessage = this.generateLocalFallback(this.aiTone());
+        if (err.status === 429) {
+          this.toastService.error(err.error.message || "Génération bloquée par le délai.");
+          this.authService.refreshSession().subscribe();
+        } else if (err.status === 403) {
+          this.toastService.info("La génération magique par IA nécessite le forfait PLUS.");
+          this.uiService.isPricingModalOpen.set(true);
+        } else {
+          // Fallback locally
+          this.customMessage = this.generateLocalFallback(this.aiTone());
+        }
         this.isGenerating.set(false);
       }
     });

@@ -7,6 +7,8 @@ export interface User {
   status: string;
   roles?: string[];
   plan?: string;
+  lastAiWishGeneration?: string;
+  lastAiGiftGeneration?: string;
 }
 
 export type BirthdayCategory = 'Family' | 'Friend' | 'Work' | 'Other';

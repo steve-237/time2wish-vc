@@ -18,4 +18,6 @@ public class JwtResponse {
     private String avatarUrl;
     private java.util.List<String> roles;
     private String plan;
+    private java.time.LocalDateTime lastAiWishGeneration;
+    private java.time.LocalDateTime lastAiGiftGeneration;
 }

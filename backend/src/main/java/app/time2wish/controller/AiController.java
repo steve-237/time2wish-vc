@@ -50,7 +50,15 @@ public class AiController {
         User user = getAuthenticatedUser(userDetails);
         
         if (user.getPlan() == app.time2wish.model.PlanType.BASIC) {
-            return ResponseEntity.status(403).body(new MessageResponse("La génération de texte nécessite le forfait PLUS."));
+            java.time.LocalDateTime lastGen = user.getLastAiWishGeneration();
+            if (lastGen != null && lastGen.plusDays(7).isAfter(java.time.LocalDateTime.now())) {
+                java.time.Duration duration = java.time.Duration.between(java.time.LocalDateTime.now(), lastGen.plusDays(7));
+                long days = duration.toDays();
+                long hours = duration.toHoursPart();
+                return ResponseEntity.status(429).body(new MessageResponse(String.format("Prochaine génération disponible dans %dj %dh", days, hours)));
+            }
+            user.setLastAiWishGeneration(java.time.LocalDateTime.now());
+            userRepository.save(user);
         }
         
         // Retrieve birthday and check owner

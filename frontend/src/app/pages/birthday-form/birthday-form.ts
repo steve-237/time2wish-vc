@@ -8,6 +8,8 @@ import { BirthdayCategory } from '../../models/birthday.model';
 import { AudioService } from '../../services/audio.service';
 import { NotificationService } from '../../services/notification.service';
 import { ImageUploadComponent } from '../../components/image-upload/image-upload.component';
+import { AuthService } from '../../services/auth.service';
+import { UiService } from '../../services/ui.service';
 
 @Component({
   selector: 'app-birthday-form',
@@ -23,6 +25,12 @@ export class BirthdayForm implements OnInit {
   route = inject(ActivatedRoute);
   private audioService = inject(AudioService);
   private notifService = inject(NotificationService);
+  private authService = inject(AuthService);
+  uiService = inject(UiService);
+
+  get userPlan() {
+    return this.authService.currentUser()?.plan || 'BASIC';
+  }
 
   isEditMode = signal<boolean>(false);
   birthdayId = signal<number | null>(null);

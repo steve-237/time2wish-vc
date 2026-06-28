@@ -24,7 +24,7 @@
   </div>
 
   <!-- Pie Chart: Birthdays by Gender -->
-  <div class="glass-card chart-card">
+  <div class="glass-card chart-card" [class.locked-chart]="userPlan === 'BASIC'">
     <h3 class="chart-title">Répartition par Genre</h3>
     <div class="chart-wrapper">
       <canvas baseChart
@@ -33,10 +33,17 @@
               [type]="'pie'">
       </canvas>
     </div>
+    @if (userPlan === 'BASIC') {
+      <div class="lock-overlay">
+        <span class="material-symbols-outlined">lock</span>
+        <p>Forfait PLUS requis</p>
+        <button class="btn-premium" (click)="uiService.isPricingModalOpen.set(true)">Débloquer</button>
+      </div>
+    }
   </div>
 
   <!-- Bar Chart: Age Distribution -->
-  <div class="glass-card chart-card">
+  <div class="glass-card chart-card" [class.locked-chart]="userPlan === 'BASIC'">
     <h3 class="chart-title">Répartition par Âge</h3>
     <div class="chart-wrapper">
       <canvas baseChart
@@ -45,10 +52,17 @@
               [type]="'bar'">
       </canvas>
     </div>
+    @if (userPlan === 'BASIC') {
+      <div class="lock-overlay">
+        <span class="material-symbols-outlined">lock</span>
+        <p>Forfait PLUS requis</p>
+        <button class="btn-premium" (click)="uiService.isPricingModalOpen.set(true)">Débloquer</button>
+      </div>
+    }
   </div>
 
   <!-- Polar Area Chart: Zodiac Signs -->
-  <div class="glass-card chart-card">
+  <div class="glass-card chart-card" [class.locked-chart]="userPlan !== 'PREMIUM'">
     <h3 class="chart-title">Signes Astrologiques</h3>
     <div class="chart-wrapper">
       <canvas baseChart
@@ -57,10 +71,17 @@
               [type]="'polarArea'">
       </canvas>
     </div>
+    @if (userPlan !== 'PREMIUM') {
+      <div class="lock-overlay">
+        <span class="material-symbols-outlined">workspace_premium</span>
+        <p>Forfait PREMIUM requis</p>
+        <button class="btn-premium" (click)="uiService.isPricingModalOpen.set(true)">Débloquer</button>
+      </div>
+    }
   </div>
 
   <!-- Horizontal Bar Chart: Top Interests -->
-  <div class="glass-card chart-card">
+  <div class="glass-card chart-card" [class.locked-chart]="userPlan !== 'PREMIUM'">
     <h3 class="chart-title">Centres d'intérêt (Top 7)</h3>
     <div class="chart-wrapper">
       <canvas baseChart
@@ -69,10 +90,17 @@
               [type]="'bar'">
       </canvas>
     </div>
+    @if (userPlan !== 'PREMIUM') {
+      <div class="lock-overlay">
+        <span class="material-symbols-outlined">workspace_premium</span>
+        <p>Forfait PREMIUM requis</p>
+        <button class="btn-premium" (click)="uiService.isPricingModalOpen.set(true)">Débloquer</button>
+      </div>
+    }
   </div>
 
   <!-- Radar Chart: Jours de Naissance -->
-  <div class="glass-card chart-card">
+  <div class="glass-card chart-card" [class.locked-chart]="userPlan !== 'PREMIUM'">
     <h3 class="chart-title">Jours de Naissance</h3>
     <div class="chart-wrapper">
       <canvas baseChart
@@ -81,10 +109,17 @@
               [type]="'radar'">
       </canvas>
     </div>
+    @if (userPlan !== 'PREMIUM') {
+      <div class="lock-overlay">
+        <span class="material-symbols-outlined">workspace_premium</span>
+        <p>Forfait PREMIUM requis</p>
+        <button class="btn-premium" (click)="uiService.isPricingModalOpen.set(true)">Débloquer</button>
+      </div>
+    }
   </div>
 
   <!-- Doughnut Chart: Paramètres de Rappel -->
-  <div class="glass-card chart-card">
+  <div class="glass-card chart-card" [class.locked-chart]="userPlan !== 'PREMIUM'">
     <h3 class="chart-title">Paramètres de Rappel</h3>
     <div class="chart-wrapper">
       <canvas baseChart
@@ -93,10 +128,17 @@
               [type]="'doughnut'">
       </canvas>
     </div>
+    @if (userPlan !== 'PREMIUM') {
+      <div class="lock-overlay">
+        <span class="material-symbols-outlined">workspace_premium</span>
+        <p>Forfait PREMIUM requis</p>
+        <button class="btn-premium" (click)="uiService.isPricingModalOpen.set(true)">Débloquer</button>
+      </div>
+    }
   </div>
 
   <!-- Pie Chart: Favoris -->
-  <div class="glass-card chart-card">
+  <div class="glass-card chart-card" [class.locked-chart]="userPlan !== 'PREMIUM'">
     <h3 class="chart-title">Contacts Favoris</h3>
     <div class="chart-wrapper">
       <canvas baseChart
@@ -105,5 +147,12 @@
               [type]="'pie'">
       </canvas>
     </div>
+    @if (userPlan !== 'PREMIUM') {
+      <div class="lock-overlay">
+        <span class="material-symbols-outlined">workspace_premium</span>
+        <p>Forfait PREMIUM requis</p>
+        <button class="btn-premium" (click)="uiService.isPricingModalOpen.set(true)">Débloquer</button>
+      </div>
+    }
   </div>
 </div>

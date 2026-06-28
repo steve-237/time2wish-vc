@@ -53,10 +53,17 @@ public class TemplateController {
     }
 
     @PostMapping
-    public ResponseEntity<TemplateResponse> createTemplate(
+    public ResponseEntity<?> createTemplate(
             @Valid @RequestBody TemplateRequest request,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         User user = getAuthenticatedUser(userDetails);
+
+        long currentCount = templateRepository.findByUser(user).size();
+        if (user.getPlan() == app.time2wish.model.PlanType.BASIC && currentCount >= 1) {
+            return ResponseEntity.status(403).body(new MessageResponse("Plan limit reached (1 max for BASIC)"));
+        } else if (user.getPlan() == app.time2wish.model.PlanType.PLUS && currentCount >= 5) {
+            return ResponseEntity.status(403).body(new MessageResponse("Plan limit reached (5 max for PLUS)"));
+        }
 
         MessageTemplate template = new MessageTemplate(
                 user,

@@ -4,6 +4,25 @@ Time2Wish is a modern and premium web application designed to help you track, or
 
 ---
 
+## 🎉 Latest Release (v1.3.0) - The "Premium Limitations & Quotas" Update
+
+In this release, we've implemented the comprehensive subscription model and its associated AI quotas to balance the load and provide a premium experience.
+
+### 🔒 Core Features & Limitations
+*   **AI Rate Limiting (Backend):**
+    *   **BASIC Plan:** 1 AI Birthday Wish generation per week. AI Gift ideas are locked.
+    *   **PLUS Plan:** 1 AI Gift generation per month. AI Wishes are unlocked.
+    *   **PREMIUM Plan:** Unlimited AI generation.
+*   **Dynamic Countdowns:** The UI now displays a dynamic countdown for AI features when the quota is reached, keeping the user informed of when their next generation is available.
+*   **Dashboard Enhancements:** Advanced dashboard statistics (Charts) are now exclusively available for PREMIUM users, utilizing an elegant glassmorphism blur overlay (`.locked-chart`) to tease the feature.
+*   **Contact Profile Restrictions:** 
+    *   BASIC users can only set reminders for D-Day and are limited to 3 favorite contacts.
+    *   Custom photo uploads are now locked behind the PLUS plan.
+*   **Gift Management:** Complete CRUD interface added for manual gift management within the detailed birthday view.
+*   **Bug Fix:** Resolved the "Page Blanche" staging issue on Vercel caused by Angular 17+'s new `dist/frontend/browser` output directory architecture.
+
+---
+
 ## 🛠️ Project Architecture
 
 **Architecture Type:** **Containerized Monolithic REST API with a Standalone SPA (Single Page Application)**.

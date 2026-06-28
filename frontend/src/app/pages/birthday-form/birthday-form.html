@@ -31,7 +31,18 @@
         <!-- Photo -->
         <div class="form-photo-upload full-width-upload mb-24">
           <label class="form-section-title">{{ t9n.t('form.photo_url') }}</label>
-          <app-image-upload [currentImageUrl]="photoUrl()" (imageUrlChange)="photoUrl.set($event)"></app-image-upload>
+          @if (userPlan === 'BASIC') {
+            <div class="glass-card" style="padding: 16px; display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.05);">
+              <span class="material-symbols-outlined" style="color: #fbbf24; font-size: 24px;">lock</span>
+              <div style="flex: 1;">
+                <p style="margin: 0; font-weight: 500; color: var(--text-main);">Photo personnalisée</p>
+                <p style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-muted);">Forfait PLUS requis pour télécharger des photos.</p>
+              </div>
+              <button type="button" class="btn-premium" style="padding: 6px 12px; font-size: 0.85rem;" (click)="uiService?.isPricingModalOpen?.set(true)">Débloquer</button>
+            </div>
+          } @else {
+            <app-image-upload [currentImageUrl]="photoUrl()" (imageUrlChange)="photoUrl.set($event)"></app-image-upload>
+          }
         </div>
 
         <div class="form-row form-identity-row">
@@ -173,10 +184,10 @@
                 (ngModelChange)="reminderDays.set(+$event)"
                 name="reminderDays">
                 <option [value]="0">{{ t9n.t('form.reminder_0') }}</option>
-                <option [value]="1">{{ t9n.t('form.reminder_1') }}</option>
-                <option [value]="3">{{ t9n.t('form.reminder_3') }}</option>
-                <option [value]="7">{{ t9n.t('form.reminder_7') }}</option>
-                <option [value]="14">{{ t9n.t('form.reminder_14') }}</option>
+                <option [value]="1" [disabled]="userPlan === 'BASIC'">{{ t9n.t('form.reminder_1') }} {{ userPlan === 'BASIC' ? '🔒 (PLUS)' : '' }}</option>
+                <option [value]="3" [disabled]="userPlan === 'BASIC' || userPlan === 'PLUS'">{{ t9n.t('form.reminder_3') }} {{ userPlan === 'BASIC' || userPlan === 'PLUS' ? '🔒 (PREMIUM)' : '' }}</option>
+                <option [value]="7" [disabled]="userPlan === 'BASIC' || userPlan === 'PLUS'">{{ t9n.t('form.reminder_7') }} {{ userPlan === 'BASIC' || userPlan === 'PLUS' ? '🔒 (PREMIUM)' : '' }}</option>
+                <option [value]="14" [disabled]="userPlan === 'BASIC' || userPlan === 'PLUS'">{{ t9n.t('form.reminder_14') }} {{ userPlan === 'BASIC' || userPlan === 'PLUS' ? '🔒 (PREMIUM)' : '' }}</option>
               </select>
               <span class="material-symbols-outlined select-chevron">expand_more</span>
             </div>

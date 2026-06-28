@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { effect } from '@angular/core';
 import { ToastService } from './toast.service';
 import { TranslationService } from './translation.service';
+import { UiService } from './ui.service';
 import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root'
@@ -14,6 +15,7 @@ export class BirthdayService {
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
   private readonly t9n = inject(TranslationService);
+  private readonly uiService = inject(UiService);
   private readonly API_URL = environment.apiUrl + '/birthdays';
 
   // Signals
@@ -130,7 +132,12 @@ export class BirthdayService {
       },
       error: (err) => {
         console.error('Failed to create birthday via API', err);
-        this.toastService.error(this.t9n.t('toasts.import_error'));
+        if (err.status === 403) {
+          this.toastService.info("Limite atteinte pour votre forfait. Veuillez passer au forfait supérieur.");
+          this.uiService.isPricingModalOpen.set(true);
+        } else {
+          this.toastService.error(this.t9n.t('toasts.import_error'));
+        }
       }
     });
   }
@@ -158,7 +165,12 @@ export class BirthdayService {
       },
       error: (err) => {
         console.error('Failed to update birthday via API', err);
-        this.toastService.error(this.t9n.t('toasts.import_error'));
+        if (err.status === 403) {
+          this.toastService.info("Action non permise pour votre forfait. Veuillez passer au forfait supérieur.");
+          this.uiService.isPricingModalOpen.set(true);
+        } else {
+          this.toastService.error(this.t9n.t('toasts.import_error'));
+        }
       }
     });
   }

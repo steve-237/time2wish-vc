@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TemplateService } from '../../services/template.service';
 import { TranslationService } from '../../services/translation.service';
+import { ToastService } from '../../services/toast.service';
+import { UiService } from '../../services/ui.service';
 import { MessageTemplate } from '../../models/template.model';
 
 @Component({
@@ -16,6 +18,8 @@ import { MessageTemplate } from '../../models/template.model';
 export class TemplateManagerComponent {
   templateService = inject(TemplateService);
   t9n = inject(TranslationService);
+  toastService = inject(ToastService);
+  uiService = inject(UiService);
 
   @Output() close = new EventEmitter<void>();
 
@@ -81,11 +85,27 @@ export class TemplateManagerComponent {
 
     if (this.isEditing() && this.editingId() !== null) {
       this.templateService.updateTemplate(this.editingId()!, payload).subscribe({
-        next: () => this.resetForm()
+        next: () => this.resetForm(),
+        error: (err) => {
+          if (err.status === 403) {
+            this.toastService.info("Limite de modèles atteinte. Passez au forfait supérieur.");
+            this.uiService.isPricingModalOpen.set(true);
+          } else {
+            this.toastService.error("Erreur lors de la mise à jour.");
+          }
+        }
       });
     } else {
       this.templateService.createTemplate(payload).subscribe({
-        next: () => this.resetForm()
+        next: () => this.resetForm(),
+        error: (err) => {
+          if (err.status === 403) {
+            this.toastService.info("Limite de modèles atteinte. Passez au forfait supérieur.");
+            this.uiService.isPricingModalOpen.set(true);
+          } else {
+            this.toastService.error("Erreur lors de la création.");
+          }
+        }
       });
     }
   }

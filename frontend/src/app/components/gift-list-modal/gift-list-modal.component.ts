@@ -1,5 +1,5 @@
 import { TranslationService } from '../../services/translation.service';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Birthday, Gift } from '../../models/birthday.model';
@@ -43,6 +43,22 @@ export class GiftListModalComponent {
   get userPlan() {
     return this.authService.currentUser()?.plan || 'BASIC';
   }
+
+  aiGiftCountdown = computed(() => {
+    const user = this.authService.currentUser();
+    if (!user || user.plan !== 'PLUS' || !user.lastAiGiftGeneration) return null;
+    
+    const lastGen = new Date(user.lastAiGiftGeneration);
+    const nextGen = new Date(lastGen.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    
+    if (now >= nextGen) return null;
+    
+    const diff = nextGen.getTime() - now.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    return `${days}j`;
+  });
 
   onDelete(giftId: number) {
     this.deleteGift.emit(giftId);

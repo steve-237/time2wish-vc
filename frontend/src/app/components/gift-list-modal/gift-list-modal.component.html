@@ -135,16 +135,28 @@
 
       @if (activeTab === 'ai') {
         <div style="text-align: center; margin-bottom: 24px;">
-          <button class="btn-premium gift-btn" (click)="generateGifts.emit()" [disabled]="isGeneratingGifts" style="padding: 12px 24px; font-size: 1rem; position: relative;">
-            <span class="material-symbols-outlined" [class.rotating]="isGeneratingGifts">
-              {{ isGeneratingGifts ? 'autorenew' : 'auto_awesome' }}
-            </span>
-            {{ isGeneratingGifts ? (t9n.t('gifts.generating') || 'Génération en cours...') : (t9n.t('gifts.generate_ai') || 'Générer avec l\'IA') }}
-            @if (userPlan !== 'PREMIUM') { <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24; position: absolute; top: 8px; right: 8px;">lock</span> }
-          </button>
-          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">
-            {{ t9n.t('gifts.ai_info', birthday.name) || 'L\'IA va analyser les centres d\'intérêt pour trouver des idées parfaites.' }}
-          </p>
+          @if (userPlan === 'PLUS' && aiGiftCountdown()) {
+            <div class="countdown-banner glass-card" style="margin-bottom: 1rem; padding: 1rem; border-left: 4px solid #fbbf24; background: rgba(251, 191, 36, 0.1); text-align: left;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <span class="material-symbols-outlined" style="color: #fbbf24;">hourglass_bottom</span>
+                <span style="font-weight: 600; color: var(--text-color);">Essai terminé (1/mois)</span>
+              </div>
+              <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">
+                Prochaine génération d'idées cadeaux IA disponible dans : <strong style="color: #fbbf24;">{{ aiGiftCountdown() }}</strong>
+              </p>
+            </div>
+          } @else {
+            <button class="btn-premium gift-btn" (click)="generateGifts.emit()" [disabled]="isGeneratingGifts" style="padding: 12px 24px; font-size: 1rem; position: relative;">
+              <span class="material-symbols-outlined" [class.rotating]="isGeneratingGifts">
+                {{ isGeneratingGifts ? 'autorenew' : 'auto_awesome' }}
+              </span>
+              {{ isGeneratingGifts ? (t9n.t('gifts.generating') || 'Génération en cours...') : (t9n.t('gifts.generate_ai') || 'Générer avec l\'IA') }}
+              @if (userPlan !== 'PREMIUM') { <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24; position: absolute; top: 8px; right: 8px;">lock</span> }
+            </button>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">
+              {{ t9n.t('gifts.ai_info', birthday.name) || 'L\'IA va analyser les centres d\'intérêt pour trouver des idées parfaites.' }}
+            </p>
+          }
         </div>
 
         @if (isGeneratingGifts) {

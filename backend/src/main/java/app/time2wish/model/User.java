@@ -50,6 +50,12 @@ public class User {
     @Builder.Default
     private PlanType plan = PlanType.BASIC;
 
+    @Column(name = "last_ai_wish_generation")
+    private LocalDateTime lastAiWishGeneration;
+
+    @Column(name = "last_ai_gift_generation")
+    private LocalDateTime lastAiGiftGeneration;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

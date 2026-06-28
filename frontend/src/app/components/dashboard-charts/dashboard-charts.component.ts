@@ -4,6 +4,8 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { Birthday, getZodiacSign } from '../../models/birthday.model';
 import { TranslationService } from '../../services/translation.service';
+import { AuthService } from '../../services/auth.service';
+import { UiService } from '../../services/ui.service';
 
 @Component({
   selector: 'app-dashboard-charts',
@@ -15,6 +17,12 @@ import { TranslationService } from '../../services/translation.service';
 export class DashboardChartsComponent implements OnChanges {
   @Input() birthdays: Birthday[] = [];
   t9n = inject(TranslationService);
+  private authService = inject(AuthService);
+  uiService = inject(UiService);
+
+  get userPlan() {
+    return this.authService.currentUser()?.plan || 'BASIC';
+  }
 
   constructor() {
     effect(() => {

@@ -79,6 +79,8 @@ public class AuthController {
                 .avatarUrl(user.getAvatarUrl())
                 .roles(java.util.Collections.singletonList(user.getRole().name()))
                 .plan(user.getPlan().name())
+                .lastAiWishGeneration(user.getLastAiWishGeneration())
+                .lastAiGiftGeneration(user.getLastAiGiftGeneration())
                 .build());
     }
 
@@ -136,6 +138,8 @@ public class AuthController {
                     .avatarUrl(user.getAvatarUrl())
                     .roles(java.util.Collections.singletonList(user.getRole().name()))
                     .plan(user.getPlan().name())
+                    .lastAiWishGeneration(user.getLastAiWishGeneration())
+                    .lastAiGiftGeneration(user.getLastAiGiftGeneration())
                     .build());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Invalid token format"));
@@ -186,6 +190,8 @@ public class AuthController {
                 .avatarUrl(user.getAvatarUrl())
                 .roles(java.util.Collections.singletonList(user.getRole().name()))
                 .plan(user.getPlan().name())
+                .lastAiWishGeneration(user.getLastAiWishGeneration())
+                .lastAiGiftGeneration(user.getLastAiGiftGeneration())
                 .build());
     }
 

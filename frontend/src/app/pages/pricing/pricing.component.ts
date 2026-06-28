@@ -99,7 +99,7 @@ import { environment } from '../../../environments/environment';
         <div class="pricing-modal-overlay" style="z-index: 100000;" (click)="cancelPlanChange()">
           <div class="pricing-modal-content confirm-modal-content glass-panel" (click)="$event.stopPropagation()">
             <div class="pricing-header" style="margin-bottom: 2rem;">
-              <h2 style="font-size: 1.5rem;">{{ t9n.t('pricing.title') || 'Confirmation' }}</h2>
+              <h2 style="font-size: 1.5rem;">{{ t9n.t('pricing.confirm_title') || 'Confirmation' }}</h2>
             </div>
             <p style="text-align: center; margin-bottom: 2rem;">
               {{ t9n.t('pricing.confirm_change').replace('%s', planToConfirm()!) }}

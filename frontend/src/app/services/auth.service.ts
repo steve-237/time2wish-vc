@@ -14,6 +14,8 @@ interface AuthResponse {
   avatarUrl?: string;
   roles: string[];
   plan?: string;
+  lastAiWishGeneration?: string;
+  lastAiGiftGeneration?: string;
 }
 
 @Injectable({
@@ -140,7 +142,9 @@ export class AuthService {
       avatarUrl: res.avatarUrl,
       status: 'ACTIVE',
       roles: res.roles || [],
-      plan: res.plan || 'BASIC'
+      plan: res.plan || 'BASIC',
+      lastAiWishGeneration: res.lastAiWishGeneration,
+      lastAiGiftGeneration: res.lastAiGiftGeneration
     };
     
     this.accessToken.set(res.token);

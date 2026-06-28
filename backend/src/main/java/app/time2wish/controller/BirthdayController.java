@@ -63,6 +63,27 @@ public class BirthdayController {
                 .build();
     }
 
+    private ResponseEntity<?> validateBirthdayLimits(BirthdayRequest request, User user, Long birthdayIdToUpdate) {
+        // Validate reminders
+        Integer rDays = request.getReminderDays() != null ? request.getReminderDays() : 0;
+        if (user.getPlan() == app.time2wish.model.PlanType.BASIC && rDays > 0) {
+            return ResponseEntity.status(403).body(new MessageResponse("BASIC plan can only set reminder for Day D (0)."));
+        } else if (user.getPlan() == app.time2wish.model.PlanType.PLUS && rDays > 1) {
+            return ResponseEntity.status(403).body(new MessageResponse("PLUS plan can only set reminder up to 1 day before."));
+        }
+
+        // Validate favorites
+        if (request.getIsFavorite() != null && request.getIsFavorite() && user.getPlan() == app.time2wish.model.PlanType.BASIC) {
+            long favCount = birthdayService.getActiveBirthdays(user).stream()
+                .filter(b -> (b.getIsFavorite() != null && b.getIsFavorite()) && (birthdayIdToUpdate == null || !b.getId().equals(birthdayIdToUpdate)))
+                .count();
+            if (favCount >= 3) {
+                return ResponseEntity.status(403).body(new MessageResponse("Plan limit reached (3 favorites max for BASIC)"));
+            }
+        }
+        return null;
+    }
+
     @GetMapping
     public ResponseEntity<List<BirthdayResponse>> getAllBirthdays(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         User user = getAuthenticatedUser(userDetails);
@@ -95,6 +116,9 @@ public class BirthdayController {
             return ResponseEntity.status(403).body(new MessageResponse("Plan limit reached (50 max for PLUS)"));
         }
 
+        ResponseEntity<?> validationError = validateBirthdayLimits(request, user, null);
+        if (validationError != null) return validationError;
+
         Birthday birthday = Birthday.builder()
                 .name(request.getName())
                 .birthdate(request.getBirthdate())
@@ -120,6 +144,9 @@ public class BirthdayController {
             @Valid @RequestBody BirthdayRequest request,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         User user = getAuthenticatedUser(userDetails);
+
+        ResponseEntity<?> validationError = validateBirthdayLimits(request, user, id);
+        if (validationError != null) return validationError;
 
         Birthday birthdayDetails = Birthday.builder()
                 .name(request.getName())
@@ -162,8 +189,17 @@ public class BirthdayController {
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         User user = getAuthenticatedUser(userDetails);
         
-        if (user.getPlan() != app.time2wish.model.PlanType.PREMIUM) {
-            return ResponseEntity.status(403).body(new MessageResponse("La génération d'idées de cadeaux nécessite le forfait PREMIUM."));
+        if (user.getPlan() == app.time2wish.model.PlanType.BASIC) {
+            return ResponseEntity.status(403).body(new MessageResponse("La génération d'idées de cadeaux nécessite le forfait PREMIUM ou PLUS."));
+        } else if (user.getPlan() == app.time2wish.model.PlanType.PLUS) {
+            java.time.LocalDateTime lastGen = user.getLastAiGiftGeneration();
+            if (lastGen != null && lastGen.plusDays(30).isAfter(java.time.LocalDateTime.now())) {
+                java.time.Duration duration = java.time.Duration.between(java.time.LocalDateTime.now(), lastGen.plusDays(30));
+                long days = duration.toDays();
+                return ResponseEntity.status(429).body(new MessageResponse(String.format("Prochaine génération de cadeaux disponible dans %dj", days)));
+            }
+            user.setLastAiGiftGeneration(java.time.LocalDateTime.now());
+            userRepository.save(user);
         }
         
         return birthdayService.getBirthday(id, user).map(birthday -> {
