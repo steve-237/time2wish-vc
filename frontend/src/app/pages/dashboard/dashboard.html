@@ -201,15 +201,13 @@
         title="Vue Liste">
         <span class="material-symbols-outlined">view_list</span>
       </button>
-      @if (userPlan !== 'BASIC') {
-        <button 
-          (click)="viewMode.set('calendar')" 
-          [class.active]="viewMode() === 'calendar'"
-          class="icon-btn" 
-          title="Vue Calendrier">
-          <span class="material-symbols-outlined">calendar_month</span>
-        </button>
-      }
+      <button 
+        (click)="viewMode.set('calendar')" 
+        [class.active]="viewMode() === 'calendar'"
+        class="icon-btn" 
+        title="Vue Calendrier">
+        <span class="material-symbols-outlined">calendar_month</span>
+      </button>
     </div>
   </div>
 
