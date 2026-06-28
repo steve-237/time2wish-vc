@@ -83,10 +83,17 @@ public class BirthdayController {
     }
 
     @PostMapping
-    public ResponseEntity<BirthdayResponse> createBirthday(
+    public ResponseEntity<?> createBirthday(
             @Valid @RequestBody BirthdayRequest request,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         User user = getAuthenticatedUser(userDetails);
+
+        long currentCount = birthdayService.getActiveBirthdays(user).size();
+        if (user.getPlan() == app.time2wish.model.PlanType.BASIC && currentCount >= 10) {
+            return ResponseEntity.status(403).body(new MessageResponse("Plan limit reached (10 max for BASIC)"));
+        } else if (user.getPlan() == app.time2wish.model.PlanType.PLUS && currentCount >= 50) {
+            return ResponseEntity.status(403).body(new MessageResponse("Plan limit reached (50 max for PLUS)"));
+        }
 
         Birthday birthday = Birthday.builder()
                 .name(request.getName())
@@ -155,22 +162,19 @@ public class BirthdayController {
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         User user = getAuthenticatedUser(userDetails);
         
+        if (user.getPlan() != app.time2wish.model.PlanType.PREMIUM) {
+            return ResponseEntity.status(403).body(new MessageResponse("La génération d'idées de cadeaux nécessite le forfait PREMIUM."));
+        }
+        
         return birthdayService.getBirthday(id, user).map(birthday -> {
             Integer age = null;
             if (birthday.getBirthdate() != null) {
                 age = Period.between(birthday.getBirthdate(), LocalDate.now()).getYears();
             }
             
-            app.time2wish.dto.GiftSuggestionResponse response;
-            if (user.getPlan() == app.time2wish.model.PlanType.BASIC) {
-                response = IAService.generateLocalFallbackResponse(
-                        birthday.getName(), age, birthday.getGender(), birthday.getCategory(), birthday.getInterests(), lang
-                );
-            } else {
-                response = IAService.generateGiftSuggestions(
-                        birthday.getName(), age, birthday.getGender(), birthday.getCategory(), birthday.getInterests(), lang
-                );
-            }
+            app.time2wish.dto.GiftSuggestionResponse response = IAService.generateGiftSuggestions(
+                    birthday.getName(), age, birthday.getGender(), birthday.getCategory(), birthday.getInterests(), lang
+            );
             return ResponseEntity.ok(response);
         }).orElse(ResponseEntity.notFound().build());
     }

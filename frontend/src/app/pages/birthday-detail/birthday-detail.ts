@@ -173,7 +173,24 @@ export class BirthdayDetail implements OnInit {
     }
   }
 
+  openCardModal() {
+    const userPlan = this.authService.currentUser()?.plan || 'BASIC';
+    if (userPlan !== 'PREMIUM') {
+      this.toastService.info("La génération de cartes personnalisées IA nécessite le forfait PREMIUM.");
+      this.uiService.isPricingModalOpen.set(true);
+      return;
+    }
+    this.isCardModalOpen.set(true);
+  }
+
   generateGifts() {
+    const userPlan = this.authService.currentUser()?.plan || 'BASIC';
+    if (userPlan !== 'PREMIUM') {
+      this.toastService.info("La génération d'idées de cadeaux IA nécessite le forfait PREMIUM.");
+      this.uiService.isPricingModalOpen.set(true);
+      return;
+    }
+
     const bId = this.birthday()?.id;
     if (!bId) {
       this.toastService.error('Erreur : ID de l\'anniversaire introuvable.');

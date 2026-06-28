@@ -43,26 +43,27 @@
           </a>
 
           <!-- Actions Selector (Premium) -->
-          @if (userPlan !== 'BASIC') {
-            <div class="dropdown-item-group" style="padding: 10px 12px; margin-top: 4px; border-top: 1px solid var(--border-card);">
-              <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; display: block;">Actions</span>
-              
-              <button (click)="exportService.exportToCSV(birthdayService.activeBirthdays()); isOptionsMenuOpen.set(false)" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 8px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 8px; font-size: 0.85rem;">
-                <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.1rem;">download</span>
-                <span>{{ t9n.t('dashboard.export_csv') || 'Exporter CSV' }}</span>
-              </button>
-              
-              <button (click)="exportService.exportListToICal(birthdayService.activeBirthdays()); isOptionsMenuOpen.set(false)" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 8px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 8px; font-size: 0.85rem;">
-                <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.1rem;">event</span>
-                <span>{{ t9n.t('dashboard.export_ical') || 'Exporter iCal' }}</span>
-              </button>
+          <div class="dropdown-item-group" style="padding: 10px 12px; margin-top: 4px; border-top: 1px solid var(--border-card);">
+            <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; display: block;">Actions</span>
+            
+            <button (click)="triggerCSVExport()" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 8px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 8px; font-size: 0.85rem;">
+              <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.1rem;">download</span>
+              <span style="flex: 1;">{{ t9n.t('dashboard.export_csv') || 'Exporter CSV' }}</span>
+              @if (userPlan === 'BASIC') { <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24;">lock</span> }
+            </button>
+            
+            <button (click)="triggerICalExport()" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 8px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 8px; font-size: 0.85rem;">
+              <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.1rem;">event</span>
+              <span style="flex: 1;">{{ t9n.t('dashboard.export_ical') || 'Exporter iCal' }}</span>
+              @if (userPlan === 'BASIC' || userPlan === 'PLUS') { <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24;">lock</span> }
+            </button>
 
-              <button (click)="csvFileInput.click(); isOptionsMenuOpen.set(false)" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 8px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 8px; font-size: 0.85rem;">
-                <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.1rem;">upload</span>
-                <span>{{ t9n.t('dashboard.import_csv') || 'Importer CSV' }}</span>
-              </button>
-            </div>
-          }
+            <button (click)="triggerCSVImport()" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 8px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 8px; font-size: 0.85rem;">
+              <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.1rem;">upload</span>
+              <span style="flex: 1;">{{ t9n.t('dashboard.import_csv') || 'Importer CSV' }}</span>
+              @if (userPlan === 'BASIC') { <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24;">lock</span> }
+            </button>
+          </div>
         </div>
       }
     </div>
@@ -71,12 +72,11 @@
     <input type="file" #csvFileInput (change)="onCSVImport($event)" accept=".csv" class="hidden">
 
     <!-- Add Birthday Button (Main Action) -->
-    @if (userPlan === 'BASIC' && birthdayService.activeBirthdays().length >= 3) {
+    @if (isLimitReached) {
       <button
         class="btn-premium dashboard-action-btn dashboard-add-btn disabled"
-        title="Limite de 3 anniversaires atteinte avec le forfait BASIC"
-        (click)="toastService.error('Limite atteinte (3 anniversaires max). Veuillez passer au forfait PLUS pour en ajouter d\'autres.')" style="padding: 12px 24px; border-radius: 12px; font-size: 1rem; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);">
-        <span class="material-symbols-outlined add-icon">add_circle</span>
+        (click)="requirePlan(userPlan === 'BASIC' ? 'PLUS' : 'PREMIUM', emptyAction)" style="padding: 12px 24px; border-radius: 12px; font-size: 1rem; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);">
+        <span class="material-symbols-outlined add-icon" style="color: #fbbf24;">lock</span>
         {{ t9n.t('dashboard.btn_add') }}
       </button>
     } @else {
@@ -188,25 +188,29 @@
     <!-- View Mode Toggle -->
     <div class="view-mode-toggle flex-center">
       <button 
-        (click)="viewMode.set('grid')" 
+        (click)="setViewMode('grid')" 
         [class.active]="viewMode() === 'grid'"
         class="icon-btn" 
         title="Vue Grille">
         <span class="material-symbols-outlined">grid_view</span>
       </button>
       <button 
-        (click)="viewMode.set('list')" 
+        (click)="setViewMode('list')" 
         [class.active]="viewMode() === 'list'"
         class="icon-btn" 
+        style="position: relative;"
         title="Vue Liste">
         <span class="material-symbols-outlined">view_list</span>
+        @if (userPlan === 'BASIC') { <span class="material-symbols-outlined" style="font-size: 0.6rem; color: #fbbf24; position: absolute; top: 2px; right: 2px;">lock</span> }
       </button>
       <button 
-        (click)="viewMode.set('calendar')" 
+        (click)="setViewMode('calendar')" 
         [class.active]="viewMode() === 'calendar'"
         class="icon-btn" 
+        style="position: relative;"
         title="Vue Calendrier">
         <span class="material-symbols-outlined">calendar_month</span>
+        @if (userPlan === 'BASIC') { <span class="material-symbols-outlined" style="font-size: 0.6rem; color: #fbbf24; position: absolute; top: 2px; right: 2px;">lock</span> }
       </button>
     </div>
   </div>

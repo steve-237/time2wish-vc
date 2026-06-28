@@ -7,6 +7,9 @@ import { TranslationService } from '../../services/translation.service';
 import { TemplateService } from '../../services/template.service';
 import { TemplateManagerComponent } from '../template-manager/template-manager.component';
 import { environment } from '../../../environments/environment';
+import { AuthService } from '../../services/auth.service';
+import { UiService } from '../../services/ui.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-wish-modal',
@@ -38,9 +41,22 @@ export class WishModalComponent implements OnInit {
   channel: 'email' | 'whatsapp' = 'whatsapp';
   customMessage: string = '';
 
+  authService = inject(AuthService);
+  uiService = inject(UiService);
+  toastService = inject(ToastService);
+
+  get userPlan() {
+    return this.authService.currentUser()?.plan || 'BASIC';
+  }
+
   ngOnInit() {
-    // Generate default AI wish on init
-    this.generateAiWish();
+    // Generate default AI wish on init if plan allows
+    if (this.userPlan !== 'BASIC') {
+      this.generateAiWish();
+    } else {
+      this.selectedMode.set('custom');
+      this.updateCustomTemplateMessage();
+    }
   }
 
   onTemplateChange(id: string) {
@@ -50,6 +66,13 @@ export class WishModalComponent implements OnInit {
 
   // Generate wish via Backend AI API
   generateAiWish() {
+    if (this.userPlan === 'BASIC') {
+      this.toastService.info("La génération magique par IA nécessite le forfait PLUS.");
+      this.uiService.isPricingModalOpen.set(true);
+      this.selectedMode.set('custom');
+      return;
+    }
+
     this.isGenerating.set(true);
     this.http.post<{ message: string }>(environment.apiUrl + '/ai/generate', {
       birthdayId: this.birthday.id,

@@ -15,9 +15,10 @@
         type="button" 
         class="tab-btn" 
         [class.active]="selectedMode() === 'ai'"
-        (click)="selectedMode.set('ai')">
+        (click)="userPlan === 'BASIC' ? generateAiWish() : selectedMode.set('ai')">
         <span class="material-symbols-outlined tab-icon">auto_awesome</span>
         <span>{{ t9n.t('wish.tab_ai') || 'Générateur IA' }}</span>
+        @if (userPlan === 'BASIC') { <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24; margin-left: 4px;">lock</span> }
       </button>
       <button 
         type="button" 

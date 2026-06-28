@@ -135,11 +135,12 @@
 
       @if (activeTab === 'ai') {
         <div style="text-align: center; margin-bottom: 24px;">
-          <button class="btn-premium gift-btn" (click)="generateGifts.emit()" [disabled]="isGeneratingGifts" style="padding: 12px 24px; font-size: 1rem;">
+          <button class="btn-premium gift-btn" (click)="generateGifts.emit()" [disabled]="isGeneratingGifts" style="padding: 12px 24px; font-size: 1rem; position: relative;">
             <span class="material-symbols-outlined" [class.rotating]="isGeneratingGifts">
               {{ isGeneratingGifts ? 'autorenew' : 'auto_awesome' }}
             </span>
             {{ isGeneratingGifts ? (t9n.t('gifts.generating') || 'Génération en cours...') : (t9n.t('gifts.generate_ai') || 'Générer avec l\'IA') }}
+            @if (userPlan !== 'PREMIUM') { <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24; position: absolute; top: 8px; right: 8px;">lock</span> }
           </button>
           <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">
             {{ t9n.t('gifts.ai_info', birthday.name) || 'L\'IA va analyser les centres d\'intérêt pour trouver des idées parfaites.' }}

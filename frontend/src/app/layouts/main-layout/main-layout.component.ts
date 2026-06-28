@@ -8,6 +8,7 @@ import { PwaService } from '../../services/pwa.service';
 import { PricingComponent } from '../../pages/pricing/pricing.component';
 import { UiService } from '../../services/ui.service';
 import { ThemeService } from '../../services/theme.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -81,6 +82,9 @@ import { ThemeService } from '../../services/theme.service';
                   <span>
                     {{ themeService.appMode() === 'light' ? 'Mode Sombre' : (themeService.appMode() === 'dark' ? 'Mode OLED' : 'Mode Clair') }}
                   </span>
+                  @if (themeService.appMode() === 'dark' && authService.currentUser()?.plan === 'BASIC') {
+                    <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24; margin-left: auto;">lock</span>
+                  }
                 </button>
 
                 <!-- Language Selector -->
@@ -175,11 +179,20 @@ export class MainLayoutComponent implements OnInit {
     this.isLangMenuOpen.set(false);
   }
 
+  toastService = inject(ToastService);
+
   cycleAppMode() {
     if (this.themeService.appMode() === 'light') {
       this.themeService.setAppMode('dark');
     } else if (this.themeService.appMode() === 'dark') {
-      this.themeService.setAppMode('oled');
+      const userPlan = this.authService.currentUser()?.plan || 'BASIC';
+      if (userPlan === 'BASIC') {
+        this.toastService.info("Le thème OLED nécessite le forfait PLUS.");
+        this.uiService.isPricingModalOpen.set(true);
+        this.themeService.setAppMode('light'); // cycle back to light
+      } else {
+        this.themeService.setAppMode('oled');
+      }
     } else {
       this.themeService.setAppMode('light');
     }

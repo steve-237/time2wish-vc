@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Birthday, Gift } from '../../models/birthday.model';
 import { ToastService } from '../../services/toast.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-gift-list-modal',
@@ -27,6 +28,7 @@ export class GiftListModalComponent {
   @Output() generateGifts = new EventEmitter<void>();
 
   toastService = inject(ToastService);
+  private authService = inject(AuthService);
 
   activeTab: 'list' | 'ai' = 'list';
   showManualForm = false;
@@ -37,6 +39,10 @@ export class GiftListModalComponent {
     priceRange: '',
     url: ''
   };
+
+  get userPlan() {
+    return this.authService.currentUser()?.plan || 'BASIC';
+  }
 
   onDelete(giftId: number) {
     this.deleteGift.emit(giftId);

@@ -49,6 +49,10 @@ public class AiController {
         
         User user = getAuthenticatedUser(userDetails);
         
+        if (user.getPlan() == app.time2wish.model.PlanType.BASIC) {
+            return ResponseEntity.status(403).body(new MessageResponse("La génération de texte nécessite le forfait PLUS."));
+        }
+        
         // Retrieve birthday and check owner
         Birthday birthday = birthdayService.getBirthday(request.getBirthdayId(), user)
                 .orElse(null);
@@ -88,7 +92,11 @@ public class AiController {
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         
         // Ensure user is authenticated
-        getAuthenticatedUser(userDetails);
+        User user = getAuthenticatedUser(userDetails);
+        
+        if (user.getPlan() != app.time2wish.model.PlanType.PREMIUM) {
+            return ResponseEntity.status(403).body(new MessageResponse("La génération d'images nécessite le forfait PREMIUM."));
+        }
         
         byte[] imageBytes = imageGenerationService.generateImage(request.getPrompt());
         

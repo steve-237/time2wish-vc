@@ -16,6 +16,7 @@ import { DashboardChartsComponent } from '../../components/dashboard-charts/dash
 import { ExportService } from '../../services/export.service';
 import { ConfettiService } from '../../services/confetti.service';
 import { AuthService } from '../../services/auth.service';
+import { UiService } from '../../services/ui.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -34,6 +35,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   private confettiService = inject(ConfettiService);
   authService = inject(AuthService);
   private hostElement = inject(ElementRef);
+  uiService = inject(UiService);
 
   isOptionsMenuOpen = signal<boolean>(false);
   isAdvancedFiltersOpen = signal<boolean>(false);
@@ -43,6 +45,21 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   get userPlan() {
     return this.authService.currentUser()?.plan || 'BASIC';
+  }
+
+  emptyAction = () => {};
+
+  requirePlan(requiredPlan: 'PLUS' | 'PREMIUM', action: () => void) {
+    const plans = ['BASIC', 'PLUS', 'PREMIUM'];
+    const userIndex = plans.indexOf(this.userPlan);
+    const requiredIndex = plans.indexOf(requiredPlan);
+
+    if (userIndex >= requiredIndex) {
+      action();
+    } else {
+      this.toastService.info(`Cette fonctionnalité nécessite le forfait ${requiredPlan}.`);
+      this.uiService.isPricingModalOpen.set(true);
+    }
   }
 
   // Filters
@@ -109,20 +126,54 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     return age;
   }
 
+  // Limits
+  get maxBirthdays() {
+    return this.userPlan === 'BASIC' ? 10 : (this.userPlan === 'PLUS' ? 50 : Infinity);
+  }
+
+  get isLimitReached() {
+    return this.birthdayService.activeBirthdays().length >= this.maxBirthdays;
+  }
+
+  setViewMode(mode: 'grid' | 'list' | 'calendar') {
+    if (mode === 'grid') {
+      this.viewMode.set(mode);
+    } else {
+      this.requirePlan('PLUS', () => this.viewMode.set(mode));
+    }
+  }
+
+  triggerCSVExport() {
+    this.isOptionsMenuOpen.set(false);
+    this.requirePlan('PLUS', () => this.exportService.exportToCSV(this.birthdayService.activeBirthdays()));
+  }
+
+  triggerICalExport() {
+    this.isOptionsMenuOpen.set(false);
+    this.requirePlan('PREMIUM', () => this.exportService.exportListToICal(this.birthdayService.activeBirthdays()));
+  }
+
+  triggerCSVImport() {
+    this.isOptionsMenuOpen.set(false);
+    this.requirePlan('PLUS', () => {
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.click();
+      }
+    });
+  }
+
   onActionSelect(event: Event) {
     const select = event.target as HTMLSelectElement;
     const action = select.value;
     select.value = ""; // Reset
     
     if (action === 'export-csv') {
-      this.exportService.exportToCSV(this.birthdayService.activeBirthdays());
+      this.triggerCSVExport();
     } else if (action === 'export-ical') {
-      this.exportService.exportListToICal(this.birthdayService.activeBirthdays());
+      this.triggerICalExport();
     } else if (action === 'import-csv') {
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      if (fileInput) {
-        fileInput.click();
-      }
+      this.triggerCSVImport();
     }
   }
 
