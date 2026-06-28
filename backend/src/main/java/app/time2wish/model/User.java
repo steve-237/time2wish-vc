@@ -31,12 +31,14 @@ public class User {
     @Column(name = "avatar_url", columnDefinition = "TEXT")
     private String avatarUrl;
 
+    @Builder.Default
     @Column(nullable = false, length = 20)
     private String status = "ACTIVE";
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
+    @Builder.Default
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

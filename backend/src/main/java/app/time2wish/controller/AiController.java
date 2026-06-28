@@ -102,7 +102,7 @@ public class AiController {
         // Ensure user is authenticated
         User user = getAuthenticatedUser(userDetails);
         
-        if (user.getPlan() != app.time2wish.model.PlanType.PREMIUM) {
+        if (user.getPlan() != app.time2wish.model.PlanType.PRO) {
             return ResponseEntity.status(403).body(new MessageResponse("La génération d'images nécessite le forfait PREMIUM."));
         }
         

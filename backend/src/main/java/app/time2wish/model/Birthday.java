@@ -29,6 +29,7 @@ public class Birthday {
     @Column(nullable = false)
     private LocalDate birthdate;
 
+    @Builder.Default
     @Column(nullable = false, length = 50)
     private String category = "Friend";
 
@@ -38,15 +39,19 @@ public class Birthday {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    @Builder.Default
     @Column(name = "reminder_days", nullable = false)
     private Short reminderDays = (short) 7;
 
+    @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @Builder.Default
     @Column(name = "is_favorite", nullable = false)
     private Boolean isFavorite = false;
 
+    @Builder.Default
     @Column(name = "show_age", nullable = false)
     private Boolean showAge = true;
 
@@ -59,6 +64,7 @@ public class Birthday {
     @Column(length = 20)
     private String gender;
 
+    @Builder.Default
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "birthday_interests", joinColumns = @JoinColumn(name = "birthday_id"))
     @Column(name = "interest")
@@ -67,6 +73,7 @@ public class Birthday {
     @Column(name = "share_token", length = 36, unique = true)
     private String shareToken;
 
+    @Builder.Default
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

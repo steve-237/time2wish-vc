@@ -35,12 +35,14 @@ public class Gift {
     @Column(columnDefinition = "TEXT")
     private String url;
 
+    @Builder.Default
     @Column(name = "is_reserved", nullable = false)
     private Boolean isReserved = false;
 
     @Column(name = "reserved_by_name", length = 100)
     private String reservedByName;
 
+    @Builder.Default
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

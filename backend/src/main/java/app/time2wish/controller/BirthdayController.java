@@ -65,7 +65,7 @@ public class BirthdayController {
 
     private ResponseEntity<?> validateBirthdayLimits(BirthdayRequest request, User user, Long birthdayIdToUpdate) {
         // Validate reminders
-        Integer rDays = request.getReminderDays() != null ? request.getReminderDays() : 0;
+        Short rDays = request.getReminderDays() != null ? request.getReminderDays() : (short) 0;
         if (user.getPlan() == app.time2wish.model.PlanType.BASIC && rDays > 0) {
             return ResponseEntity.status(403).body(new MessageResponse("BASIC plan can only set reminder for Day D (0)."));
         } else if (user.getPlan() == app.time2wish.model.PlanType.PLUS && rDays > 1) {
