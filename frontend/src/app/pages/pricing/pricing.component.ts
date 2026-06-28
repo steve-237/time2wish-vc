@@ -106,7 +106,7 @@ import { environment } from '../../../environments/environment';
             </p>
             <div style="display: flex; justify-content: center; gap: 1rem;">
               <button class="btn btn-select" style="width: auto;" (click)="cancelPlanChange()">{{ t9n.t('form.btn_cancel') || 'Annuler' }}</button>
-              <button class="btn btn-popular" style="width: auto;" (click)="confirmPlanChange()">{{ t9n.t('form.btn_save') || 'Confirmer' }}</button>
+              <button class="btn btn-popular" style="width: auto;" (click)="confirmPlanChange()">{{ t9n.t('pricing.btn_confirm') || 'Confirmer le choix' }}</button>
             </div>
           </div>
         </div>
