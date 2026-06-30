@@ -66,7 +66,7 @@
       <!-- Actions Profile -->
       <div class="form-actions">
         <button type="button" class="btn-secondary" routerLink="/dashboard">{{ t9n.t('profile.btn_cancel') || 'Annuler' }}</button>
-        <button type="submit" class="btn-premium" [disabled]="isSaving()">
+        <button type="submit" class="btn-PRO" [disabled]="isSaving()">
           <span class="material-symbols-outlined">{{ isSaving() ? 'sync' : 'save' }}</span>
           {{ t9n.t('profile.btn_save') || 'Enregistrer les modifications' }}
         </button>
@@ -194,7 +194,7 @@
 
       <!-- Actions Password -->
       <div class="form-actions">
-        <button type="submit" class="btn-premium profile-update-pass-btn" [disabled]="isSavingPassword()">
+        <button type="submit" class="btn-PRO profile-update-pass-btn" [disabled]="isSavingPassword()">
           <span class="material-symbols-outlined">{{ isSavingPassword() ? 'sync' : 'lock_reset' }}</span>
           {{ t9n.t('profile.btn_update_password') || 'Changer le mot de passe' }}
         </button>

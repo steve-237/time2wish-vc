@@ -43,7 +43,7 @@ import { TranslationService } from '../../services/translation.service';
           <div class="contact-section">
             <h2>{{ t9n.t('support.contact_title') }}</h2>
             <p>{{ t9n.t('support.contact_text') }}</p>
-            <a href="mailto:support@time2wish.app" class="btn-premium contact-btn">
+            <a href="mailto:support@time2wish.app" class="btn-PRO contact-btn">
               <span class="material-symbols-outlined">mail</span>
               {{ t9n.t('support.contact_btn') }}
             </a>

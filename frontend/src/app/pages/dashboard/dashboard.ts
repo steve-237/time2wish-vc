@@ -49,8 +49,8 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   emptyAction = () => {};
 
-  requirePlan(requiredPlan: 'PLUS' | 'PREMIUM', action: () => void) {
-    const plans = ['BASIC', 'PLUS', 'PREMIUM'];
+  requirePlan(requiredPlan: 'PLUS' | 'PRO', action: () => void) {
+    const plans = ['BASIC', 'PLUS', 'PRO'];
     const userIndex = plans.indexOf(this.userPlan);
     const requiredIndex = plans.indexOf(requiredPlan);
 
@@ -150,7 +150,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   triggerICalExport() {
     this.isOptionsMenuOpen.set(false);
-    this.requirePlan('PREMIUM', () => this.exportService.exportListToICal(this.birthdayService.activeBirthdays()));
+    this.requirePlan('PRO', () => this.exportService.exportListToICal(this.birthdayService.activeBirthdays()));
   }
 
   triggerCSVImport() {

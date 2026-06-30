@@ -42,7 +42,7 @@
             <span>{{ t9n.t('dashboard.btn_stats') || 'Statistiques' }}</span>
           </a>
 
-          <!-- Actions Selector (Premium) -->
+          <!-- Actions Selector (PRO) -->
           <div class="dropdown-item-group" style="padding: 10px 12px; margin-top: 4px; border-top: 1px solid var(--border-card);">
             <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; display: block;">Actions</span>
             
@@ -74,15 +74,15 @@
     <!-- Add Birthday Button (Main Action) -->
     @if (isLimitReached) {
       <button
-        class="btn-premium dashboard-action-btn dashboard-add-btn disabled"
-        (click)="requirePlan(userPlan === 'BASIC' ? 'PLUS' : 'PREMIUM', emptyAction)" style="padding: 12px 24px; border-radius: 12px; font-size: 1rem; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);">
+        class="btn-PRO dashboard-action-btn dashboard-add-btn disabled"
+        (click)="requirePlan(userPlan === 'BASIC' ? 'PLUS' : 'PRO', emptyAction)" style="padding: 12px 24px; border-radius: 12px; font-size: 1rem; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);">
         <span class="material-symbols-outlined add-icon" style="color: #fbbf24;">lock</span>
         {{ t9n.t('dashboard.btn_add') }}
       </button>
     } @else {
       <a
         routerLink="/dashboard/birthday/add"
-        class="btn-premium dashboard-action-btn dashboard-add-btn" style="padding: 12px 24px; border-radius: 12px; font-size: 1rem; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);">
+        class="btn-PRO dashboard-action-btn dashboard-add-btn" style="padding: 12px 24px; border-radius: 12px; font-size: 1rem; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);">
         <span class="material-symbols-outlined add-icon">add_circle</span>
         {{ t9n.t('dashboard.btn_add') }}
       </a>
@@ -321,7 +321,7 @@
       <span class="material-symbols-outlined empty-icon">sentiment_dissatisfied</span>
       <h2>{{ t9n.t('dashboard.empty_title') }}</h2>
       <p>{{ t9n.t('dashboard.empty_text') }}</p>
-      <a routerLink="/dashboard/birthday/add" class="btn-premium empty-btn">
+      <a routerLink="/dashboard/birthday/add" class="btn-PRO empty-btn">
         <span class="material-symbols-outlined">add_circle</span>
         {{ t9n.t('dashboard.empty_btn') }}
       </a>
@@ -367,7 +367,7 @@
       <button class="btn-secondary delete-btn-cancel" (click)="cancelDelete()">
         {{ t9n.t('dashboard.btn_cancel') || 'Non, annuler' }}
       </button>
-      <button class="btn-premium delete-btn-confirm" (click)="confirmDelete()">
+      <button class="btn-PRO delete-btn-confirm" (click)="confirmDelete()">
         {{ t9n.t('dashboard.btn_confirm_delete') || 'Oui, supprimer' }}
       </button>
     </div>

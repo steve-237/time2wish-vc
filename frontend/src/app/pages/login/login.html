@@ -111,7 +111,7 @@
       </div>
 
       <!-- Submit button -->
-      <button type="submit" class="btn-premium login-submit-btn" [disabled]="isLoading()">
+      <button type="submit" class="btn-PRO login-submit-btn" [disabled]="isLoading()">
         @if (!isLoading()) { <span class="material-symbols-outlined">{{ isLoginTab() ? 'login' : 'person_add' }}</span> }
         @if (isLoading()) { <span class="btn-spinner"></span> }
         {{ isLoading() ? (t9n.currentLang() === 'en' ? 'Loading...' : (t9n.currentLang() === 'de' ? 'Laden...' : 'Chargement...')) : (isLoginTab() ? t9n.t('login.btn_login') : t9n.t('login.btn_register')) }}
@@ -153,7 +153,7 @@
         </p>
         <input type="email" class="form-control mb-16" [ngModel]="forgotEmail()" (ngModelChange)="forgotEmail.set($event)" placeholder="email@example.com">
         
-        <button class="btn-premium w-100" (click)="sendForgotPassword()">
+        <button class="btn-PRO w-100" (click)="sendForgotPassword()">
           {{ t9n.currentLang() === 'en' ? 'Send Link' : (t9n.currentLang() === 'de' ? 'Link senden' : 'Envoyer le lien') }}
         </button>
       }

@@ -9,6 +9,7 @@ import { PricingComponent } from '../../pages/pricing/pricing.component';
 import { UiService } from '../../services/ui.service';
 import { ThemeService } from '../../services/theme.service';
 import { ToastService } from '../../services/toast.service';
+import { MessagingService } from '../../services/messaging.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -27,9 +28,17 @@ import { ToastService } from '../../services/toast.service';
 
         <!-- Toolbar actions -->
         <div class="toolbar-actions flex-center gap-sm">
-          
+          <!-- Messaging Button -->
+          <a routerLink="/dashboard/messaging" class="messaging-nav-btn" [title]="t9n.t('nav.messaging') || 'Messagerie'">
+            <span class="material-symbols-outlined">chat</span>
+            <span class="hide-mobile">{{ t9n.t('nav.messaging') || 'Messages' }}</span>
+            @if (messagingService.unreadCount() > 0) {
+              <span class="unread-badge">{{ messagingService.unreadCount() }}</span>
+            }
+          </a>
+
           <!-- Pricing/Plans Button -->
-          <button (click)="uiService.isPricingModalOpen.set(true)" class="premium-nav-btn" [title]="t9n.t('nav.plans') || 'Forfaits'">
+          <button (click)="uiService.isPricingModalOpen.set(true)" class="PRO-nav-btn" [title]="t9n.t('nav.plans') || 'Forfaits'">
             <span class="material-symbols-outlined">diamond</span>
             <span class="hide-mobile">{{ t9n.t('nav.plans') || 'Forfaits' }}</span>
           </button>
@@ -146,6 +155,7 @@ export class MainLayoutComponent implements OnInit {
   private readonly router = inject(Router);
   t9n = inject(TranslationService);
   pwaService = inject(PwaService);
+  messagingService = inject(MessagingService);
   private readonly elementRef = inject(ElementRef);
 
   readonly languages: { code: Language; label: string; flagUrl: string }[] = [
@@ -159,6 +169,9 @@ export class MainLayoutComponent implements OnInit {
   isProfileMenuOpen = signal<boolean>(false);
 
   ngOnInit() {
+    if (this.authService.isAuthenticated()) {
+      this.messagingService.getUnreadCount().subscribe();
+    }
   }
 
   @HostListener('document:click', ['$event'])

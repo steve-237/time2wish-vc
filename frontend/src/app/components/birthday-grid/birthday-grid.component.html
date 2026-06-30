@@ -58,7 +58,7 @@
     <div class="birthday-actions-bar">
       <!-- Write template wishes if today -->
       @if (birthdayService.getDaysUntil(b.birthdate) === 0) {
-      <button (click)="onSendWish(b, $event)" class="btn-premium quick-wish-btn">
+      <button (click)="onSendWish(b, $event)" class="btn-PRO quick-wish-btn">
         <span class="material-symbols-outlined wish-icon">send</span>
         {{ t9n.t('dashboard.btn_wish') }}
       </button>

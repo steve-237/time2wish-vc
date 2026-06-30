@@ -35,7 +35,7 @@
                   {{ t9n.t('gifts.copy_link') || 'Copier le lien public' }}
                 </button>
               } @else {
-                <button class="btn-premium" (click)="onGenerateShare()">
+                <button class="btn-PRO" (click)="onGenerateShare()">
                   <span class="material-symbols-outlined">public</span>
                   {{ t9n.t('gifts.generate_link') || 'Générer un lien' }}
                 </button>
@@ -73,7 +73,7 @@
               </div>
               <div style="display: flex; gap: 8px; justify-content: flex-end;">
                 <button class="btn-secondary" (click)="cancelEdit()">{{ t9n.t('common.cancel') || 'Annuler' }}</button>
-                <button class="btn-premium" (click)="onAddManualGift()" [disabled]="!newGift.name">
+                <button class="btn-PRO" (click)="onAddManualGift()" [disabled]="!newGift.name">
                   {{ editingGiftId ? (t9n.t('common.save') || 'Enregistrer') : (t9n.t('common.add') || 'Ajouter') }}
                 </button>
               </div>
@@ -88,6 +88,17 @@
             <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 8px;">{{ t9n.t('gifts.no_gifts') || 'Aucun cadeau n\'a encore été ajouté.' }}</p>
           </div>
         } @else {
+          <!-- NOUVEAU: BANNIÈRE CAGNOTTE -->
+          <div class="glass-card" style="margin-bottom: 1rem; padding: 1rem; border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.1);">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem;">
+              <span class="material-symbols-outlined" style="color: #f59e0b;">crowdsource</span>
+              <strong style="color: var(--text-color);">Nouveau : Les Cagnottes !</strong>
+            </div>
+            <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
+              Cliquez sur le bouton "Cagnotte" sous un cadeau pour créer un pot commun et inviter vos amis à participer financièrement !
+            </p>
+          </div>
+
           <div class="gifts-grid">
             @for (gift of gifts; track gift.id) {
               <div class="gift-card" [class.reserved]="gift.isReserved">
@@ -127,6 +138,15 @@
                     {{ t9n.t('common.remove') || 'Retirer' }}
                   </button>
                 </div>
+
+                <!-- Cagnotte Button & Widget -->
+                <button class="btn-PRO" style="width: 100%; margin-top: 8px; padding: 6px 12px; font-size: 0.85rem; background: linear-gradient(135deg, #fcd34d, #f59e0b); color: #000;" (click)="expandedGiftId = expandedGiftId === gift.id ? null : gift.id!">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">crowdsource</span>
+                  Cagnotte
+                </button>
+                @if (expandedGiftId === gift.id) {
+                  <app-fundraiser-widget [giftId]="gift.id!"></app-fundraiser-widget>
+                }
               </div>
             }
           </div>
@@ -146,12 +166,12 @@
               </p>
             </div>
           } @else {
-            <button class="btn-premium gift-btn" (click)="generateGifts.emit()" [disabled]="isGeneratingGifts" style="padding: 12px 24px; font-size: 1rem; position: relative;">
+            <button class="btn-PRO gift-btn" (click)="generateGifts.emit()" [disabled]="isGeneratingGifts" style="padding: 12px 24px; font-size: 1rem; position: relative;">
               <span class="material-symbols-outlined" [class.rotating]="isGeneratingGifts">
                 {{ isGeneratingGifts ? 'autorenew' : 'auto_awesome' }}
               </span>
               {{ isGeneratingGifts ? (t9n.t('gifts.generating') || 'Génération en cours...') : (t9n.t('gifts.generate_ai') || 'Générer avec l\'IA') }}
-              @if (userPlan !== 'PREMIUM') { <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24; position: absolute; top: 8px; right: 8px;">lock</span> }
+              @if (userPlan !== 'PRO') { <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24; position: absolute; top: 8px; right: 8px;">lock</span> }
             </button>
             <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px;">
               {{ t9n.t('gifts.ai_info', birthday.name) || 'L\'IA va analyser les centres d\'intérêt pour trouver des idées parfaites.' }}

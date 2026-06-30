@@ -12,6 +12,8 @@ import { CardGeneratorComponent } from '../../components/card-generator/card-gen
 import { GiftListModalComponent } from '../../components/gift-list-modal/gift-list-modal.component';
 import { AuthService } from '../../services/auth.service';
 import { UiService } from '../../services/ui.service';
+import { MessagingService } from '../../services/messaging.service';
+import { ContactService } from '../../services/contact.service';
 
 @Component({
   selector: 'app-birthday-detail',
@@ -29,6 +31,8 @@ export class BirthdayDetail implements OnInit {
   router = inject(Router);
   authService = inject(AuthService);
   uiService = inject(UiService);
+  messagingService = inject(MessagingService);
+  contactService = inject(ContactService);
 
   birthday = signal<Birthday | null>(null);
   daysUntil = signal<number>(0);
@@ -71,6 +75,7 @@ export class BirthdayDetail implements OnInit {
   isShareModalOpen = signal<boolean>(false);
   isCardModalOpen = signal<boolean>(false);
   isGiftListModalOpen = signal<boolean>(false);
+  public isChatOpen = signal<boolean>(false);
   activeTab = signal<'info' | 'gifts' | 'cards'>('info');
   canWebShare = signal<boolean>(!!navigator.share);
 
@@ -175,8 +180,8 @@ export class BirthdayDetail implements OnInit {
 
   openCardModal() {
     const userPlan = this.authService.currentUser()?.plan || 'BASIC';
-    if (userPlan !== 'PREMIUM') {
-      this.toastService.info("La génération de cartes personnalisées IA nécessite le forfait PREMIUM.");
+    if (userPlan !== 'PRO') {
+      this.toastService.info("La génération de cartes personnalisées IA nécessite le forfait PRO.");
       this.uiService.isPricingModalOpen.set(true);
       return;
     }
@@ -185,8 +190,8 @@ export class BirthdayDetail implements OnInit {
 
   generateGifts() {
     const userPlan = this.authService.currentUser()?.plan || 'BASIC';
-    if (userPlan !== 'PREMIUM') {
-      this.toastService.info("La génération d'idées de cadeaux IA nécessite le forfait PREMIUM.");
+    if (userPlan !== 'PRO') {
+      this.toastService.info("La génération d'idées de cadeaux IA nécessite le forfait PRO.");
       this.uiService.isPricingModalOpen.set(true);
       return;
     }
@@ -215,7 +220,7 @@ export class BirthdayDetail implements OnInit {
           this.toastService.error(err.error.message || "Génération bloquée par le délai.");
           this.authService.refreshSession().subscribe();
         } else if (err.status === 403) {
-          this.toastService.info("La génération d'idées de cadeaux nécessite le forfait PLUS ou PREMIUM.");
+          this.toastService.info("La génération d'idées de cadeaux nécessite le forfait PLUS ou PRO.");
           this.uiService.isPricingModalOpen.set(true);
         } else {
           this.toastService.error('Erreur technique (voir console).');
@@ -335,6 +340,37 @@ export class BirthdayDetail implements OnInit {
 
   onSendWish() {
     this.isWishModalOpen.set(true);
+  }
+
+  isGroupModalOpen = signal<boolean>(false);
+  selectedContactIds: number[] = [];
+
+  organizeWithFriends() {
+    this.contactService.getContacts().subscribe();
+    this.isGroupModalOpen.set(true);
+  }
+
+  toggleContactSelection(userId: number) {
+    const idx = this.selectedContactIds.indexOf(userId);
+    if (idx === -1) {
+      this.selectedContactIds.push(userId);
+    } else {
+      this.selectedContactIds.splice(idx, 1);
+    }
+  }
+
+  createBirthdayGroup() {
+    const b = this.birthday();
+    if (!b || !b.id || this.selectedContactIds.length === 0) return;
+    
+    this.messagingService.createBirthdayGroup(b.id, this.selectedContactIds).subscribe({
+      next: (conv) => {
+        this.isGroupModalOpen.set(false);
+        this.toastService.success('Groupe créé avec succès');
+        this.router.navigate(['/dashboard/messaging'], { queryParams: { startChatWith: conv.id } }); // Note: messaging page doesn't fully support open by group ID in query param, but let's navigate there
+      },
+      error: (err) => this.toastService.error(err.error?.message || 'Erreur')
+    });
   }
 
 

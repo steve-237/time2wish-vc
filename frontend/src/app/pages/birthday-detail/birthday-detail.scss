@@ -139,7 +139,7 @@ body.dark-theme .info-block {
   padding-top: 32px;
 }
 
-.detail-actions .btn-premium,
+.detail-actions .btn-PRO,
 .detail-actions .btn-secondary {
   width: 100%;
 }
@@ -726,4 +726,27 @@ body.dark-theme .info-block {
     margin: 0 -24px;
     padding: 0 24px;
   }
+}
+
+.fab-chat {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  color: white;
+  border: none;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  transition: transform 0.3s;
+}
+
+.fab-chat:hover {
+  transform: scale(1.1);
 }

@@ -67,6 +67,16 @@ export const routes: Routes = [
         ]
       },
       {
+        path: 'dashboard/messaging',
+        loadComponent: () => import('./pages/messaging/messaging').then(m => m.MessagingPage),
+        canActivate: [authGuard]
+      },
+      {
+        path: 'dashboard/contacts',
+        loadComponent: () => import('./pages/contacts/contacts').then(m => m.ContactsPage),
+        canActivate: [authGuard]
+      },
+      {
         path: 'privacy',
         loadComponent: () => import('./pages/legal/privacy.component').then(m => m.PrivacyComponent)
       },

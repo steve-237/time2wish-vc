@@ -100,7 +100,7 @@
               {{ t9n.t('template_manager.btn_cancel') || 'Annuler' }}
             </button>
             }
-            <button type="submit" class="btn-premium">
+            <button type="submit" class="btn-PRO">
               <span class="material-symbols-outlined">save</span>
               {{ isEditing() ? (t9n.t('template_manager.btn_update') || 'Mettre à jour') : (t9n.t('template_manager.btn_save') || 'Enregistrer') }}
             </button>
@@ -122,7 +122,7 @@
         </p>
         <div style="display: flex; justify-content: flex-end; gap: 1rem;">
           <button class="btn-secondary" style="width: auto; padding: 0.5rem 1rem;" (click)="cancelDelete()">{{ t9n.t('form.btn_cancel') || 'Annuler' }}</button>
-          <button class="btn-premium" style="width: auto; padding: 0.5rem 1rem; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);" (click)="confirmDelete()">
+          <button class="btn-PRO" style="width: auto; padding: 0.5rem 1rem; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);" (click)="confirmDelete()">
             <span class="material-symbols-outlined">delete</span> {{ t9n.t('template_manager.btn_delete') || 'Supprimer' }}
           </button>
         </div>

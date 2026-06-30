@@ -4,7 +4,30 @@ Time2Wish is a modern and premium web application designed to help you track, or
 
 ---
 
-## 🎉 Latest Release (v1.3.0) - The "Premium Limitations & Quotas" Update
+## 🎉 Latest Release (v1.5.0) - The "Global Messaging Hub" Update
+
+In this release, we've completely overhauled the messaging architecture to introduce a global, centralized messaging hub, independent from specific birthdays, allowing free-form chat and group organization.
+
+### 💬 Global Chat & Contacts
+*   **Centralized Hub:** Replaced the legacy floating chat widget with a dedicated, full-page Messaging interface (`/dashboard/messaging`).
+*   **Contacts Management:** Introduced a new Contacts system (`/dashboard/contacts`) with an Add/Search interface to find registered users and send contact requests.
+*   **Private & Group Chats:** Users can now create direct 1-to-1 conversations or multi-user groups entirely independent of birthdays. Group creation respects the subscription quotas (locked for Basic, max 4 members for Plus, unlimited for Pro).
+*   **Contextual Groups:** Added a new "Organiser avec des amis" button directly on birthday details to instantly spawn a dedicated group chat with selected contacts for a specific event.
+
+---
+
+## 🎉 Previous Release (v1.4.0) - The "Social & Crowdfunding" Update
+
+In this release, we've transformed Time2Wish into a truly collaborative platform by introducing real-time social features and crowdfunding capabilities for gifts.
+
+### 💬 Social & Collaborative Features
+*   **Real-time Private Chat (WebSockets):** Guests can now chat together directly on the secret birthday link. The chat is fully real-time and powered by Spring WebSockets (STOMP) and Angular.
+*   **Integrated Crowdfunding (Cagnottes):** For each suggested or manual gift, users can launch a funding pledge ("Cagnotte"). Contributors can promise a specific amount and leave a message.
+*   **Live Progress Tracking:** The UI dynamically updates the progress bar for the gift based on real-time contributions from the community.
+
+---
+
+## 🎉 Previous Release (v1.3.0) - The "Premium Limitations & Quotas" Update
 
 In this release, we've implemented the comprehensive subscription model and its associated AI quotas to balance the load and provide a premium experience.
 
@@ -272,6 +295,60 @@ User presses F5:
 
 ---
 
+## 💬 Global Real-Time Messaging Architecture
+
+Time2Wish features a fully integrated, real-time messaging system allowing 1-to-1 and group chats. Here is how the technology stack powers this experience:
+
+### Technology Stack
+*   **Protocol:** WebSocket with STOMP (Simple Text Oriented Messaging Protocol) as the sub-protocol.
+*   **Backend:** Spring Boot WebSocket (`spring-boot-starter-websocket`) with a Simple In-Memory Message Broker.
+*   **Frontend:** `@stomp/stompjs` and `sockjs-client` providing fallback mechanisms and reactive Angular Signals for instant UI updates.
+
+### Architecture & Connection Flow
+
+```mermaid
+sequenceDiagram
+    participant UI as Angular Frontend
+    participant WS as WebSocket Config
+    participant Auth as Auth Interceptor
+    participant Broker as Spring STOMP Broker
+    participant DB as PostgreSQL DB
+    
+    Note over UI,Broker: 1. Connection & Security
+    UI->>WS: new SockJS('/ws') (HTTP Handshake)
+    WS-->>UI: Upgrade to WebSocket
+    UI->>Auth: STOMP CONNECT Frame (Headers: { Authorization: Bearer JWT })
+    Auth->>Auth: Validate JWT & Set User Principal
+    Auth-->>UI: CONNECTED Frame
+    
+    Note over UI,Broker: 2. Subscriptions
+    UI->>Broker: SUBSCRIBE /topic/user.{id}.contacts
+    UI->>Broker: SUBSCRIBE /topic/conversation/{id}
+    
+    Note over UI,DB: 3. Message Broadcasting
+    UI->>Broker: SEND /app/chat.sendMessage (Content, ConvID)
+    Broker->>DB: Save Message & Update LastReadAt
+    DB-->>Broker: OK
+    Broker-->>UI: BROADCAST to /topic/conversation/{id} (All connected members)
+```
+
+1. **Initial Handshake (SockJS):** The Angular frontend establishes a connection via `new SockJS('/ws')`. Due to Spring Security, traditional HTTP headers (like `Authorization`) are not easily passed in browser WebSockets. We explicitly bypass HTTP-level security for `/ws/**` in `WebSecurityConfig`.
+2. **STOMP CONNECT Frame:** The frontend sends the JWT Bearer token inside the STOMP `CONNECT` frame headers (`connectHeaders: { Authorization: 'Bearer ...' }`).
+3. **Security Interception:** The backend uses a custom `ChannelInterceptor` (`WebSocketAuthInterceptor`) to intercept the STOMP `CONNECT` command, extract the JWT, validate it, and assign a `Principal` to the WebSocket session.
+4. **Subscription (Frontend -> Backend):** 
+   - Upon connection, the user globally subscribes to their private notification channel: `/topic/user.{userId}.contacts`.
+   - When opening a conversation, the user subscribes to `/topic/conversation/{conversationId}`.
+5. **Message Broadcasting (Backend -> Frontend):**
+   - **Chat Messages:** Sent via `@MessageMapping("/chat.sendMessage")` and broadcasted by the `SimpMessagingTemplate` to all connected clients on `/topic/conversation/{id}`.
+   - **System Notifications:** Contact requests and validations trigger automatic backend pushes to `/topic/user.{userId}.contacts`, which forces the frontend to seamlessly reload contact lists without refreshing the page.
+
+### Features
+*   **Instant Unread Counters:** The system intelligently tracks `lastReadAt` timestamps per user in the database. Senders do not increment their own unread counts.
+*   **Auto-Reconnect:** The STOMP client automatically attempts to reconnect if the connection drops.
+*   **Contextual Birthday Groups:** Users can instantly create dedicated group chats pre-filled with the guests of a specific birthday.
+
+---
+
 ## 🚀 Key Features
 
 1.  **Reactive Dashboard:** Clear visualization with stats (total, today, this month, next 30 days) and advanced filters (text search, categories, month).
@@ -515,6 +592,14 @@ During deployment, we encountered and resolved several issues. Here are the deta
 #### 4. White Screen after Vercel Deployment (JS files failing to load)
 - **Problem:** To handle SPA (Single Page Application) routing, we initially added a fallback rewrite (`"source": "/(.*)", "destination": "/index.html"`) in `vercel.json`. However, Vercel intercepted requests for static files (like `main.js`), returning the HTML of `index.html` instead. This caused a `SyntaxError` in the browser console, resulting in a blank page.
 - **Solution:** We removed the manual SPA rewrite from `vercel.json`. Vercel natively handles SPA routing for Angular automatically, so only the `/api` proxy rewrite is required.
+
+#### 5. WebSocket Connection Returns `401 Unauthorized` (SockJS Handshake)
+- **Problem:** When integrating Spring STOMP over WebSockets via SockJS, the initial HTTP request (`/ws/info`) was being intercepted and blocked by Spring Security (`WebSecurityConfig`), expecting a standard HTTP JWT Bearer token header, which SockJS cannot easily provide in the browser.
+- **Solution:** We modified `WebSecurityConfig` to explicitly permit all HTTP traffic to `/ws/**` (`requestMatchers("/ws/**").permitAll()`). Security is instead enforced at the WebSocket layer using a `ChannelInterceptor` (in `WebSocketConfig`) that extracts and validates the JWT from the STOMP `CONNECT` frame headers.
+
+#### 6. WebSocket Returns `net::ERR_CONNECTION_REFUSED` in Local Dev
+- **Problem:** Connecting the frontend SockJS client directly to `http://localhost:8081/ws` resulted in a connection refused error, despite the backend running correctly. This occurred due to local IPv4/IPv6 resolution mismatches between Node's proxy, the browser, and the Spring Boot embedded Tomcat server binding.
+- **Solution:** We added the `/ws` endpoint to the Angular local dev server proxy configuration (`proxy.conf.json`) with `"ws": true`. The frontend code was updated to connect using a relative path (`new SockJS('/ws')`), forcing the WebSocket handshake to flow cleanly through the Angular proxy (port 4200) to the backend.
 
 ---
 

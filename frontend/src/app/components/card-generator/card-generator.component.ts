@@ -49,7 +49,7 @@ import { Birthday } from '../../models/birthday.model';
             </div>
 
             <button 
-              class="btn-premium cg-generate-btn" 
+              class="btn-PRO cg-generate-btn" 
               (click)="generateCard()" 
               [disabled]="isLoading() || !prompt().trim()"
               [class.disabled]="isLoading() || !prompt().trim()">
@@ -106,7 +106,7 @@ import { Birthday } from '../../models/birthday.model';
           </div>
 
           <div class="gallery-actions" [class.visible]="selectedFallback()">
-            <a [href]="selectedFallback()" target="_blank" class="btn-premium">
+            <a [href]="selectedFallback()" target="_blank" class="btn-PRO">
               <span class="material-symbols-outlined">download</span>
               {{ t9n.t('card_gen.btn_download_selected') || "Télécharger l'image sélectionnée" }}
             </a>

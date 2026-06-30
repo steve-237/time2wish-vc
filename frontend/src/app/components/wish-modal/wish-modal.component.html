@@ -43,7 +43,7 @@
           <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">
             Prochaine génération IA disponible dans : <strong style="color: #fbbf24;">{{ aiCountdown() }}</strong>
           </p>
-          <button class="btn btn-premium" style="margin-top: 1rem; width: 100%;" (click)="uiService.isPricingModalOpen.set(true)">
+          <button class="btn btn-PRO" style="margin-top: 1rem; width: 100%;" (click)="uiService.isPricingModalOpen.set(true)">
             Débloquer l'IA Illimitée
           </button>
         </div>
@@ -101,7 +101,7 @@
           </div>
           <button 
             type="button" 
-            class="btn-premium regenerate-btn" 
+            class="btn-PRO regenerate-btn" 
             [disabled]="isGenerating()"
             (click)="generateAiWish()">
             <span class="material-symbols-outlined regenerate-icon">refresh</span>
@@ -232,7 +232,7 @@
     <!-- Actions -->
     <div class="modal-actions flex-between mt-24">
       <button class="btn-secondary" (click)="close.emit()">{{ t9n.t('wish.btn_cancel') || 'Annuler' }}</button>
-      <button class="btn-premium send-btn" (click)="send()" [disabled]="isGenerating()">
+      <button class="btn-PRO send-btn" (click)="send()" [disabled]="isGenerating()">
         <span class="material-symbols-outlined">send</span>
         {{ t9n.t('wish.btn_send') || 'Envoyer le souhait' }}
       </button>

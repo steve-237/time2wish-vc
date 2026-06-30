@@ -38,7 +38,7 @@
                 <p style="margin: 0; font-weight: 500; color: var(--text-main);">Photo personnalisée</p>
                 <p style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-muted);">Forfait PLUS requis pour télécharger des photos.</p>
               </div>
-              <button type="button" class="btn-premium" style="padding: 6px 12px; font-size: 0.85rem;" (click)="uiService?.isPricingModalOpen?.set(true)">Débloquer</button>
+              <button type="button" class="btn-PRO" style="padding: 6px 12px; font-size: 0.85rem;" (click)="uiService?.isPricingModalOpen?.set(true)">Débloquer</button>
             </div>
           } @else {
             <app-image-upload [currentImageUrl]="photoUrl()" (imageUrlChange)="photoUrl.set($event)"></app-image-upload>
@@ -185,9 +185,9 @@
                 name="reminderDays">
                 <option [value]="0">{{ t9n.t('form.reminder_0') }}</option>
                 <option [value]="1" [disabled]="userPlan === 'BASIC'">{{ t9n.t('form.reminder_1') }} {{ userPlan === 'BASIC' ? '🔒 (PLUS)' : '' }}</option>
-                <option [value]="3" [disabled]="userPlan === 'BASIC' || userPlan === 'PLUS'">{{ t9n.t('form.reminder_3') }} {{ userPlan === 'BASIC' || userPlan === 'PLUS' ? '🔒 (PREMIUM)' : '' }}</option>
-                <option [value]="7" [disabled]="userPlan === 'BASIC' || userPlan === 'PLUS'">{{ t9n.t('form.reminder_7') }} {{ userPlan === 'BASIC' || userPlan === 'PLUS' ? '🔒 (PREMIUM)' : '' }}</option>
-                <option [value]="14" [disabled]="userPlan === 'BASIC' || userPlan === 'PLUS'">{{ t9n.t('form.reminder_14') }} {{ userPlan === 'BASIC' || userPlan === 'PLUS' ? '🔒 (PREMIUM)' : '' }}</option>
+                <option [value]="3" [disabled]="userPlan === 'BASIC' || userPlan === 'PLUS'">{{ t9n.t('form.reminder_3') }} {{ userPlan === 'BASIC' || userPlan === 'PLUS' ? '🔒 (PRO)' : '' }}</option>
+                <option [value]="7" [disabled]="userPlan === 'BASIC' || userPlan === 'PLUS'">{{ t9n.t('form.reminder_7') }} {{ userPlan === 'BASIC' || userPlan === 'PLUS' ? '🔒 (PRO)' : '' }}</option>
+                <option [value]="14" [disabled]="userPlan === 'BASIC' || userPlan === 'PLUS'">{{ t9n.t('form.reminder_14') }} {{ userPlan === 'BASIC' || userPlan === 'PLUS' ? '🔒 (PRO)' : '' }}</option>
               </select>
               <span class="material-symbols-outlined select-chevron">expand_more</span>
             </div>
@@ -227,7 +227,7 @@
       <!-- Actions -->
       <div class="form-actions">
         <a (click)="onCancel()" class="btn-secondary form-cancel-btn">{{ t9n.t('form.btn_cancel') }}</a>
-        <button type="submit" class="btn-premium">
+        <button type="submit" class="btn-PRO">
           <span class="material-symbols-outlined">save</span>
           {{ isEditMode() ? t9n.t('form.btn_update') : t9n.t('form.btn_save') }}
         </button>

@@ -5,11 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { Birthday, Gift } from '../../models/birthday.model';
 import { ToastService } from '../../services/toast.service';
 import { AuthService } from '../../services/auth.service';
+import { FundraiserWidgetComponent } from '../fundraiser-widget/fundraiser-widget.component';
 
 @Component({
   selector: 'app-gift-list-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FundraiserWidgetComponent],
   templateUrl: './gift-list-modal.component.html',
   styleUrl: './gift-list-modal.component.scss'
 })
@@ -33,6 +34,7 @@ export class GiftListModalComponent {
   activeTab: 'list' | 'ai' = 'list';
   showManualForm = false;
   editingGiftId: number | null = null;
+  expandedGiftId: number | null = null;
   newGift = {
     name: '',
     description: '',

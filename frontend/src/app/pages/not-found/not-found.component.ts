@@ -17,7 +17,7 @@ import { TranslationService } from '../../services/translation.service';
         <h2>{{ t9n.t('not_found.title') || 'Page introuvable' }}</h2>
         <p>{{ t9n.t('not_found.desc') || 'Oups ! La page que vous recherchez n\\'existe pas ou a été déplacée.' }}</p>
         
-        <a routerLink="/" class="btn-premium">
+        <a routerLink="/" class="btn-PRO">
           <span class="material-symbols-outlined">home</span>
           {{ t9n.t('not_found.btn_home') || 'Retour à l\\'accueil' }}
         </a>
@@ -73,7 +73,7 @@ import { TranslationService } from '../../services/translation.service';
       margin-bottom: 1rem;
       line-height: 1.6;
     }
-    .btn-premium {
+    .btn-PRO {
       display: inline-flex;
       text-decoration: none;
     }
