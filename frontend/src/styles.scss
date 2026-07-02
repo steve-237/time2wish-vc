@@ -1029,9 +1029,8 @@ select.custom-select-control option {
   padding: 8px 16px;
   font-size: 0.85rem;
   border-radius: 8px;
+  gap: 8px;
 }
-
-
 
 /* Footer */
 .app-footer {
@@ -1044,6 +1043,9 @@ select.custom-select-control option {
   background: var(--header-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
 }
 
 .footer-content {

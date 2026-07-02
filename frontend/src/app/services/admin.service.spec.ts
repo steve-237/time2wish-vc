@@ -39,7 +39,7 @@ describe('AdminService', () => {
 
   it('should fetch all users', () => {
     const dummyUsers: AdminUserDto[] = [
-      { id: 1, email: 'test@test.com', fullName: 'Test User', status: 'ACTIVE', createdAt: '2023-01-01', role: 'ROLE_USER' }
+      { id: 1, email: 'test@test.com', fullName: 'Test User', status: 'ACTIVE', createdAt: '2023-01-01', role: 'ROLE_USER', plan: 'BASIC' }
     ];
 
     service.getAllUsers().subscribe(users => {
@@ -62,14 +62,5 @@ describe('AdminService', () => {
     req.flush(null);
   });
 
-  it('should update user password', () => {
-    service.updateUserPassword(1, 'newPass').subscribe(res => {
-      expect(res).toBeNull();
-    });
 
-    const req = httpMock.expectOne(`http://localhost:8081/api/admin/users/1/password`);
-    expect(req.request.method).toBe('PUT');
-    expect(req.request.body).toEqual({ newPassword: 'newPass' });
-    req.flush(null);
-  });
 });

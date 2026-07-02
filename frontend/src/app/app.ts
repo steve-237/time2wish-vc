@@ -20,7 +20,7 @@ export class App implements OnInit, OnDestroy {
   
   
   private idleTimeout: any;
-  private readonly IDLE_TIME = 3 * 60 * 1000; // 3 minutes of inactivity
+  private readonly IDLE_TIME = 10 * 60 * 1000; // 10 minutes of inactivity
 
   @HostListener('window:mousemove')
   @HostListener('window:keydown')

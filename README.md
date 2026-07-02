@@ -64,7 +64,7 @@ The system is split into the following layers:
 *   **State Management:** Reactive architecture using modern **Angular Signals** instead of RxJS for local state.
 *   **Design:** Custom Glassmorphism UI (Vanilla CSS/SCSS) focused on premium aesthetics and animations.
 *   **Session Persistence:** Access Token and User Profile stored in `localStorage` for instant session restoration on page reload.
-*   **Security:** Auto-logout after 3 minutes of inactivity with user notification.
+*   **Security:** Auto-logout after 10 minutes of inactivity with user notification.
 
 ### 3. `database/` — PostgreSQL 15+
 *   **Architecture:** Relational Database.
@@ -256,7 +256,7 @@ User presses F5:
 - The `APP_INITIALIZER` calls `refreshSession()` in the background to get a fresh JWT, but **does not block** the app if it fails.
 - The `authGuard` sees `isAuthenticated() = true` and allows navigation to protected routes.
 
-### Auto-Logout (3 Minutes Inactivity)
+### Auto-Logout (10 Minutes Inactivity)
 ```
   ┌─────────────────────────────────────────────┐
   │ App Component (@HostListener)               │
@@ -264,7 +264,7 @@ User presses F5:
   │ Listens: mousemove, keydown, click,         │
   │          scroll, touchstart                 │
   │                                             │
-  │ On activity → reset 3-min timer             │
+  │ On activity → reset 10-min timer             │
   │ On timeout  → logout() + redirect to        │
   │               /login?reason=timeout         │
   │                                             │
@@ -288,7 +288,7 @@ User presses F5:
 | Access Token | JWT (HS512, short-lived) | Stateless API authentication |
 | Refresh Token | UUID in HTTP-Only Cookie | Secure silent token renewal |
 | Session Persistence | localStorage (token + profile) | Survives page refresh |
-| Inactivity Guard | 3-min idle timer (global `@HostListener`) | Auto-logout protection |
+| Inactivity Guard | 10-min idle timer (global `@HostListener`) | Auto-logout protection |
 | CORS | Whitelisted origins + `allowCredentials` | Cross-origin protection |
 | CSRF | Disabled (stateless JWT, no server-side sessions) | Not applicable |
 | XSS | Angular built-in template sanitization | Template injection prevention |

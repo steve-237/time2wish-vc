@@ -6,10 +6,10 @@ import { of } from 'rxjs';
 describe('AdminDashboardComponent', () => {
   let component: AdminDashboardComponent;
   let fixture: ComponentFixture<AdminDashboardComponent>;
-  let adminServiceSpy: jasmine.SpyObj<AdminService>;
+  let adminServiceSpy: any;
 
   beforeEach(async () => {
-    adminServiceSpy = jasmine.createSpyObj('AdminService', ['getStats']);
+    adminServiceSpy = vi.fn();
     const dummyStats: StatsResponse = { totalUsers: 5, totalBirthdays: 20 };
     adminServiceSpy.getStats.and.returnValue(of(dummyStats));
 

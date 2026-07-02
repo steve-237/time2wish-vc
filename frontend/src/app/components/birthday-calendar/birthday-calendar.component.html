@@ -31,8 +31,9 @@
       
       <!-- Birthday Indicators (Avatars) -->
       <div class="birthday-dots" *ngIf="cell.birthdays.length > 0">
-        <div 
+        <a 
           *ngFor="let b of cell.birthdays" 
+          [routerLink]="['/dashboard/birthday', b.id]"
           class="birthday-avatar"
           [style.border-color]="getCategoryColor(b.category)"
           [title]="b.name">
@@ -40,7 +41,7 @@
           <ng-template #initialAvatar>
             <div class="avatar-initial">{{ b.name.charAt(0) }}</div>
           </ng-template>
-        </div>
+        </a>
       </div>
 
       <!-- Hover Tooltip/Detail Card -->
