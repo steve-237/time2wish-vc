@@ -4,7 +4,7 @@ Time2Wish is a modern and premium web application designed to help you track, or
 
 ---
 
-## 🎉 Latest Release (v1.5.0) - The "Global Messaging Hub" Update
+## 🚧 Upcoming Update - The "Global Messaging Hub"
 
 In this release, we've completely overhauled the messaging architecture to introduce a global, centralized messaging hub, independent from specific birthdays, allowing free-form chat and group organization.
 
@@ -16,7 +16,7 @@ In this release, we've completely overhauled the messaging architecture to intro
 
 ---
 
-## 🎉 Previous Release (v1.4.0) - The "Social & Crowdfunding" Update
+## 🎉 Latest Release (v1.4.0) - The "Social & Crowdfunding" Update
 
 In this release, we've transformed Time2Wish into a truly collaborative platform by introducing real-time social features and crowdfunding capabilities for gifts.
 
