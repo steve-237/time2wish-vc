@@ -58,6 +58,15 @@ public class User {
     @Column(name = "last_ai_gift_generation")
     private LocalDateTime lastAiGiftGeneration;
 
+    @Column(name = "subscription_provider", length = 50)
+    private String subscriptionProvider; // STRIPE, PAYPAL, MOMO
+
+    @Column(name = "subscription_status", length = 50)
+    private String subscriptionStatus; // ACTIVE, CANCELED, PAST_DUE
+
+    @Column(name = "subscription_expires_at")
+    private LocalDateTime subscriptionExpiresAt;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

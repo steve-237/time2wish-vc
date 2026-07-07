@@ -55,9 +55,9 @@ export class Login implements OnInit {
       if (params['reason'] === 'timeout') {
         const lang = this.t9n.currentLang();
         const messages: Record<string, string> = {
-          fr: 'Vous avez été déconnecté pour cause d\'inactivité (3 minutes).',
-          en: 'You have been disconnected due to inactivity (3 minutes).',
-          de: 'Sie wurden wegen Inaktivität abgemeldet (3 Minuten).'
+          fr: 'Vous avez été déconnecté pour cause d\'inactivité (10 minutes).',
+          en: 'You have been disconnected due to inactivity (10 minutes).',
+          de: 'Sie wurden wegen Inaktivität abgemeldet (10 Minuten).'
         };
         const msg = messages[lang] || messages['fr'];
         this.timeoutMessage.set(msg);

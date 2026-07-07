@@ -95,18 +95,36 @@ import { environment } from '../../../environments/environment';
       </div>
 
       <!-- Confirmation Modal -->
+      <!-- Payment Method Selection Modal -->
       @if (planToConfirm()) {
         <div class="pricing-modal-overlay" style="z-index: 100000;" (click)="cancelPlanChange()">
-          <div class="pricing-modal-content confirm-modal-content glass-panel" (click)="$event.stopPropagation()">
+          <div class="pricing-modal-content confirm-modal-content glass-panel" style="max-width: 500px;" (click)="$event.stopPropagation()">
             <div class="pricing-header" style="margin-bottom: 2rem;">
-              <h2 style="font-size: 1.5rem;">{{ t9n.t('pricing.confirm_title') || 'Confirmation' }}</h2>
+              <h2 style="font-size: 1.5rem;">{{ t9n.t('pricing.choose_payment_method') || 'Moyen de paiement' }}</h2>
             </div>
             <p style="text-align: center; margin-bottom: 2rem;">
-              {{ t9n.t('pricing.confirm_change').replace('%s', planToConfirm()!) }}
+              {{ t9n.t('pricing.confirm_change') ? t9n.t('pricing.confirm_change').replace('%s', planToConfirm()!) : 'Vous allez souscrire au forfait ' + planToConfirm() + '.' }}
             </p>
-            <div style="display: flex; justify-content: center; gap: 1rem;">
-              <button class="btn btn-select" style="width: auto;" (click)="cancelPlanChange()">{{ t9n.t('form.btn_cancel') || 'Annuler' }}</button>
-              <button class="btn btn-popular" style="width: auto;" (click)="confirmPlanChange()">{{ t9n.t('pricing.btn_confirm') || 'Confirmer le choix' }}</button>
+            
+            <div class="payment-methods" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+              <button class="btn btn-select" [disabled]="isLoading()" (click)="checkoutWith('STRIPE')" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <span class="material-symbols-outlined">credit_card</span>
+                Carte de Crédit (Stripe)
+              </button>
+              
+              <button class="btn btn-select" [disabled]="isLoading()" (click)="checkoutWith('PAYPAL')" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <span class="material-symbols-outlined">account_balance_wallet</span>
+                PayPal
+              </button>
+              
+              <button class="btn btn-select" [disabled]="isLoading()" (click)="checkoutWith('MOMO')" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <span class="material-symbols-outlined">phone_iphone</span>
+                Mobile Money (MTN / Orange)
+              </button>
+            </div>
+
+            <div style="display: flex; justify-content: center;">
+              <button class="btn btn-select" style="width: auto; background: transparent; border: 1px solid var(--text-color);" (click)="cancelPlanChange()">{{ t9n.t('form.btn_cancel') || 'Annuler' }}</button>
             </div>
           </div>
         </div>
@@ -138,28 +156,20 @@ export class PricingComponent {
     this.planToConfirm.set(null);
   }
 
-  confirmPlanChange() {
+  checkoutWith(provider: string) {
     const plan = this.planToConfirm();
     if (!plan) return;
     
-    this.planToConfirm.set(null);
     this.isLoading.set(true);
-      this.http.put(environment.apiUrl + '/users/me/plan', { plan }).subscribe({
-        next: (res: any) => {
-          const successMsg = this.t9n.t('pricing.success_change').replace('%s', plan);
-          this.toastService.success(successMsg);
-          
-          // Mise à jour locale du token/user
-          const user = this.authService.currentUser();
-          if (user) {
-            this.authService.currentUser.set({ ...user, plan: res.plan });
-          }
-          this.isLoading.set(false);
-        },
-        error: (err) => {
-          this.toastService.error(this.t9n.t('pricing.error_change'));
-          this.isLoading.set(false);
-        }
-      });
+    this.http.post<{url: string}>(environment.apiUrl + '/payments/checkout', { plan, provider }).subscribe({
+      next: (res) => {
+        // Redirection vers la passerelle de paiement (ici simulée)
+        window.location.href = res.url;
+      },
+      error: (err) => {
+        this.toastService.error('Erreur lors de l\'initialisation du paiement');
+        this.isLoading.set(false);
+      }
+    });
   }
 }

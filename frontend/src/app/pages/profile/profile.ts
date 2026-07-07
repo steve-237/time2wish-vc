@@ -6,6 +6,8 @@ import { AuthService } from '../../services/auth.service';
 import { TranslationService } from '../../services/translation.service';
 import { ToastService } from '../../services/toast.service';
 import { ThemeService } from '../../services/theme.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 import { ImageUploadComponent } from '../../components/image-upload/image-upload.component';
 
 @Component({
@@ -158,6 +160,24 @@ export class Profile implements OnInit {
       error: () => {
         this.isSavingPassword.set(false);
         this.toastService.error(this.t9n.currentLang() === 'en' ? 'Server error. Incorrect current password?' : 'Erreur serveur. Mot de passe actuel incorrect ?');
+      }
+    });
+  }
+
+  isTestingEmail = signal<boolean>(false);
+  private http = inject(HttpClient);
+  
+  testEmail() {
+    this.isTestingEmail.set(true);
+    
+    this.http.post<any>(`${environment.apiUrl}/birthdays/test-reminders`, {}).subscribe({
+      next: (res) => {
+        this.isTestingEmail.set(false);
+        this.toastService.success(res.message || 'Test effectué');
+      },
+      error: () => {
+        this.isTestingEmail.set(false);
+        this.toastService.error('Erreur lors du test d\'envoi.');
       }
     });
   }

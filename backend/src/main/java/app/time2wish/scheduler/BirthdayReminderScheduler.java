@@ -46,6 +46,10 @@ public class BirthdayReminderScheduler {
         List<Birthday> upcomingBirthdays = birthdayRepository.findBirthdaysWithUpcomingReminders();
         log.info("[BirthdayReminderScheduler] Found {} birthday(s) to remind about", upcomingBirthdays.size());
 
+        int sentCount = 0;
+        int failedCount = 0;
+        String lastError = null;
+
         for (Birthday birthday : upcomingBirthdays) {
             if (birthday.getUser() != null && birthday.getUser().getPlan() == app.time2wish.model.PlanType.BASIC) {
                 log.info("[BirthdayReminderScheduler] ⏭️ Skipping reminder for {} (User is on BASIC plan)", birthday.getName());
@@ -57,11 +61,18 @@ public class BirthdayReminderScheduler {
                 log.info("[BirthdayReminderScheduler] ✉️ Reminder sent for: {} (user: {})",
                         birthday.getName(),
                         birthday.getUser().getEmail());
+                sentCount++;
             } catch (Exception e) {
+                failedCount++;
+                lastError = e.getMessage();
                 log.error("[BirthdayReminderScheduler] ❌ Failed to send reminder for birthday ID {}: {}",
                         birthday.getId(), e.getMessage());
             }
         }
-        return upcomingBirthdays.size();
+        
+        if (failedCount > 0) {
+            throw new RuntimeException("Échec de l'envoi pour " + failedCount + " rappel(s). Dernière erreur: " + lastError);
+        }
+        return sentCount;
     }
 }

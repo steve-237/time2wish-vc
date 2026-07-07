@@ -201,6 +201,16 @@
       </div>
     </form>
 
+    <div class="mt-40"></div>
+
+    <h2 class="form-section-title">Outils Développeur</h2>
+    <div class="form-actions" style="justify-content: flex-start;">
+      <button type="button" class="btn-secondary" style="border: 1px solid var(--border-card);" (click)="testEmail()" [disabled]="isTestingEmail()">
+        <span class="material-symbols-outlined">{{ isTestingEmail() ? 'sync' : 'mail' }}</span>
+        Tester l'envoi d'emails (Rappels)
+      </button>
+    </div>
+
     </div>
   </div>
 </div>

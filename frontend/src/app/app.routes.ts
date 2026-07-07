@@ -93,6 +93,21 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/shared-list/shared-list.component').then(m => m.SharedListComponent)
       },
       {
+        path: 'payment/mock-checkout',
+        loadComponent: () => import('./pages/mock-checkout/mock-checkout.component').then(m => m.MockCheckoutComponent),
+        canActivate: [authGuard]
+      },
+      {
+        path: 'payment/success',
+        loadComponent: () => import('./pages/payment-success/payment-success.component').then(m => m.PaymentSuccessComponent),
+        canActivate: [authGuard]
+      },
+      {
+        path: 'payment/cancel',
+        loadComponent: () => import('./pages/payment-cancel/payment-cancel.component').then(m => m.PaymentCancelComponent),
+        canActivate: [authGuard]
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'

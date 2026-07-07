@@ -1,6 +1,7 @@
 import { Injectable, signal, inject, isDevMode } from '@angular/core';
 import { ToastService } from './toast.service';
 import { TranslationService } from './translation.service';
+import { SwUpdate } from '@angular/service-worker';
 
 @Injectable({
   providedIn: 'root'
@@ -14,11 +15,24 @@ export class PwaService {
   private toastService = inject(ToastService);
   private t9n = inject(TranslationService);
 
+  private swUpdate = inject(SwUpdate);
+
   constructor() {
     this.initPwaListeners();
   }
 
   private initPwaListeners() {
+    if (this.swUpdate.isEnabled) {
+      this.swUpdate.versionUpdates.subscribe((evt: any) => {
+        if (evt.type === 'VERSION_READY') {
+          const msg = this.t9n.currentLang() === 'en' 
+            ? 'A new version is available! Refresh to update.' 
+            : 'Une nouvelle version est disponible ! Rafraîchissez pour mettre à jour.';
+          this.toastService.info(msg);
+          // Optional: setTimeout(() => window.location.reload(), 3000);
+        }
+      });
+    }
     // Check if already installed
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
     if (isStandalone) {

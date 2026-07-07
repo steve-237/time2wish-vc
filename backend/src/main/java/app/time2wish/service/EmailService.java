@@ -30,7 +30,10 @@ public class EmailService {
     private JavaMailSender mailSender;
 
     @Value("${spring.mail.username:}")
-    private String senderEmail;
+    private String smtpUser;
+
+    @Value("${app.email.from-address:}")
+    private String fromAddress;
 
     /**
      * Sends a birthday reminder email for the given birthday.
@@ -39,7 +42,7 @@ public class EmailService {
         String subject = buildSubject(birthday);
         String htmlBody = buildHtmlEmail(birthday);
 
-        if (senderEmail != null && !senderEmail.isBlank() && !senderEmail.contains("your-email")) {
+        if (fromAddress != null && !fromAddress.isBlank() && !fromAddress.contains("your-email") && !fromAddress.equals("resend")) {
             sendViaSmtp(birthday.getUser().getEmail(), subject, htmlBody);
         } else {
             simulateToFile(birthday, subject, htmlBody);
@@ -69,7 +72,7 @@ public class EmailService {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(senderEmail);
+            helper.setFrom(fromAddress);
             helper.setTo(toEmail);
             helper.setSubject(subject);
             helper.setText(htmlBody, true); // true indicates html
@@ -78,6 +81,7 @@ public class EmailService {
             log.info("[EmailService] 📧 Email sent successfully via SMTP to '{}'", toEmail);
         } catch (MessagingException e) {
             log.error("[EmailService] Failed to send email via SMTP to '{}'", toEmail, e);
+            throw new RuntimeException("Erreur SMTP lors de l'envoi: " + e.getMessage(), e);
         }
     }
 

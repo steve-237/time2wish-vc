@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: time2wish-backend
   datasource:
@@ -42,6 +44,7 @@ app:
     secret: ${JWT_SECRET:mySuperSecretKeyForDevelopmentOnlyPleaseChangeInProductionTime2Wish}
   email:
     output-dir: scratch/emails
+    from-address: ${EMAIL_FROM:${SMTP_USER:}}
   gemini:
     api-key: ${GEMINI_API_KEY:}
     model: gemini-1.5-flash

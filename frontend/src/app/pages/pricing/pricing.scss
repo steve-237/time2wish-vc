@@ -241,3 +241,33 @@
     }
   }
 }
+
+.confirm-modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+  color: var(--text-main);
+  padding: 2.5rem;
+  
+  .pricing-header h2 {
+    color: var(--text-main);
+    font-weight: 700;
+  }
+  
+  p {
+    color: var(--text-muted);
+  }
+  
+  .payment-methods .btn {
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+  }
+}
