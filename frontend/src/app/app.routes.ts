@@ -34,8 +34,20 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/admin/payments/admin-payments.component').then(m => m.AdminPaymentsComponent)
       },
       {
+        path: 'announcements',
+        loadComponent: () => import('./pages/admin/announcements/admin-announcements.component').then(m => m.AdminAnnouncementsComponent)
+      },
+      {
+        path: 'feedbacks',
+        loadComponent: () => import('./pages/admin/feedbacks/admin-feedbacks.component').then(m => m.AdminFeedbacksComponent)
+      },
+      {
         path: 'settings',
         loadComponent: () => import('./pages/admin/settings/admin-settings.component').then(m => m.AdminSettingsComponent)
+      },
+      {
+        path: 'support',
+        loadComponent: () => import('./pages/admin/support/admin-support.component').then(m => m.AdminSupportComponent)
       }
     ]
   },
@@ -82,6 +94,11 @@ export const routes: Routes = [
       {
         path: 'dashboard/contacts',
         loadComponent: () => import('./pages/contacts/contacts').then(m => m.ContactsPage),
+        canActivate: [authGuard]
+      },
+      {
+        path: 'dashboard/support',
+        loadComponent: () => import('./pages/support/support.component').then(m => m.SupportComponent),
         canActivate: [authGuard]
       },
       {

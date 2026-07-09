@@ -5,6 +5,8 @@ import { TranslationService } from '../../../services/translation.service';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartType } from 'chart.js';
 
+import { StatsService } from '../../../services/stats.service';
+
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
@@ -54,6 +56,16 @@ import { ChartConfiguration, ChartType } from 'chart.js';
               [data]="pieChartData" 
               [options]="pieChartOptions" 
               [type]="pieChartType">
+            </canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">Utilisation de l'IA (30 jours)</h3>
+          <div class="chart-wrapper">
+            <canvas baseChart 
+              [data]="aiChartData" 
+              [options]="aiChartOptions" 
+              [type]="aiChartType">
             </canvas>
           </div>
         </div>
@@ -273,6 +285,23 @@ export class AdminDashboardComponent implements OnInit {
     datasets: [ { data: [], backgroundColor: ['#3b82f6', '#ec4899', '#f59e0b', '#10b981'] } ]
   };
 
+  // AI Chart configuration
+  public aiChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false }
+    },
+    scales: {
+      y: { beginAtZero: true, ticks: { precision: 0 } }
+    }
+  };
+  public aiChartType: ChartType = 'bar';
+  public aiChartData: ChartConfiguration['data'] = {
+    labels: [],
+    datasets: [ { data: [], label: 'Générations IA', backgroundColor: '#a855f7', borderRadius: 6 } ]
+  };
+
   constructor() {
     effect(() => {
       const data = this.stats();
@@ -295,10 +324,23 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+  private statsService = inject(StatsService);
+
   ngOnInit() {
     this.adminService.getStats().subscribe({
       next: (data) => this.stats.set(data),
       error: (err) => console.error('Error fetching stats', err)
+    });
+    
+    this.statsService.getAiStats().subscribe({
+      next: (data) => {
+        if (data && data.length > 0) {
+          this.aiChartData.labels = data.map(d => d.featureType);
+          this.aiChartData.datasets[0].data = data.map(d => d.count);
+          this.aiChartData = { ...this.aiChartData };
+        }
+      },
+      error: (err) => console.error('Error fetching AI stats', err)
     });
   }
 

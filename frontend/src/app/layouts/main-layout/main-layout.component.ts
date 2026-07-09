@@ -6,15 +6,17 @@ import { AuthService } from '../../services/auth.service';
 import { NotificationPanelComponent } from '../../components/notification-panel/notification-panel.component';
 import { PwaService } from '../../services/pwa.service';
 import { PricingComponent } from '../../pages/pricing/pricing.component';
+import { FeedbackModalComponent } from '../../components/feedback-modal/feedback-modal.component';
 import { UiService } from '../../services/ui.service';
 import { ThemeService } from '../../services/theme.service';
 import { ToastService } from '../../services/toast.service';
 import { MessagingService } from '../../services/messaging.service';
+import { AnnouncementService } from '../../services/announcement.service';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, CommonModule, NotificationPanelComponent, PricingComponent],
+  imports: [RouterOutlet, RouterLink, CommonModule, NotificationPanelComponent, PricingComponent, FeedbackModalComponent],
   template: `
     @if (authService.isAuthenticated()) {
     <header class="glass-header">
@@ -83,6 +85,18 @@ import { MessagingService } from '../../services/messaging.service';
                 </a>
                 }
 
+                <!-- Support Button -->
+                <a routerLink="/dashboard/support" class="dropdown-item dropdown-item-hover" (click)="isProfileMenuOpen.set(false)" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; text-decoration: none; color: var(--text-main); border-radius: 10px; font-size: 0.9rem;">
+                  <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.2rem;">support_agent</span>
+                  <span>Support & Contact</span>
+                </a>
+
+                <!-- Feedback Button -->
+                <button (click)="isFeedbackModalOpen.set(true); isProfileMenuOpen.set(false)" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 10px; font-size: 0.9rem;">
+                  <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.2rem;">rate_review</span>
+                  <span>Donner mon avis</span>
+                </button>
+
                 <!-- App mode switch -->
                 <button (click)="cycleAppMode()" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 10px; font-size: 0.9rem;">
                   <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.2rem;">
@@ -127,9 +141,28 @@ import { MessagingService } from '../../services/messaging.service';
 
     <!-- Main content routing window -->
     <main class="main-container">
+      @if (activeAnnouncement()) {
+        <div class="announcement-banner" [ngClass]="'banner-' + activeAnnouncement()?.type?.toLowerCase()">
+          <div class="banner-content">
+            <span class="material-symbols-outlined icon">
+              {{ activeAnnouncement()?.type === 'WARNING' ? 'warning' : (activeAnnouncement()?.type === 'SUCCESS' ? 'check_circle' : 'info') }}
+            </span>
+            <div class="text">
+              <strong>{{ activeAnnouncement()?.title }}</strong> - {{ activeAnnouncement()?.message }}
+            </div>
+            <button class="icon-btn close-btn" (click)="activeAnnouncement.set(null)">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        </div>
+      }
+
       <router-outlet></router-outlet>
       @if (uiService.isPricingModalOpen()) {
         <app-pricing (close)="uiService.isPricingModalOpen.set(false)"></app-pricing>
+      }
+      @if (isFeedbackModalOpen()) {
+        <app-feedback-modal (close)="isFeedbackModalOpen.set(false)"></app-feedback-modal>
       }
     </main>
 
@@ -146,7 +179,31 @@ import { MessagingService } from '../../services/messaging.service';
         </div>
       </div>
     </footer>
-  `
+  `,
+  styles: [`
+    .announcement-banner {
+      width: 100%;
+      padding: 12px 24px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+    .banner-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .banner-content .text {
+      flex: 1;
+    }
+    .banner-info { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
+    .banner-warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
+    .banner-success { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .close-btn { color: inherit; opacity: 0.7; }
+    .close-btn:hover { opacity: 1; }
+  `]
 })
 export class MainLayoutComponent implements OnInit {
   readonly authService = inject(AuthService);
@@ -156,6 +213,7 @@ export class MainLayoutComponent implements OnInit {
   t9n = inject(TranslationService);
   pwaService = inject(PwaService);
   messagingService = inject(MessagingService);
+  private announcementService = inject(AnnouncementService);
   private readonly elementRef = inject(ElementRef);
 
   readonly languages: { code: Language; label: string; flagUrl: string }[] = [
@@ -167,10 +225,18 @@ export class MainLayoutComponent implements OnInit {
   isLangMenuOpen = signal<boolean>(false);
   isSidebarOpen = signal<boolean>(false);
   isProfileMenuOpen = signal<boolean>(false);
+  isFeedbackModalOpen = signal<boolean>(false);
+  activeAnnouncement = signal<any>(null);
 
   ngOnInit() {
     if (this.authService.isAuthenticated()) {
       this.messagingService.getUnreadCount().subscribe();
+      
+      this.announcementService.getActiveAnnouncement().subscribe({
+        next: (ann) => {
+          if (ann) this.activeAnnouncement.set(ann);
+        }
+      });
     }
   }
 

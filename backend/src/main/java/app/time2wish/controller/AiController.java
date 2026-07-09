@@ -37,6 +37,9 @@ public class AiController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private app.time2wish.repository.AILogRepository aiLogRepository;
+
     private User getAuthenticatedUser(UserDetailsImpl userDetails) {
         return userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new RuntimeException("Error: Authenticated user not found in DB"));
@@ -111,6 +114,14 @@ public class AiController {
         if (imageBytes == null) {
             return ResponseEntity.status(503).body(new MessageResponse("L'API de génération d'images n'est pas configurée pour le moment."));
         }
+
+        // Log AI usage for image generation
+        app.time2wish.model.AILog log = app.time2wish.model.AILog.builder()
+                .user(user)
+                .featureType("IMAGE")
+                .tokensCost(5) // maybe images cost more tokens
+                .build();
+        aiLogRepository.save(log);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG);

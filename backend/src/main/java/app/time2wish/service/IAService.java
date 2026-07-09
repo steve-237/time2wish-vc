@@ -7,6 +7,14 @@ import app.time2wish.dto.GiftSuggestion;
 import app.time2wish.dto.GiftSuggestionResponse;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import app.time2wish.model.AILog;
+import app.time2wish.model.User;
+import app.time2wish.repository.AILogRepository;
+import app.time2wish.repository.UserRepository;
+import app.time2wish.security.UserDetailsImpl;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -19,8 +27,31 @@ public class IAService {
     private String model;
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final AILogRepository aiLogRepository;
+    private final UserRepository userRepository;
+
+    public IAService(AILogRepository aiLogRepository, UserRepository userRepository) {
+        this.aiLogRepository = aiLogRepository;
+        this.userRepository = userRepository;
+    }
+
+    private void logUsage(String featureType) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl userDetails) {
+            User user = userRepository.findById(userDetails.getId()).orElse(null);
+            if (user != null) {
+                AILog log = AILog.builder()
+                        .user(user)
+                        .featureType(featureType)
+                        .tokensCost(1)
+                        .build();
+                aiLogRepository.save(log);
+            }
+        }
+    }
 
     public String generateWish(String name, Integer age, String category, String notes, String tone, String lang, String extraInstructions) {
+        logUsage("WISH");
         String prompt = buildPrompt(name, age, category, notes, tone, lang, extraInstructions);
 
         try {
@@ -104,6 +135,7 @@ public class IAService {
     }
 
     public GiftSuggestionResponse generateGiftSuggestions(String name, Integer age, String gender, String category, List<String> interests, String lang) {
+        logUsage("GIFT");
         StringBuilder prompt = new StringBuilder();
         prompt.append("Suggest 3 gift ideas for a person with the following details:\n");
         prompt.append("- Name: ").append(name).append("\n");
