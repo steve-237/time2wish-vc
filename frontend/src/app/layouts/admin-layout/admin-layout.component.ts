@@ -42,27 +42,30 @@ import { AuthService } from '../../services/auth.service';
     .admin-layout {
       display: flex;
       height: 100vh;
-      background-color: #f8fafc;
+      background-color: var(--bg-main);
       font-family: 'Inter', sans-serif;
+      color: var(--text-main);
     }
     .admin-sidebar {
       width: 250px;
-      background-color: #0f172a;
-      color: white;
+      background-color: var(--bg-card);
+      border-right: 1px solid var(--border-card);
       display: flex;
       flex-direction: column;
+      z-index: 10;
     }
     .sidebar-header {
       padding: 24px 20px;
       font-size: 1.25rem;
       font-weight: 700;
-      border-bottom: 1px solid #1e293b;
+      border-bottom: 1px solid var(--border-card);
       display: flex;
       align-items: center;
       gap: 10px;
+      color: var(--text-main);
     }
     .sidebar-header .material-symbols-outlined {
-      color: #3b82f6;
+      color: var(--primary);
     }
     .sidebar-nav {
       display: flex;
@@ -71,7 +74,7 @@ import { AuthService } from '../../services/auth.service';
     }
     .nav-item {
       padding: 12px 24px;
-      color: #94a3b8;
+      color: var(--text-muted);
       text-decoration: none;
       font-weight: 500;
       transition: all 0.2s;
@@ -80,36 +83,37 @@ import { AuthService } from '../../services/auth.service';
       gap: 12px;
     }
     .nav-item:hover, .nav-item.active {
-      background-color: #1e293b;
-      color: white;
-      border-right: 3px solid #3b82f6;
+      background-color: var(--bg-main);
+      color: var(--primary);
+      border-right: 3px solid var(--primary);
     }
     .back-link {
       margin-top: auto;
-      border-top: 1px solid #1e293b;
-      color: #64748b;
+      border-top: 1px solid var(--border-card);
+      color: var(--text-muted);
     }
     .admin-main {
       flex: 1;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      background-color: var(--bg-main);
     }
     .admin-header {
       height: 70px;
-      background: white;
-      border-bottom: 1px solid #e2e8f0;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border-card);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 32px;
-      z-index: 100;
+      z-index: 5;
     }
     .header-title {
       font-weight: 600;
       font-size: 1.1rem;
-      color: #334155;
+      color: var(--text-main);
     }
     .header-actions {
       display: flex;
@@ -119,24 +123,25 @@ import { AuthService } from '../../services/auth.service';
     .admin-user {
       font-size: 0.9rem;
       font-weight: 500;
-      color: #475569;
+      color: var(--text-muted);
       display: flex;
       align-items: center;
       gap: 8px;
     }
     .logout-btn {
       padding: 8px 16px;
-      background: white;
-      color: #ef4444;
-      border: 1px solid #fecaca;
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border-card);
       border-radius: 6px;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
     }
     .logout-btn:hover {
-      background: #fef2f2;
-      border-color: #ef4444;
+      background: var(--bg-main);
+      border-color: var(--primary);
+      color: var(--primary);
     }
     .admin-content {
       flex: 1;
