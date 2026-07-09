@@ -4,9 +4,9 @@ Time2Wish is a modern and premium web application designed to help you track, or
 
 ---
 
-## 🎉 Latest Release (v1.5.0) - The "Admin & Feedback" Update
+## 🚧 Upcoming Update - The "Admin & Feedback" Update
 
-In this release, we've significantly enhanced the administrator capabilities and provided users with direct ways to interact with the Time2Wish team.
+In this upcoming release, we are significantly enhancing the administrator capabilities and providing users with direct ways to interact with the Time2Wish team.
 
 ### 🛡️ Advanced Administration & Feedback
 *   **Support Tickets:** Users can now open support requests directly from the app. Administrators have a dedicated dashboard to read, reply, and manage ticket statuses in real-time.
@@ -16,7 +16,7 @@ In this release, we've significantly enhanced the administrator capabilities and
 
 ---
 
-## 🚧 Previous Release (v1.4.1) - The "Global Messaging Hub"
+## 🎉 Latest Release (v1.4.1) - The "Global Messaging Hub"
 
 ## 🎉 Latest Release (v1.4.0) - The "Social & Crowdfunding" Update
 
