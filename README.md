@@ -4,17 +4,19 @@ Time2Wish is a modern and premium web application designed to help you track, or
 
 ---
 
-## 🚧 Upcoming Update - The "Global Messaging Hub"
+## 🎉 Latest Release (v1.5.0) - The "Admin & Feedback" Update
 
-In this release, we've completely overhauled the messaging architecture to introduce a global, centralized messaging hub, independent from specific birthdays, allowing free-form chat and group organization.
+In this release, we've significantly enhanced the administrator capabilities and provided users with direct ways to interact with the Time2Wish team.
 
-### 💬 Global Chat & Contacts
-*   **Centralized Hub:** Replaced the legacy floating chat widget with a dedicated, full-page Messaging interface (`/dashboard/messaging`).
-*   **Contacts Management:** Introduced a new Contacts system (`/dashboard/contacts`) with an Add/Search interface to find registered users and send contact requests.
-*   **Private & Group Chats:** Users can now create direct 1-to-1 conversations or multi-user groups entirely independent of birthdays. Group creation respects the subscription quotas (locked for Basic, max 4 members for Plus, unlimited for Pro).
-*   **Contextual Groups:** Added a new "Organiser avec des amis" button directly on birthday details to instantly spawn a dedicated group chat with selected contacts for a specific event.
+### 🛡️ Advanced Administration & Feedback
+*   **Support Tickets:** Users can now open support requests directly from the app. Administrators have a dedicated dashboard to read, reply, and manage ticket statuses in real-time.
+*   **Global Announcements:** Administrators can now broadcast "Information", "Warning", or "Success" banners to all users. These banners appear elegantly at the top of the application.
+*   **AI Statistics Tracking:** Every generation (Birthday Wish, Gift Idea, or Card Image) is now logged. Administrators have access to a dynamic chart tracking AI usage over the last 30 days.
+*   **User Feedback System:** A new 5-star rating system with comments has been implemented. Users can give their opinion at any time, and administrators can filter and review these feedbacks in the Admin Panel to continuously improve the platform.
 
 ---
+
+## 🚧 Previous Release (v1.4.1) - The "Global Messaging Hub"
 
 ## 🎉 Latest Release (v1.4.0) - The "Social & Crowdfunding" Update
 
