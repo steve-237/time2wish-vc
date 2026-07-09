@@ -28,6 +28,14 @@ export const routes: Routes = [
       {
         path: 'users',
         loadComponent: () => import('./pages/admin/users/admin-users.component').then(m => m.AdminUsersComponent)
+      },
+      {
+        path: 'payments',
+        loadComponent: () => import('./pages/admin/payments/admin-payments.component').then(m => m.AdminPaymentsComponent)
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./pages/admin/settings/admin-settings.component').then(m => m.AdminSettingsComponent)
       }
     ]
   },

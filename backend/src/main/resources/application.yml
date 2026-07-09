@@ -51,6 +51,8 @@ app:
   huggingface:
     api-key: ${HUGGINGFACE_API_KEY:}
     model: ${HUGGINGFACE_MODEL:stabilityai/stable-diffusion-xl-base-1.0}
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:factice-google-client-id.apps.googleusercontent.com}
 
 # spring:
 #   sendgrid:

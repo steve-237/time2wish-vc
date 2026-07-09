@@ -151,7 +151,7 @@ public class AdminControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void testGetStatsAdminAccess() throws Exception {
-        when(adminService.getStats()).thenReturn(new StatsResponse(10, 20));
+        when(adminService.getStats()).thenReturn(new StatsResponse(10, 20, java.util.Map.of(), java.util.Map.of(), java.util.List.of(), 1500.0));
         mockMvc.perform(get("/api/admin/stats"))
                .andExpect(status().isOk());
     }

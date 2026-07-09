@@ -12,7 +12,15 @@ import { ToastService } from '../../../services/toast.service';
   imports: [CommonModule, DatePipe, FormsModule],
   template: `
     <div class="users-container">
-      <h2 class="page-title">{{ t9n.t('admin.users.title') }}</h2>
+      <div class="header-container">
+        <h2 class="page-title">{{ t9n.t('admin.users.title') }}</h2>
+        <div class="header-actions">
+          <button class="btn btn-secondary export-btn" (click)="exportToCsv()">
+            <span class="material-symbols-outlined">download</span>
+            Exporter CSV
+          </button>
+        </div>
+      </div>
       
       <div class="table-wrapper">
         <table class="users-table">
@@ -130,10 +138,11 @@ import { ToastService } from '../../../services/toast.service';
   `,
   styles: [`
     .users-container { padding: 1rem; }
-    .page-title { font-size: 1.5rem; font-weight: 600; color: var(--text-main); margin-bottom: 2rem; }
-    .table-wrapper { background: #ffffff; border-radius: 12px; box-shadow: var(--glass-shadow); overflow-x: auto; border: 1px solid var(--border-card); }
-    :host-context(body.dark-theme) .table-wrapper { background: #1e293b; }
-    :host-context(body.oled-theme) .table-wrapper { background: #0f0f0f; }
+    .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+    .page-title { font-size: 1.5rem; font-weight: 600; color: var(--text-main); margin: 0; }
+    .export-btn { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; padding: 0.5rem 1rem; }
+    .export-btn .material-symbols-outlined { font-size: 1.2rem; }
+    .table-wrapper { background: var(--bg-card); border-radius: 12px; box-shadow: var(--glass-shadow); overflow-x: auto; border: 1px solid var(--border-card); }
     .users-table { width: 100%; border-collapse: collapse; text-align: left; color: var(--text-main); background: transparent; }
     .users-table th, .users-table td { padding: 1.25rem 1rem; border-bottom: 1px solid var(--border-card); vertical-align: middle; }
     .users-table th { background-color: transparent; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; border-bottom: 2px solid var(--border-card); }
@@ -346,5 +355,39 @@ export class AdminUsersComponent implements OnInit {
     const color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777215)).toString(16).padStart(6, '0');
     const nameParam = name ? encodeURIComponent(name) : 'U';
     return `https://ui-avatars.com/api/?name=${nameParam}&background=${color}&color=fff&rounded=true&bold=true`;
+  }
+
+  exportToCsv() {
+    const data = this.users();
+    if (!data || data.length === 0) {
+      this.toastService.error('Aucune donnée à exporter');
+      return;
+    }
+
+    const headers = ['ID', 'Nom', 'Email', 'Role', 'Plan', 'Status', 'Date Creation', 'Derniere Connexion'];
+    
+    const csvContent = [
+      headers.join(','),
+      ...data.map(u => [
+        u.id,
+        `"${(u.fullName || '').replace(/"/g, '""')}"`,
+        `"${(u.email || '').replace(/"/g, '""')}"`,
+        u.role,
+        u.plan || 'BASIC',
+        u.status,
+        u.createdAt ? new Date(u.createdAt).toISOString() : '',
+        u.lastLoginAt ? new Date(u.lastLoginAt).toISOString() : ''
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `time2wish_users_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    this.toastService.success('Export CSV réussi');
   }
 }

@@ -16,6 +16,8 @@ import { AuthService } from '../../services/auth.service';
         <nav class="sidebar-nav">
           <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item">Dashboard</a>
           <a routerLink="/admin/users" routerLinkActive="active" class="nav-item">Users</a>
+          <a routerLink="/admin/payments" routerLinkActive="active" class="nav-item">Paiements 💳</a>
+          <a routerLink="/admin/settings" routerLinkActive="active" class="nav-item">Paramètres ⚙️</a>
           <a routerLink="/dashboard" class="nav-item back-link">Back to App</a>
         </nav>
       </aside>

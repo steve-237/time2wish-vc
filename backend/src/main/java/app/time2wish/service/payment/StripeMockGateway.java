@@ -11,10 +11,10 @@ public class StripeMockGateway implements PaymentGateway {
     public PaymentProvider getProvider() { return PaymentProvider.STRIPE; }
     @Override
     public String createCheckout(User user, PlanType planType) {
-        return "http://localhost:4200/payment/mock-checkout?provider=STRIPE&plan=" + planType.name();
+        return "/payment/mock-checkout?provider=STRIPE&plan=" + planType.name();
     }
     @Override
     public String createCustomerPortal(User user) {
-        return "http://localhost:4200/payment/mock-portal?provider=STRIPE";
+        return "/payment/mock-portal?provider=STRIPE";
     }
 }

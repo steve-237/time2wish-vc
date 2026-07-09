@@ -12,6 +12,12 @@ import app.time2wish.repository.UserRepository;
 import app.time2wish.security.JwtUtils;
 import app.time2wish.security.UserDetailsImpl;
 import app.time2wish.service.RefreshTokenService;
+import app.time2wish.payload.request.GoogleLoginRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import org.springframework.beans.factory.annotation.Value;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +52,9 @@ public class AuthController {
 
     @Autowired
     private RefreshTokenService refreshTokenService;
+    
+    @Autowired
+    private app.time2wish.service.SettingService settingService;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
@@ -86,6 +95,12 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+        if (!settingService.getBooleanSetting(app.time2wish.service.SettingService.ALLOW_REGISTRATION)) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(new MessageResponse("Error: Les inscriptions sont actuellement fermées."));
+        }
+
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity
                     .badRequest()
@@ -165,6 +180,76 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return ResponseEntity.ok(new MessageResponse("Log out successful!"));
+    }
+
+    @Value("${app.google.client-id:}")
+    private String googleClientId;
+
+    @PostMapping("/google")
+    public ResponseEntity<?> authenticateGoogle(@Valid @RequestBody GoogleLoginRequest request, HttpServletResponse response) {
+        try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
+                    .setAudience(java.util.Collections.singletonList(googleClientId))
+                    .build();
+
+            GoogleIdToken idToken = verifier.verify(request.getIdToken());
+            if (idToken != null) {
+                GoogleIdToken.Payload payload = idToken.getPayload();
+                String email = payload.getEmail();
+                String name = (String) payload.get("name");
+                String pictureUrl = (String) payload.get("picture");
+
+                Optional<User> userOpt = userRepository.findByEmail(email);
+                User user;
+                if (userOpt.isPresent()) {
+                    user = userOpt.get();
+                } else {
+                    if (!settingService.getBooleanSetting(app.time2wish.service.SettingService.ALLOW_REGISTRATION)) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MessageResponse("Error: Les inscriptions sont actuellement fermées."));
+                    }
+                    user = User.builder()
+                            .email(email)
+                            .password(encoder.encode(UUID.randomUUID().toString()))
+                            .fullName(name)
+                            .avatarUrl(pictureUrl)
+                            .role(app.time2wish.model.Role.ROLE_USER)
+                            .plan(app.time2wish.model.PlanType.BASIC)
+                            .status("ACTIVE")
+                            .build();
+                    user = userRepository.save(user);
+                }
+
+                String jwt = jwtUtils.generateJwtToken(user.getEmail());
+                RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
+
+                ResponseCookie cookie = ResponseCookie.from("t2w_refresh", refreshToken.getToken().toString())
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(30 * 24 * 60 * 60)
+                        .sameSite("Lax")
+                        .build();
+                response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+                return ResponseEntity.ok(JwtResponse.builder()
+                        .token(jwt)
+                        .id(user.getId())
+                        .email(user.getEmail())
+                        .fullName(user.getFullName())
+                        .bio(user.getBio())
+                        .avatarUrl(user.getAvatarUrl())
+                        .roles(java.util.Collections.singletonList(user.getRole().name()))
+                        .plan(user.getPlan().name())
+                        .lastAiWishGeneration(user.getLastAiWishGeneration())
+                        .lastAiGiftGeneration(user.getLastAiGiftGeneration())
+                        .build());
+            } else {
+                return ResponseEntity.badRequest().body(new MessageResponse("Error: Invalid Google Token."));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Google authentication failed."));
+        }
     }
 
     @PutMapping("/profile")

@@ -11,10 +11,10 @@ public class PayPalMockGateway implements PaymentGateway {
     public PaymentProvider getProvider() { return PaymentProvider.PAYPAL; }
     @Override
     public String createCheckout(User user, PlanType planType) {
-        return "http://localhost:4200/payment/mock-checkout?provider=PAYPAL&plan=" + planType.name();
+        return "/payment/mock-checkout?provider=PAYPAL&plan=" + planType.name();
     }
     @Override
     public String createCustomerPortal(User user) {
-        return "http://localhost:4200/payment/mock-portal?provider=PAYPAL";
+        return "/payment/mock-portal?provider=PAYPAL";
     }
 }

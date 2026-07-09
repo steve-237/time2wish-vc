@@ -28,9 +28,11 @@ import org.springframework.http.HttpMethod;
 public class WebSecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
+    private final MaintenanceFilter maintenanceFilter;
 
-    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService) {
+    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, MaintenanceFilter maintenanceFilter) {
         this.userDetailsService = userDetailsService;
+        this.maintenanceFilter = maintenanceFilter;
     }
 
     @Bean
@@ -75,6 +77,7 @@ public class WebSecurityConfig {
 
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(maintenanceFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

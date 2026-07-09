@@ -19,6 +19,30 @@ export interface AdminUserDto {
 export interface StatsResponse {
   totalUsers: number;
   totalBirthdays: number;
+  planDistribution?: { [key: string]: number };
+  monthlyRegistrations?: { [key: string]: number };
+  recentUsers?: AdminUserDto[];
+  totalRevenue?: number;
+}
+
+export interface AdminPaymentDto {
+  id: number;
+  userEmail: string;
+  userFullName: string;
+  provider: string;
+  amount: number;
+  currency: string;
+  plan: string;
+  status: string;
+  providerTransactionId: string;
+  createdAt: string;
+}
+
+export interface AppSetting {
+  key: string;
+  value: string;
+  description: string;
+  type: string;
 }
 
 @Injectable({
@@ -30,6 +54,18 @@ export class AdminService {
 
   getStats(): Observable<StatsResponse> {
     return this.http.get<StatsResponse>(`${this.apiUrl}/stats`);
+  }
+
+  getPayments(): Observable<AdminPaymentDto[]> {
+    return this.http.get<AdminPaymentDto[]>(`${this.apiUrl}/payments`);
+  }
+
+  getSettings(): Observable<AppSetting[]> {
+    return this.http.get<AppSetting[]>(`${this.apiUrl}/settings`);
+  }
+
+  updateSetting(key: string, value: string): Observable<AppSetting> {
+    return this.http.put<AppSetting>(`${this.apiUrl}/settings/${key}`, { value });
   }
 
   getAllUsers(): Observable<AdminUserDto[]> {
