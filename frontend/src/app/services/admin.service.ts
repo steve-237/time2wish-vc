@@ -14,6 +14,7 @@ export interface AdminUserDto {
   createdAt: string;
   role: string;
   plan: string;
+  badges?: string[];
 }
 
 export interface StatsResponse {
@@ -23,6 +24,7 @@ export interface StatsResponse {
   monthlyRegistrations?: { [key: string]: number };
   recentUsers?: AdminUserDto[];
   totalRevenue?: number;
+  monthlyRevenue?: { [key: string]: number };
 }
 
 export interface AdminPaymentDto {
@@ -86,5 +88,13 @@ export class AdminService {
 
   deleteUser(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/users/${id}`);
+  }
+
+  addBadge(userId: number, badgeName: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/users/${userId}/badges`, { badgeName });
+  }
+
+  removeBadge(userId: number, badgeName: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/users/${userId}/badges/${badgeName}`);
   }
 }

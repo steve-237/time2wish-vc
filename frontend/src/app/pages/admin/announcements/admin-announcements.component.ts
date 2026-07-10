@@ -43,7 +43,7 @@ import { ToastService } from '../../../services/toast.service';
           </div>
           
           <label class="toggle-switch mt-4" style="display: flex; align-items: center; gap: 12px; cursor: pointer; width: fit-content;">
-            <input type="checkbox" [(ngModel)]="newAnnouncement.isActive">
+            <input type="checkbox" [(ngModel)]="newAnnouncement.active">
             <span class="slider"></span>
             <span style="color: var(--text-main); font-weight: 500;">Activer immédiatement</span>
           </label>
@@ -51,7 +51,7 @@ import { ToastService } from '../../../services/toast.service';
           <div class="mt-4 flex-gap">
             <button class="btn btn-secondary" (click)="closeModal()">Annuler</button>
             <button class="btn-PRO" (click)="submitAnnouncement()" [disabled]="!newAnnouncement.title || !newAnnouncement.message || isSubmitting()">
-              {{ isSubmitting() ? 'Création...' : 'Créer l\'annonce' }}
+              {{ isSubmitting() ? 'Création...' : "Créer l'annonce" }}
             </button>
           </div>
         </div>
@@ -70,10 +70,10 @@ import { ToastService } from '../../../services/toast.service';
           </thead>
           <tbody>
             @for (ann of announcements(); track ann.id) {
-              <tr [class.is-active]="ann.isActive">
+              <tr [class.is-active]="ann.active">
                 <td>
-                  <span class="badge" [ngClass]="ann.isActive ? 'badge-success' : 'badge-neutral'">
-                    {{ ann.isActive ? 'Publiée' : 'Brouillon' }}
+                  <span class="badge" [ngClass]="ann.active ? 'badge-success' : 'badge-neutral'">
+                    {{ ann.active ? 'Publiée' : 'Brouillon' }}
                   </span>
                 </td>
                 <td>
@@ -85,9 +85,9 @@ import { ToastService } from '../../../services/toast.service';
                 </td>
                 <td style="color: var(--text-muted); font-size: 0.85rem;">{{ ann.createdAt | date:'short' }}</td>
                 <td style="text-align: right;">
-                  <button class="btn btn-sm" [ngClass]="ann.isActive ? 'btn-secondary text-error' : 'btn-PRO'" (click)="toggle(ann.id)">
-                    <span class="material-symbols-outlined">{{ ann.isActive ? 'visibility_off' : 'visibility' }}</span>
-                    {{ ann.isActive ? 'Masquer' : 'Publier' }}
+                  <button class="btn btn-sm" [ngClass]="ann.active ? 'btn-secondary text-error' : 'btn-PRO'" (click)="toggle(ann.id)">
+                    <span class="material-symbols-outlined">{{ ann.active ? 'visibility_off' : 'visibility' }}</span>
+                    {{ ann.active ? 'Masquer' : 'Publier' }}
                   </button>
                 </td>
               </tr>
@@ -148,7 +148,7 @@ export class AdminAnnouncementsComponent implements OnInit {
     title: '',
     message: '',
     type: 'INFO',
-    isActive: false
+    active: false
   };
 
   ngOnInit() {
@@ -163,7 +163,7 @@ export class AdminAnnouncementsComponent implements OnInit {
 
   closeModal() {
     this.isModalOpen.set(false);
-    this.newAnnouncement = { title: '', message: '', type: 'INFO', isActive: false };
+    this.newAnnouncement = { title: '', message: '', type: 'INFO', active: false };
   }
 
   submitAnnouncement() {

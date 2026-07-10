@@ -56,6 +56,9 @@ public class AuthController {
     @Autowired
     private app.time2wish.service.SettingService settingService;
 
+    @Autowired
+    private app.time2wish.repository.UserBadgeRepository userBadgeRepository;
+
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
@@ -90,6 +93,7 @@ public class AuthController {
                 .plan(user.getPlan().name())
                 .lastAiWishGeneration(user.getLastAiWishGeneration())
                 .lastAiGiftGeneration(user.getLastAiGiftGeneration())
+                .badges(userBadgeRepository.findByUser(user).stream().map(app.time2wish.model.UserBadge::getBadgeName).collect(java.util.stream.Collectors.toList()))
                 .build());
     }
 
@@ -155,6 +159,7 @@ public class AuthController {
                     .plan(user.getPlan().name())
                     .lastAiWishGeneration(user.getLastAiWishGeneration())
                     .lastAiGiftGeneration(user.getLastAiGiftGeneration())
+                    .badges(userBadgeRepository.findByUser(user).stream().map(app.time2wish.model.UserBadge::getBadgeName).collect(java.util.stream.Collectors.toList()))
                     .build());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Invalid token format"));
@@ -242,6 +247,7 @@ public class AuthController {
                         .plan(user.getPlan().name())
                         .lastAiWishGeneration(user.getLastAiWishGeneration())
                         .lastAiGiftGeneration(user.getLastAiGiftGeneration())
+                        .badges(userBadgeRepository.findByUser(user).stream().map(app.time2wish.model.UserBadge::getBadgeName).collect(java.util.stream.Collectors.toList()))
                         .build());
             } else {
                 return ResponseEntity.badRequest().body(new MessageResponse("Error: Invalid Google Token."));
@@ -277,6 +283,7 @@ public class AuthController {
                 .plan(user.getPlan().name())
                 .lastAiWishGeneration(user.getLastAiWishGeneration())
                 .lastAiGiftGeneration(user.getLastAiGiftGeneration())
+                .badges(userBadgeRepository.findByUser(user).stream().map(app.time2wish.model.UserBadge::getBadgeName).collect(java.util.stream.Collectors.toList()))
                 .build());
     }
 

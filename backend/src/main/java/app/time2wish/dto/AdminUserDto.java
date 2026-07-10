@@ -21,4 +21,6 @@ public class AdminUserDto {
     private LocalDateTime lastLoginAt;
     private LocalDateTime createdAt;
     private Role role;
+    private app.time2wish.model.PlanType plan;
+    private java.util.List<String> badges;
 }

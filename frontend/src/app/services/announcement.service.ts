@@ -8,7 +8,7 @@ export interface Announcement {
   title: string;
   message: string;
   type: string;
-  isActive: boolean;
+  active: boolean;
   createdAt: string;
 }
 

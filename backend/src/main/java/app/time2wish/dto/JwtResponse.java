@@ -20,4 +20,5 @@ public class JwtResponse {
     private String plan;
     private java.time.LocalDateTime lastAiWishGeneration;
     private java.time.LocalDateTime lastAiGiftGeneration;
+    private java.util.List<String> badges;
 }

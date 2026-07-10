@@ -7,6 +7,7 @@ export interface User {
   status: string;
   roles?: string[];
   plan?: string;
+  badges?: string[];
   lastAiWishGeneration?: string;
   lastAiGiftGeneration?: string;
 }

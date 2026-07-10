@@ -23,6 +23,12 @@ public class AILog {
     @Column(name = "feature_type", length = 50, nullable = false)
     private String featureType; // WISH, GIFT, IMAGE
 
+    @Column(columnDefinition = "TEXT")
+    private String prompt;
+
+    @Column(name = "generated_content", columnDefinition = "TEXT")
+    private String generatedContent;
+
     @Column(name = "tokens_cost", nullable = false)
     @Builder.Default
     private int tokensCost = 1;

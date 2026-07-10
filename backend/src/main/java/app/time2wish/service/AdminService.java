@@ -27,23 +27,31 @@ public class AdminService {
     private final PasswordEncoder passwordEncoder;
     private final app.time2wish.repository.PaymentTransactionRepository paymentTransactionRepository;
 
+    private final app.time2wish.repository.UserBadgeRepository userBadgeRepository;
+
     public AdminService(UserRepository userRepository, 
                         BirthdayRepository birthdayRepository, 
                         RefreshTokenRepository refreshTokenRepository, 
                         TemplateRepository templateRepository, 
                         PasswordEncoder passwordEncoder,
-                        app.time2wish.repository.PaymentTransactionRepository paymentTransactionRepository) {
+                        app.time2wish.repository.PaymentTransactionRepository paymentTransactionRepository,
+                        app.time2wish.repository.UserBadgeRepository userBadgeRepository) {
         this.userRepository = userRepository;
         this.birthdayRepository = birthdayRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.templateRepository = templateRepository;
         this.passwordEncoder = passwordEncoder;
         this.paymentTransactionRepository = paymentTransactionRepository;
+        this.userBadgeRepository = userBadgeRepository;
     }
 
     public List<AdminUserDto> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(user -> AdminUserDto.builder()
+                .map(user -> {
+                    List<String> badges = userBadgeRepository.findByUser(user).stream()
+                            .map(app.time2wish.model.UserBadge::getBadgeName)
+                            .collect(Collectors.toList());
+                    return AdminUserDto.builder()
                         .id(user.getId())
                         .email(user.getEmail())
                         .fullName(user.getFullName())
@@ -53,7 +61,10 @@ public class AdminService {
                         .lastLoginAt(user.getLastLoginAt())
                         .createdAt(user.getCreatedAt())
                         .role(user.getRole())
-                        .build())
+                        .plan(user.getPlan())
+                        .badges(badges)
+                        .build();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -110,14 +121,17 @@ public class AdminService {
         // Calculate monthly registrations (last 6 months)
         java.time.LocalDate sixMonthsAgo = java.time.LocalDate.now().minusMonths(5).withDayOfMonth(1);
         java.util.Map<String, Long> monthlyRegistrations = new java.util.LinkedHashMap<>();
+        java.util.Map<String, Double> monthlyRevenue = new java.util.LinkedHashMap<>();
         
         // Initialize last 6 months with 0
         java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("MMM yyyy");
         for (int i = 5; i >= 0; i--) {
-            monthlyRegistrations.put(java.time.LocalDate.now().minusMonths(i).format(formatter), 0L);
+            String mKey = java.time.LocalDate.now().minusMonths(i).format(formatter);
+            monthlyRegistrations.put(mKey, 0L);
+            monthlyRevenue.put(mKey, 0.0);
         }
 
-        // Fill with actual data
+        // Fill with actual data (Registrations)
         for (User u : users) {
             if (u.getCreatedAt() != null) {
                 java.time.LocalDate createdAt = u.getCreatedAt().toLocalDate();
@@ -142,16 +156,34 @@ public class AdminService {
                         .lastLoginAt(user.getLastLoginAt())
                         .createdAt(user.getCreatedAt())
                         .role(user.getRole())
+                        .plan(user.getPlan())
+                        .badges(userBadgeRepository.findByUser(user).stream().map(app.time2wish.model.UserBadge::getBadgeName).collect(Collectors.toList()))
                         .build())
                 .collect(Collectors.toList());
 
-        // Calculate total revenue from SUCCESS payments
-        double totalRevenue = paymentTransactionRepository.findAll().stream()
-                .filter(p -> "SUCCESS".equals(p.getStatus()))
-                .mapToDouble(app.time2wish.model.PaymentTransaction::getAmount)
-                .sum();
+        // Calculate total revenue and MRR from SUCCESS payments
+        double totalRevenue = 0.0;
+        for (app.time2wish.model.PaymentTransaction p : paymentTransactionRepository.findAll()) {
+            if ("SUCCESS".equals(p.getStatus())) {
+                double amountEur = p.getAmount();
+                if ("XAF".equalsIgnoreCase(p.getCurrency())) {
+                    amountEur = amountEur / 655.957; // Rough conversion
+                }
+                totalRevenue += amountEur;
 
-        return new StatsResponse(totalUsers, totalBirthdays, planDistribution, monthlyRegistrations, recentUsers, totalRevenue);
+                if (p.getCreatedAt() != null) {
+                    java.time.LocalDate pDate = p.getCreatedAt().toLocalDate();
+                    if (!pDate.isBefore(sixMonthsAgo)) {
+                        String monthKey = pDate.format(formatter);
+                        if (monthlyRevenue.containsKey(monthKey)) {
+                            monthlyRevenue.put(monthKey, monthlyRevenue.get(monthKey) + amountEur);
+                        }
+                    }
+                }
+            }
+        }
+
+        return new StatsResponse(totalUsers, totalBirthdays, planDistribution, monthlyRegistrations, recentUsers, totalRevenue, monthlyRevenue);
     }
 
     public List<app.time2wish.dto.AdminPaymentDto> getAllPayments() {

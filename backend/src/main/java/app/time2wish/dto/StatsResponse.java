@@ -10,6 +10,7 @@ public class StatsResponse {
     private Map<String, Long> monthlyRegistrations;
     private List<AdminUserDto> recentUsers;
     private double totalRevenue;
+    private Map<String, Double> monthlyRevenue;
     
     public StatsResponse() {
     }
@@ -17,14 +18,16 @@ public class StatsResponse {
     public StatsResponse(long totalUsers, long totalBirthdays, 
                          Map<String, Long> planDistribution, 
                          Map<String, Long> monthlyRegistrations, 
-                         List<AdminUserDto> recentUsers,
-                         double totalRevenue) {
+                         List<AdminUserDto> recentUsers, 
+                         double totalRevenue,
+                         Map<String, Double> monthlyRevenue) {
         this.totalUsers = totalUsers;
         this.totalBirthdays = totalBirthdays;
         this.planDistribution = planDistribution;
         this.monthlyRegistrations = monthlyRegistrations;
         this.recentUsers = recentUsers;
         this.totalRevenue = totalRevenue;
+        this.monthlyRevenue = monthlyRevenue;
     }
 
     public long getTotalUsers() {
@@ -73,5 +76,13 @@ public class StatsResponse {
 
     public void setTotalRevenue(double totalRevenue) {
         this.totalRevenue = totalRevenue;
+    }
+
+    public Map<String, Double> getMonthlyRevenue() {
+        return monthlyRevenue;
+    }
+
+    public void setMonthlyRevenue(Map<String, Double> monthlyRevenue) {
+        this.monthlyRevenue = monthlyRevenue;
     }
 }

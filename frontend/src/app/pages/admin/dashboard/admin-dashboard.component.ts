@@ -50,6 +50,16 @@ import { StatsService } from '../../../services/stats.service';
           </div>
         </div>
         <div class="chart-card">
+          <h3 class="chart-title">Évolution des Revenus (MRR)</h3>
+          <div class="chart-wrapper">
+            <canvas baseChart 
+              [data]="revenueChartData" 
+              [options]="revenueChartOptions" 
+              [type]="revenueChartType">
+            </canvas>
+          </div>
+        </div>
+        <div class="chart-card">
           <h3 class="chart-title">Répartition des Forfaits</h3>
           <div class="chart-wrapper pie-wrapper">
             <canvas baseChart 
@@ -285,6 +295,30 @@ export class AdminDashboardComponent implements OnInit {
     datasets: [ { data: [], backgroundColor: ['#3b82f6', '#ec4899', '#f59e0b', '#10b981'] } ]
   };
 
+  // Revenue Chart configuration
+  public revenueChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false }
+    },
+    scales: {
+      y: { beginAtZero: true }
+    }
+  };
+  public revenueChartType: ChartType = 'line';
+  public revenueChartData: ChartConfiguration['data'] = {
+    labels: [],
+    datasets: [ { 
+      data: [], 
+      label: 'Revenus (€)', 
+      borderColor: '#10b981', 
+      backgroundColor: 'rgba(16, 185, 129, 0.2)',
+      fill: true,
+      tension: 0.4
+    } ]
+  };
+
   // AI Chart configuration
   public aiChartOptions: ChartConfiguration['options'] = {
     responsive: true,
@@ -319,6 +353,13 @@ export class AdminDashboardComponent implements OnInit {
           this.pieChartData.labels = Object.keys(data.planDistribution);
           this.pieChartData.datasets[0].data = Object.values(data.planDistribution);
           this.pieChartData = { ...this.pieChartData };
+        }
+        
+        // Update Revenue Chart
+        if (data.monthlyRevenue) {
+          this.revenueChartData.labels = Object.keys(data.monthlyRevenue);
+          this.revenueChartData.datasets[0].data = Object.values(data.monthlyRevenue);
+          this.revenueChartData = { ...this.revenueChartData };
         }
       }
     });

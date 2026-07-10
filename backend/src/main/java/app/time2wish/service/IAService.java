@@ -35,7 +35,7 @@ public class IAService {
         this.userRepository = userRepository;
     }
 
-    private void logUsage(String featureType) {
+    private void logUsage(String featureType, String prompt, String generatedContent) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl userDetails) {
             User user = userRepository.findById(userDetails.getId()).orElse(null);
@@ -43,6 +43,8 @@ public class IAService {
                 AILog log = AILog.builder()
                         .user(user)
                         .featureType(featureType)
+                        .prompt(prompt)
+                        .generatedContent(generatedContent)
                         .tokensCost(1)
                         .build();
                 aiLogRepository.save(log);
@@ -51,7 +53,6 @@ public class IAService {
     }
 
     public String generateWish(String name, Integer age, String category, String notes, String tone, String lang, String extraInstructions) {
-        logUsage("WISH");
         String prompt = buildPrompt(name, age, category, notes, tone, lang, extraInstructions);
 
         try {
@@ -60,14 +61,18 @@ public class IAService {
             
             String generatedText = restTemplate.getForObject(url, String.class);
             if (generatedText != null && !generatedText.trim().isEmpty()) {
-                return generatedText.trim();
+                String result = generatedText.trim();
+                logUsage("WISH", prompt, result);
+                return result;
             }
         } catch (Exception e) {
             System.err.println("Error calling Pollinations AI for text: " + e.getMessage());
         }
 
         // Fallback if API fails
-        return generateLocalFallback(name, age, category, notes, tone, lang, extraInstructions);
+        String fallbackResult = generateLocalFallback(name, age, category, notes, tone, lang, extraInstructions);
+        logUsage("WISH", prompt, fallbackResult);
+        return fallbackResult;
     }
 
     private String buildPrompt(String name, Integer age, String category, String notes, String tone, String lang, String extraInstructions) {
@@ -135,7 +140,6 @@ public class IAService {
     }
 
     public GiftSuggestionResponse generateGiftSuggestions(String name, Integer age, String gender, String category, List<String> interests, String lang) {
-        logUsage("GIFT");
         StringBuilder prompt = new StringBuilder();
         prompt.append("Suggest 3 gift ideas for a person with the following details:\n");
         prompt.append("- Name: ").append(name).append("\n");
@@ -176,6 +180,7 @@ public class IAService {
                     generatedText = generatedText.substring(0, generatedText.length() - 3);
                 }
                 generatedText = generatedText.trim();
+                logUsage("GIFT", prompt.toString(), generatedText);
                 ObjectMapper mapper = new ObjectMapper();
                 List<GiftSuggestion> suggestions = mapper.readValue(generatedText, new TypeReference<List<GiftSuggestion>>() {});
                 return new GiftSuggestionResponse(suggestions, "AI");
@@ -184,7 +189,9 @@ public class IAService {
             System.err.println("Error calling Pollinations AI for gift suggestions: " + e.getMessage());
         }
 
-        return new GiftSuggestionResponse(generateLocalFallbackGifts(name, age, gender, category, interests, lang), "LOCAL");
+        GiftSuggestionResponse fallback = new GiftSuggestionResponse(generateLocalFallbackGifts(name, age, gender, category, interests, lang), "LOCAL");
+        logUsage("GIFT", prompt.toString(), "Local Fallback JSON array");
+        return fallback;
     }
 
     public GiftSuggestionResponse generateLocalFallbackResponse(String name, Integer age, String gender, String category, List<String> interests, String lang) {

@@ -68,12 +68,18 @@ import { AnnouncementService } from '../../services/announcement.service';
               <!-- Dropdown Box -->
               <div class="profile-dropdown" style="position: absolute; right: 0; top: calc(100% + 10px); width: 280px; z-index: 100; padding: 8px; border-radius: 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); background: var(--bg-dropdown); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid var(--border-card);">
                 
-                <!-- User Info Header -->
                 <a routerLink="/dashboard/profile" class="dropdown-user-info dropdown-item-hover" (click)="isProfileMenuOpen.set(false)" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid var(--border-card); margin-bottom: 4px; text-decoration: none; color: var(--text-main); border-radius: 12px;">
                   <img [src]="authService.currentUser()?.avatarUrl || 'https://ui-avatars.com/api/?name=' + (authService.currentUser()?.fullName || 'U') + '&background=random'" alt="Avatar" class="user-avatar" style="width: 44px; height: 44px; border-radius: 50%;">
-                  <div style="display: flex; flex-direction: column; overflow: hidden;">
+                  <div style="display: flex; flex-direction: column; overflow: hidden; width: 100%;">
                      <span style="font-weight: 600; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 0.95rem;">{{ authService.currentUser()?.fullName }}</span>
                      <span style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{ authService.currentUser()?.email }}</span>
+                     @if (authService.currentUser()?.badges?.length) {
+                       <div style="display: flex; gap: 4px; margin-top: 4px;">
+                         @for (badge of authService.currentUser()?.badges; track badge) {
+                           <span [title]="badge" style="font-size: 1rem; cursor: help;">{{ getBadgeEmoji(badge) }}</span>
+                         }
+                       </div>
+                     }
                   </div>
                 </a>
 
@@ -227,6 +233,17 @@ export class MainLayoutComponent implements OnInit {
   isProfileMenuOpen = signal<boolean>(false);
   isFeedbackModalOpen = signal<boolean>(false);
   activeAnnouncement = signal<any>(null);
+
+  getBadgeEmoji(badgeName: string): string {
+    const badges = [
+      { name: 'VIP', icon: '🌟' },
+      { name: 'Donateur', icon: '💎' },
+      { name: 'Créatif', icon: '🎨' },
+      { name: 'Early Bird', icon: '🐣' },
+      { name: 'Ambassadeur', icon: '📣' }
+    ];
+    return badges.find(b => b.name === badgeName)?.icon || '🏅';
+  }
 
   ngOnInit() {
     if (this.authService.isAuthenticated()) {

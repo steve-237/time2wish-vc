@@ -58,6 +58,13 @@ app:
 #   sendgrid:
 #     api-key: YOUR_SENDGRID_API_KEY_HERE
 
+logging:
+  file:
+    name: scratch/logs/time2wish.log
+  level:
+    app.time2wish: DEBUG
+    org.springframework.web: INFO
+
 ---
 spring:
   config:

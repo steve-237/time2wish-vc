@@ -5,11 +5,13 @@ import { HttpClient } from '@angular/common/http';
 import { ToastService } from '../../services/toast.service';
 import { Router } from '@angular/router';
 import { TranslationService } from '../../services/translation.service';
+import { PromoService } from '../../services/promo.service';
+import { FormsModule } from '@angular/forms';
 import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-pricing',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="pricing-modal-overlay" (click)="close.emit()">
       <div class="pricing-modal-content glass-panel" (click)="$event.stopPropagation()">
@@ -107,6 +109,28 @@ import { environment } from '../../../environments/environment';
             </p>
             
             <div class="payment-methods" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+              
+              <!-- Promo Code Section -->
+              <div class="promo-section" style="background: rgba(var(--primary-hsl), 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px dashed var(--primary);">
+                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-muted);">Avez-vous un code promo ?</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="text" [(ngModel)]="promoCode" placeholder="Code (ex: SUMMER20)" style="flex: 1; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-card); background: var(--bg-main); color: var(--text-main); text-transform: uppercase;">
+                  <button class="btn btn-primary" [disabled]="!promoCode || isCheckingPromo()" (click)="applyPromo()" style="padding: 0.5rem 1rem;">
+                    {{ isCheckingPromo() ? '...' : 'Appliquer' }}
+                  </button>
+                </div>
+                @if (appliedDiscount()) {
+                  <div style="margin-top: 0.5rem; color: #10b981; font-weight: bold; font-size: 0.9rem;">
+                    <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">check_circle</span>
+                    Code appliqué : -{{ appliedDiscount() }}%
+                  </div>
+                  <div style="margin-top: 0.5rem; font-size: 1.1rem;">
+                    Nouveau prix : <span style="text-decoration: line-through; opacity: 0.5; margin-right: 0.5rem;">{{ getBasePrice() }}€</span>
+                    <strong>{{ getDiscountedPrice() }}€</strong>
+                  </div>
+                }
+              </div>
+
               <button class="btn btn-select" [disabled]="isLoading()" (click)="checkoutWith('STRIPE')" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                 <span class="material-symbols-outlined">credit_card</span>
                 Carte de Crédit (Stripe)
@@ -140,9 +164,14 @@ export class PricingComponent {
   toastService = inject(ToastService);
   router = inject(Router);
   t9n = inject(TranslationService);
+  promoService = inject(PromoService);
 
   isLoading = signal(false);
   planToConfirm = signal<string | null>(null);
+  
+  promoCode = '';
+  isCheckingPromo = signal(false);
+  appliedDiscount = signal<number | null>(null);
 
   currentPlan() {
     return this.authService.currentUser()?.plan || 'BASIC';
@@ -154,6 +183,37 @@ export class PricingComponent {
 
   cancelPlanChange() {
     this.planToConfirm.set(null);
+    this.promoCode = '';
+    this.appliedDiscount.set(null);
+  }
+
+  getBasePrice(): number {
+    return this.planToConfirm() === 'PRO' ? 9.99 : 4.99;
+  }
+
+  getDiscountedPrice(): string {
+    const base = this.getBasePrice();
+    const discount = this.appliedDiscount();
+    if (!discount) return base.toString();
+    const newPrice = base * (1 - (discount / 100));
+    return newPrice.toFixed(2);
+  }
+
+  applyPromo() {
+    if (!this.promoCode) return;
+    this.isCheckingPromo.set(true);
+    this.promoService.validatePromo(this.promoCode).subscribe({
+      next: (res) => {
+        this.appliedDiscount.set(res.discountPercentage);
+        this.isCheckingPromo.set(false);
+        this.toastService.success('Code promo appliqué !');
+      },
+      error: (err) => {
+        this.appliedDiscount.set(null);
+        this.isCheckingPromo.set(false);
+        this.toastService.error(err.error?.message || 'Code invalide');
+      }
+    });
   }
 
   checkoutWith(provider: string) {
@@ -161,7 +221,13 @@ export class PricingComponent {
     if (!plan) return;
     
     this.isLoading.set(true);
-    this.http.post<{url: string}>(environment.apiUrl + '/payments/checkout', { plan, provider }).subscribe({
+    const payload = { 
+      plan, 
+      provider,
+      promoCode: this.appliedDiscount() ? this.promoCode.toUpperCase() : null 
+    };
+
+    this.http.post<{url: string}>(environment.apiUrl + '/payments/checkout', payload).subscribe({
       next: (res) => {
         // Redirection vers la passerelle de paiement (ici simulée)
         window.location.href = res.url;

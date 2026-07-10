@@ -28,4 +28,22 @@ public class AdminStatsController {
         LocalDateTime since = LocalDateTime.now().minusDays(30);
         return ResponseEntity.ok(aiLogRepository.countStatsByFeatureSince(since));
     }
+
+    @GetMapping("/ai/logs")
+    public ResponseEntity<java.util.List<app.time2wish.dto.AILogDto>> getAiLogs() {
+        java.util.List<app.time2wish.dto.AILogDto> logs = aiLogRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"))
+            .stream()
+            .map(log -> app.time2wish.dto.AILogDto.builder()
+                .id(log.getId())
+                .userEmail(log.getUser() != null ? log.getUser().getEmail() : "Unknown")
+                .userFullName(log.getUser() != null ? log.getUser().getFullName() : "Unknown")
+                .featureType(log.getFeatureType())
+                .prompt(log.getPrompt())
+                .generatedContent(log.getGeneratedContent())
+                .tokensCost(log.getTokensCost())
+                .createdAt(log.getCreatedAt())
+                .build())
+            .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(logs);
+    }
 }

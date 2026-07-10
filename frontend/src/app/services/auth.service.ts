@@ -14,6 +14,7 @@ interface AuthResponse {
   avatarUrl?: string;
   roles: string[];
   plan?: string;
+  badges?: string[];
   lastAiWishGeneration?: string;
   lastAiGiftGeneration?: string;
 }
@@ -143,6 +144,7 @@ export class AuthService {
       status: 'ACTIVE',
       roles: res.roles || [],
       plan: res.plan || 'BASIC',
+      badges: res.badges || [],
       lastAiWishGeneration: res.lastAiWishGeneration,
       lastAiGiftGeneration: res.lastAiGiftGeneration
     };

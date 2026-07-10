@@ -19,7 +19,11 @@ import { AuthService } from '../../services/auth.service';
           <a routerLink="/admin/payments" routerLinkActive="active" class="nav-item">Paiements 💳</a>
           <a routerLink="/admin/announcements" routerLinkActive="active" class="nav-item">Annonces 📢</a>
           <a routerLink="/admin/feedbacks" routerLinkActive="active" class="nav-item">Avis ⭐</a>
+          <a routerLink="/admin/promos" routerLinkActive="active" class="nav-item">Codes Promo 🎟️</a>
+          <a routerLink="/admin/gifts" routerLinkActive="active" class="nav-item">Cadeaux 🎁</a>
+          <a routerLink="/admin/ai-moderation" routerLinkActive="active" class="nav-item">Modération IA 🤖</a>
           <a routerLink="/admin/support" routerLinkActive="active" class="nav-item">Support 🎧</a>
+          <a routerLink="/admin/logs" routerLinkActive="active" class="nav-item">Logs Système 🖥️</a>
           <a routerLink="/admin/settings" routerLinkActive="active" class="nav-item">Paramètres ⚙️</a>
           <a routerLink="/dashboard" class="nav-item back-link">Back to App</a>
         </nav>

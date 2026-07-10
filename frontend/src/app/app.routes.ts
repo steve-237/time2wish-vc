@@ -42,6 +42,22 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/admin/feedbacks/admin-feedbacks.component').then(m => m.AdminFeedbacksComponent)
       },
       {
+        path: 'promos',
+        loadComponent: () => import('./pages/admin/promos/admin-promos.component').then(m => m.AdminPromosComponent)
+      },
+      {
+        path: 'gifts',
+        loadComponent: () => import('./pages/admin/gifts/admin-gifts.component').then(m => m.AdminGiftsComponent)
+      },
+      {
+        path: 'logs',
+        loadComponent: () => import('./pages/admin/logs/admin-logs.component').then(m => m.AdminLogsComponent)
+      },
+      {
+        path: 'ai-moderation',
+        loadComponent: () => import('./pages/admin/ai-moderation/admin-ai-moderation.component').then(m => m.AdminAiLogsComponent)
+      },
+      {
         path: 'settings',
         loadComponent: () => import('./pages/admin/settings/admin-settings.component').then(m => m.AdminSettingsComponent)
       },

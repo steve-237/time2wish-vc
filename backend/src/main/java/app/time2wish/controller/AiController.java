@@ -119,6 +119,8 @@ public class AiController {
         app.time2wish.model.AILog log = app.time2wish.model.AILog.builder()
                 .user(user)
                 .featureType("IMAGE")
+                .prompt(request.getPrompt())
+                .generatedContent("[IMAGE BYTES DELIVERED]")
                 .tokensCost(5) // maybe images cost more tokens
                 .build();
         aiLogRepository.save(log);

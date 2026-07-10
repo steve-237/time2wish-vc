@@ -30,6 +30,7 @@ import { ToastService } from '../../../services/toast.service';
               <th>{{ t9n.t('admin.users.col_user') || 'Utilisateur' }}</th>
               <th>{{ t9n.t('admin.users.col_role') }}</th>
               <th>{{ t9n.t('admin.users.col_plan') }}</th>
+              <th>Badges</th>
               <th>{{ t9n.t('admin.users.col_status') }}</th>
               <th style="text-align: right;">{{ t9n.t('admin.users.col_actions') }}</th>
             </tr>
@@ -62,6 +63,15 @@ import { ToastService } from '../../../services/toast.service';
                   </select>
                 </td>
                 <td>
+                  <div class="badges-cell">
+                    @for (badge of user.badges; track badge) {
+                      <span class="user-badge" [title]="badge">
+                        {{ getBadgeEmoji(badge) }}
+                      </span>
+                    }
+                  </div>
+                </td>
+                <td>
                   <span class="badge" 
                     [class.status-active]="user.status === 'ACTIVE'"
                     [class.status-blocked]="user.status === 'BLOCKED'"
@@ -83,6 +93,10 @@ import { ToastService } from '../../../services/toast.service';
                       <span class="material-symbols-outlined">task_alt</span>
                     </button>
                   }
+                  
+                  <button class="icon-action-btn btn-warning-soft" (click)="openBadgesModal(user)" title="Gérer les Badges">
+                    <span class="material-symbols-outlined">military_tech</span>
+                  </button>
                   
                   @if (isSuperAdmin() && user.role !== 'ROLE_SUPERADMIN') {
                     <button class="icon-action-btn btn-secondary-soft" (click)="requestAction(user, 'role', 'ROLE_ADMIN')" *ngIf="user.role === 'ROLE_USER'" title="Promouvoir Admin">
@@ -135,6 +149,36 @@ import { ToastService } from '../../../services/toast.service';
       </div>
     </div>
     }
+
+    <!-- Badges Modal Overlay -->
+    @if (isBadgesModalOpen()) {
+    <div class="tm-modal-overlay">
+      <div class="tm-modal-content confirm-modal-content">
+        <div class="confirm-modal-header">
+          <h3>Badges de {{ selectedUserForBadges()?.fullName }}</h3>
+          <button class="icon-btn" (click)="isBadgesModalOpen.set(false)">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="confirm-modal-body">
+          <p>Sélectionnez les badges à attribuer :</p>
+          <div class="badges-selection">
+            @for (b of availableBadges; track b.name) {
+              <label class="badge-checkbox">
+                <input type="checkbox" 
+                       [checked]="userHasBadge(b.name)" 
+                       (change)="toggleBadge(b.name, $event)" />
+                <span class="badge-icon">{{ b.icon }}</span> {{ b.name }}
+              </label>
+            }
+          </div>
+        </div>
+        <div class="confirm-modal-actions">
+          <button class="btn btn-secondary" (click)="isBadgesModalOpen.set(false)">Fermer</button>
+        </div>
+      </div>
+    </div>
+    }
   `,
   styles: [`
     .users-container { padding: 1rem; }
@@ -177,8 +221,19 @@ import { ToastService } from '../../../services/toast.service';
     .btn-danger-soft:hover:not(:disabled) { background-color: rgba(239, 68, 68, 0.2); }
     .btn-secondary-soft { background-color: rgba(100, 116, 139, 0.1); color: var(--text-muted); }
     .btn-secondary-soft:hover:not(:disabled) { background-color: rgba(100, 116, 139, 0.2); color: var(--text-main); }
+    .btn-warning-soft { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .btn-warning-soft:hover:not(:disabled) { background-color: rgba(245, 158, 11, 0.2); }
     .btn-danger-outline { background-color: transparent; border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; }
     .btn-danger-outline:hover:not(:disabled) { background-color: rgba(239, 68, 68, 0.1); border-color: transparent; }
+    
+    .badges-cell { display: flex; gap: 0.25rem; }
+    .user-badge { font-size: 1.2rem; cursor: help; }
+    
+    .badges-selection { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+    .badge-checkbox { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.5rem; border-radius: 8px; transition: background 0.2s; }
+    .badge-checkbox:hover { background: rgba(var(--primary-hsl), 0.05); }
+    .badge-checkbox input { accent-color: var(--primary); width: 1.2rem; height: 1.2rem; cursor: pointer; }
+    .badge-icon { font-size: 1.2rem; }
     
     .form-select { padding: 0.4rem 0.75rem; border-radius: 6px; border: 1px solid var(--border-card); outline: none; background-color: var(--bg-card); color: var(--text-main); font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: border-color 0.2s; }
     .form-select:hover:not(:disabled) { border-color: rgba(var(--primary-hsl), 0.5); }
@@ -224,6 +279,23 @@ export class AdminUsersComponent implements OnInit {
     actionValue: string;
     triggerEvent?: Event;
   }>({ isOpen: false, user: null, actionType: null, actionValue: '' });
+
+  // Badges features
+  isBadgesModalOpen = signal(false);
+  selectedUserForBadges = signal<AdminUserDto | null>(null);
+  
+  availableBadges = [
+    { name: 'VIP', icon: '🌟' },
+    { name: 'Donateur', icon: '💎' },
+    { name: 'Créatif', icon: '🎨' },
+    { name: 'Early Bird', icon: '🐣' },
+    { name: 'Ambassadeur', icon: '📣' }
+  ];
+
+  getBadgeEmoji(badgeName: string): string {
+    const b = this.availableBadges.find(x => x.name === badgeName);
+    return b ? b.icon : '🏅';
+  }
 
   ngOnInit() {
     this.loadUsers();
@@ -355,6 +427,48 @@ export class AdminUsersComponent implements OnInit {
     const color = Math.floor(Math.abs((Math.sin(hash) * 10000) % 1 * 16777215)).toString(16).padStart(6, '0');
     const nameParam = name ? encodeURIComponent(name) : 'U';
     return `https://ui-avatars.com/api/?name=${nameParam}&background=${color}&color=fff&rounded=true&bold=true`;
+  }
+
+  openBadgesModal(user: AdminUserDto) {
+    this.selectedUserForBadges.set(user);
+    this.isBadgesModalOpen.set(true);
+  }
+
+  userHasBadge(badgeName: string): boolean {
+    const user = this.selectedUserForBadges();
+    return user?.badges?.includes(badgeName) ?? false;
+  }
+
+  toggleBadge(badgeName: string, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const user = this.selectedUserForBadges();
+    if (!user) return;
+
+    if (input.checked) {
+      this.adminService.addBadge(user.id, badgeName).subscribe({
+        next: () => {
+          user.badges = [...(user.badges || []), badgeName];
+          this.toastService.success(`Badge ${badgeName} attribué`);
+        },
+        error: () => {
+          input.checked = false;
+          this.toastService.error('Erreur lors de l\'attribution du badge');
+        }
+      });
+    } else {
+      this.adminService.removeBadge(user.id, badgeName).subscribe({
+        next: () => {
+          if (user.badges) {
+            user.badges = user.badges.filter(b => b !== badgeName);
+          }
+          this.toastService.success(`Badge ${badgeName} retiré`);
+        },
+        error: () => {
+          input.checked = true;
+          this.toastService.error('Erreur lors du retrait du badge');
+        }
+      });
+    }
   }
 
   exportToCsv() {
