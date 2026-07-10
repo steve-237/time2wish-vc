@@ -42,7 +42,7 @@ public class MaintenanceFilter extends OncePerRequestFilter {
             
             if (auth != null && auth.isAuthenticated()) {
                 isAdmin = auth.getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_SUPERADMIN"));
             }
 
             if (!isAdmin) {
