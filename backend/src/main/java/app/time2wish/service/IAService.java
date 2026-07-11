@@ -12,6 +12,7 @@ import app.time2wish.model.User;
 import app.time2wish.repository.AILogRepository;
 import app.time2wish.repository.UserRepository;
 import app.time2wish.security.UserDetailsImpl;
+import app.time2wish.service.SettingService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import java.time.LocalDateTime;
@@ -29,10 +30,12 @@ public class IAService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final AILogRepository aiLogRepository;
     private final UserRepository userRepository;
+    private final SettingService settingService;
 
-    public IAService(AILogRepository aiLogRepository, UserRepository userRepository) {
+    public IAService(AILogRepository aiLogRepository, UserRepository userRepository, SettingService settingService) {
         this.aiLogRepository = aiLogRepository;
         this.userRepository = userRepository;
+        this.settingService = settingService;
     }
 
     private void logUsage(String featureType, String prompt, String generatedContent) {
@@ -53,6 +56,10 @@ public class IAService {
     }
 
     public String generateWish(String name, Integer age, String category, String notes, String tone, String lang, String extraInstructions) {
+        if (!settingService.getBooleanSetting(SettingService.MODULE_AI_ENABLED)) {
+            return generateLocalFallback(name, age, category, notes, tone, lang, extraInstructions);
+        }
+
         String prompt = buildPrompt(name, age, category, notes, tone, lang, extraInstructions);
 
         try {
@@ -140,6 +147,10 @@ public class IAService {
     }
 
     public GiftSuggestionResponse generateGiftSuggestions(String name, Integer age, String gender, String category, List<String> interests, String lang) {
+        if (!settingService.getBooleanSetting(SettingService.MODULE_AI_ENABLED)) {
+            return generateLocalFallbackResponse(name, age, gender, category, interests, lang);
+        }
+
         StringBuilder prompt = new StringBuilder();
         prompt.append("Suggest 3 gift ideas for a person with the following details:\n");
         prompt.append("- Name: ").append(name).append("\n");

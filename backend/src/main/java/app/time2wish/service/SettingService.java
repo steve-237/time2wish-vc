@@ -16,6 +16,9 @@ public class SettingService {
     public static final String MAINTENANCE_MODE = "MAINTENANCE_MODE";
     public static final String ALLOW_REGISTRATION = "ALLOW_REGISTRATION";
     public static final String FREE_WISH_LIMIT = "FREE_WISH_LIMIT";
+    public static final String MODULE_CHAT_ENABLED = "MODULE_CHAT_ENABLED";
+    public static final String MODULE_AI_ENABLED = "MODULE_AI_ENABLED";
+    public static final String MODULE_CAGNOTTE_ENABLED = "MODULE_CAGNOTTE_ENABLED";
 
     public SettingService(AppSettingRepository appSettingRepository) {
         this.appSettingRepository = appSettingRepository;
@@ -26,6 +29,9 @@ public class SettingService {
         initSetting(MAINTENANCE_MODE, "false", "Activer le mode maintenance (Seuls les admins peuvent se connecter)", "BOOLEAN");
         initSetting(ALLOW_REGISTRATION, "true", "Autoriser l'inscription de nouveaux utilisateurs", "BOOLEAN");
         initSetting(FREE_WISH_LIMIT, "5", "Nombre d'essais gratuits pour la génération d'IA (par défaut)", "INTEGER");
+        initSetting(MODULE_CHAT_ENABLED, "true", "Activer la fonctionnalité de Chat en temps réel (WebSockets)", "BOOLEAN");
+        initSetting(MODULE_AI_ENABLED, "true", "Activer la génération de textes et d'images par IA", "BOOLEAN");
+        initSetting(MODULE_CAGNOTTE_ENABLED, "true", "Activer le système de cagnottes et promesses de dons", "BOOLEAN");
     }
 
     private void initSetting(String key, String defaultValue, String description, String type) {

@@ -1,10 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { AdminService, AdminUserDto } from '../../../services/admin.service';
 import { AuthService } from '../../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { TranslationService } from '../../../services/translation.service';
 import { ToastService } from '../../../services/toast.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-users',
@@ -107,6 +110,9 @@ import { ToastService } from '../../../services/toast.service';
                     </button>
                     <button class="icon-action-btn btn-danger-outline" (click)="requestAction(user, 'delete', '')" [title]="t9n.t('admin.users.btn_delete') || 'Supprimer'">
                       <span class="material-symbols-outlined">delete</span>
+                    </button>
+                    <button class="icon-action-btn" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;" (click)="impersonate(user)" title="Se connecter en tant que cet utilisateur">
+                      <span class="material-symbols-outlined">vpn_key</span>
                     </button>
                   }
                 </td>
@@ -268,6 +274,8 @@ import { ToastService } from '../../../services/toast.service';
 export class AdminUsersComponent implements OnInit {
   private adminService = inject(AdminService);
   private authService = inject(AuthService);
+  private http = inject(HttpClient);
+  private router = inject(Router);
   t9n = inject(TranslationService);
   toastService = inject(ToastService);
   users = signal<AdminUserDto[]>([]);
@@ -503,5 +511,20 @@ export class AdminUsersComponent implements OnInit {
     link.click();
     document.body.removeChild(link);
     this.toastService.success('Export CSV réussi');
+  }
+
+  impersonate(user: AdminUserDto) {
+    if (!confirm(`Êtes-vous sûr de vouloir vous connecter en tant que ${user.fullName} ?`)) return;
+
+    this.http.post<any>(`${environment.apiUrl}/admin/users/${user.id}/impersonate`, {}).subscribe({
+      next: (res: any) => {
+        // Save old tokens to be able to restore maybe? Or just overwrite
+        localStorage.setItem('t2w_token', res.token);
+        localStorage.setItem('t2w_user', JSON.stringify(res));
+        this.toastService.success(`Connexion réussie en tant que ${user.fullName}`);
+        window.location.href = '/dashboard';
+      },
+      error: () => this.toastService.error('Impossible d\'impersonifier cet utilisateur')
+    });
   }
 }

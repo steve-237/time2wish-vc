@@ -1,0 +1,141 @@
+<div class="settings-container">
+  <div class="header-container">
+    <h2 class="page-title">Centre de Commandement</h2>
+    <p class="page-subtitle">Gestion avancée et télémétrie de Time2Wish</p>
+  </div>
+
+  <div class="tabs-nav">
+    <button [class.active]="activeTab() === 'general'" (click)="setTab('general')">
+      <i class="fas fa-cogs"></i> Général
+    </button>
+    <button [class.active]="activeTab() === 'modules'" (click)="setTab('modules')">
+      <i class="fas fa-cubes"></i> Modules (Kill Switches)
+    </button>
+    <button [class.active]="activeTab() === 'monitor'" (click)="setTab('monitor')">
+      <i class="fas fa-chart-line"></i> Moniteur Serveur
+    </button>
+    <button [class.active]="activeTab() === 'advanced'" (click)="setTab('advanced')">
+      <i class="fas fa-shield-alt"></i> Avancé
+    </button>
+  </div>
+
+  <div class="tab-content" *ngIf="activeTab() === 'general'">
+    <div class="settings-grid">
+      @for (setting of generalSettings; track setting.key) {
+        <div class="setting-card">
+          <div class="setting-info">
+            <h3 class="setting-key">{{ formatKey(setting.key) }}</h3>
+            <p class="setting-desc">{{ setting.description }}</p>
+          </div>
+          <div class="setting-control">
+            @if (setting.type === 'BOOLEAN') {
+              <label class="toggle-switch">
+                <input type="checkbox" [checked]="setting.value === 'true'" (change)="onToggleChange(setting, $event)">
+                <span class="slider"></span>
+              </label>
+            } @else if (setting.type === 'INTEGER') {
+              <input type="number" class="number-input" [value]="setting.value" (change)="onNumberChange(setting, $event)">
+            } @else {
+              <input type="text" class="text-input" [value]="setting.value" (change)="onTextChange(setting, $event)">
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="tab-content" *ngIf="activeTab() === 'modules'">
+    <div class="alert-info">
+      <i class="fas fa-info-circle"></i> Ces interrupteurs d'urgence (Kill Switches) permettent de désactiver instantanément un module pour tous les utilisateurs, sans redémarrer le serveur.
+    </div>
+    <div class="settings-grid">
+      @for (setting of moduleSettings; track setting.key) {
+        <div class="setting-card module-card" [class.disabled]="setting.value === 'false'">
+          <div class="setting-info">
+            <h3 class="setting-key">{{ formatKey(setting.key) }}</h3>
+            <p class="setting-desc">{{ setting.description }}</p>
+          </div>
+          <div class="setting-control">
+            <label class="toggle-switch danger-toggle">
+              <input type="checkbox" [checked]="setting.value === 'true'" (change)="onToggleChange(setting, $event)">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="tab-content" *ngIf="activeTab() === 'monitor'">
+    <div class="monitor-dashboard" *ngIf="metrics() as m">
+      <div class="metric-cards">
+        <div class="metric-card live-users">
+          <i class="fas fa-users"></i>
+          <div class="metric-data">
+            <span class="metric-value">{{ m.activeUsers }}</span>
+            <span class="metric-label">Utilisateurs En Ligne</span>
+          </div>
+        </div>
+        
+        <div class="metric-card cpu">
+          <i class="fas fa-microchip"></i>
+          <div class="metric-data">
+            <span class="metric-value">{{ (m.cpuLoad * 100).toFixed(1) }}%</span>
+            <span class="metric-label">Charge CPU ({{ m.availableProcessors }} Cores)</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" [style.width.%]="m.cpuLoad * 100" [class.high]="m.cpuLoad > 0.8"></div>
+          </div>
+        </div>
+
+        <div class="metric-card memory">
+          <i class="fas fa-memory"></i>
+          <div class="metric-data">
+            <span class="metric-value">{{ formatBytes(m.memoryUsed) }} / {{ formatBytes(m.memoryMax) }}</span>
+            <span class="metric-label">RAM JVM Utilisée</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" [style.width.%]="(m.memoryUsed / m.memoryMax) * 100" [class.high]="(m.memoryUsed / m.memoryMax) > 0.8"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="terminal-container">
+        <div class="terminal-header">
+          <div class="terminal-title">Live Server Logs (WebSocket)</div>
+          <div class="terminal-actions">
+            <span class="pulse-dot"></span> Streaming...
+          </div>
+        </div>
+        <div class="terminal-body" #terminalBody [scrollTop]="terminalBody.scrollHeight">
+          @for (log of logs(); track $index) {
+            <div class="log-line" [ngClass]="log.level.toLowerCase()">
+              <span class="log-time">{{ log.timestamp }}</span>
+              <span class="log-level">{{ log.level }}</span>
+              <span class="log-thread">[{{ log.thread }}]</span>
+              <span class="log-logger">{{ log.logger }}</span>
+              <span class="log-msg">{{ log.message }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" *ngIf="activeTab() === 'advanced'">
+    <div class="settings-grid">
+      <div class="setting-card">
+        <div class="setting-info">
+          <h3 class="setting-key">Sauvegarde Base de Données</h3>
+          <p class="setting-desc">Génère et télécharge un snapshot complet au format JSON de toutes les tables principales.</p>
+        </div>
+        <div class="setting-control">
+          <button class="btn btn-primary" (click)="downloadBackup()">
+            <i class="fas fa-download"></i> Télécharger Backup
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -10,8 +10,16 @@ import java.nio.charset.StandardCharsets;
 public class ImageGenerationService {
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final SettingService settingService;
+
+    public ImageGenerationService(SettingService settingService) {
+        this.settingService = settingService;
+    }
 
     public byte[] generateImage(String prompt) {
+        if (!settingService.getBooleanSetting(SettingService.MODULE_AI_ENABLED)) {
+            return generateLocalFallback(prompt);
+        }
         try {
             String fullPrompt = "A beautiful birthday card, highly detailed, vibrant colors, " + prompt;
             String encodedPrompt = URLEncoder.encode(fullPrompt, StandardCharsets.UTF_8).replace("+", "%20");

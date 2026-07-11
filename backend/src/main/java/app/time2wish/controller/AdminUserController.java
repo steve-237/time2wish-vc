@@ -30,6 +30,12 @@ public class AdminUserController {
     @Autowired
     private app.time2wish.repository.UserBadgeRepository userBadgeRepository;
 
+    @Autowired
+    private app.time2wish.security.JwtUtils jwtUtils;
+
+    @Autowired
+    private app.time2wish.service.RefreshTokenService refreshTokenService;
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
     public ResponseEntity<?> getAllUsers() {
@@ -169,6 +175,48 @@ public class AdminUserController {
         User user = userOpt.get();
 
         userBadgeRepository.deleteByUserAndBadgeName(user, badgeName);
-        return ResponseEntity.ok(Map.of("message", "Badge removed successfully"));
+        return ResponseEntity.ok(Map.of(
+                "message", "Badge retiré avec succès"
+        ));
+    }
+
+    @PostMapping("/{id}/impersonate")
+    @PreAuthorize("hasRole('SUPERADMIN')")
+    public ResponseEntity<?> impersonateUser(@PathVariable Long id, jakarta.servlet.http.HttpServletResponse response) {
+        Optional<User> userOpt = userRepository.findById(id);
+        if (userOpt.isEmpty()) return ResponseEntity.notFound().build();
+        User targetUser = userOpt.get();
+
+        if (targetUser.getRole() == Role.ROLE_SUPERADMIN) {
+            return ResponseEntity.status(403).body("Cannot impersonate SuperAdmin");
+        }
+
+        // Generate JWT for target user
+        String jwt = jwtUtils.generateJwtToken(targetUser.getEmail());
+        app.time2wish.model.RefreshToken refreshToken = refreshTokenService.createRefreshToken(targetUser.getId());
+
+        // Set refresh token in cookie
+        org.springframework.http.ResponseCookie cookie = org.springframework.http.ResponseCookie.from("t2w_refresh", refreshToken.getToken().toString())
+                .httpOnly(true)
+                .secure(false) // Set to true in prod
+                .path("/")
+                .maxAge(30 * 24 * 60 * 60)
+                .sameSite("Lax")
+                .build();
+        response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return ResponseEntity.ok(app.time2wish.dto.JwtResponse.builder()
+                .token(jwt)
+                .id(targetUser.getId())
+                .email(targetUser.getEmail())
+                .fullName(targetUser.getFullName())
+                .bio(targetUser.getBio())
+                .avatarUrl(targetUser.getAvatarUrl())
+                .roles(java.util.Collections.singletonList(targetUser.getRole().name()))
+                .plan(targetUser.getPlan().name())
+                .lastAiWishGeneration(targetUser.getLastAiWishGeneration())
+                .lastAiGiftGeneration(targetUser.getLastAiGiftGeneration())
+                .badges(userBadgeRepository.findByUser(targetUser).stream().map(app.time2wish.model.UserBadge::getBadgeName).collect(java.util.stream.Collectors.toList()))
+                .build());
     }
 }

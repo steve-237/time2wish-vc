@@ -4,15 +4,26 @@ Time2Wish is a modern and premium web application designed to help you track, or
 
 ---
 
-## 🚧 Upcoming Update - The "Admin & Feedback" Update
+## 🎉 Latest Release (v1.5.0) - The "Ultra-Premium Command Center" Update
 
-In this upcoming release, we are significantly enhancing the administrator capabilities and providing users with direct ways to interact with the Time2Wish team.
+In this major update, we've revolutionized the administration panel by introducing a real-time, ultra-premium Command Center to give administrators absolute control and unparalleled visibility into the system.
 
-### 🛡️ Advanced Administration & Feedback
-*   **Support Tickets:** Users can now open support requests directly from the app. Administrators have a dedicated dashboard to read, reply, and manage ticket statuses in real-time.
-*   **Global Announcements:** Administrators can now broadcast "Information", "Warning", or "Success" banners to all users. These banners appear elegantly at the top of the application.
-*   **AI Statistics Tracking:** Every generation (Birthday Wish, Gift Idea, or Card Image) is now logged. Administrators have access to a dynamic chart tracking AI usage over the last 30 days.
-*   **User Feedback System:** A new 5-star rating system with comments has been implemented. Users can give their opinion at any time, and administrators can filter and review these feedbacks in the Admin Panel to continuously improve the platform.
+### 🛡️ Command Center & Live Telemetry
+*   **Live Server Monitor (WebSockets):** A built-in terminal directly in the web UI streams real-time backend logs using WebSockets. It also features dynamic progress bars for tracking JVM RAM consumption and CPU load.
+*   **Modular Kill Switches:** Emergency toggle switches to instantly disable specific modules (AI Wishes, AI Images, Chat, Crowdfunding) globally for all users without restarting the server.
+*   **Live User Tracker:** Real-time counter powered by Spring WebSockets displaying the exact number of users currently connected to the platform.
+*   **Ghost Login (Impersonation Mode):** Administrators can generate a secure, temporary JWT to instantly log in "as" any user with a single click, perfect for troubleshooting user-specific issues.
+*   **Database Snapshots:** A one-click backup utility that instantly extracts all critical PostgreSQL data into a downloadable JSON file.
+
+---
+
+## 🚧 Upcoming Update - Support & Feedback Loop
+
+In future releases, we plan to further enhance user-admin interactions:
+*   **Support Tickets:** Users can open support requests directly from the app.
+*   **Global Announcements:** Broadcast "Information" or "Warning" banners to all users.
+*   **AI Statistics Tracking:** Visual charts tracking AI usage across the platform.
+*   **User Feedback System:** 5-star rating system to gather user feedback.
 
 ---
 
