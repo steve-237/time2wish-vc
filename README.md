@@ -603,6 +603,14 @@ During deployment, we encountered and resolved several issues. Here are the deta
 - **Problem:** Connecting the frontend SockJS client directly to `http://localhost:8081/ws` resulted in a connection refused error, despite the backend running correctly. This occurred due to local IPv4/IPv6 resolution mismatches between Node's proxy, the browser, and the Spring Boot embedded Tomcat server binding.
 - **Solution:** We added the `/ws` endpoint to the Angular local dev server proxy configuration (`proxy.conf.json`) with `"ws": true`. The frontend code was updated to connect using a relative path (`new SockJS('/ws')`), forcing the WebSocket handshake to flow cleanly through the Angular proxy (port 4200) to the backend.
 
+#### 7. Admin Panel Showing "No Data" During Maintenance Mode
+- **Problem:** When "Maintenance Mode" was enabled in the Global Settings, the `MaintenanceFilter` blocked all incoming API requests (returning 503) unless the user had the `ROLE_ADMIN` authority. However, the exact string match did not account for the `ROLE_SUPERADMIN` authority, resulting in even the highest-level administrators being locked out of the system and unable to turn off maintenance mode via the UI.
+- **Solution:** We updated `MaintenanceFilter.java` to explicitly allow both `ROLE_ADMIN` and `ROLE_SUPERADMIN` to bypass the maintenance block.
+
+#### 8. Frontend Session State Desync (Silent Failures)
+- **Problem:** If a user's backend session expired or the server restarted, the frontend `localStorage` still held the outdated JWT. When making API calls like fetching birthdays, the backend returned `401 Unauthorized`, but the frontend `BirthdayService` silently caught the error and displayed an empty dashboard instead of forcing a logout.
+- **Solution:** We updated the Angular `auth.interceptor.ts` to globally catch all `401 Unauthorized` HTTP errors (except on the login route) and invoke `authService.logout()`, automatically redirecting the user to the login screen for a fresh session.
+
 ---
 
 ## 📱 How to Install the PWA
