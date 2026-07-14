@@ -116,7 +116,11 @@ export class BirthdayService {
       whatsapp,
       gender,
       interests,
-      isFavorite
+      isFavorite,
+      partyDate: null,
+      partyTime: null,
+      partyLocation: null,
+      partyDescription: null
     };
 
     this.http.post<Birthday>(this.API_URL, payload).subscribe({
@@ -142,7 +146,7 @@ export class BirthdayService {
     });
   }
 
-  updateBirthday(id: number, name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre', interests: string[] = [], isFavorite = false): void {
+  updateBirthday(id: number, name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre', interests: string[] = [], isFavorite = false, partyDate?: string, partyTime?: string, partyLocation?: string, partyDescription?: string): void {
     const payload = {
       name,
       birthdate,
@@ -155,7 +159,11 @@ export class BirthdayService {
       whatsapp,
       gender,
       interests,
-      isFavorite
+      isFavorite,
+      partyDate: partyDate || null,
+      partyTime: partyTime || null,
+      partyLocation: partyLocation || null,
+      partyDescription: partyDescription || null
     };
 
     this.http.put<Birthday>(`${this.API_URL}/${id}`, payload).subscribe({
@@ -210,7 +218,11 @@ export class BirthdayService {
       birthday.whatsapp,
       birthday.gender,
       updatedInterests,
-      birthday.isFavorite
+      birthday.isFavorite,
+      birthday.partyDate,
+      birthday.partyTime,
+      birthday.partyLocation,
+      birthday.partyDescription
     );
   }
 
@@ -233,7 +245,11 @@ export class BirthdayService {
       birthday.whatsapp,
       birthday.gender,
       updatedInterests,
-      birthday.isFavorite
+      birthday.isFavorite,
+      birthday.partyDate,
+      birthday.partyTime,
+      birthday.partyLocation,
+      birthday.partyDescription
     );
   }
 
@@ -257,7 +273,11 @@ export class BirthdayService {
       birthday.whatsapp,
       birthday.gender,
       birthday.interests || [],
-      isFavorite
+      isFavorite,
+      birthday.partyDate,
+      birthday.partyTime,
+      birthday.partyLocation,
+      birthday.partyDescription
     );
   }
 
@@ -287,11 +307,92 @@ export class BirthdayService {
   }
 
   getSharedList(token: string) {
-    return this.http.get<SharedBirthday>(`${environment.apiUrl}/public/shared/${token}`);
+    let sessionId = localStorage.getItem('t2w_guest_session');
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      localStorage.setItem('t2w_guest_session', sessionId);
+    }
+    return this.http.get<SharedBirthday>(`${environment.apiUrl}/public/shared/${token}?sessionId=${sessionId}`);
   }
 
   reserveGift(token: string, giftId: number, guestName: string) {
     return this.http.post<Gift>(`${environment.apiUrl}/public/shared/${token}/gifts/${giftId}/reserve`, { guestName });
+  }
+
+  voteGift(token: string, giftId: number, guestName: string, voteType: 'UP' | 'DOWN' | '') {
+    const voterSessionId = localStorage.getItem('t2w_guest_session') || crypto.randomUUID();
+    localStorage.setItem('t2w_guest_session', voterSessionId);
+    return this.http.post<Gift>(`${environment.apiUrl}/public/shared/${token}/gifts/${giftId}/vote`, {
+      voterName: guestName,
+      voterSessionId,
+      voteType
+    });
+  }
+
+  addPartyTask(birthdayId: number, description: string) {
+    return this.http.post<any>(`${this.API_URL}/${birthdayId}/tasks`, { description });
+  }
+
+  deletePartyTask(birthdayId: number, taskId: number) {
+    return this.http.delete(`${this.API_URL}/${birthdayId}/tasks/${taskId}`);
+  }
+
+  togglePartyTask(birthdayId: number, taskId: number) {
+    return this.http.put<any>(`${this.API_URL}/${birthdayId}/tasks/${taskId}/toggle`, {});
+  }
+
+  assignTask(token: string, taskId: number, guestName: string) {
+    const guestSessionId = localStorage.getItem('t2w_guest_session') || crypto.randomUUID();
+    localStorage.setItem('t2w_guest_session', guestSessionId);
+    return this.http.post<any>(`${environment.apiUrl}/public/shared/${token}/tasks/${taskId}/assign`, {
+      guestName,
+      guestSessionId
+    });
+  }
+
+  unassignTask(token: string, taskId: number) {
+    const sessionId = localStorage.getItem('t2w_guest_session');
+    return this.http.post<any>(`${environment.apiUrl}/public/shared/${token}/tasks/${taskId}/unassign?sessionId=${sessionId}`, {});
+  }
+
+  // --- Phase 3: Memory Lane & Collaborative E-Cards ---
+
+  uploadMemoryFile(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{url: string, filename: string}>(`${this.API_URL}/upload`, formData);
+  }
+
+  addMemory(token: string, guestName: string, message?: string, mediaUrl?: string, mediaType?: string) {
+    const guestSessionId = localStorage.getItem('t2w_guest_session') || crypto.randomUUID();
+    localStorage.setItem('t2w_guest_session', guestSessionId);
+    return this.http.post<any>(`${environment.apiUrl}/public/shared/${token}/memories`, {
+      guestName,
+      guestSessionId,
+      message,
+      mediaUrl,
+      mediaType
+    });
+  }
+
+  addSignature(token: string, guestName: string, message: string, color: string, fontFamily: string) {
+    const guestSessionId = localStorage.getItem('t2w_guest_session') || crypto.randomUUID();
+    localStorage.setItem('t2w_guest_session', guestSessionId);
+    return this.http.post<any>(`${environment.apiUrl}/public/shared/${token}/signatures`, {
+      guestName,
+      guestSessionId,
+      message,
+      color,
+      fontFamily
+    });
+  }
+
+  deleteMemory(birthdayId: number, memoryId: number) {
+    return this.http.delete(`${this.API_URL}/${birthdayId}/memories/${memoryId}`);
+  }
+
+  deleteSignature(birthdayId: number, signatureId: number) {
+    return this.http.delete(`${this.API_URL}/${birthdayId}/signatures/${signatureId}`);
   }
   // -----------------------------
 

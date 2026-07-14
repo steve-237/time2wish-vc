@@ -1191,3 +1191,7 @@ body.dark-theme .dropdown-item-hover:hover { background: rgba(255, 255, 255, 0.0
   padding: 0 4px;
   box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
 }
+
+/* Global modal overlay */
+.z-modal { z-index: 3000 !important; }
+

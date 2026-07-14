@@ -20,4 +20,9 @@ public class GiftDto {
     private Boolean isReserved;
     private String reservedByName;
     private LocalDateTime createdAt;
+    
+    // Community Features
+    private Integer upvotes;
+    private Integer downvotes;
+    private String userVote; // "UP", "DOWN", or null
 }

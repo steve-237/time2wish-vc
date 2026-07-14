@@ -41,4 +41,15 @@ public class BirthdayRequest {
     private java.util.List<String> interests;
 
     private Boolean isFavorite = false;
+
+    // Party Details
+    private LocalDate partyDate;
+    
+    @Size(max = 10)
+    private String partyTime;
+    
+    @Size(max = 200)
+    private String partyLocation;
+    
+    private String partyDescription;
 }

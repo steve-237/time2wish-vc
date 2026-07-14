@@ -1,0 +1,137 @@
+<div class="tm-modal-overlay z-modal" (click)="onClose()">
+  <div class="tm-modal-content glass-card party-modal-content" (click)="$event.stopPropagation()">
+    
+    <div class="modal-header">
+      <h2>Organiser la Fête</h2>
+      <button class="icon-btn" (click)="onClose()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <!-- Navigation Tabs -->
+    <div class="party-tabs">
+      <button class="tab-btn" [class.active]="activeTab() === 'details'" (click)="activeTab.set('details')">
+        <span class="material-symbols-outlined tab-icon">event_note</span>
+        Détails
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'tasks'" (click)="activeTab.set('tasks')">
+        <span class="material-symbols-outlined tab-icon">checklist</span>
+        Tâches
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'share'" (click)="activeTab.set('share')">
+        <span class="material-symbols-outlined tab-icon">share</span>
+        Partage
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'friends'" (click)="activeTab.set('friends')">
+        <span class="material-symbols-outlined tab-icon">groups</span>
+        Amis
+      </button>
+    </div>
+
+    <div class="modal-body">
+      
+      <!-- TAB: DETAILS -->
+      @if (activeTab() === 'details') {
+        <div class="tab-pane">
+          <div class="form-group floating-group">
+            <input type="date" class="floating-input" [(ngModel)]="partyDate" placeholder="Date de la fête">
+            <label class="floating-label">Date de la fête</label>
+          </div>
+          <div class="form-group floating-group">
+            <input type="time" class="floating-input" [(ngModel)]="partyTime" placeholder="Heure">
+            <label class="floating-label">Heure</label>
+          </div>
+          <div class="form-group floating-group">
+            <input type="text" class="floating-input" [(ngModel)]="partyLocation" placeholder="Lieu">
+            <label class="floating-label">Lieu</label>
+          </div>
+          <div class="form-group floating-group">
+            <textarea class="floating-input" [(ngModel)]="partyDescription" rows="3" placeholder="Informations additionnelles"></textarea>
+            <label class="floating-label">Informations additionnelles</label>
+          </div>
+          <button class="btn-PRO w-full mt-4" (click)="saveDetails()">
+            Sauvegarder les détails
+          </button>
+        </div>
+      }
+
+      <!-- TAB: TASKS -->
+      @if (activeTab() === 'tasks') {
+        <div class="tab-pane">
+          <!-- Add task input using global form-control style -->
+          <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+            <input type="text" class="tm-input" style="flex: 1;" [(ngModel)]="newTaskDescription" placeholder="Ex: Acheter le gâteau..." (keyup.enter)="addPartyTask()">
+            <button class="btn-primary" (click)="addPartyTask()" [disabled]="!newTaskDescription.trim() || isAddingTask">
+              <span class="material-symbols-outlined">add</span>
+            </button>
+          </div>
+
+          <div class="tasks-list">
+            @for (task of birthday?.partyTasks; track task.id) {
+              <div class="task-item" [class.isCompleted]="task.isCompleted">
+                <input type="checkbox" [checked]="task.isCompleted" (change)="toggleTaskCompletion(task)">
+                <span class="task-desc">{{ task.description }}</span>
+                <button class="icon-btn text-error" (click)="deletePartyTask(task.id)" title="Supprimer">
+                  <span class="material-symbols-outlined" style="font-size: 1.1rem;">delete</span>
+                </button>
+              </div>
+            }
+            @if (!birthday?.partyTasks?.length) {
+              <p class="empty-state">Aucune tâche partagée pour le moment.</p>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- TAB: SHARE (Guestbook & Card) -->
+      @if (activeTab() === 'share') {
+        <div class="tab-pane">
+          <p class="share-desc">Partagez ce lien avec vos amis pour qu'ils puissent laisser un mot dans le livre d'or ou signer la carte collaborative de {{ birthday.name }}.</p>
+          
+          <div class="share-box">
+            <div class="link-display">
+              <span class="material-symbols-outlined text-primary">link</span>
+              <input type="text" readonly [value]="getShareLink()" class="link-input">
+            </div>
+            <button class="btn-secondary copy-btn" (click)="copyShareLink()">
+              <span class="material-symbols-outlined">content_copy</span>
+              Copier le lien
+            </button>
+          </div>
+
+          <div class="info-alert mt-4">
+            <span class="material-symbols-outlined">info</span>
+            <p>Les invités n'ont pas besoin de créer de compte pour laisser un message. Leur mot s'affichera directement dans l'onglet "Livre d'Or" des détails de l'anniversaire.</p>
+          </div>
+        </div>
+      }
+
+      <!-- TAB: FRIENDS (Group Chat) -->
+      @if (activeTab() === 'friends') {
+        <div class="tab-pane">
+          <h4 style="margin: 0 0 16px 0; font-weight: 600;">Sélectionnez les amis à inviter au groupe :</h4>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            @for (contact of contactService.contacts(); track contact.userId) {
+              <label class="friend-item">
+                <input type="checkbox" [checked]="selectedContactIds.includes(contact.userId)" (change)="toggleContactSelection(contact.userId)">
+                <img [src]="contact.avatarUrl || 'assets/default-avatar.png'" class="friend-avatar">
+                <span class="friend-name">{{ contact.fullName }}</span>
+              </label>
+            }
+            @if (contactService.contacts().length === 0) {
+              <p class="empty-state">
+                Vous n'avez pas encore de contacts. <br>
+                <a routerLink="/dashboard/contacts" style="color: var(--primary-color);">Gérer les contacts</a>
+              </p>
+            }
+          </div>
+          
+          <button class="btn-PRO w-full mt-4" (click)="createBirthdayGroup()" [disabled]="selectedContactIds.length === 0">
+            Créer le groupe de discussion
+          </button>
+        </div>
+      }
+
+    </div>
+  </div>
+</div>

@@ -12,7 +12,6 @@ import { WishModalComponent } from '../../components/wish-modal/wish-modal.compo
 import { AudioService } from '../../services/audio.service';
 import { NotificationService } from '../../services/notification.service';
 import { ToastService } from '../../services/toast.service';
-import { DashboardChartsComponent } from '../../components/dashboard-charts/dashboard-charts.component';
 import { ExportService } from '../../services/export.service';
 import { ConfettiService } from '../../services/confetti.service';
 import { AuthService } from '../../services/auth.service';
@@ -21,7 +20,7 @@ import { UiService } from '../../services/ui.service';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, BirthdayGridComponent, BirthdayListComponent, BirthdayCalendarComponent, WishModalComponent, DashboardChartsComponent],
+  imports: [CommonModule, FormsModule, RouterModule, BirthdayGridComponent, BirthdayListComponent, BirthdayCalendarComponent, WishModalComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })

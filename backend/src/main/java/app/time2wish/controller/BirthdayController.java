@@ -11,6 +11,14 @@ import app.time2wish.security.UserDetailsImpl;
 import app.time2wish.service.BirthdayService;
 import app.time2wish.service.IAService;
 import app.time2wish.dto.GiftSuggestion;
+import app.time2wish.dto.PartyTaskCreateDto;
+import app.time2wish.dto.PartyTaskDto;
+import app.time2wish.model.PartyTask;
+import app.time2wish.repository.PartyTaskRepository;
+import app.time2wish.repository.MemoryItemRepository;
+import app.time2wish.repository.ECardSignatureRepository;
+import app.time2wish.dto.MemoryItemDto;
+import app.time2wish.dto.ECardSignatureDto;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.time.Period;
@@ -38,12 +46,40 @@ public class BirthdayController {
     @Autowired
     private BirthdayReminderScheduler reminderScheduler;
 
+    @Autowired
+    private PartyTaskRepository partyTaskRepository;
+
+    @Autowired
+    private MemoryItemRepository memoryItemRepository;
+
+    @Autowired
+    private ECardSignatureRepository eCardSignatureRepository;
+
     private User getAuthenticatedUser(UserDetailsImpl userDetails) {
         return userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new RuntimeException("Error: Authenticated user not found in DB"));
     }
 
     private BirthdayResponse mapToResponse(Birthday b) {
+        java.util.List<app.time2wish.dto.PartyTaskDto> tasks = partyTaskRepository.findByBirthday(b).stream()
+                .map(t -> app.time2wish.dto.PartyTaskDto.builder()
+                        .id(t.getId())
+                        .birthdayId(b.getId())
+                        .description(t.getDescription())
+                        .assigneeName(t.getAssigneeName())
+                        .isCompleted(t.getIsCompleted())
+                        .createdAt(t.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+
+        List<MemoryItemDto> memories = memoryItemRepository.findByBirthdayOrderByCreatedAtDesc(b).stream()
+                .map(MemoryItemDto::fromEntity)
+                .collect(Collectors.toList());
+
+        List<ECardSignatureDto> signatures = eCardSignatureRepository.findByBirthdayOrderByCreatedAtAsc(b).stream()
+                .map(ECardSignatureDto::fromEntity)
+                .collect(Collectors.toList());
+
         return BirthdayResponse.builder()
                 .id(b.getId())
                 .name(b.getName())
@@ -60,6 +96,14 @@ public class BirthdayController {
                 .createdAt(b.getCreatedAt())
                 .interests(b.getInterests())
                 .isFavorite(b.getIsFavorite())
+                .partyDate(b.getPartyDate())
+                .partyTime(b.getPartyTime())
+                .partyLocation(b.getPartyLocation())
+                .partyDescription(b.getPartyDescription())
+                .shareToken(b.getShareToken())
+                .partyTasks(tasks)
+                .memories(memories)
+                .signatures(signatures)
                 .build();
     }
 
@@ -132,6 +176,10 @@ public class BirthdayController {
                 .gender(request.getGender())
                 .interests(request.getInterests())
                 .isFavorite(request.getIsFavorite() != null ? request.getIsFavorite() : false)
+                .partyDate(request.getPartyDate())
+                .partyTime(request.getPartyTime())
+                .partyLocation(request.getPartyLocation())
+                .partyDescription(request.getPartyDescription())
                 .build();
 
         Birthday saved = birthdayService.addBirthday(birthday, user);
@@ -161,6 +209,10 @@ public class BirthdayController {
                 .gender(request.getGender())
                 .interests(request.getInterests())
                 .isFavorite(request.getIsFavorite() != null ? request.getIsFavorite() : false)
+                .partyDate(request.getPartyDate())
+                .partyTime(request.getPartyTime())
+                .partyLocation(request.getPartyLocation())
+                .partyDescription(request.getPartyDescription())
                 .build();
 
         try {
@@ -182,6 +234,96 @@ public class BirthdayController {
         }
     }
 
+    @PostMapping("/{id}/tasks")
+    public ResponseEntity<?> addPartyTask(
+            @PathVariable Long id,
+            @Valid @RequestBody PartyTaskCreateDto dto,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        User user = getAuthenticatedUser(userDetails);
+        
+        Birthday birthday = birthdayService.getBirthday(id, user)
+                .orElseThrow(() -> new RuntimeException("Birthday not found"));
+
+        PartyTask task = PartyTask.builder()
+                .birthday(birthday)
+                .description(dto.getDescription())
+                .build();
+        
+        task = partyTaskRepository.save(task);
+        
+        return ResponseEntity.status(201).body(app.time2wish.dto.PartyTaskDto.builder()
+                .id(task.getId())
+                .birthdayId(birthday.getId())
+                .description(task.getDescription())
+                .assigneeName(task.getAssigneeName())
+                .isCompleted(task.getIsCompleted())
+                .createdAt(task.getCreatedAt())
+                .build());
+    }
+
+    @DeleteMapping("/{id}/tasks/{taskId}")
+    public ResponseEntity<?> deletePartyTask(
+            @PathVariable Long id,
+            @PathVariable Long taskId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        User user = getAuthenticatedUser(userDetails);
+        
+        Birthday birthday = birthdayService.getBirthday(id, user)
+                .orElseThrow(() -> new RuntimeException("Birthday not found"));
+
+        PartyTask task = partyTaskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        if (!task.getBirthday().getId().equals(birthday.getId())) {
+            return ResponseEntity.status(403).body(new MessageResponse("Task does not belong to this birthday"));
+        }
+
+        partyTaskRepository.delete(task);
+        return ResponseEntity.ok(new MessageResponse("Task deleted successfully"));
+    }
+
+    @DeleteMapping("/{id}/memories/{memoryId}")
+    public ResponseEntity<?> deleteMemory(
+            @PathVariable Long id,
+            @PathVariable Long memoryId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        User user = getAuthenticatedUser(userDetails);
+        
+        Birthday birthday = birthdayService.getBirthday(id, user)
+                .orElseThrow(() -> new RuntimeException("Birthday not found"));
+
+        app.time2wish.model.MemoryItem memory = memoryItemRepository.findById(memoryId)
+                .orElseThrow(() -> new RuntimeException("Memory not found"));
+
+        if (!memory.getBirthday().getId().equals(birthday.getId())) {
+            return ResponseEntity.status(403).body(new MessageResponse("Memory does not belong to this birthday"));
+        }
+
+        memoryItemRepository.delete(memory);
+        return ResponseEntity.ok(new MessageResponse("Memory deleted successfully"));
+    }
+
+    @DeleteMapping("/{id}/signatures/{signatureId}")
+    public ResponseEntity<?> deleteSignature(
+            @PathVariable Long id,
+            @PathVariable Long signatureId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        User user = getAuthenticatedUser(userDetails);
+        
+        Birthday birthday = birthdayService.getBirthday(id, user)
+                .orElseThrow(() -> new RuntimeException("Birthday not found"));
+
+        app.time2wish.model.ECardSignature signature = eCardSignatureRepository.findById(signatureId)
+                .orElseThrow(() -> new RuntimeException("Signature not found"));
+
+        if (!signature.getBirthday().getId().equals(birthday.getId())) {
+            return ResponseEntity.status(403).body(new MessageResponse("Signature does not belong to this birthday"));
+        }
+
+        eCardSignatureRepository.delete(signature);
+        return ResponseEntity.ok(new MessageResponse("Signature deleted successfully"));
+    }
+
     @GetMapping("/{id}/generate-gifts")
     public ResponseEntity<?> getGiftSuggestions(
             @PathVariable Long id,
@@ -190,13 +332,22 @@ public class BirthdayController {
         User user = getAuthenticatedUser(userDetails);
         
         if (user.getPlan() == app.time2wish.model.PlanType.BASIC) {
-            return ResponseEntity.status(403).body(new MessageResponse("La génération d'idées de cadeaux nécessite le forfait PREMIUM ou PLUS."));
+            if (user.getCoins() >= 20) {
+                user.setCoins(user.getCoins() - 20);
+                userRepository.save(user);
+            } else {
+                return ResponseEntity.status(403).body(new MessageResponse("La génération d'idées de cadeaux nécessite le forfait PREMIUM/PLUS, ou 20 WishCoins."));
+            }
         } else if (user.getPlan() == app.time2wish.model.PlanType.PLUS) {
             java.time.LocalDateTime lastGen = user.getLastAiGiftGeneration();
             if (lastGen != null && lastGen.plusDays(30).isAfter(java.time.LocalDateTime.now())) {
-                java.time.Duration duration = java.time.Duration.between(java.time.LocalDateTime.now(), lastGen.plusDays(30));
-                long days = duration.toDays();
-                return ResponseEntity.status(429).body(new MessageResponse(String.format("Prochaine génération de cadeaux disponible dans %dj", days)));
+                if (user.getCoins() >= 20) {
+                    user.setCoins(user.getCoins() - 20);
+                } else {
+                    java.time.Duration duration = java.time.Duration.between(java.time.LocalDateTime.now(), lastGen.plusDays(30));
+                    long days = duration.toDays();
+                    return ResponseEntity.status(429).body(new MessageResponse(String.format("Prochaine génération gratuite dans %dj. (Ou utilisez 20 WishCoins)", days)));
+                }
             }
             user.setLastAiGiftGeneration(java.time.LocalDateTime.now());
             userRepository.save(user);

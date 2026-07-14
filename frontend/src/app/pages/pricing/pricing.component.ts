@@ -21,6 +21,12 @@ import { environment } from '../../../environments/environment';
         <div class="pricing-header">
           <h1>{{ t9n.t('pricing.title') }}</h1>
           <p>{{ t9n.t('pricing.subtitle') }}</p>
+          <div style="margin-top: 16px; display: inline-flex; align-items: center; gap: 8px; background: rgba(245, 158, 11, 0.1); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(245, 158, 11, 0.2);">
+            <span class="material-symbols-outlined" style="color: #f59e0b;">generating_tokens</span>
+            <span style="font-size: 0.9rem; color: var(--text-muted);">
+              <strong>WishCoins</strong> : Utilisez-les pour générer des idées de cadeaux et vœux avec l'IA. Obtenez-les via nos forfaits !
+            </span>
+          </div>
         </div>
 
         <div class="pricing-grid">

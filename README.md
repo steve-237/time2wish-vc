@@ -4,7 +4,25 @@ Time2Wish is a modern and premium web application designed to help you track, or
 
 ---
 
-## 🎉 Latest Release (v1.5.0) - The "Ultra-Premium Command Center" Update
+## 🎉 Latest Release (v1.6.0) - The "Party Planner & Community Voting" Update
+
+In this release, we've extended the collaborative features of Time2Wish to streamline party organization and gift selection among friends and family.
+
+### 🎈 Party Planner & Shared Tasks
+*   **Event Details:** Organizers can now specify the Date, Time, Location, and detailed descriptions for a birthday party directly in the form.
+*   **Shared Task Assignments:** Organizers can create a to-do list for the party (e.g., "Bring drinks", "Buy balloons"). Guests accessing the public shared link can anonymously self-assign these tasks to help out, easing the burden on the organizer.
+*   **Anonymous Persistent Tracking:** Guest actions on the public link are tracked via an intelligent, on-the-fly local session identifier (`sessionId`), ensuring guest anonymity while maintaining consistency.
+
+### 👍 Community Gift Voting
+*   **Interactive Wishlist:** The shared public wishlist now features an interactive Up/Down voting system.
+*   **Democratic Selection:** Guests can vote on which gifts they think are the best, helping the community decide what to buy together or individually.
+
+### 💰 Admin Panel Enhancements
+*   **Dynamic Affiliate Links:** Administrators can now manually configure and update the Amazon Affiliate Tag (`AMAZON_AFFILIATE_TAG`) directly from the "Centre de Commandement", allowing seamless monetization of AI-suggested gifts.
+
+---
+
+## 🎉 Previous Release (v1.5.0) - The "Ultra-Premium Command Center" Update
 
 In this major update, we've revolutionized the administration panel by introducing a real-time, ultra-premium Command Center to give administrators absolute control and unparalleled visibility into the system.
 
@@ -20,6 +38,8 @@ In this major update, we've revolutionized the administration panel by introduci
 ## 🚧 Upcoming Update - Support & Feedback Loop
 
 In future releases, we plan to further enhance user-admin interactions:
+*   **Collaborative E-Cards:** Allow multiple guests to sign a digital birthday card before revealing it to the recipient.
+*   **Memory Lane (Digital Guestbook):** A dedicated space to upload memories, photos (up to 5MB), and messages.
 *   **Support Tickets:** Users can open support requests directly from the app.
 *   **Global Announcements:** Broadcast "Information" or "Warning" banners to all users.
 *   **AI Statistics Tracking:** Visual charts tracking AI usage across the platform.
@@ -49,6 +69,7 @@ In this release, we've implemented the comprehensive subscription model and its 
     *   **BASIC Plan:** 1 AI Birthday Wish generation per week. AI Gift ideas are locked.
     *   **PLUS Plan:** 1 AI Gift generation per month. AI Wishes are unlocked.
     *   **PREMIUM Plan:** Unlimited AI generation.
+*   **WishCoins Currency (New!):** Users now have a visible wallet of WishCoins in the navigation bar. These virtual tokens clarify the exact cost and remaining balance for AI-powered actions (gift generation, e-cards, etc.), seamlessly integrated with the billing plans.
 *   **Dynamic Countdowns:** The UI now displays a dynamic countdown for AI features when the quota is reached, keeping the user informed of when their next generation is available.
 *   **Dashboard Enhancements:** Advanced dashboard statistics (Charts) are now exclusively available for PREMIUM users, utilizing an elegant glassmorphism blur overlay (`.locked-chart`) to tease the feature.
 *   **Contact Profile Restrictions:** 

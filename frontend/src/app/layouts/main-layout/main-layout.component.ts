@@ -55,6 +55,12 @@ import { AnnouncementService } from '../../services/announcement.service';
           <!-- Notifications Panel -->
           <app-notification-panel></app-notification-panel>
 
+          <!-- WishCoins Display -->
+          <button class="coins-display flex-center" (click)="uiService.isPricingModalOpen.set(true)" style="gap: 4px; padding: 6px 12px; background: rgba(245, 158, 11, 0.15); border-radius: 20px; border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; font-weight: 700; font-size: 0.95rem; margin: 0 4px; cursor: pointer; transition: all 0.2s ease;" title="Vos WishCoins - Cliquez pour recharger" onmouseover="this.style.background='rgba(245, 158, 11, 0.25)'" onmouseout="this.style.background='rgba(245, 158, 11, 0.15)'">
+            <span class="material-symbols-outlined" style="font-size: 18px; color: #f59e0b;">generating_tokens</span>
+            <span>{{ authService.currentUser()?.coins || 0 }}</span>
+          </button>
+
           <!-- Profile Dropdown Menu Container -->
           <div class="profile-menu-container" style="position: relative;">
             <button class="profile-toggle-btn flex-center" (click)="isProfileMenuOpen.set(!isProfileMenuOpen())" style="background: none; border: none; cursor: pointer; padding: 4px; border-radius: 30px; gap: 4px; transition: background 0.2s;">

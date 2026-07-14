@@ -73,6 +73,19 @@ public class Birthday {
     @Column(name = "share_token", length = 36, unique = true)
     private String shareToken;
 
+    // Party Details
+    @Column(name = "party_date")
+    private LocalDate partyDate;
+
+    @Column(name = "party_time", length = 10)
+    private String partyTime;
+
+    @Column(name = "party_location", length = 200)
+    private String partyLocation;
+
+    @Column(name = "party_description", columnDefinition = "TEXT")
+    private String partyDescription;
+
     @Builder.Default
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

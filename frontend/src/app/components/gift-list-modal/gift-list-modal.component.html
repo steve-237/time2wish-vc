@@ -114,9 +114,16 @@
                   <div style="display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
                     <span>{{ gift.description }}</span>
                     @if (gift.url && gift.url !== '#') {
-                    <a [href]="gift.url" target="_blank" class="gift-link" title="{{ gift.url }}">
-                      {{ t9n.t('gifts.see_offer') || 'Voir l\'offre ↗' }}
-                    </a>
+                      @if (gift.url.includes('amazon.')) {
+                        <a [href]="gift.url" target="_blank" class="gift-link amazon-link" title="{{ gift.url }}" style="background-color: #ff9900; color: #fff; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; margin-top: 4px; text-decoration: none; width: fit-content;">
+                          <span class="material-symbols-outlined" style="font-size: 16px;">shopping_cart</span>
+                          Acheter sur Amazon
+                        </a>
+                      } @else {
+                        <a [href]="gift.url" target="_blank" class="gift-link" title="{{ gift.url }}">
+                          {{ t9n.t('gifts.see_offer') || 'Voir l\'offre ↗' }}
+                        </a>
+                      }
                     }
                   </div>
                 </div>
@@ -229,9 +236,16 @@
                   <div style="display: flex; flex-direction: column; gap: 4px; overflow: hidden;">
                     <span>{{ gift.preparationTips || gift.whereToBuy }}</span>
                     @if (gift.purchaseLink && gift.purchaseLink !== '#') {
-                      <a [href]="gift.purchaseLink" target="_blank" class="gift-link" title="{{ gift.purchaseLink }}">
-                        {{ t9n.t('gifts.see_offer') || 'Voir l\'offre ↗' }}
-                      </a>
+                      @if (gift.purchaseLink.includes('amazon.')) {
+                        <a [href]="gift.purchaseLink" target="_blank" class="gift-link amazon-link" title="{{ gift.purchaseLink }}" style="background-color: #ff9900; color: #fff; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; margin-top: 4px; text-decoration: none; width: fit-content;">
+                          <span class="material-symbols-outlined" style="font-size: 16px;">shopping_cart</span>
+                          Acheter sur Amazon
+                        </a>
+                      } @else {
+                        <a [href]="gift.purchaseLink" target="_blank" class="gift-link" title="{{ gift.purchaseLink }}">
+                          {{ t9n.t('gifts.see_offer') || 'Voir l\'offre ↗' }}
+                        </a>
+                      }
                     }
                   </div>
                 </div>

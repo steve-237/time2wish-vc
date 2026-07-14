@@ -34,9 +34,9 @@
           </span>
         </div>
         <div class="social-actions" style="margin-top: 16px; display: flex; gap: 8px;">
-          <button class="btn-PRO" (click)="organizeWithFriends()" style="flex: 1; justify-content: center; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
-            <span class="material-symbols-outlined">groups</span>
-            Organiser avec des amis
+          <button class="btn-PRO" (click)="openPartyManager()" style="flex: 1; justify-content: center; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
+            <span class="material-symbols-outlined">settings</span>
+            Gérer la fête & les partages
           </button>
         </div>
       </div>
@@ -54,6 +54,10 @@
       <button class="tab-btn" [class.active]="activeTab() === 'cards'" (click)="activeTab.set('cards')">
         <span class="material-symbols-outlined tab-icon">mail</span>
         {{ t9n.t('detail.tab_cards') || 'Cartes & Vœux' }}
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'memories'" (click)="activeTab.set('memories')">
+        <span class="material-symbols-outlined tab-icon">photo_camera</span>
+        Livre d'Or
       </button>
     </div>
 
@@ -149,18 +153,113 @@
           <span class="material-symbols-outlined cards-hero-icon">mail</span>
           <h3>{{ t9n.t('detail.cards_title') || 'Cartes d\'Anniversaire' }}</h3>
           <p class="cards-desc">
-            {{ t9n.t('detail.cards_desc') || 'Générez une carte d\'anniversaire personnalisée avec notre IA et envoyez-la instantanément.' }}
+            {{ t9n.t('detail.cards_desc') || 'Générer une carte d\'anniversaire personnalisée avec notre IA et envoyez-la instantanément.' }}
           </p>
-          <button class="btn-PRO" (click)="openCardModal()" style="margin: 0 auto; background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%); border-color: transparent; position: relative;">
-            <span class="material-symbols-outlined">auto_awesome</span>
-            {{ t9n.t('detail.generate_card_btn') || 'Générer une carte (IA)' }}
-            @if (authService.currentUser()?.plan !== 'PRO') { <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24; position: absolute; top: 8px; right: 8px;">lock</span> }
-          </button>
 
-          <button class="btn-PRO" (click)="isWishModalOpen.set(true)" style="margin: 12px auto 0; ">
-            <span class="material-symbols-outlined">celebration</span>
-            {{ t9n.t('detail.btn_wish') || 'Envoyer un vœu' }}
-          </button>
+          <div class="cards-actions">
+            <button class="btn-PRO btn-card-ia" (click)="openCardModal()">
+              <span class="material-symbols-outlined">auto_awesome</span>
+              {{ t9n.t('detail.generate_card_btn') || 'Générer une carte (IA)' }}
+              @if (authService.currentUser()?.plan !== 'PRO') { 
+                <span class="material-symbols-outlined lock-icon">lock</span> 
+              }
+            </button>
+
+            <button 
+              [class]="daysUntil() === 0 ? 'btn-PRO btn-wish-today' : 'btn-secondary btn-wish-basic'" 
+              (click)="isWishModalOpen.set(true)">
+              <span class="material-symbols-outlined">celebration</span>
+              {{ daysUntil() === 0 ? (t9n.t('detail.btn_wish_today') || 'Lui souhaiter maintenant !') : (t9n.t('detail.btn_wish') || 'Envoyer un vœu simple') }}
+            </button>
+          </div>
+        </div>
+      }
+
+
+
+      <!-- ===== TAB: MEMORIES (Livre d'Or) ===== -->
+      @if (activeTab() === 'memories') {
+        <div class="memories-section">
+          <div class="glass-card" style="padding: 20px; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                <span class="material-symbols-outlined" style="color: #ec4899;">photo_camera</span>
+                Livre d'Or & Souvenirs
+              </h3>
+            </div>
+            <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 20px;">
+              Retrouvez ici tous les mots doux et les photos partagés par vos invités via le lien public.
+            </p>
+
+            <div class="masonry-grid" style="column-count: 2; column-gap: 16px;">
+              @for (memory of birthday()?.memories; track memory.id) {
+                <div class="memory-card" style="break-inside: avoid; margin-bottom: 16px; padding: 16px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); position: relative;">
+                  <button class="icon-btn" (click)="deleteMemory(memory.id)" title="Supprimer ce souvenir" style="position: absolute; top: 8px; right: 8px; color: #ef4444; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">delete</span>
+                  </button>
+  
+                  @if (memory.mediaUrl) {
+                    <img [src]="memory.mediaUrl" style="width: 100%; border-radius: 8px; margin-bottom: 12px; object-fit: cover;">
+                  }
+                  @if (memory.message) {
+                    <p style="color: #4b5563; font-size: 0.95rem; line-height: 1.5; margin-bottom: 12px; white-space: pre-wrap;">"{{ memory.message }}"</p>
+                  }
+                  
+                  <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed rgba(0,0,0,0.1);">
+                    <div style="width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold;">
+                      {{ memory.guestName ? memory.guestName.charAt(0).toUpperCase() : 'A' }}
+                    </div>
+                    <div style="flex: 1;">
+                      <div style="font-size: 0.85rem; font-weight: 500;">{{ memory.guestName || 'Anonyme' }}</div>
+                      <div style="font-size: 0.75rem; color: #9ca3af;">{{ memory.createdAt | date:'longDate':'':'fr' }}</div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            @if (!birthday()?.memories?.length) {
+              <div class="empty-state" style="text-align: center; padding: 40px 20px; color: #9ca3af; font-style: italic;">
+                <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.5; margin-bottom: 16px; display: block;">photo_library</span>
+                Aucun souvenir n'a encore été partagé pour cet anniversaire.
+              </div>
+            }
+          </div>
+
+          <!-- Signatures (Cartes Collaboratives) -->
+          <div class="glass-card" style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                <span class="material-symbols-outlined" style="color: #8b5cf6;">draw</span>
+                Signatures de la Carte Virtuelle
+              </h3>
+            </div>
+            
+            <div class="signatures-list" style="display: flex; flex-direction: column; gap: 12px;">
+              @for (sig of birthday()?.signatures; track sig.id) {
+                <div class="signature-item" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);">
+                  <div style="width: 32px; height: 32px; border-radius: 50%; background: {{ sig.color || '#ec4899' }}; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
+                    {{ sig.guestName ? sig.guestName.charAt(0).toUpperCase() : 'A' }}
+                  </div>
+                  <div style="flex: 1;">
+                    <p style="margin: 0; font-size: 0.95rem; color: #4b5563;">{{ sig.message }}</p>
+                    <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 4px;">
+                      — <strong>{{ sig.guestName || 'Anonyme' }}</strong>
+                    </div>
+                  </div>
+                  <button class="icon-btn" (click)="deleteSignature(sig.id)" title="Supprimer la signature" style="color: #ef4444; opacity: 0.5;">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              }
+            </div>
+
+            @if (!birthday()?.signatures?.length) {
+              <div class="empty-state" style="text-align: center; padding: 30px 20px; color: #9ca3af; font-style: italic;">
+                Personne n'a encore signé la carte virtuelle.
+              </div>
+            }
+          </div>
         </div>
       }
 
@@ -207,51 +306,13 @@
   [birthday]="birthday()!" 
   (close)="isCardModalOpen.set(false)">
 </app-card-generator>
+}<!-- Party Organizer Modal -->
+@if (isPartyModalOpen()) {
+  <app-party-organizer-modal
+    [birthday]="birthday()!"
+    (close)="isPartyModalOpen.set(false)">
+  </app-party-organizer-modal>
 }
-
-
-
-<!-- Group Organizer Modal -->
-@if (isGroupModalOpen()) {
-  <div class="tm-modal-overlay z-modal" (click)="isGroupModalOpen.set(false)">
-    <div class="tm-modal-content glass-card" (click)="$event.stopPropagation()">
-      <div class="modal-header" style="display: flex; justify-content: space-between; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05);">
-        <h2 style="margin: 0; font-size: 1.25rem;">Organiser avec des amis</h2>
-        <button class="icon-btn" (click)="isGroupModalOpen.set(false)">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-      
-      <div class="modal-body" style="padding: 20px; max-height: 60vh; overflow-y: auto;">
-        <h4 style="margin: 0 0 16px 0; font-weight: 600;">Sélectionnez les amis à inviter :</h4>
-        
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          @for (contact of contactService.contacts(); track contact.userId) {
-            <label style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.05); cursor: pointer;">
-              <input type="checkbox" [checked]="selectedContactIds.includes(contact.userId)" (change)="toggleContactSelection(contact.userId)">
-              <img [src]="contact.avatarUrl || 'assets/default-avatar.png'" style="width: 40px; height: 40px; border-radius: 50%;">
-              <span style="flex: 1; font-weight: 500;">{{ contact.fullName }}</span>
-            </label>
-          }
-          @if (contactService.contacts().length === 0) {
-            <p style="color: var(--text-muted); text-align: center; padding: 20px;">
-              Vous n'avez pas encore de contacts. <br>
-              <a routerLink="/dashboard/contacts" style="color: var(--primary-color);">Allez sur la page Contacts</a> pour en ajouter.
-            </p>
-          }
-        </div>
-      </div>
-
-      <div class="modal-footer" style="padding: 20px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid rgba(255,255,255,0.05);">
-        <button class="btn-secondary" (click)="isGroupModalOpen.set(false)">Annuler</button>
-        <button class="btn-PRO" (click)="createBirthdayGroup()" [disabled]="selectedContactIds.length === 0">
-          Créer le groupe
-        </button>
-      </div>
-    </div>
-  </div>
-}
-
 <!-- Delete Confirmation Modal Overlay -->
 @if (isConfirmModalOpen()) {
 <div class="tm-modal-overlay z-modal">

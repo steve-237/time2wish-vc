@@ -34,14 +34,17 @@
     @if (selectedMode() === 'ai') {
     <div class="tab-content animate-fade">
       
-      @if (userPlan === 'BASIC' && aiCountdown()) {
+      @if (userPlan === 'BASIC' && aiCountdown() && (authService.currentUser()?.coins || 0) < 10) {
         <div class="countdown-banner glass-card" style="margin-bottom: 1rem; padding: 1rem; border-left: 4px solid #fbbf24; background: rgba(251, 191, 36, 0.1);">
           <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
             <span class="material-symbols-outlined" style="color: #fbbf24;">hourglass_bottom</span>
-            <span style="font-weight: 600; color: var(--text-color);">Limite atteinte (1/semaine)</span>
+            <span style="font-weight: 600; color: var(--text-color);">Limite atteinte (1/semaine) et fonds insuffisants</span>
           </div>
           <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">
             Prochaine génération IA disponible dans : <strong style="color: #fbbf24;">{{ aiCountdown() }}</strong>
+          </p>
+          <p style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-secondary);">
+            Ou rechargez des <strong>WishCoins</strong> pour continuer à utiliser l'IA !
           </p>
           <button class="btn btn-PRO" style="margin-top: 1rem; width: 100%;" (click)="uiService.isPricingModalOpen.set(true)">
             Débloquer l'IA Illimitée
@@ -106,6 +109,11 @@
             (click)="generateAiWish()">
             <span class="material-symbols-outlined regenerate-icon">refresh</span>
             <span>{{ t9n.t('wish.btn_regenerate') || 'Régénérer' }}</span>
+            @if (userPlan === 'BASIC' && aiCountdown()) {
+              <span class="coin-cost" style="display: inline-flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 12px; margin-left: 8px; font-size: 0.85rem;">
+                <span class="material-symbols-outlined" style="font-size: 14px; color: #fcd34d;">generating_tokens</span> 10
+              </span>
+            }
           </button>
         </div>
       </div>

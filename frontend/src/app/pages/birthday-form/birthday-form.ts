@@ -14,7 +14,7 @@ import { UiService } from '../../services/ui.service';
 @Component({
   selector: 'app-birthday-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ImageUploadComponent],
+  imports: [CommonModule, FormsModule, ImageUploadComponent],
   templateUrl: './birthday-form.html',
   styleUrl: './birthday-form.scss'
 })
@@ -47,6 +47,12 @@ export class BirthdayForm implements OnInit {
   whatsapp = signal<string>('');
   gender = signal<'Masculin' | 'Féminin' | 'Autre' | undefined>(undefined);
   errorMessage = signal<string>('');
+
+  // Party Details
+  partyDate = signal<string>('');
+  partyTime = signal<string>('');
+  partyLocation = signal<string>('');
+  partyDescription = signal<string>('');
 
   // Dropdown categories list
   readonly categories: BirthdayCategory[] = ['Family', 'Friend', 'Work', 'Other'];
@@ -81,6 +87,10 @@ export class BirthdayForm implements OnInit {
         if (b.email) this.email.set(b.email);
         if (b.whatsapp) this.whatsapp.set(b.whatsapp);
         if (b.gender) this.gender.set(b.gender);
+        if (b.partyDate) this.partyDate.set(b.partyDate);
+        if (b.partyTime) this.partyTime.set(b.partyTime);
+        if (b.partyLocation) this.partyLocation.set(b.partyLocation);
+        if (b.partyDescription) this.partyDescription.set(b.partyDescription);
       } else {
         this.router.navigate(['/dashboard']);
       }
@@ -108,6 +118,7 @@ export class BirthdayForm implements OnInit {
 
     if (this.isEditMode()) {
       const id = this.birthdayId();
+      const b = id ? this.birthdayService.getBirthday(id) : null;
       if (id !== null) {
         this.birthdayService.updateBirthday(
           id,
@@ -120,7 +131,10 @@ export class BirthdayForm implements OnInit {
           this.showAge(),
           this.email(),
           this.whatsapp(),
-          this.gender()
+          this.gender(),
+          b?.interests || [],
+          b?.isFavorite || false,
+          undefined, undefined, undefined, undefined
         );
         this.audioService.playSuccessSound();
         this.notifService.logAction('UPDATE', `L'anniversaire de ${this.name()} a été mis à jour.`);

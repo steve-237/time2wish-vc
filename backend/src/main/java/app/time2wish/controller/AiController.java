@@ -55,10 +55,14 @@ public class AiController {
         if (user.getPlan() == app.time2wish.model.PlanType.BASIC) {
             java.time.LocalDateTime lastGen = user.getLastAiWishGeneration();
             if (lastGen != null && lastGen.plusDays(7).isAfter(java.time.LocalDateTime.now())) {
-                java.time.Duration duration = java.time.Duration.between(java.time.LocalDateTime.now(), lastGen.plusDays(7));
-                long days = duration.toDays();
-                long hours = duration.toHoursPart();
-                return ResponseEntity.status(429).body(new MessageResponse(String.format("Prochaine génération disponible dans %dj %dh", days, hours)));
+                if (user.getCoins() >= 10) {
+                    user.setCoins(user.getCoins() - 10);
+                } else {
+                    java.time.Duration duration = java.time.Duration.between(java.time.LocalDateTime.now(), lastGen.plusDays(7));
+                    long days = duration.toDays();
+                    long hours = duration.toHoursPart();
+                    return ResponseEntity.status(429).body(new MessageResponse(String.format("Prochaine génération gratuite dans %dj %dh. (Ou utilisez 10 WishCoins)", days, hours)));
+                }
             }
             user.setLastAiWishGeneration(java.time.LocalDateTime.now());
             userRepository.save(user);
@@ -106,7 +110,12 @@ public class AiController {
         User user = getAuthenticatedUser(userDetails);
         
         if (user.getPlan() != app.time2wish.model.PlanType.PRO) {
-            return ResponseEntity.status(403).body(new MessageResponse("La génération d'images nécessite le forfait PREMIUM."));
+            if (user.getCoins() >= 50) {
+                user.setCoins(user.getCoins() - 50);
+                userRepository.save(user);
+            } else {
+                return ResponseEntity.status(403).body(new MessageResponse("La génération d'images nécessite le forfait PREMIUM, ou 50 WishCoins."));
+            }
         }
         
         byte[] imageBytes = imageGenerationService.generateImage(request.getPrompt());

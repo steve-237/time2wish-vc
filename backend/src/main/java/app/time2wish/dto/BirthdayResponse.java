@@ -27,4 +27,17 @@ public class BirthdayResponse {
     private LocalDateTime createdAt;
     private java.util.List<String> interests;
     private Boolean isFavorite;
+    
+    // Party Details
+    private LocalDate partyDate;
+    private String partyTime;
+    private String partyLocation;
+    private String partyDescription;
+    private String shareToken; // Added to easily retrieve it in the frontend
+    // Party Tasks
+    private java.util.List<PartyTaskDto> partyTasks;
+    
+    // Phase 3 Collaborative Features
+    private java.util.List<MemoryItemDto> memories;
+    private java.util.List<ECardSignatureDto> signatures;
 }

@@ -5,8 +5,10 @@ import app.time2wish.dto.GiftDto;
 import app.time2wish.model.Birthday;
 import app.time2wish.model.Gift;
 import app.time2wish.model.User;
+import app.time2wish.model.GiftVote;
 import app.time2wish.repository.BirthdayRepository;
 import app.time2wish.repository.GiftRepository;
+import app.time2wish.repository.GiftVoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +22,13 @@ public class GiftService {
 
     private final GiftRepository giftRepository;
     private final BirthdayRepository birthdayRepository;
+    private final GiftVoteRepository giftVoteRepository;
 
     public List<GiftDto> getGiftsForBirthday(Long birthdayId, User user) {
         Birthday birthday = birthdayRepository.findByIdAndUserAndIsDeletedFalse(birthdayId, user)
                 .orElseThrow(() -> new RuntimeException("Birthday not found"));
         return giftRepository.findByBirthdayId(birthday.getId()).stream()
-                .map(this::mapToDto)
+                .map(g -> mapToDto(g, null))
                 .collect(Collectors.toList());
     }
 
@@ -43,7 +46,7 @@ public class GiftService {
                 .build();
 
         gift = giftRepository.save(gift);
-        return mapToDto(gift);
+        return mapToDto(gift, null);
     }
 
     public void removeGift(Long birthdayId, Long giftId, User user) {
@@ -77,7 +80,7 @@ public class GiftService {
         gift.setUrl(dto.getUrl());
 
         gift = giftRepository.save(gift);
-        return mapToDto(gift);
+        return mapToDto(gift, null);
     }
 
     public String generateShareToken(Long birthdayId, User user) {
@@ -92,7 +95,18 @@ public class GiftService {
         return birthday.getShareToken();
     }
 
-    public GiftDto mapToDto(Gift gift) {
+    public GiftDto mapToDto(Gift gift, String voterSessionId) {
+        List<GiftVote> votes = giftVoteRepository.findByGift(gift);
+        int up = (int) votes.stream().filter(v -> v.getVoteType() == GiftVote.VoteType.UP).count();
+        int down = (int) votes.stream().filter(v -> v.getVoteType() == GiftVote.VoteType.DOWN).count();
+        String userVote = null;
+        if (voterSessionId != null) {
+            userVote = votes.stream()
+                .filter(v -> voterSessionId.equals(v.getVoterSessionId()))
+                .map(v -> v.getVoteType().name())
+                .findFirst().orElse(null);
+        }
+
         return GiftDto.builder()
                 .id(gift.getId())
                 .birthdayId(gift.getBirthday().getId())
@@ -103,6 +117,9 @@ public class GiftService {
                 .isReserved(gift.getIsReserved())
                 .reservedByName(gift.getReservedByName())
                 .createdAt(gift.getCreatedAt())
+                .upvotes(up)
+                .downvotes(down)
+                .userVote(userVote)
                 .build();
     }
 }

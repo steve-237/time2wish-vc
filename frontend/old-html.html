@@ -1,0 +1,333 @@
+<div class="tm-modal-overlay" (click)="onClose()">
+  <div class="tm-modal-content detail-modal-content" (click)="$event.stopPropagation()">
+    <!-- Added a specific header with close button to top -->
+    <div class="detail-modal-header">
+      <button class="icon-btn detail-close-btn" (click)="onClose()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+@if (birthday()) {
+<div class="detail-wrapper">
+  
+  <div class="detail-card">
+    
+    <!-- Profile Banner Section -->
+    <div class="profile-banner">
+      <div class="avatar-large-container" [class]="birthdayService.getUrgencyClass(daysUntil())">
+        <img [src]="birthday()?.photoUrl" alt="{{ birthday()?.name }}" class="avatar-large">
+      </div>
+      
+      <div class="profile-meta">
+        <h1 class="profile-name">
+          {{ birthday()?.name }}
+          @if (birthday()?.gender === 'Masculin') { <span class="material-symbols-outlined gender-icon male" title="Masculin">male</span> }
+          @if (birthday()?.gender === 'Féminin') { <span class="material-symbols-outlined gender-icon female" title="Féminin">female</span> }
+          @if (birthday()?.gender === 'Autre') { <span class="material-symbols-outlined gender-icon other" title="Autre">transgender</span> }
+        </h1>
+        <div class="profile-tags">
+          <span class="tag-category" [class]="'tag-' + birthday()?.category?.toLowerCase()">
+            {{ birthday()?.category ? (t9n.t('categories.' + birthday()!.category) || birthday()?.category) : '' }}
+          </span>
+          <span class="badge-urgency" [class]="birthdayService.getUrgencyClass(daysUntil())">
+            {{ getLabel(birthdayService.getCountdownLabel(daysUntil())) }}
+          </span>
+        </div>
+        <div class="social-actions" style="margin-top: 16px; display: flex; gap: 8px;">
+          <button class="btn-PRO" (click)="organizeWithFriends()" style="flex: 1; justify-content: center; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
+            <span class="material-symbols-outlined">groups</span>
+            Organiser avec des amis
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- ========== TABS NAVIGATION ========== -->
+    <div class="detail-tabs">
+      <button class="tab-btn" [class.active]="activeTab() === 'info'" (click)="activeTab.set('info')">
+        <span class="material-symbols-outlined tab-icon">info</span>
+        {{ t9n.t('detail.tab_info') || 'Informations' }}
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'gifts'" (click)="activeTab.set('gifts')">
+        <span class="material-symbols-outlined tab-icon">redeem</span>
+        {{ t9n.t('detail.tab_gifts') || 'Cadeaux' }}
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'cards'" (click)="activeTab.set('cards')">
+        <span class="material-symbols-outlined tab-icon">mail</span>
+        {{ t9n.t('detail.tab_cards') || 'Cartes & Vœux' }}
+      </button>
+    </div>
+
+    <!-- ========== TAB CONTENT ========== -->
+    <div class="tab-content">
+
+      <!-- ===== TAB: INFORMATIONS ===== -->
+      @if (activeTab() === 'info') {
+        <div class="info-sections">
+          <div class="info-block">
+            <span class="material-symbols-outlined block-icon">cake</span>
+            <div class="block-content">
+              <h3>{{ t9n.t('detail.birthdate') }}</h3>
+              <p>{{ birthday()?.birthdate | date:'dd MMMM yyyy' }}</p>
+            </div>
+          </div>
+          <div class="info-block">
+            <span class="material-symbols-outlined block-icon">notifications_active</span>
+            <div class="block-content">
+              <h3>{{ t9n.t('detail.reminder') }}</h3>
+              <p>{{ t9n.t('detail.reminder_text', birthday()?.reminderDays ?? 7) }}</p>
+            </div>
+          </div>
+          <div class="info-block notes-block">
+            <span class="material-symbols-outlined block-icon">sticky_note_2</span>
+            <div class="block-content">
+              <h3>{{ t9n.t('detail.notes') }}</h3>
+              @if (birthday()?.notes) {
+                <p class="notes-text">{{ birthday()?.notes }}</p>
+              } @else {
+                <p class="notes-text empty">{{ t9n.t('detail.no_notes') }}</p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Centres d'intérêt -->
+        <div class="interests-section">
+          <h3 class="section-title">
+            <span class="material-symbols-outlined">favorite</span>
+            {{ t9n.t('detail.interests') }}
+          </h3>
+          <div class="interests-tags">
+            @for (interest of birthday()?.interests; track interest) {
+            <span class="interest-chip">
+              {{ interest }}
+              <button (click)="removeInterest(interest)" class="remove-interest-btn">
+                <span class="material-symbols-outlined remove-icon">close</span>
+              </button>
+            </span>
+            }
+            @if (!birthday()?.interests?.length) {
+            <span class="no-interests-text">
+              {{ t9n.t('detail.no_interests') || 'Aucun centre d\'intérêt renseigné.' }}
+            </span>
+            }
+          </div>
+          <div class="add-interest-form">
+            <input 
+              type="text" 
+              [ngModel]="newInterest()" 
+              (ngModelChange)="newInterest.set($event)"
+              (keyup.enter)="addInterest()"
+              placeholder="{{ t9n.t('detail.interest_placeholder') || 'Ex: Jeux vidéo, Voyages...' }}" 
+              class="interest-input">
+            <button (click)="addInterest()" class="btn-secondary add-interest-btn">
+              <span class="material-symbols-outlined">add</span>
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- ===== TAB: CADEAUX ===== -->
+      @if (activeTab() === 'gifts') {
+        <app-gift-list-modal
+          [birthday]="birthday()!"
+          [gifts]="savedGifts()"
+          [isGeneratingGifts]="isGeneratingGifts()"
+          [aiError]="aiError()"
+          [giftSource]="giftSource()"
+          [giftSuggestions]="giftSuggestions()"
+          (deleteGift)="deleteGift($event)"
+          (generateShare)="generateShareLink()"
+          (addGift)="addManualGift($event)"
+          (updateGift)="updateGift($event.id, $event.data)"
+          (generateGifts)="generateGifts()">
+        </app-gift-list-modal>
+      }
+
+      <!-- ===== TAB: CARTES & VŒUX ===== -->
+      @if (activeTab() === 'cards') {
+        <div class="cards-tab-content">
+          <span class="material-symbols-outlined cards-hero-icon">mail</span>
+          <h3>{{ t9n.t('detail.cards_title') || 'Cartes d\'Anniversaire' }}</h3>
+          <p class="cards-desc">
+            {{ t9n.t('detail.cards_desc') || 'Générez une carte d\'anniversaire personnalisée avec notre IA et envoyez-la instantanément.' }}
+          </p>
+          <button class="btn-PRO" (click)="openCardModal()" style="margin: 0 auto; background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%); border-color: transparent; position: relative;">
+            <span class="material-symbols-outlined">auto_awesome</span>
+            {{ t9n.t('detail.generate_card_btn') || 'Générer une carte (IA)' }}
+            @if (authService.currentUser()?.plan !== 'PRO') { <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24; position: absolute; top: 8px; right: 8px;">lock</span> }
+          </button>
+
+          <button class="btn-PRO" (click)="isWishModalOpen.set(true)" style="margin: 12px auto 0; ">
+            <span class="material-symbols-outlined">celebration</span>
+            {{ t9n.t('detail.btn_wish') || 'Envoyer un vœu' }}
+          </button>
+        </div>
+      }
+
+    </div> <!-- /tab-content -->
+
+  </div> <!-- /detail-card -->
+</div> <!-- /detail-wrapper -->
+
+<!-- ========== FAB ACTIONS BAR (Sticky Footer) ========== -->
+<div class="fab-actions">
+  <button class="fab-btn fav-toggle-btn" (click)="toggleFavorite()" [class.is-favorite]="birthday()?.isFavorite">
+    <span class="material-symbols-outlined" [class.filled]="birthday()?.isFavorite">star</span>
+    {{ t9n.t('detail.fab_favorite') || 'Favoris' }}
+  </button>
+  <button class="fab-btn" (click)="onShareClick()">
+    <span class="material-symbols-outlined">ios_share</span>
+    {{ t9n.t('detail.fab_share') || 'Partager' }}
+  </button>
+  <a class="fab-btn" [routerLink]="['/dashboard/birthday/edit', birthday()?.id]">
+    <span class="material-symbols-outlined">edit</span>
+    {{ t9n.t('detail.fab_edit') || 'Modifier' }}
+  </a>
+  <button class="fab-btn fab-delete" (click)="onDelete()">
+    <span class="material-symbols-outlined">delete</span>
+    {{ t9n.t('detail.fab_delete') || 'Supprimer' }}
+  </button>
+</div>
+
+}
+  </div>
+</div>
+
+<!-- Wish Modal Overlay -->
+@if (isWishModalOpen() && birthday()) {
+<app-wish-modal 
+  [birthday]="birthday()!" 
+  (close)="isWishModalOpen.set(false)">
+</app-wish-modal>
+}
+
+<!-- Card Generator Modal Overlay -->
+@if (isCardModalOpen() && birthday()) {
+<app-card-generator 
+  [birthday]="birthday()!" 
+  (close)="isCardModalOpen.set(false)">
+</app-card-generator>
+}
+
+
+
+<!-- Group Organizer Modal -->
+@if (isGroupModalOpen()) {
+  <div class="tm-modal-overlay z-modal" (click)="isGroupModalOpen.set(false)">
+    <div class="tm-modal-content glass-card" (click)="$event.stopPropagation()">
+      <div class="modal-header" style="display: flex; justify-content: space-between; padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <h2 style="margin: 0; font-size: 1.25rem;">Organiser avec des amis</h2>
+        <button class="icon-btn" (click)="isGroupModalOpen.set(false)">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      
+      <div class="modal-body" style="padding: 20px; max-height: 60vh; overflow-y: auto;">
+        <h4 style="margin: 0 0 16px 0; font-weight: 600;">Sélectionnez les amis à inviter :</h4>
+        
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          @for (contact of contactService.contacts(); track contact.userId) {
+            <label style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.05); cursor: pointer;">
+              <input type="checkbox" [checked]="selectedContactIds.includes(contact.userId)" (change)="toggleContactSelection(contact.userId)">
+              <img [src]="contact.avatarUrl || 'assets/default-avatar.png'" style="width: 40px; height: 40px; border-radius: 50%;">
+              <span style="flex: 1; font-weight: 500;">{{ contact.fullName }}</span>
+            </label>
+          }
+          @if (contactService.contacts().length === 0) {
+            <p style="color: var(--text-muted); text-align: center; padding: 20px;">
+              Vous n'avez pas encore de contacts. <br>
+              <a routerLink="/dashboard/contacts" style="color: var(--primary-color);">Allez sur la page Contacts</a> pour en ajouter.
+            </p>
+          }
+        </div>
+      </div>
+
+      <div class="modal-footer" style="padding: 20px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid rgba(255,255,255,0.05);">
+        <button class="btn-secondary" (click)="isGroupModalOpen.set(false)">Annuler</button>
+        <button class="btn-PRO" (click)="createBirthdayGroup()" [disabled]="selectedContactIds.length === 0">
+          Créer le groupe
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Delete Confirmation Modal Overlay -->
+@if (isConfirmModalOpen()) {
+<div class="tm-modal-overlay z-modal">
+  <div class="tm-modal-content glass-card delete-modal-content" (click)="$event.stopPropagation()">
+    <div class="delete-modal-header">
+      <h2>{{ t9n.t('dashboard.confirm_delete_title') || 'Confirmer la suppression' }}</h2>
+      <button class="icon-btn delete-close-btn" (click)="cancelDelete()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div class="delete-modal-body">
+      <div class="delete-icon-bg">
+        <span class="material-symbols-outlined delete-icon">delete_forever</span>
+      </div>
+      <p class="delete-text">
+        {{ t9n.t('dashboard.confirm_delete_text') || 'Êtes-vous sûr de vouloir supprimer cet anniversaire ?' }}
+      </p>
+      <p class="delete-subtext">
+        {{ t9n.t('dashboard.confirm_delete_subtext') || 'Cette action est irréversible.' }}
+      </p>
+    </div>
+
+    <div class="delete-modal-actions">
+      <button class="btn-secondary delete-btn-cancel" (click)="cancelDelete()">
+        {{ t9n.t('dashboard.btn_cancel') || 'Non, annuler' }}
+      </button>
+      <button class="btn-PRO delete-btn-confirm" (click)="confirmDelete()">
+        {{ t9n.t('dashboard.btn_confirm_delete') || 'Oui, supprimer' }}
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Share Modal Overlay -->
+@if (isShareModalOpen()) {
+<div class="tm-modal-overlay z-modal">
+  <div class="tm-modal-content glass-card share-modal-content" (click)="$event.stopPropagation()">
+    <div class="share-modal-header">
+      <h2>{{ t9n.t('detail.share_title') || 'Options de partage' }}</h2>
+      <button class="icon-btn share-close-btn" (click)="isShareModalOpen.set(false)">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div class="share-modal-actions">
+      <!-- Web Share API (only if supported) -->
+      @if (canWebShare()) {
+      <button (click)="shareNative()" class="btn-PRO share-action-btn">
+        <span class="material-symbols-outlined share-icon">share</span>
+        <div class="share-text-box">
+          <div class="share-title">{{ t9n.t('detail.share_native') || 'Partager le profil' }}</div>
+          <div class="share-desc">{{ t9n.t('detail.share_native_desc') || 'Envoyer via WhatsApp, SMS, Email...' }}</div>
+        </div>
+      </button>
+      }
+
+      <!-- ICS Download -->
+      <button (click)="downloadIcs()" class="btn-secondary share-action-btn">
+        <span class="material-symbols-outlined share-icon ics-icon">calendar_month</span>
+        <div class="share-text-box">
+          <div class="share-title text-white">{{ t9n.t('detail.share_ics') || "Ajouter à l'agenda" }}</div>
+          <div class="share-desc text-muted">{{ t9n.t('detail.share_ics_desc') || 'Télécharger le fichier .ics' }}</div>
+        </div>
+      </button>
+
+      <!-- Copy link -->
+      <button (click)="copyLink()" class="btn-secondary share-action-btn">
+        <span class="material-symbols-outlined share-icon">link</span>
+        <div class="share-text-box">
+          <div class="share-title text-white">{{ t9n.t('detail.share_link') || 'Copier le lien' }}</div>
+          <div class="share-desc text-muted">{{ t9n.t('detail.share_link_desc') || 'Copier le lien direct vers cette page' }}</div>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+}

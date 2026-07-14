@@ -67,11 +67,25 @@ public class User {
     @Column(name = "subscription_expires_at")
     private LocalDateTime subscriptionExpiresAt;
 
+    @Builder.Default
+    @Column(name = "coins", nullable = false)
+    private Integer coins = 0;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        lastLoginAt = LocalDateTime.now();
+        if (role == null) {
+            role = Role.ROLE_USER;
+        }
+        if (plan == null) {
+            plan = PlanType.BASIC;
+        }
         if (status == null) {
             status = "ACTIVE";
+        }
+        if (coins == null) {
+            coins = 0;
         }
     }
 }

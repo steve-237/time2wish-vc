@@ -217,6 +217,7 @@ public class AdminUserController {
                 .lastAiWishGeneration(targetUser.getLastAiWishGeneration())
                 .lastAiGiftGeneration(targetUser.getLastAiGiftGeneration())
                 .badges(userBadgeRepository.findByUser(targetUser).stream().map(app.time2wish.model.UserBadge::getBadgeName).collect(java.util.stream.Collectors.toList()))
+                .coins(targetUser.getCoins())
                 .build());
     }
 }

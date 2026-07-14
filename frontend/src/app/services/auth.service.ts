@@ -17,6 +17,7 @@ interface AuthResponse {
   badges?: string[];
   lastAiWishGeneration?: string;
   lastAiGiftGeneration?: string;
+  coins?: number;
 }
 
 @Injectable({
@@ -146,7 +147,8 @@ export class AuthService {
       plan: res.plan || 'BASIC',
       badges: res.badges || [],
       lastAiWishGeneration: res.lastAiWishGeneration,
-      lastAiGiftGeneration: res.lastAiGiftGeneration
+      lastAiGiftGeneration: res.lastAiGiftGeneration,
+      coins: res.coins || 0
     };
     
     this.accessToken.set(res.token);

@@ -19,4 +19,17 @@ public class SharedBirthdayDto {
     private Boolean showAge;
     private String gender;
     private List<GiftDto> gifts;
+    
+    // Party Details
+    private LocalDate partyDate;
+    private String partyTime;
+    private String partyLocation;
+    private String partyDescription;
+    
+    // Party Tasks
+    private List<PartyTaskDto> partyTasks;
+
+    // Phase 3: Collaborative Features
+    private List<MemoryItemDto> memories;
+    private List<ECardSignatureDto> signatures;
 }

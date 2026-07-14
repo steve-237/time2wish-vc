@@ -40,7 +40,8 @@ public class IAService {
 
     private void logUsage(String featureType, String prompt, String generatedContent) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl userDetails) {
+        if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
             User user = userRepository.findById(userDetails.getId()).orElse(null);
             if (user != null) {
                 AILog log = AILog.builder()
@@ -170,7 +171,7 @@ public class IAService {
         prompt.append("- name: name of the gift\n");
         prompt.append("- estimatedPrice: rough price range\n");
         prompt.append("- whereToBuy: general store or website types\n");
-        prompt.append("- purchaseLink: an example search link\n");
+        prompt.append("- purchaseLink: JUST the specific product name or search term for Amazon (e.g. 'Sony WH-1000XM4' or 'Lego Star Wars')\n");
         prompt.append("- preparationTips: how to present it or why it's a good idea\n");
 
         try {
@@ -194,6 +195,15 @@ public class IAService {
                 logUsage("GIFT", prompt.toString(), generatedText);
                 ObjectMapper mapper = new ObjectMapper();
                 List<GiftSuggestion> suggestions = mapper.readValue(generatedText, new TypeReference<List<GiftSuggestion>>() {});
+                
+                String affiliateTag = settingService.getSetting(SettingService.AMAZON_AFFILIATE_TAG) != null ? settingService.getSetting(SettingService.AMAZON_AFFILIATE_TAG).getValue() : "time2wish-21";
+                for (GiftSuggestion s : suggestions) {
+                    if (s.getPurchaseLink() != null && !s.getPurchaseLink().startsWith("http")) {
+                        String searchTerm = java.net.URLEncoder.encode(s.getPurchaseLink(), java.nio.charset.StandardCharsets.UTF_8);
+                        s.setPurchaseLink("https://www.amazon.fr/s?k=" + searchTerm + "&tag=" + affiliateTag);
+                    }
+                }
+                
                 return new GiftSuggestionResponse(suggestions, "AI");
             }
         } catch (Exception e) {

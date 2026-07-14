@@ -224,6 +224,72 @@
         </div>
       </div>
 
+      <div class="section-divider"></div>
+
+      <!-- ========================================== -->
+      <!-- SECTION 4: PARTY PLANNER -->
+      <!-- ========================================== -->
+      <div class="form-section">
+        <h3 class="section-heading">
+          <span class="material-symbols-outlined">event</span>
+          Détails de la fête
+        </h3>
+        
+        <div class="form-row">
+          <!-- Party Date -->
+          <div class="floating-group flex-1-min-200">
+            <input 
+              type="date" 
+              id="b-party-date" 
+              class="floating-input" 
+              [ngModel]="partyDate()" 
+              (ngModelChange)="partyDate.set($event)"
+              name="partyDate">
+            <label class="floating-label date-label" for="b-party-date">Date de la fête</label>
+          </div>
+
+          <!-- Party Time -->
+          <div class="floating-group flex-1-min-200">
+            <input 
+              type="time" 
+              id="b-party-time" 
+              class="floating-input" 
+              [ngModel]="partyTime()" 
+              (ngModelChange)="partyTime.set($event)"
+              name="partyTime">
+            <label class="floating-label date-label" for="b-party-time">Heure</label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <!-- Party Location -->
+          <div class="floating-group w-100">
+            <input 
+              type="text" 
+              id="b-party-location" 
+              class="floating-input" 
+              [ngModel]="partyLocation()" 
+              (ngModelChange)="partyLocation.set($event)"
+              name="partyLocation" 
+              placeholder=" ">
+            <label class="floating-label" for="b-party-location">Lieu (ex: Salle des fêtes, Chez moi...)</label>
+          </div>
+        </div>
+
+        <!-- Party Description -->
+        <div class="floating-group">
+          <textarea 
+            id="b-party-desc" 
+            class="floating-input" 
+            rows="2"
+            [ngModel]="partyDescription()" 
+            (ngModelChange)="partyDescription.set($event)"
+            name="partyDescription" 
+            placeholder=" "></textarea>
+          <label class="floating-label" for="b-party-desc">Infos supplémentaires (Thème, code vestimentaire...)</label>
+        </div>
+      </div>
+
       <!-- Actions -->
       <div class="form-actions">
         <a (click)="onCancel()" class="btn-secondary form-cancel-btn">{{ t9n.t('form.btn_cancel') }}</a>

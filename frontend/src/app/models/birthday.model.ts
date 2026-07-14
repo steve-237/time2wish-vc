@@ -10,6 +10,7 @@ export interface User {
   badges?: string[];
   lastAiWishGeneration?: string;
   lastAiGiftGeneration?: string;
+  coins: number;
 }
 
 export type BirthdayCategory = 'Family' | 'Friend' | 'Work' | 'Other';
@@ -31,6 +32,43 @@ export interface Birthday {
   interests?: string[];
   isFavorite?: boolean;
   shareToken?: string;
+  // Party Details
+  partyDate?: string;
+  partyTime?: string;
+  partyLocation?: string;
+  partyDescription?: string;
+  partyTasks?: PartyTask[];
+  memories?: MemoryItem[];
+  signatures?: ECardSignature[];
+}
+
+export interface PartyTask {
+  id: number;
+  birthdayId: number;
+  description: string;
+  assigneeName?: string;
+  isCompleted: boolean;
+  createdAt: string;
+}
+
+export interface MemoryItem {
+  id: number;
+  guestName: string;
+  guestSessionId: string;
+  message?: string;
+  mediaUrl?: string;
+  mediaType?: string;
+  createdAt: string;
+}
+
+export interface ECardSignature {
+  id: number;
+  guestName: string;
+  guestSessionId: string;
+  message: string;
+  color: string;
+  fontFamily: string;
+  createdAt: string;
 }
 
 export interface GiftSuggestion {
@@ -51,6 +89,10 @@ export interface Gift {
   isReserved: boolean;
   reservedByName?: string;
   createdAt: string;
+  // Community Features
+  upvotes?: number;
+  downvotes?: number;
+  userVote?: 'UP' | 'DOWN' | null;
 }
 
 export interface SharedBirthday {
@@ -60,6 +102,14 @@ export interface SharedBirthday {
   showAge: boolean;
   gender?: 'Masculin' | 'Féminin' | 'Autre';
   gifts: Gift[];
+  // Party Details
+  partyDate?: string;
+  partyTime?: string;
+  partyLocation?: string;
+  partyDescription?: string;
+  partyTasks?: PartyTask[];
+  memories?: MemoryItem[];
+  signatures?: ECardSignature[];
 }
 
 export function getZodiacSign(birthdate: string): { name: string; emoji: string } {

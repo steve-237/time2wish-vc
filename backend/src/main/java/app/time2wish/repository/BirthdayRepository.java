@@ -23,24 +23,23 @@ public interface BirthdayRepository extends JpaRepository<Birthday, Long> {
      * We compute the "days until next anniversary" and compare with reminder_days.
      * Uses PostgreSQL date arithmetic: next anniversary in current or next year.
      */
-    @Query(value = """
-        SELECT b.* FROM birthdays b
-        WHERE b.is_deleted = false
-        AND (
-            CASE
-                WHEN (MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)::int,
-                               EXTRACT(MONTH FROM b.birthdate)::int,
-                               EXTRACT(DAY FROM b.birthdate)::int) >= CURRENT_DATE)
-                THEN MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)::int,
-                              EXTRACT(MONTH FROM b.birthdate)::int,
-                              EXTRACT(DAY FROM b.birthdate)::int)
-                ELSE MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)::int + 1,
-                              EXTRACT(MONTH FROM b.birthdate)::int,
-                              EXTRACT(DAY FROM b.birthdate)::int)
-            END
-            - CURRENT_DATE
-        ) = b.reminder_days
-        """, nativeQuery = true)
+    @Query(value = 
+        "SELECT b.* FROM birthdays b " +
+        "WHERE b.is_deleted = false " +
+        "AND ( " +
+            "CASE " +
+                "WHEN (MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)\\:\\:int, " +
+                               "EXTRACT(MONTH FROM b.birthdate)\\:\\:int, " +
+                               "EXTRACT(DAY FROM b.birthdate)\\:\\:int) >= CURRENT_DATE) " +
+                "THEN MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)\\:\\:int, " +
+                              "EXTRACT(MONTH FROM b.birthdate)\\:\\:int, " +
+                              "EXTRACT(DAY FROM b.birthdate)\\:\\:int) " +
+                "ELSE MAKE_DATE(EXTRACT(YEAR FROM CURRENT_DATE)\\:\\:int + 1, " +
+                              "EXTRACT(MONTH FROM b.birthdate)\\:\\:int, " +
+                              "EXTRACT(DAY FROM b.birthdate)\\:\\:int) " +
+            "END " +
+            "- CURRENT_DATE " +
+        ") = b.reminder_days ", nativeQuery = true)
     List<Birthday> findBirthdaysWithUpcomingReminders();
 }
 

@@ -6,7 +6,7 @@
     </div>
   } @else if (error()) {
     <div class="empty-state">
-      <span class="material-symbols-outlined empty-icon" style="color: #ef4444;">error</span>
+      <span class="material-symbols-outlined empty-icon" >error</span>
       <h2>Oops !</h2>
       <p class="empty-state-text">{{ error() }}</p>
     </div>
@@ -20,12 +20,30 @@
           (Bientôt une année de plus !)
         }
       </p>
-      <p class="description" style="margin-top: 16px; color: #4b5563;">
+      <p class="description" >
         Vous avez été invité(e) à consulter cette liste secrète d'idées cadeaux. 
         Si un cadeau vous intéresse, vous pouvez le "réserver" pour éviter les doublons !
       </p>
     </div>
 
+    <div class="tabs-container" style="margin-top: 24px; display: flex; gap: 16px; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;">
+      <button class="tab-btn" [class.active]="activeTab() === 'gifts'" (click)="activeTab.set('gifts')"   >
+        🎁 Liste de Cadeaux
+      </button>
+      @if (birthday()?.partyDate || birthday()?.partyLocation) {
+        <button class="tab-btn" [class.active]="activeTab() === 'party'" (click)="activeTab.set('party')"   >
+          🎉 Détails de la Fête & Tâches
+        </button>
+      }
+      <button class="tab-btn" [class.active]="activeTab() === 'memories'" (click)="activeTab.set('memories')"   >
+        📸 Livre d'Or
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'card'" (click)="activeTab.set('card')"   >
+        ✍️ Signer la Carte
+      </button>
+    </div>
+
+    @if (activeTab() === 'gifts') {
     <div class="gifts-grid" style="margin-top: 32px;">
       @for (gift of birthday()?.gifts; track gift.id) {
         <div class="gift-card" [class.reserved]="gift.isReserved">
@@ -49,7 +67,7 @@
           </div>
 
           @if (gift.isReserved) {
-            <div class="gift-reserved-badge" style="margin-top: 16px; padding: 12px; background: #fef3c7; color: #d97706; border-radius: 12px; font-weight: 600; text-align: center;">
+            <div class="gift-reserved-badge" >
               <span class="material-symbols-outlined" style="font-size: 20px; vertical-align: bottom;">lock</span>
               Réservé par {{ gift.reservedByName }}
             </div>
@@ -59,6 +77,17 @@
               Je réserve ce cadeau !
             </button>
           }
+
+          <div class="gift-voting" style="margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 16px;  padding-top: 12px;">
+            <button class="vote-btn" [class.voted]="gift.userVote === 'UP'" (click)="vote(gift, 'UP')"  >
+              <span class="material-symbols-outlined" [style.font-variation-settings]="gift.userVote === 'UP' ? '&quot;FILL&quot; 1' : '&quot;FILL&quot; 0'">thumb_up</span>
+              <span>{{ gift.upvotes || 0 }}</span>
+            </button>
+            <button class="vote-btn" [class.voted]="gift.userVote === 'DOWN'" (click)="vote(gift, 'DOWN')"  >
+              <span class="material-symbols-outlined" [style.font-variation-settings]="gift.userVote === 'DOWN' ? '&quot;FILL&quot; 1' : '&quot;FILL&quot; 0'">thumb_down</span>
+              <span>{{ gift.downvotes || 0 }}</span>
+            </button>
+          </div>
         </div>
       } @empty {
         <div class="empty-state" style="grid-column: 1 / -1;">
@@ -67,6 +96,203 @@
         </div>
       }
     </div>
+    }
+
+    @if (activeTab() === 'party') {
+    <div class="party-planner-container" style="margin-top: 32px;">
+      <div class="party-details glass-panel" style="margin-bottom: 24px;">
+        <h3 >
+          <span class="material-symbols-outlined" >event</span>
+          Détails de l'événement
+        </h3>
+        <div class="details-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+          @if (birthday()?.partyDate) {
+            <div class="detail-item" style="display: flex; flex-direction: column;">
+              <span >Date</span>
+              <span style="font-weight: 600;">{{ birthday()?.partyDate | date:'dd MMMM yyyy' }}</span>
+            </div>
+          }
+          @if (birthday()?.partyTime) {
+            <div class="detail-item" style="display: flex; flex-direction: column;">
+              <span >Heure</span>
+              <span style="font-weight: 600;">{{ birthday()?.partyTime }}</span>
+            </div>
+          }
+          @if (birthday()?.partyLocation) {
+            <div class="detail-item" style="display: flex; flex-direction: column;">
+              <span >Lieu</span>
+              <span style="font-weight: 600;">{{ birthday()?.partyLocation }}</span>
+            </div>
+          }
+        </div>
+        @if (birthday()?.partyDescription) {
+          <div style="margin-top: 16px; padding-top: 16px; ">
+            <span >Description</span>
+            <p >{{ birthday()?.partyDescription }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="party-tasks glass-panel">
+        <h3 >
+          <span class="material-symbols-outlined" >checklist</span>
+          Qui s'occupe de quoi ?
+        </h3>
+        <p >
+          Aidez l'organisateur en prenant en charge l'une des tâches ci-dessous !
+        </p>
+
+        <div class="tasks-list" style="display: flex; flex-direction: column; gap: 12px;">
+          @for (task of birthday()?.partyTasks; track task.id) {
+            <div class="task-item" style="display: flex; justify-content: space-between; align-items: center; padding: 16px;  border-radius: 12px; ">
+              <div class="task-info">
+                <p >{{ task.description }}</p>
+              </div>
+              <div class="task-action">
+                @if (task.assigneeName) {
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="badge" >
+                      Pris par {{ task.assigneeName }}
+                    </span>
+                    <button class="icon-btn" (click)="unassignTask(task.id)" title="Je ne peux plus m'en occuper" >
+                      <span class="material-symbols-outlined" style="font-size: 18px;">close</span>
+                    </button>
+                  </div>
+                } @else {
+                  <button class="btn-secondary" (click)="openTaskModal(task.id)" style="padding: 6px 16px; font-size: 0.9rem;">
+                    Je m'en occupe !
+                  </button>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-state">
+              <span class="material-symbols-outlined empty-icon" >task</span>
+              <p class="empty-state-text">Aucune tâche n'a été ajoutée pour l'instant.</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Memory Lane / Livre d'Or -->
+    @if (activeTab() === 'memories') {
+    <div class="memories-container" style="margin-top: 32px;">
+      <div class="glass-panel" style="margin-bottom: 24px; padding: 24px;">
+        <h3 >
+          <span class="material-symbols-outlined" >photo_camera</span>
+          Laisser un souvenir
+        </h3>
+        <p >Ajoutez une photo ou un petit mot pour {{ birthday()?.name }} !</p>
+        
+        <div class="floating-group no-margin-bottom" style="margin-bottom: 16px;">
+          <input type="text" id="m-name" class="floating-input" placeholder=" " [(ngModel)]="memoryName">
+          <label for="m-name" class="floating-label">Votre pr�nom</label>
+        </div>
+        <div class="floating-group no-margin-bottom" style="margin-bottom: 16px;">
+          <textarea id="m-message" class="floating-input" rows="3" placeholder=" " [(ngModel)]="memoryMessage"></textarea>
+          <label for="m-message" class="floating-label">Un petit mot doux...</label>
+        </div>
+        
+        <div class="file-upload" style="margin-bottom: 24px;">
+          <label >
+            <span class="material-symbols-outlined">add_a_photo</span> Ajouter une photo (Max 5MB)
+            <input type="file" accept="image/*" (change)="onMemoryFileSelected($event)" style="display: none;">
+          </label>
+          @if (memoryFilePreview()) {
+            <div style="margin-top: 16px; position: relative; display: inline-block;">
+              <img [src]="memoryFilePreview()" style="max-height: 200px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+              <button class="icon-btn" (click)="memoryFile.set(null); memoryFilePreview.set(null)" >
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+          }
+        </div>
+        
+        <button class="btn-premium" (click)="submitMemory()" [disabled]="isMemorySubmitting()" style="width: 100%;">
+          @if (isMemorySubmitting()) {
+            <span class="material-symbols-outlined rotating">autorenew</span> Envoi en cours...
+          } @else {
+            <span class="material-symbols-outlined">send</span> Publier le souvenir
+          }
+        </button>
+      </div>
+
+      <div class="masonry-grid" style="column-count: 2; column-gap: 16px;">
+        @for (memory of birthday()?.memories; track memory.id) {
+          <div class="memory-card glass-panel" style="break-inside: avoid; margin-bottom: 16px; padding: 16px;">
+            @if (memory.mediaUrl) {
+              <img [src]="memory.mediaUrl" style="width: 100%; border-radius: 8px; margin-bottom: 12px; object-fit: cover;">
+            }
+            @if (memory.message) {
+              <p >"{{ memory.message }}"</p>
+            }
+            <div >
+              <span >— {{ memory.guestName }}</span>
+              <span>{{ memory.createdAt | date:'shortDate' }}</span>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-state" style="column-span: all;">
+            <span class="material-symbols-outlined empty-icon" >photo_library</span>
+            <p class="empty-state-text">Le livre d'or est vide. Soyez le premier à laisser un mot !</p>
+          </div>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- Collaborative E-Card -->
+    @if (activeTab() === 'card') {
+    <div class="card-container" style="margin-top: 32px;">
+      <div class="glass-panel" style="margin-bottom: 24px; padding: 24px;">
+        <h3 >
+          <span class="material-symbols-outlined" >draw</span>
+          Signer la carte commune
+        </h3>
+        <p >Laissez une petite note manuscrite qui sera révélée sur la carte géante !</p>
+        
+        <div class="floating-group no-margin-bottom" style="margin-bottom: 16px;">
+          <input type="text" id="s-name" class="floating-input" placeholder=" " [(ngModel)]="signatureName">
+          <label for="s-name" class="floating-label">Votre pr�nom</label>
+        </div>
+
+        <!-- Formatting toolbar -->
+        <div style="display: flex; gap: 16px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <label >Couleur:</label>
+            <div style="display: flex; gap: 8px;">
+              @for (color of AVAILABLE_COLORS; track color) {
+                <button (click)="signatureColor.set(color)" style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px #e5e7eb; cursor: pointer; transition: transform 0.2s;" [style.background]="color" [style.transform]="signatureColor() === color ? 'scale(1.2)' : 'scale(1)'"></button>
+              }
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <label >Police:</label>
+            <select class="floating-input" style="padding: 4px 8px; font-size: 0.9rem;" [(ngModel)]="signatureFont">
+              @for (font of AVAILABLE_FONTS; track font) {
+                <option [value]="font" [style.font-family]="font">{{ font }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="signature-card-wrapper">
+          <textarea class="signature-preview-area" rows="4" placeholder="Joyeux Anniversaire !!" [(ngModel)]="signatureMessage" [style.background]="signatureColor()" [style.font-family]="signatureFont()"></textarea>
+        </div>
+        
+        <button class="btn-premium" (click)="submitSignature()" style="width: 100%;">
+          <span class="material-symbols-outlined">edit_document</span> Ajouter ma signature
+        </button>
+      </div>
+
+      <div class="success-banner">
+        <span class="material-symbols-outlined">check_circle</span>
+        <span>{{ birthday()?.signatures?.length || 0 }} signatures r�colt�es. L'organisateur pourra ouvrir la carte le jour J !</span>
+      </div>
+    </div>
+    }
 
   }
 </div>
@@ -83,19 +309,19 @@
     </div>
     
     <div class="delete-modal-body" style="padding: 24px;">
-      <p style="margin-bottom: 24px; color: #4b5563;">
+      <p >
         Vous êtes sur le point de réserver <strong>{{ selectedGift()?.name }}</strong>. 
         Pour que les autres sachent qu'il est déjà pris, merci d'entrer votre prénom !
       </p>
 
-      <div class="form-group">
-        <label>Votre prénom</label>
-        <input type="text" class="tm-input" [(ngModel)]="guestName" placeholder="Ex: Tata Jacqueline" (keyup.enter)="confirmReservation()">
+      <div class="floating-group">
+        <input type="text" id="r-name" class="floating-input" [(ngModel)]="guestName" placeholder=" " (keyup.enter)="confirmReservation()">
+        <label for="r-name" class="floating-label">Votre pr�nom (Ex: Tata Jacqueline)</label>
       </div>
 
       <div class="form-actions" style="margin-top: 24px; display: flex; gap: 16px;">
         <button class="btn-secondary" (click)="closeReserveModal()" style="flex: 1;">Annuler</button>
-        <button class="btn-primary" (click)="confirmReservation()" [disabled]="!guestName().trim()" style="flex: 1;">
+        <button class="btn-premium" (click)="confirmReservation()" [disabled]="!guestName().trim()" style="flex: 1;">
           Confirmer
         </button>
       </div>
@@ -103,3 +329,36 @@
   </div>
 </div>
 }
+
+<!-- Task Assign Modal -->
+@if (isTaskModalOpen() && selectedTaskId()) {
+<div class="tm-modal-overlay z-modal">
+  <div class="tm-modal-content glass-card" (click)="$event.stopPropagation()">
+    <div class="delete-modal-header">
+      <h2>✋ S'assigner la tâche</h2>
+      <button class="icon-btn" (click)="closeTaskModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    
+    <div class="delete-modal-body" style="padding: 24px;">
+      <p >
+        Merci pour votre aide ! Quel est votre prénom pour que les autres invités le sachent ?
+      </p>
+
+      <div class="floating-group">
+        <input type="text" id="t-name" class="floating-input" [(ngModel)]="taskGuestName" placeholder=" " (keyup.enter)="assignTask()">
+        <label for="t-name" class="floating-label">Votre pr�nom (Ex: Tonton Bernard)</label>
+      </div>
+
+      <div class="form-actions" style="margin-top: 24px; display: flex; gap: 16px;">
+        <button class="btn-secondary" (click)="closeTaskModal()" style="flex: 1;">Annuler</button>
+        <button class="btn-premium" (click)="assignTask()" [disabled]="!taskGuestName().trim()" style="flex: 1;">
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}
+

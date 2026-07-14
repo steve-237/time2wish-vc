@@ -82,6 +82,12 @@ public class AuthController {
 
         User user = userRepository.findById(userDetails.getId()).orElseThrow();
 
+        if (user.getLastLoginAt() == null || user.getLastLoginAt().toLocalDate().isBefore(java.time.LocalDate.now())) {
+            user.setCoins(user.getCoins() + 5);
+        }
+        user.setLastLoginAt(java.time.LocalDateTime.now());
+        userRepository.save(user);
+
         return ResponseEntity.ok(JwtResponse.builder()
                 .token(jwt)
                 .id(user.getId())
@@ -94,6 +100,7 @@ public class AuthController {
                 .lastAiWishGeneration(user.getLastAiWishGeneration())
                 .lastAiGiftGeneration(user.getLastAiGiftGeneration())
                 .badges(userBadgeRepository.findByUser(user).stream().map(app.time2wish.model.UserBadge::getBadgeName).collect(java.util.stream.Collectors.toList()))
+                .coins(user.getCoins())
                 .build());
     }
 
@@ -160,6 +167,7 @@ public class AuthController {
                     .lastAiWishGeneration(user.getLastAiWishGeneration())
                     .lastAiGiftGeneration(user.getLastAiGiftGeneration())
                     .badges(userBadgeRepository.findByUser(user).stream().map(app.time2wish.model.UserBadge::getBadgeName).collect(java.util.stream.Collectors.toList()))
+                    .coins(user.getCoins())
                     .build());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Invalid token format"));
@@ -171,7 +179,8 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logoutUser(HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl userDetails) {
+        if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl) {
+            UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
             refreshTokenService.deleteByUserId(userDetails.getId());
         }
 
@@ -208,6 +217,11 @@ public class AuthController {
                 User user;
                 if (userOpt.isPresent()) {
                     user = userOpt.get();
+                    if (user.getLastLoginAt() == null || user.getLastLoginAt().toLocalDate().isBefore(java.time.LocalDate.now())) {
+                        user.setCoins(user.getCoins() + 5);
+                    }
+                    user.setLastLoginAt(java.time.LocalDateTime.now());
+                    userRepository.save(user);
                 } else {
                     if (!settingService.getBooleanSetting(app.time2wish.service.SettingService.ALLOW_REGISTRATION)) {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MessageResponse("Error: Les inscriptions sont actuellement fermées."));
@@ -248,6 +262,7 @@ public class AuthController {
                         .lastAiWishGeneration(user.getLastAiWishGeneration())
                         .lastAiGiftGeneration(user.getLastAiGiftGeneration())
                         .badges(userBadgeRepository.findByUser(user).stream().map(app.time2wish.model.UserBadge::getBadgeName).collect(java.util.stream.Collectors.toList()))
+                        .coins(user.getCoins())
                         .build());
             } else {
                 return ResponseEntity.badRequest().body(new MessageResponse("Error: Invalid Google Token."));
@@ -261,10 +276,11 @@ public class AuthController {
     @PutMapping("/profile")
     public ResponseEntity<?> updateProfile(@Valid @RequestBody ProfileUpdateRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof UserDetailsImpl userDetails)) {
+        if (auth == null || !(auth.getPrincipal() instanceof UserDetailsImpl)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Unauthorized"));
         }
 
+        UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
         User user = userRepository.findById(userDetails.getId()).orElseThrow();
         user.setFullName(request.getFullName());
         user.setBio(request.getBio());
@@ -284,16 +300,18 @@ public class AuthController {
                 .lastAiWishGeneration(user.getLastAiWishGeneration())
                 .lastAiGiftGeneration(user.getLastAiGiftGeneration())
                 .badges(userBadgeRepository.findByUser(user).stream().map(app.time2wish.model.UserBadge::getBadgeName).collect(java.util.stream.Collectors.toList()))
+                .coins(user.getCoins())
                 .build());
     }
 
     @PutMapping("/password")
     public ResponseEntity<?> updatePassword(@Valid @RequestBody PasswordUpdateRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !(auth.getPrincipal() instanceof UserDetailsImpl userDetails)) {
+        if (auth == null || !(auth.getPrincipal() instanceof UserDetailsImpl)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Unauthorized"));
         }
 
+        UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
         User user = userRepository.findById(userDetails.getId()).orElseThrow();
 
         if (!encoder.matches(request.getCurrentPassword(), user.getPassword())) {

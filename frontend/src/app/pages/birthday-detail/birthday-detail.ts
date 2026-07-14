@@ -10,15 +10,14 @@ import { Birthday, GiftSuggestion, Gift } from '../../models/birthday.model';
 import { WishModalComponent } from '../../components/wish-modal/wish-modal.component';
 import { CardGeneratorComponent } from '../../components/card-generator/card-generator.component';
 import { GiftListModalComponent } from '../../components/gift-list-modal/gift-list-modal.component';
+import { PartyOrganizerModalComponent } from '../../components/party-organizer-modal/party-organizer-modal.component';
 import { AuthService } from '../../services/auth.service';
 import { UiService } from '../../services/ui.service';
-import { MessagingService } from '../../services/messaging.service';
-import { ContactService } from '../../services/contact.service';
 
 @Component({
   selector: 'app-birthday-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterModule, WishModalComponent, CardGeneratorComponent, GiftListModalComponent],
+  imports: [CommonModule, FormsModule, RouterLink, RouterModule, WishModalComponent, CardGeneratorComponent, GiftListModalComponent, PartyOrganizerModalComponent],
   templateUrl: './birthday-detail.html',
   styleUrl: './birthday-detail.scss'
 })
@@ -31,8 +30,6 @@ export class BirthdayDetail implements OnInit {
   router = inject(Router);
   authService = inject(AuthService);
   uiService = inject(UiService);
-  messagingService = inject(MessagingService);
-  contactService = inject(ContactService);
 
   birthday = signal<Birthday | null>(null);
   daysUntil = signal<number>(0);
@@ -74,9 +71,7 @@ export class BirthdayDetail implements OnInit {
   isConfirmModalOpen = signal<boolean>(false);
   isShareModalOpen = signal<boolean>(false);
   isCardModalOpen = signal<boolean>(false);
-  isGiftListModalOpen = signal<boolean>(false);
-  public isChatOpen = signal<boolean>(false);
-  activeTab = signal<'info' | 'gifts' | 'cards'>('info');
+  activeTab = signal<'info' | 'gifts' | 'cards' | 'memories'>('info');
   canWebShare = signal<boolean>(!!navigator.share);
 
   onClose() {
@@ -97,22 +92,6 @@ export class BirthdayDetail implements OnInit {
     this.isShareModalOpen.set(true);
   }
 
-  onDeleteClick() {
-    this.isConfirmModalOpen.set(true);
-  }
-
-  updateNotes(newNotes: string) {
-    const b = this.birthday();
-    if (b) {
-      this.birthday.update(current => current ? { ...current, notes: newNotes } : current);
-      // Backend sync
-      this.birthdayService.updateBirthday(
-        b.id, b.name, b.birthdate, b.category, newNotes, 
-        b.reminderDays, b.photoUrl, b.showAge, b.email, 
-        b.whatsapp, b.gender, b.interests, b.isFavorite
-      );
-    }
-  }
 
   shareNative() {
     const b = this.birthday();
@@ -165,7 +144,6 @@ export class BirthdayDetail implements OnInit {
     }
   }
 
-  // ... (keep loadBirthday logic as it was, but we are replacing from line 145 so we just replace generateGifts and keeping other things untouched)
   removeInterest(interest: string) {
     const bId = this.birthday()?.id;
     if (bId) {
@@ -342,38 +320,14 @@ export class BirthdayDetail implements OnInit {
     this.isWishModalOpen.set(true);
   }
 
-  isGroupModalOpen = signal<boolean>(false);
-  selectedContactIds: number[] = [];
+  isPartyModalOpen = signal<boolean>(false);
 
-  organizeWithFriends() {
-    this.contactService.getContacts().subscribe();
-    this.isGroupModalOpen.set(true);
+  openPartyManager() {
+    this.isPartyModalOpen.set(true);
   }
 
-  toggleContactSelection(userId: number) {
-    const idx = this.selectedContactIds.indexOf(userId);
-    if (idx === -1) {
-      this.selectedContactIds.push(userId);
-    } else {
-      this.selectedContactIds.splice(idx, 1);
-    }
-  }
-
-  createBirthdayGroup() {
-    const b = this.birthday();
-    if (!b || !b.id || this.selectedContactIds.length === 0) return;
-    
-    this.messagingService.createBirthdayGroup(b.id, this.selectedContactIds).subscribe({
-      next: (conv) => {
-        this.isGroupModalOpen.set(false);
-        this.toastService.success('Groupe créé avec succès');
-        this.router.navigate(['/dashboard/messaging'], { queryParams: { startChatWith: conv.id } }); // Note: messaging page doesn't fully support open by group ID in query param, but let's navigate there
-      },
-      error: (err) => this.toastService.error(err.error?.message || 'Erreur')
-    });
-  }
-
-
+  
+  
   onDelete() {
     this.isConfirmModalOpen.set(true);
   }
@@ -389,4 +343,36 @@ export class BirthdayDetail implements OnInit {
       this.router.navigate(['/dashboard']);
     }
   }
+
+
+  deleteMemory(memoryId: number) {
+    const bId = this.birthday()?.id;
+    if (!bId) return;
+    this.birthdayService.deleteMemory(bId, memoryId).subscribe({
+      next: () => {
+        this.toastService.success('Souvenir supprimé');
+        this.birthday.update(b => {
+          if (!b) return b;
+          return { ...b, memories: (b.memories || []).filter((m: any) => m.id !== memoryId) };
+        });
+      },
+      error: () => this.toastService.error('Erreur lors de la suppression')
+    });
+  }
+
+  deleteSignature(signatureId: number) {
+    const bId = this.birthday()?.id;
+    if (!bId) return;
+    this.birthdayService.deleteSignature(bId, signatureId).subscribe({
+      next: () => {
+        this.toastService.success('Signature supprimée');
+        this.birthday.update(b => {
+          if (!b) return b;
+          return { ...b, signatures: (b.signatures || []).filter((s: any) => s.id !== signatureId) };
+        });
+      },
+      error: () => this.toastService.error('Erreur lors de la suppression')
+    });
+  }
+
 }
