@@ -2,44 +2,43 @@
   @if (isLoading()) {
     <div class="loading-state">
       <span class="material-symbols-outlined rotating">autorenew</span>
-      <p>Chargement de la liste secrète...</p>
+      <p>{{ t9n.t('shared.loading') || 'Chargement de la liste secrète...' }}</p>
     </div>
   } @else if (error()) {
     <div class="empty-state">
       <span class="material-symbols-outlined empty-icon" >error</span>
-      <h2>Oops !</h2>
+      <h2>{{ t9n.t('shared.error_title') || 'Oops !' }}</h2>
       <p class="empty-state-text">{{ error() }}</p>
     </div>
   } @else if (birthday()) {
     
     <div class="shared-header glass-panel">
-      <h1>🎂 L'anniversaire de {{ birthday()?.name }}</h1>
+      <h1>🎂 {{ t9n.t('shared.birthday_of', birthday()?.name || '') || 'L\'anniversaire de ' + birthday()?.name }}</h1>
       <p class="subtitle">
         {{ birthday()?.birthdate | date:'dd MMMM yyyy' }} 
         @if (birthday()?.showAge) {
-          (Bientôt une année de plus !)
+          ({{ t9n.t('shared.almost_older') || 'Bientôt une année de plus !' }})
         }
       </p>
       <p class="description" >
-        Vous avez été invité(e) à consulter cette liste secrète d'idées cadeaux. 
-        Si un cadeau vous intéresse, vous pouvez le "réserver" pour éviter les doublons !
+        {{ t9n.t('shared.intro_desc') || 'Vous avez été invité(e) à consulter cette liste secrète d\'idées cadeaux. Si un cadeau vous intéresse, vous pouvez le "réserver" pour éviter les doublons !' }}
       </p>
     </div>
 
     <div class="tabs-container" style="margin-top: 24px; display: flex; gap: 16px; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;">
       <button class="tab-btn" [class.active]="activeTab() === 'gifts'" (click)="activeTab.set('gifts')"   >
-        🎁 Liste de Cadeaux
+        🎁 {{ t9n.t('shared.tab_gifts') || 'Liste de Cadeaux' }}
       </button>
       @if (birthday()?.partyDate || birthday()?.partyLocation) {
         <button class="tab-btn" [class.active]="activeTab() === 'party'" (click)="activeTab.set('party')"   >
-          🎉 Détails de la Fête & Tâches
+          🎉 {{ t9n.t('shared.tab_party') || 'Détails de la Fête & Tâches' }}
         </button>
       }
       <button class="tab-btn" [class.active]="activeTab() === 'memories'" (click)="activeTab.set('memories')"   >
-        📸 Livre d'Or
+        📸 {{ t9n.t('shared.tab_memories') || 'Livre d\'Or' }}
       </button>
       <button class="tab-btn" [class.active]="activeTab() === 'card'" (click)="activeTab.set('card')"   >
-        ✍️ Signer la Carte
+        ✍️ {{ t9n.t('shared.tab_card') || 'Signer la Carte' }}
       </button>
     </div>
 
@@ -60,7 +59,7 @@
               <span>{{ gift.description }}</span>
               @if (gift.url && gift.url !== '#') {
               <a [href]="gift.url" target="_blank" class="gift-link" style="display: block; margin-top: 4px;">
-                Voir l'offre ↗
+                {{ t9n.t('shared.view_offer') || 'Voir l\'offre ↗' }}
               </a>
               }
             </div>
@@ -69,12 +68,12 @@
           @if (gift.isReserved) {
             <div class="gift-reserved-badge" >
               <span class="material-symbols-outlined" style="font-size: 20px; vertical-align: bottom;">lock</span>
-              Réservé par {{ gift.reservedByName }}
+              {{ t9n.t('shared.reserved_by', gift.reservedByName || '') || 'Réservé par ' + gift.reservedByName }}
             </div>
           } @else {
             <button class="btn-PRO gift-btn" style="margin-top: 16px; width: 100%;" (click)="openReserveModal(gift)">
               <span class="material-symbols-outlined">redeem</span>
-              Je réserve ce cadeau !
+              {{ t9n.t('shared.reserve_gift') || 'Je réserve ce cadeau !' }}
             </button>
           }
 
@@ -92,7 +91,7 @@
       } @empty {
         <div class="empty-state" style="grid-column: 1 / -1;">
           <span class="material-symbols-outlined empty-icon">redeem</span>
-          <p class="empty-state-text">La liste de cadeaux est vide pour l'instant.</p>
+          <p class="empty-state-text">{{ t9n.t('shared.empty_gifts') || 'La liste de cadeaux est vide pour l\'instant.' }}</p>
         </div>
       }
     </div>
@@ -103,31 +102,31 @@
       <div class="party-details glass-panel" style="margin-bottom: 24px;">
         <h3 >
           <span class="material-symbols-outlined" >event</span>
-          Détails de l'événement
+          {{ t9n.t('shared.party_details') || 'Détails de l\'événement' }}
         </h3>
         <div class="details-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
           @if (birthday()?.partyDate) {
             <div class="detail-item" style="display: flex; flex-direction: column;">
-              <span >Date</span>
+              <span >{{ t9n.t('shared.date') || 'Date' }}</span>
               <span style="font-weight: 600;">{{ birthday()?.partyDate | date:'dd MMMM yyyy' }}</span>
             </div>
           }
           @if (birthday()?.partyTime) {
             <div class="detail-item" style="display: flex; flex-direction: column;">
-              <span >Heure</span>
+              <span >{{ t9n.t('shared.time') || 'Heure' }}</span>
               <span style="font-weight: 600;">{{ birthday()?.partyTime }}</span>
             </div>
           }
           @if (birthday()?.partyLocation) {
             <div class="detail-item" style="display: flex; flex-direction: column;">
-              <span >Lieu</span>
+              <span >{{ t9n.t('shared.location') || 'Lieu' }}</span>
               <span style="font-weight: 600;">{{ birthday()?.partyLocation }}</span>
             </div>
           }
         </div>
         @if (birthday()?.partyDescription) {
           <div style="margin-top: 16px; padding-top: 16px; ">
-            <span >Description</span>
+            <span >{{ t9n.t('shared.description') || 'Description' }}</span>
             <p >{{ birthday()?.partyDescription }}</p>
           </div>
         }
@@ -136,10 +135,10 @@
       <div class="party-tasks glass-panel">
         <h3 >
           <span class="material-symbols-outlined" >checklist</span>
-          Qui s'occupe de quoi ?
+          {{ t9n.t('shared.who_does_what') || 'Qui s\'occupe de quoi ?' }}
         </h3>
         <p >
-          Aidez l'organisateur en prenant en charge l'une des tâches ci-dessous !
+          {{ t9n.t('shared.help_organizer') || 'Aidez l\'organisateur en prenant en charge l\'une des tâches ci-dessous !' }}
         </p>
 
         <div class="tasks-list" style="display: flex; flex-direction: column; gap: 12px;">
@@ -152,15 +151,15 @@
                 @if (task.assigneeName) {
                   <div style="display: flex; align-items: center; gap: 8px;">
                     <span class="badge" >
-                      Pris par {{ task.assigneeName }}
+                      {{ t9n.t('shared.taken_by', task.assigneeName || '') || 'Pris par ' + task.assigneeName }}
                     </span>
-                    <button class="icon-btn" (click)="unassignTask(task.id)" title="Je ne peux plus m'en occuper" >
+                    <button class="icon-btn" (click)="unassignTask(task.id)" [title]="t9n.t('shared.cant_do_it') || 'Je ne peux plus m\'en occuper'" >
                       <span class="material-symbols-outlined" style="font-size: 18px;">close</span>
                     </button>
                   </div>
                 } @else {
                   <button class="btn-secondary" (click)="openTaskModal(task.id)" style="padding: 6px 16px; font-size: 0.9rem;">
-                    Je m'en occupe !
+                    {{ t9n.t('shared.i_will_do_it') || 'Je m\'en occupe !' }}
                   </button>
                 }
               </div>
@@ -168,7 +167,7 @@
           } @empty {
             <div class="empty-state">
               <span class="material-symbols-outlined empty-icon" >task</span>
-              <p class="empty-state-text">Aucune tâche n'a été ajoutée pour l'instant.</p>
+              <p class="empty-state-text">{{ t9n.t('shared.no_tasks') || 'Aucune tâche n\'a été ajoutée pour l\'instant.' }}</p>
             </div>
           }
         </div>
@@ -182,22 +181,22 @@
       <div class="glass-panel" style="margin-bottom: 24px; padding: 24px;">
         <h3 >
           <span class="material-symbols-outlined" >photo_camera</span>
-          Laisser un souvenir
+          {{ t9n.t('shared.leave_memory') || 'Laisser un souvenir' }}
         </h3>
-        <p >Ajoutez une photo ou un petit mot pour {{ birthday()?.name }} !</p>
+        <p >{{ t9n.t('shared.add_photo_word', birthday()?.name || '') || 'Ajoutez une photo ou un petit mot pour ' + birthday()?.name + ' !' }}</p>
         
         <div class="floating-group no-margin-bottom" style="margin-bottom: 16px;">
           <input type="text" id="m-name" class="floating-input" placeholder=" " [(ngModel)]="memoryName">
-          <label for="m-name" class="floating-label">Votre pr�nom</label>
+          <label for="m-name" class="floating-label">{{ t9n.t('shared.your_name') || 'Votre prénom' }}</label>
         </div>
         <div class="floating-group no-margin-bottom" style="margin-bottom: 16px;">
           <textarea id="m-message" class="floating-input" rows="3" placeholder=" " [(ngModel)]="memoryMessage"></textarea>
-          <label for="m-message" class="floating-label">Un petit mot doux...</label>
+          <label for="m-message" class="floating-label">{{ t9n.t('shared.sweet_word') || 'Un petit mot doux...' }}</label>
         </div>
         
         <div class="file-upload" style="margin-bottom: 24px;">
           <label >
-            <span class="material-symbols-outlined">add_a_photo</span> Ajouter une photo (Max 5MB)
+            <span class="material-symbols-outlined">add_a_photo</span> {{ t9n.t('shared.add_photo') || 'Ajouter une photo (Max 5MB)' }}
             <input type="file" accept="image/*" (change)="onMemoryFileSelected($event)" style="display: none;">
           </label>
           @if (memoryFilePreview()) {
@@ -212,9 +211,9 @@
         
         <button class="btn-premium" (click)="submitMemory()" [disabled]="isMemorySubmitting()" style="width: 100%;">
           @if (isMemorySubmitting()) {
-            <span class="material-symbols-outlined rotating">autorenew</span> Envoi en cours...
+            <span class="material-symbols-outlined rotating">autorenew</span> {{ t9n.t('shared.sending') || 'Envoi en cours...' }}
           } @else {
-            <span class="material-symbols-outlined">send</span> Publier le souvenir
+            <span class="material-symbols-outlined">send</span> {{ t9n.t('shared.publish_memory') || 'Publier le souvenir' }}
           }
         </button>
       </div>
@@ -236,7 +235,7 @@
         } @empty {
           <div class="empty-state" style="column-span: all;">
             <span class="material-symbols-outlined empty-icon" >photo_library</span>
-            <p class="empty-state-text">Le livre d'or est vide. Soyez le premier à laisser un mot !</p>
+            <p class="empty-state-text">{{ t9n.t('shared.empty_memories') || 'Le livre d\'or est vide. Soyez le premier à laisser un mot !' }}</p>
           </div>
         }
       </div>
@@ -249,19 +248,19 @@
       <div class="glass-panel" style="margin-bottom: 24px; padding: 24px;">
         <h3 >
           <span class="material-symbols-outlined" >draw</span>
-          Signer la carte commune
+          {{ t9n.t('shared.sign_card') || 'Signer la carte commune' }}
         </h3>
-        <p >Laissez une petite note manuscrite qui sera révélée sur la carte géante !</p>
+        <p >{{ t9n.t('shared.sign_desc') || 'Laissez une petite note manuscrite qui sera révélée sur la carte géante !' }}</p>
         
         <div class="floating-group no-margin-bottom" style="margin-bottom: 16px;">
           <input type="text" id="s-name" class="floating-input" placeholder=" " [(ngModel)]="signatureName">
-          <label for="s-name" class="floating-label">Votre pr�nom</label>
+          <label for="s-name" class="floating-label">{{ t9n.t('shared.your_name') || 'Votre prénom' }}</label>
         </div>
 
         <!-- Formatting toolbar -->
         <div style="display: flex; gap: 16px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
           <div style="display: flex; gap: 8px; align-items: center;">
-            <label >Couleur:</label>
+            <label >{{ t9n.t('shared.color') || 'Couleur:' }}</label>
             <div style="display: flex; gap: 8px;">
               @for (color of AVAILABLE_COLORS; track color) {
                 <button (click)="signatureColor.set(color)" style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px #e5e7eb; cursor: pointer; transition: transform 0.2s;" [style.background]="color" [style.transform]="signatureColor() === color ? 'scale(1.2)' : 'scale(1)'"></button>
@@ -269,7 +268,7 @@
             </div>
           </div>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <label >Police:</label>
+            <label >{{ t9n.t('shared.font') || 'Police:' }}</label>
             <select class="floating-input" style="padding: 4px 8px; font-size: 0.9rem;" [(ngModel)]="signatureFont">
               @for (font of AVAILABLE_FONTS; track font) {
                 <option [value]="font" [style.font-family]="font">{{ font }}</option>
@@ -279,17 +278,17 @@
         </div>
 
         <div class="signature-card-wrapper">
-          <textarea class="signature-preview-area" rows="4" placeholder="Joyeux Anniversaire !!" [(ngModel)]="signatureMessage" [style.background]="signatureColor()" [style.font-family]="signatureFont()"></textarea>
+          <textarea class="signature-preview-area" rows="4" [placeholder]="t9n.t('shared.happy_bday_placeholder') || 'Joyeux Anniversaire !!'" [(ngModel)]="signatureMessage" [style.background]="signatureColor()" [style.font-family]="signatureFont()"></textarea>
         </div>
         
         <button class="btn-premium" (click)="submitSignature()" style="width: 100%;">
-          <span class="material-symbols-outlined">edit_document</span> Ajouter ma signature
+          <span class="material-symbols-outlined">edit_document</span> {{ t9n.t('shared.add_signature') || 'Ajouter ma signature' }}
         </button>
       </div>
 
       <div class="success-banner">
         <span class="material-symbols-outlined">check_circle</span>
-        <span>{{ birthday()?.signatures?.length || 0 }} signatures r�colt�es. L'organisateur pourra ouvrir la carte le jour J !</span>
+        <span>{{ birthday()?.signatures?.length || 0 }} {{ t9n.t('shared.signatures_collected') || 'signatures récoltées. L\'organisateur pourra ouvrir la carte le jour J !' }}</span>
       </div>
     </div>
     }
@@ -302,7 +301,7 @@
 <div class="tm-modal-overlay z-modal">
   <div class="tm-modal-content glass-card" (click)="$event.stopPropagation()">
     <div class="delete-modal-header">
-      <h2>🎁 Réserver ce cadeau</h2>
+      <h2>🎁 {{ t9n.t('shared.reserve_title') || 'Réserver ce cadeau' }}</h2>
       <button class="icon-btn" (click)="closeReserveModal()">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -310,19 +309,19 @@
     
     <div class="delete-modal-body" style="padding: 24px;">
       <p >
-        Vous êtes sur le point de réserver <strong>{{ selectedGift()?.name }}</strong>. 
-        Pour que les autres sachent qu'il est déjà pris, merci d'entrer votre prénom !
+        {{ t9n.t('shared.reserve_confirm_p1') || 'Vous êtes sur le point de réserver' }} <strong>{{ selectedGift()?.name }}</strong>. 
+        {{ t9n.t('shared.reserve_confirm_p2') || 'Pour que les autres sachent qu\'il est déjà pris, merci d\'entrer votre prénom !' }}
       </p>
 
       <div class="floating-group">
         <input type="text" id="r-name" class="floating-input" [(ngModel)]="guestName" placeholder=" " (keyup.enter)="confirmReservation()">
-        <label for="r-name" class="floating-label">Votre pr�nom (Ex: Tata Jacqueline)</label>
+        <label for="r-name" class="floating-label">{{ t9n.t('shared.name_ex_reserve') || 'Votre prénom (Ex: Tata Jacqueline)' }}</label>
       </div>
 
       <div class="form-actions" style="margin-top: 24px; display: flex; gap: 16px;">
-        <button class="btn-secondary" (click)="closeReserveModal()" style="flex: 1;">Annuler</button>
+        <button class="btn-secondary" (click)="closeReserveModal()" style="flex: 1;">{{ t9n.t('shared.cancel') || 'Annuler' }}</button>
         <button class="btn-premium" (click)="confirmReservation()" [disabled]="!guestName().trim()" style="flex: 1;">
-          Confirmer
+          {{ t9n.t('shared.confirm') || 'Confirmer' }}
         </button>
       </div>
     </div>
@@ -335,7 +334,7 @@
 <div class="tm-modal-overlay z-modal">
   <div class="tm-modal-content glass-card" (click)="$event.stopPropagation()">
     <div class="delete-modal-header">
-      <h2>✋ S'assigner la tâche</h2>
+      <h2>✋ {{ t9n.t('shared.assign_task') || 'S\'assigner la tâche' }}</h2>
       <button class="icon-btn" (click)="closeTaskModal()">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -343,18 +342,18 @@
     
     <div class="delete-modal-body" style="padding: 24px;">
       <p >
-        Merci pour votre aide ! Quel est votre prénom pour que les autres invités le sachent ?
+        {{ t9n.t('shared.assign_desc') || 'Merci pour votre aide ! Quel est votre prénom pour que les autres invités le sachent ?' }}
       </p>
 
       <div class="floating-group">
         <input type="text" id="t-name" class="floating-input" [(ngModel)]="taskGuestName" placeholder=" " (keyup.enter)="assignTask()">
-        <label for="t-name" class="floating-label">Votre pr�nom (Ex: Tonton Bernard)</label>
+        <label for="t-name" class="floating-label">{{ t9n.t('shared.name_ex_task') || 'Votre prénom (Ex: Tonton Bernard)' }}</label>
       </div>
 
       <div class="form-actions" style="margin-top: 24px; display: flex; gap: 16px;">
-        <button class="btn-secondary" (click)="closeTaskModal()" style="flex: 1;">Annuler</button>
+        <button class="btn-secondary" (click)="closeTaskModal()" style="flex: 1;">{{ t9n.t('shared.cancel') || 'Annuler' }}</button>
         <button class="btn-premium" (click)="assignTask()" [disabled]="!taskGuestName().trim()" style="flex: 1;">
-          Confirmer
+          {{ t9n.t('shared.confirm') || 'Confirmer' }}
         </button>
       </div>
     </div>

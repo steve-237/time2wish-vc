@@ -2,7 +2,7 @@
   <div class="tm-modal-content glass-card party-modal-content" (click)="$event.stopPropagation()">
     
     <div class="modal-header">
-      <h2>Organiser la Fête</h2>
+      <h2>{{ t9n.t('party.title') || 'Organiser la Fête' }}</h2>
       <button class="icon-btn" (click)="onClose()">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -12,19 +12,19 @@
     <div class="party-tabs">
       <button class="tab-btn" [class.active]="activeTab() === 'details'" (click)="activeTab.set('details')">
         <span class="material-symbols-outlined tab-icon">event_note</span>
-        Détails
+        {{ t9n.t('party.tab_details') || 'Détails' }}
       </button>
       <button class="tab-btn" [class.active]="activeTab() === 'tasks'" (click)="activeTab.set('tasks')">
         <span class="material-symbols-outlined tab-icon">checklist</span>
-        Tâches
+        {{ t9n.t('party.tab_tasks') || 'Tâches' }}
       </button>
       <button class="tab-btn" [class.active]="activeTab() === 'share'" (click)="activeTab.set('share')">
         <span class="material-symbols-outlined tab-icon">share</span>
-        Partage
+        {{ t9n.t('party.tab_share') || 'Lien Public' }}
       </button>
       <button class="tab-btn" [class.active]="activeTab() === 'friends'" (click)="activeTab.set('friends')">
         <span class="material-symbols-outlined tab-icon">groups</span>
-        Amis
+        {{ t9n.t('party.tab_friends') || 'Amis' }}
       </button>
     </div>
 
@@ -35,22 +35,22 @@
         <div class="tab-pane">
           <div class="form-group floating-group">
             <input type="date" class="floating-input" [(ngModel)]="partyDate" placeholder="Date de la fête">
-            <label class="floating-label">Date de la fête</label>
+            <label class="floating-label">{{ t9n.t('party.date') || 'Date de la fête' }}</label>
           </div>
           <div class="form-group floating-group">
             <input type="time" class="floating-input" [(ngModel)]="partyTime" placeholder="Heure">
-            <label class="floating-label">Heure</label>
+            <label class="floating-label">{{ t9n.t('party.time') || 'Heure' }}</label>
           </div>
           <div class="form-group floating-group">
             <input type="text" class="floating-input" [(ngModel)]="partyLocation" placeholder="Lieu">
-            <label class="floating-label">Lieu</label>
+            <label class="floating-label">{{ t9n.t('party.location') || 'Lieu' }}</label>
           </div>
           <div class="form-group floating-group">
             <textarea class="floating-input" [(ngModel)]="partyDescription" rows="3" placeholder="Informations additionnelles"></textarea>
-            <label class="floating-label">Informations additionnelles</label>
+            <label class="floating-label">{{ t9n.t('party.notes') || 'Informations additionnelles' }}</label>
           </div>
           <button class="btn-PRO w-full mt-4" (click)="saveDetails()">
-            Sauvegarder les détails
+            {{ t9n.t('party.save_details') || 'Sauvegarder les détails' }}
           </button>
         </div>
       }
@@ -58,9 +58,12 @@
       <!-- TAB: TASKS -->
       @if (activeTab() === 'tasks') {
         <div class="tab-pane">
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; line-height: 1.5;">
+            {{ t9n.t('party.share_desc') || 'Partagez ce lien avec les invités. Ils pourront y voir les détails de la fête, s\'inscrire pour les tâches partagées, et laisser un mot ou une photo pour le Livre d\'Or.' }}
+          </p>
           <!-- Add task input using global form-control style -->
           <div style="display: flex; gap: 8px; margin-bottom: 20px;">
-            <input type="text" class="tm-input" style="flex: 1;" [(ngModel)]="newTaskDescription" placeholder="Ex: Acheter le gâteau..." (keyup.enter)="addPartyTask()">
+            <input type="text" class="tm-input" style="flex: 1;" [(ngModel)]="newTaskDescription" [placeholder]="t9n.t('party.add_task') || 'Ajouter une tâche (ex: Apporter le gâteau...)'" (keyup.enter)="addPartyTask()">
             <button class="btn-primary" (click)="addPartyTask()" [disabled]="!newTaskDescription.trim() || isAddingTask">
               <span class="material-symbols-outlined">add</span>
             </button>
@@ -71,13 +74,13 @@
               <div class="task-item" [class.isCompleted]="task.isCompleted">
                 <input type="checkbox" [checked]="task.isCompleted" (change)="toggleTaskCompletion(task)">
                 <span class="task-desc">{{ task.description }}</span>
-                <button class="icon-btn text-error" (click)="deletePartyTask(task.id)" title="Supprimer">
+                <button class="icon-btn text-error" (click)="deletePartyTask(task.id)" [title]="t9n.t('party.delete') || 'Supprimer'">
                   <span class="material-symbols-outlined" style="font-size: 1.1rem;">delete</span>
                 </button>
               </div>
             }
             @if (!birthday?.partyTasks?.length) {
-              <p class="empty-state">Aucune tâche partagée pour le moment.</p>
+              <p class="empty-state">{{ t9n.t('party.no_tasks') || 'Aucune tâche partagée pour le moment.' }}</p>
             }
           </div>
         </div>
@@ -86,7 +89,7 @@
       <!-- TAB: SHARE (Guestbook & Card) -->
       @if (activeTab() === 'share') {
         <div class="tab-pane">
-          <p class="share-desc">Partagez ce lien avec vos amis pour qu'ils puissent laisser un mot dans le livre d'or ou signer la carte collaborative de {{ birthday.name }}.</p>
+          <p class="share-desc">{{ t9n.t('party.share_desc_friends', birthday.name) || 'Partagez ce lien avec vos amis pour qu\'ils puissent laisser un mot dans le livre d\'or ou signer la carte collaborative de ' + birthday.name + '.' }}</p>
           
           <div class="share-box">
             <div class="link-display">
@@ -95,13 +98,13 @@
             </div>
             <button class="btn-secondary copy-btn" (click)="copyShareLink()">
               <span class="material-symbols-outlined">content_copy</span>
-              Copier le lien
+              {{ t9n.t('party.copy_link') || 'Copier le lien' }}
             </button>
           </div>
 
           <div class="info-alert mt-4">
             <span class="material-symbols-outlined">info</span>
-            <p>Les invités n'ont pas besoin de créer de compte pour laisser un message. Leur mot s'affichera directement dans l'onglet "Livre d'Or" des détails de l'anniversaire.</p>
+            <p>{{ t9n.t('party.share_info') || 'Les invités n\'ont pas besoin de créer de compte pour laisser un message. Leur mot s\'affichera directement dans l\'onglet "Livre d\'Or" des détails de l\'anniversaire.' }}</p>
           </div>
         </div>
       }
@@ -109,7 +112,7 @@
       <!-- TAB: FRIENDS (Group Chat) -->
       @if (activeTab() === 'friends') {
         <div class="tab-pane">
-          <h4 style="margin: 0 0 16px 0; font-weight: 600;">Sélectionnez les amis à inviter au groupe :</h4>
+          <h4 style="margin: 0 0 16px 0; font-weight: 600;">{{ t9n.t('party.select_guests') || 'Sélectionnez les amis à inviter au groupe :' }}</h4>
           <div style="display: flex; flex-direction: column; gap: 8px;">
             @for (contact of contactService.contacts(); track contact.userId) {
               <label class="friend-item">
@@ -120,14 +123,14 @@
             }
             @if (contactService.contacts().length === 0) {
               <p class="empty-state">
-                Vous n'avez pas encore de contacts. <br>
-                <a routerLink="/dashboard/contacts" style="color: var(--primary-color);">Gérer les contacts</a>
+                {{ t9n.t('party.no_contacts') || 'Vous n\'avez pas encore de contacts.' }} <br>
+                <a routerLink="/dashboard/contacts" style="color: var(--primary-color);">{{ t9n.t('party.manage_contacts') || 'Gérer les contacts' }}</a>
               </p>
             }
           </div>
           
           <button class="btn-PRO w-full mt-4" (click)="createBirthdayGroup()" [disabled]="selectedContactIds.length === 0">
-            Créer le groupe de discussion
+            {{ t9n.t('party.create_group') || 'Créer le groupe de discussion' }}
           </button>
         </div>
       }

@@ -36,7 +36,7 @@
         <div class="social-actions" style="margin-top: 16px; display: flex; gap: 8px;">
           <button class="btn-PRO" (click)="openPartyManager()" style="flex: 1; justify-content: center; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
             <span class="material-symbols-outlined">settings</span>
-            Gérer la fête & les partages
+            {{ t9n.t('detail.manage_party') || 'Gérer la fête & les partages' }}
           </button>
         </div>
       </div>
@@ -57,7 +57,7 @@
       </button>
       <button class="tab-btn" [class.active]="activeTab() === 'memories'" (click)="activeTab.set('memories')">
         <span class="material-symbols-outlined tab-icon">photo_camera</span>
-        Livre d'Or
+        {{ t9n.t('detail.tab_memories') || 'Livre d\'Or' }}
       </button>
     </div>
 
@@ -184,17 +184,17 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
               <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
                 <span class="material-symbols-outlined" style="color: #ec4899;">photo_camera</span>
-                Livre d'Or & Souvenirs
+                {{ t9n.t('detail.memories_title') || 'Livre d\'Or & Souvenirs' }}
               </h3>
             </div>
             <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 20px;">
-              Retrouvez ici tous les mots doux et les photos partagés par vos invités via le lien public.
+              {{ t9n.t('detail.memories_desc') || 'Retrouvez ici tous les mots doux et les photos partagés par vos invités via le lien public.' }}
             </p>
 
             <div class="masonry-grid" style="column-count: 2; column-gap: 16px;">
               @for (memory of birthday()?.memories; track memory.id) {
                 <div class="memory-card" style="break-inside: avoid; margin-bottom: 16px; padding: 16px; background: rgba(0,0,0,0.02); border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); position: relative;">
-                  <button class="icon-btn" (click)="deleteMemory(memory.id)" title="Supprimer ce souvenir" style="position: absolute; top: 8px; right: 8px; color: #ef4444; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                  <button class="icon-btn" (click)="deleteMemory(memory.id)" [title]="t9n.t('detail.delete_memory') || 'Supprimer ce souvenir'" style="position: absolute; top: 8px; right: 8px; color: #ef4444; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                     <span class="material-symbols-outlined" style="font-size: 18px;">delete</span>
                   </button>
   
@@ -210,7 +210,7 @@
                       {{ memory.guestName ? memory.guestName.charAt(0).toUpperCase() : 'A' }}
                     </div>
                     <div style="flex: 1;">
-                      <div style="font-size: 0.85rem; font-weight: 500;">{{ memory.guestName || 'Anonyme' }}</div>
+                      <div style="font-size: 0.85rem; font-weight: 500;">{{ memory.guestName || (t9n.t('detail.anonymous') || 'Anonyme') }}</div>
                       <div style="font-size: 0.75rem; color: #9ca3af;">{{ memory.createdAt | date:'longDate':'':'fr' }}</div>
                     </div>
                   </div>
@@ -221,7 +221,7 @@
             @if (!birthday()?.memories?.length) {
               <div class="empty-state" style="text-align: center; padding: 40px 20px; color: #9ca3af; font-style: italic;">
                 <span class="material-symbols-outlined" style="font-size: 48px; opacity: 0.5; margin-bottom: 16px; display: block;">photo_library</span>
-                Aucun souvenir n'a encore été partagé pour cet anniversaire.
+                {{ t9n.t('detail.no_memories') || 'Aucun souvenir n\'a encore été partagé pour cet anniversaire.' }}
               </div>
             }
           </div>
@@ -231,7 +231,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
               <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
                 <span class="material-symbols-outlined" style="color: #8b5cf6;">draw</span>
-                Signatures de la Carte Virtuelle
+                {{ t9n.t('detail.signatures_title') || 'Signatures de la Carte Virtuelle' }}
               </h3>
             </div>
             
@@ -244,10 +244,10 @@
                   <div style="flex: 1;">
                     <p style="margin: 0; font-size: 0.95rem; color: #4b5563;">{{ sig.message }}</p>
                     <div style="font-size: 0.8rem; color: #9ca3af; margin-top: 4px;">
-                      — <strong>{{ sig.guestName || 'Anonyme' }}</strong>
+                      — <strong>{{ sig.guestName || (t9n.t('detail.anonymous') || 'Anonyme') }}</strong>
                     </div>
                   </div>
-                  <button class="icon-btn" (click)="deleteSignature(sig.id)" title="Supprimer la signature" style="color: #ef4444; opacity: 0.5;">
+                  <button class="icon-btn" (click)="deleteSignature(sig.id)" [title]="t9n.t('detail.delete_signature') || 'Supprimer la signature'" style="color: #ef4444; opacity: 0.5;">
                     <span class="material-symbols-outlined">delete</span>
                   </button>
                 </div>
@@ -256,7 +256,7 @@
 
             @if (!birthday()?.signatures?.length) {
               <div class="empty-state" style="text-align: center; padding: 30px 20px; color: #9ca3af; font-style: italic;">
-                Personne n'a encore signé la carte virtuelle.
+                {{ t9n.t('detail.no_signatures') || 'Personne n\'a encore signé la carte virtuelle.' }}
               </div>
             }
           </div>
