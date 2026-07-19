@@ -20,6 +20,8 @@ public class SettingService {
     public static final String MODULE_AI_ENABLED = "MODULE_AI_ENABLED";
     public static final String MODULE_CAGNOTTE_ENABLED = "MODULE_CAGNOTTE_ENABLED";
     public static final String AMAZON_AFFILIATE_TAG = "AMAZON_AFFILIATE_TAG";
+    public static final String FNAC_AFFILIATE_TAG = "FNAC_AFFILIATE_TAG";
+    public static final String ETSY_AFFILIATE_TAG = "ETSY_AFFILIATE_TAG";
 
     public SettingService(AppSettingRepository appSettingRepository) {
         this.appSettingRepository = appSettingRepository;
@@ -34,6 +36,8 @@ public class SettingService {
         initSetting(MODULE_AI_ENABLED, "true", "Activer la génération de textes et d'images par IA", "BOOLEAN");
         initSetting(MODULE_CAGNOTTE_ENABLED, "true", "Activer le système de cagnottes et promesses de dons", "BOOLEAN");
         initSetting(AMAZON_AFFILIATE_TAG, "time2wish-21", "Tag d'affiliation Amazon pour la monétisation des cadeaux", "STRING");
+        initSetting(FNAC_AFFILIATE_TAG, "time2wish", "Tag d'affiliation Fnac", "STRING");
+        initSetting(ETSY_AFFILIATE_TAG, "time2wish", "Tag d'affiliation Etsy", "STRING");
     }
 
     private void initSetting(String key, String defaultValue, String description, String type) {

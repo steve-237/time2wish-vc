@@ -17,6 +17,7 @@ public class GiftDto {
     private String description;
     private String priceRange;
     private String url;
+    private String imageUrl;
     private Boolean isReserved;
     private String reservedByName;
     private LocalDateTime createdAt;

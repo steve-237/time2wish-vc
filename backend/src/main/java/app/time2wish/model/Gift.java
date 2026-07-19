@@ -35,6 +35,9 @@ public class Gift {
     @Column(columnDefinition = "TEXT")
     private String url;
 
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
+
     @Builder.Default
     @Column(name = "is_reserved", nullable = false)
     private Boolean isReserved = false;

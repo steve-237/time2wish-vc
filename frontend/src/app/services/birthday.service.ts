@@ -394,6 +394,26 @@ export class BirthdayService {
   deleteSignature(birthdayId: number, signatureId: number) {
     return this.http.delete(`${this.API_URL}/${birthdayId}/signatures/${signatureId}`);
   }
+
+  // -----------------------------
+
+  // --- Phase 8: Time Capsule ---
+
+  uploadTimeCapsuleVideo(token: string, guestName: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('guestName', guestName);
+    return this.http.post<any>(`${environment.apiUrl}/public/shared/${token}/time-capsule/upload`, formData);
+  }
+
+  getTimeCapsuleStatus(birthdayId: number) {
+    return this.http.get<{status: string, daysRemaining: number | null, videos: any[]}>(`${this.API_URL}/${birthdayId}/time-capsule`);
+  }
+
+  markTimeCapsuleVideoAsViewed(birthdayId: number, videoId: number) {
+    return this.http.post<any>(`${this.API_URL}/${birthdayId}/time-capsule/${videoId}/mark-viewed`, {});
+  }
+
   // -----------------------------
 
   /** Triggers the backend reminder scheduler manually. Returns observable with result. */

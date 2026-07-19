@@ -57,7 +57,6 @@ export class BirthdayDetail implements OnInit {
     }
   }
 
-  /** Translates internal countdown token to current language */
   getLabel(rawLabel: string): string {
     if (rawLabel === '__today__') return this.t9n.t('countdown.today');
     if (rawLabel === '__tomorrow__') return this.t9n.t('countdown.tomorrow');
@@ -71,8 +70,48 @@ export class BirthdayDetail implements OnInit {
   isConfirmModalOpen = signal<boolean>(false);
   isShareModalOpen = signal<boolean>(false);
   isCardModalOpen = signal<boolean>(false);
-  activeTab = signal<'info' | 'gifts' | 'cards' | 'memories'>('info');
+  activeTab = signal<'info' | 'gifts' | 'cards' | 'memories' | 'capsule'>('info');
   canWebShare = signal<boolean>(!!navigator.share);
+
+  timeCapsuleStatus = signal<string>('LOCKED');
+  timeCapsuleDaysRemaining = signal<number | null>(null);
+  timeCapsuleVideos = signal<any[]>([]);
+  isLoadingCapsule = signal<boolean>(false);
+
+  loadTimeCapsule() {
+    const bId = this.birthday()?.id;
+    if (!bId) return;
+
+    this.isLoadingCapsule.set(true);
+    this.birthdayService.getTimeCapsuleStatus(bId).subscribe({
+      next: (res) => {
+        this.timeCapsuleStatus.set(res.status);
+        this.timeCapsuleDaysRemaining.set(res.daysRemaining);
+        this.timeCapsuleVideos.set(res.videos || []);
+        this.isLoadingCapsule.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load capsule', err);
+        this.isLoadingCapsule.set(false);
+      }
+    });
+  }
+
+  markCapsuleVideoViewed(videoId: number) {
+    const bId = this.birthday()?.id;
+    if (!bId) return;
+
+    this.birthdayService.markTimeCapsuleVideoAsViewed(bId, videoId).subscribe({
+      next: () => {
+        this.timeCapsuleVideos.update(videos => videos.filter(v => v.id !== videoId));
+        this.toastService.success('Vidéo marquée comme vue et supprimée.');
+      },
+      error: (err) => {
+        console.error('Failed to mark as viewed', err);
+        this.toastService.error('Erreur lors de la suppression de la vidéo.');
+      }
+    });
+  }
 
   onClose() {
     this.router.navigate(['/dashboard']);
@@ -83,7 +122,6 @@ export class BirthdayDetail implements OnInit {
     if (b) {
       const newStatus = !b.isFavorite;
       this.birthdayService.toggleFavorite(b.id, newStatus);
-      // Update local signal to reflect immediately
       this.birthday.update(current => current ? { ...current, isFavorite: newStatus } : current);
     }
   }
@@ -136,7 +174,6 @@ export class BirthdayDetail implements OnInit {
       this.birthdayService.addInterest(bId, val);
       this.newInterest.set('');
       
-      // Update local signal to reflect immediately
       this.birthday.update(b => {
         if (!b) return b;
         return { ...b, interests: [...(b.interests || []), val] };
@@ -326,8 +363,6 @@ export class BirthdayDetail implements OnInit {
     this.isPartyModalOpen.set(true);
   }
 
-  
-  
   onDelete() {
     this.isConfirmModalOpen.set(true);
   }
@@ -343,7 +378,6 @@ export class BirthdayDetail implements OnInit {
       this.router.navigate(['/dashboard']);
     }
   }
-
 
   deleteMemory(memoryId: number) {
     const bId = this.birthday()?.id;
@@ -373,6 +407,13 @@ export class BirthdayDetail implements OnInit {
       },
       error: () => this.toastService.error('Erreur lors de la suppression')
     });
+  }
+
+  switchTab(tab: 'info' | 'gifts' | 'cards' | 'memories' | 'capsule') {
+    this.activeTab.set(tab);
+    if (tab === 'capsule') {
+      this.loadTimeCapsule();
+    }
   }
 
 }

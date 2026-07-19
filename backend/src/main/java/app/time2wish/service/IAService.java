@@ -196,11 +196,42 @@ public class IAService {
                 ObjectMapper mapper = new ObjectMapper();
                 List<GiftSuggestion> suggestions = mapper.readValue(generatedText, new TypeReference<List<GiftSuggestion>>() {});
                 
-                String affiliateTag = settingService.getSetting(SettingService.AMAZON_AFFILIATE_TAG) != null ? settingService.getSetting(SettingService.AMAZON_AFFILIATE_TAG).getValue() : "time2wish-21";
+                String amazonTag = settingService.getSetting(SettingService.AMAZON_AFFILIATE_TAG) != null ? settingService.getSetting(SettingService.AMAZON_AFFILIATE_TAG).getValue() : "time2wish-21";
+                String fnacTag = settingService.getSetting(SettingService.FNAC_AFFILIATE_TAG) != null ? settingService.getSetting(SettingService.FNAC_AFFILIATE_TAG).getValue() : "time2wish";
+                String etsyTag = settingService.getSetting(SettingService.ETSY_AFFILIATE_TAG) != null ? settingService.getSetting(SettingService.ETSY_AFFILIATE_TAG).getValue() : "time2wish";
+
                 for (GiftSuggestion s : suggestions) {
+                    String productName = s.getName();
                     if (s.getPurchaseLink() != null && !s.getPurchaseLink().startsWith("http")) {
-                        String searchTerm = java.net.URLEncoder.encode(s.getPurchaseLink(), java.nio.charset.StandardCharsets.UTF_8);
-                        s.setPurchaseLink("https://www.amazon.fr/s?k=" + searchTerm + "&tag=" + affiliateTag);
+                        productName = s.getPurchaseLink();
+                    }
+                    
+                    try {
+                        String encodedName = java.net.URLEncoder.encode(productName, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
+                        s.setImageUrl("https://image.pollinations.ai/prompt/" + encodedName + "%20isolated%20on%20white%20background");
+                    } catch (Exception e) {}
+
+                    if (s.getPurchaseLink() != null && !s.getPurchaseLink().startsWith("http")) {
+                        String searchTerm = "";
+                        try {
+                            searchTerm = java.net.URLEncoder.encode(s.getPurchaseLink(), java.nio.charset.StandardCharsets.UTF_8);
+                        } catch (Exception e) {}
+
+                        String wtb = s.getWhereToBuy() != null ? s.getWhereToBuy().toLowerCase() : "";
+                        if (wtb.contains("fnac")) {
+                            s.setPurchaseLink("https://www.fnac.com/SearchResult/ResultList.aspx?Search=" + searchTerm + "&awin=" + fnacTag);
+                        } else if (wtb.contains("etsy")) {
+                            s.setPurchaseLink("https://www.etsy.com/search?q=" + searchTerm + "&ref=" + etsyTag);
+                        } else if (wtb.contains("sephora")) {
+                            s.setPurchaseLink("https://www.sephora.fr/recherche?q=" + searchTerm);
+                        } else if (wtb.contains("decathlon")) {
+                            s.setPurchaseLink("https://www.decathlon.fr/search?Ntt=" + searchTerm);
+                        } else {
+                            String domain = "fr";
+                            if ("en".equalsIgnoreCase(lang)) domain = "com";
+                            else if ("de".equalsIgnoreCase(lang)) domain = "de";
+                            s.setPurchaseLink("https://www.amazon." + domain + "/s?k=" + searchTerm + "&tag=" + amazonTag);
+                        }
                     }
                 }
                 
@@ -289,9 +320,18 @@ public class IAService {
         }
         
         // Remove duplicates if any, and limit to 4 to give a nice selection
-        return suggestions.stream()
+        List<GiftSuggestion> results = suggestions.stream()
             .distinct()
             .limit(4)
             .toList();
+
+        for (GiftSuggestion s : results) {
+            try {
+                String encodedName = java.net.URLEncoder.encode(s.getName(), java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
+                s.setImageUrl("https://image.pollinations.ai/prompt/" + encodedName + "%20isolated%20on%20white%20background");
+            } catch (Exception e) {}
+        }
+        
+        return results;
     }
 }

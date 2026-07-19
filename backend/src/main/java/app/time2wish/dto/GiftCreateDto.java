@@ -10,4 +10,5 @@ public class GiftCreateDto {
     private String description;
     private String priceRange;
     private String url;
+    private String imageUrl;
 }

@@ -134,6 +134,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/shared-list/shared-list.component').then(m => m.SharedListComponent)
       },
       {
+        path: 'surprise/:token',
+        loadComponent: () => import('./pages/surprise/surprise').then(m => m.SurpriseComponent)
+      },
+      {
         path: 'payment/mock-checkout',
         loadComponent: () => import('./pages/mock-checkout/mock-checkout.component').then(m => m.MockCheckoutComponent),
         canActivate: [authGuard]

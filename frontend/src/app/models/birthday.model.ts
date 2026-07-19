@@ -76,6 +76,7 @@ export interface GiftSuggestion {
   estimatedPrice: string;
   whereToBuy: string;
   purchaseLink: string;
+  imageUrl?: string;
   preparationTips: string;
 }
 
@@ -86,6 +87,7 @@ export interface Gift {
   description: string;
   priceRange: string;
   url: string;
+  imageUrl?: string;
   isReserved: boolean;
   reservedByName?: string;
   createdAt: string;

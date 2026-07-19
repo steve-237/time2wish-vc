@@ -40,61 +40,150 @@
       <button class="tab-btn" [class.active]="activeTab() === 'card'" (click)="activeTab.set('card')"   >
         ✍️ {{ t9n.t('shared.tab_card') || 'Signer la Carte' }}
       </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'capsule'" (click)="activeTab.set('capsule')"   >
+        ⏳ Time Capsule
+      </button>
     </div>
 
     @if (activeTab() === 'gifts') {
-    <div class="gifts-grid" style="margin-top: 32px;">
-      @for (gift of birthday()?.gifts; track gift.id) {
-        <div class="gift-card" [class.reserved]="gift.isReserved">
-          <h4 class="gift-title">{{ gift.name }}</h4>
-          
-          <div class="gift-price">
-            <span class="material-symbols-outlined gift-price-icon">payments</span>
-            {{ gift.priceRange }}
-          </div>
-          
-          <div class="gift-store">
-            <span class="material-symbols-outlined gift-store-icon">info</span>
-            <div>
-              <span>{{ gift.description }}</span>
-              @if (gift.url && gift.url !== '#') {
-              <a [href]="gift.url" target="_blank" class="gift-link" style="display: block; margin-top: 4px;">
-                {{ t9n.t('shared.view_offer') || 'Voir l\'offre ↗' }}
-              </a>
-              }
-            </div>
-          </div>
-
-          @if (gift.isReserved) {
-            <div class="gift-reserved-badge" >
-              <span class="material-symbols-outlined" style="font-size: 20px; vertical-align: bottom;">lock</span>
-              {{ t9n.t('shared.reserved_by', gift.reservedByName || '') || 'Réservé par ' + gift.reservedByName }}
-            </div>
-          } @else {
-            <button class="btn-PRO gift-btn" style="margin-top: 16px; width: 100%;" (click)="openReserveModal(gift)">
-              <span class="material-symbols-outlined">redeem</span>
-              {{ t9n.t('shared.reserve_gift') || 'Je réserve ce cadeau !' }}
-            </button>
-          }
-
-          <div class="gift-voting" style="margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 16px;  padding-top: 12px;">
-            <button class="vote-btn" [class.voted]="gift.userVote === 'UP'" (click)="vote(gift, 'UP')"  >
-              <span class="material-symbols-outlined" [style.font-variation-settings]="gift.userVote === 'UP' ? '&quot;FILL&quot; 1' : '&quot;FILL&quot; 0'">thumb_up</span>
-              <span>{{ gift.upvotes || 0 }}</span>
-            </button>
-            <button class="vote-btn" [class.voted]="gift.userVote === 'DOWN'" (click)="vote(gift, 'DOWN')"  >
-              <span class="material-symbols-outlined" [style.font-variation-settings]="gift.userVote === 'DOWN' ? '&quot;FILL&quot; 1' : '&quot;FILL&quot; 0'">thumb_down</span>
-              <span>{{ gift.downvotes || 0 }}</span>
-            </button>
-          </div>
-        </div>
-      } @empty {
-        <div class="empty-state" style="grid-column: 1 / -1;">
-          <span class="material-symbols-outlined empty-icon">redeem</span>
-          <p class="empty-state-text">{{ t9n.t('shared.empty_gifts') || 'La liste de cadeaux est vide pour l\'instant.' }}</p>
-        </div>
+    <div style="margin-top: 24px; text-align: center;">
+      @if (!tinderMode() && unvotedGifts().length > 0) {
+        <button class="btn-premium" style="margin-bottom: 24px; padding: 12px 24px; font-size: 1.1rem; border-radius: 30px;" (click)="startTinderMode()">
+          <span class="material-symbols-outlined" style="margin-right: 8px;">style</span>
+          {{ t9n.t('shared.play_tinder') || '🎮 Jouer au Tinder des Cadeaux ! (' + unvotedGifts().length + ' restants)' }}
+        </button>
       }
     </div>
+
+    @if (tinderMode()) {
+      <div class="tinder-container">
+        <div class="tinder-card-wrapper" style="position: relative; width: 100%; max-width: 400px; height: 500px; margin: 0 auto; perspective: 1000px;">
+          @if (unvotedGifts()[currentTinderIndex()]; as currentGift) {
+            <div class="tinder-card glass-panel"
+                 style="position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 24px; cursor: grab; user-select: none; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 2px solid white; z-index: 10;"
+                 [style.transform]="swipeTransform()"
+                 [style.transition]="cardTransition()"
+                 (mousedown)="onCardTouchStart($event)"
+                 (mousemove)="onCardTouchMove($event)"
+                 (mouseup)="onCardTouchEnd()"
+                 (mouseleave)="onCardTouchEnd()"
+                 (touchstart)="onCardTouchStart($event)"
+                 (touchmove)="onCardTouchMove($event)"
+                 (touchend)="onCardTouchEnd()">
+              
+              <div class="tinder-card-content" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;">
+                @if (currentGift.imageUrl) {
+                  <div style="width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; background-image: url('{{ currentGift.imageUrl }}'); background-size: cover; background-position: center; border: 4px solid white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"></div>
+                } @else {
+                  <div style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #fce7f3 0%, #e0e7ff 100%); display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                    <span class="material-symbols-outlined" style="font-size: 64px; color: #8b5cf6;">redeem</span>
+                  </div>
+                }
+                <h3 class="gift-title" style="font-size: 1.8rem; text-align: center; margin-bottom: 16px; color: #1f2937;">{{ currentGift.name }}</h3>
+                <div class="gift-price" style="justify-content: center; font-size: 1.3rem; margin-bottom: 24px; color: #059669; font-weight: 600; background: #ecfdf5; padding: 8px 16px; border-radius: 20px;">
+                  <span class="material-symbols-outlined gift-price-icon">payments</span>
+                  {{ currentGift.priceRange }}
+                </div>
+                <p style="text-align: center; color: #4b5563; font-size: 1.1rem; line-height: 1.5;">{{ currentGift.description }}</p>
+              </div>
+              
+              <div class="tinder-actions" style="display: flex; justify-content: center; gap: 32px; margin-top: 24px; padding-bottom: 16px;">
+                <button class="tinder-btn" style="width: 70px; height: 70px; border-radius: 50%; border: none; background: white; color: #ef4444; font-size: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); cursor: pointer; transition: transform 0.2s;" 
+                        (mousedown)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()"
+                        (click)="handleSwipe('left')">
+                  <span class="material-symbols-outlined" style="font-size: 40px; font-weight: 600;">close</span>
+                </button>
+                <button class="tinder-btn" style="width: 70px; height: 70px; border-radius: 50%; border: none; background: white; color: #10b981; font-size: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); cursor: pointer; transition: transform 0.2s;"
+                        (mousedown)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()"
+                        (click)="handleSwipe('right')">
+                  <span class="material-symbols-outlined" style="font-size: 40px; font-variation-settings: 'FILL' 1;">favorite</span>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+        <p class="tinder-hint" style="text-align: center; color: #6b7280; margin-top: 32px; font-size: 0.95rem;">
+          <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: bottom; margin-right: 4px;">swipe</span>
+          Glissez à gauche ou à droite, ou utilisez les boutons !
+        </p>
+        <div style="text-align: center; margin-top: 16px;">
+          <button class="btn-secondary" style="border-radius: 20px;" (click)="closeTinderMode()">Quitter le jeu</button>
+        </div>
+      </div>
+    } @else {
+      <div class="gifts-grid">
+        @for (gift of birthday()?.gifts; track gift.id) {
+          <div class="gift-card" [class.reserved]="gift.isReserved">
+            @if (gift.imageUrl) {
+              <div class="gift-image" style="width: 100%; height: 150px; background-size: contain; background-repeat: no-repeat; background-position: center; border-radius: 8px; margin-bottom: 12px; background-image: url('{{ gift.imageUrl }}'); background-color: #fff;"></div>
+            }
+            <h4 class="gift-title">{{ gift.name }}</h4>
+            
+            <div class="gift-price">
+              <span class="material-symbols-outlined gift-price-icon">payments</span>
+              {{ gift.priceRange }}
+            </div>
+            
+            <div class="gift-store">
+              <span class="material-symbols-outlined gift-store-icon">info</span>
+              <div>
+                <span>{{ gift.description }}</span>
+                @if (gift.url && gift.url !== '#') {
+                  @if (gift.url.includes('amazon.')) {
+                    <a [href]="gift.url" target="_blank" class="gift-link amazon-link" title="{{ gift.url }}" style="background-color: #f97316; color: #fff; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; margin-top: 4px; text-decoration: none; width: fit-content;">
+                      <span class="material-symbols-outlined" style="font-size: 16px;">shopping_cart</span>
+                      Acheter sur Amazon
+                    </a>
+                  } @else if (gift.url.includes('fnac.')) {
+                    <a [href]="gift.url" target="_blank" class="gift-link fnac-link" title="{{ gift.url }}" style="background-color: #eab308; color: #000; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; margin-top: 4px; text-decoration: none; width: fit-content;">
+                      <span class="material-symbols-outlined" style="font-size: 16px;">shopping_bag</span>
+                      Acheter sur Fnac
+                    </a>
+                  } @else if (gift.url.includes('etsy.')) {
+                    <a [href]="gift.url" target="_blank" class="gift-link etsy-link" title="{{ gift.url }}" style="background-color: #f97316; color: #fff; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; margin-top: 4px; text-decoration: none; width: fit-content;">
+                      <span class="material-symbols-outlined" style="font-size: 16px;">storefront</span>
+                      Acheter sur Etsy
+                    </a>
+                  } @else {
+                    <a [href]="gift.url" target="_blank" class="gift-link" style="display: block; margin-top: 4px;">
+                      {{ t9n.t('shared.view_offer') || 'Voir l\'offre ↗' }}
+                    </a>
+                  }
+                }
+              </div>
+            </div>
+
+            @if (gift.isReserved) {
+              <div class="gift-reserved-badge" >
+                <span class="material-symbols-outlined" style="font-size: 20px; vertical-align: bottom;">lock</span>
+                {{ t9n.t('shared.reserved_by', gift.reservedByName || '') || 'Réservé par ' + gift.reservedByName }}
+              </div>
+            } @else {
+              <button class="btn-PRO gift-btn" style="margin-top: 16px; width: 100%;" (click)="openReserveModal(gift)">
+                <span class="material-symbols-outlined">redeem</span>
+                {{ t9n.t('shared.reserve_gift') || 'Je réserve ce cadeau !' }}
+              </button>
+            }
+
+            <div class="gift-voting" style="margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 16px;  padding-top: 12px;">
+              <button class="vote-btn" [class.voted]="gift.userVote === 'UP'" (click)="vote(gift, 'UP')"  >
+                <span class="material-symbols-outlined" [style.font-variation-settings]="gift.userVote === 'UP' ? '&quot;FILL&quot; 1' : '&quot;FILL&quot; 0'">thumb_up</span>
+                <span>{{ gift.upvotes || 0 }}</span>
+              </button>
+              <button class="vote-btn" [class.voted]="gift.userVote === 'DOWN'" (click)="vote(gift, 'DOWN')"  >
+                <span class="material-symbols-outlined" [style.font-variation-settings]="gift.userVote === 'DOWN' ? '&quot;FILL&quot; 1' : '&quot;FILL&quot; 0'">thumb_down</span>
+                <span>{{ gift.downvotes || 0 }}</span>
+              </button>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <span class="material-symbols-outlined empty-icon">redeem</span>
+            <p class="empty-state-text">{{ t9n.t('shared.empty_gifts') || 'La liste de cadeaux est vide pour l\'instant.' }}</p>
+          </div>
+        }
+      </div>
+    }
     }
 
     @if (activeTab() === 'party') {
@@ -293,6 +382,53 @@
     </div>
     }
 
+    <!-- Time Capsule -->
+    @if (activeTab() === 'capsule') {
+    <div class="capsule-container" style="margin-top: 32px;">
+      <div class="glass-panel" style="margin-bottom: 24px; padding: 24px;">
+        <h3>
+          <span class="material-symbols-outlined">hourglass_top</span>
+          Time Capsule ⏳
+        </h3>
+        <p>Enregistrez ou uploadez une courte vidéo pour le fêté. Elle sera scellée et invisible jusqu'au jour de son anniversaire ! Une fois visionnée, elle s'autodétruira pour faire de la place.</p>
+        
+        <div class="floating-group no-margin-bottom" style="margin-bottom: 16px;">
+          <input type="text" id="c-name" class="floating-input" placeholder=" " [(ngModel)]="timeCapsuleGuestName">
+          <label for="c-name" class="floating-label">Votre prénom</label>
+        </div>
+        
+        <div class="file-upload" style="margin-bottom: 24px;">
+          <label>
+            <span class="material-symbols-outlined">videocam</span> Ajouter une vidéo (Max 20MB)
+            <input type="file" accept="video/mp4,video/quicktime,video/webm" (change)="onTimeCapsuleFileSelected($event)" style="display: none;">
+          </label>
+          @if (timeCapsuleFile()) {
+            <div style="margin-top: 16px; position: relative; display: inline-flex; align-items: center; gap: 8px; background: #f3f4f6; padding: 8px 16px; border-radius: 20px;">
+              <span class="material-symbols-outlined" style="color: #4f46e5;">movie</span>
+              <span style="font-weight: 500; font-size: 0.9rem;">{{ timeCapsuleFile()?.name }}</span>
+              <button class="icon-btn" (click)="timeCapsuleFile.set(null)" style="margin-left: 8px;">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+          }
+        </div>
+        
+        <button class="btn-premium" (click)="submitTimeCapsule()" [disabled]="isTimeCapsuleSubmitting()" style="width: 100%;">
+          @if (isTimeCapsuleSubmitting()) {
+            <span class="material-symbols-outlined rotating">autorenew</span> Envoi dans la capsule en cours...
+          } @else {
+            <span class="material-symbols-outlined">lock</span> Sceller la vidéo dans la Time Capsule
+          }
+        </button>
+      </div>
+
+      <div class="success-banner" style="background-color: #fef2f2; color: #991b1b; border: 1px solid #fca5a5;">
+        <span class="material-symbols-outlined">lock_clock</span>
+        <span>Votre vidéo ne pourra pas être vue ni modifiée après l'envoi. Elle restera secrète jusqu'au jour J !</span>
+      </div>
+    </div>
+    }
+
   }
 </div>
 
@@ -361,3 +497,7 @@
 </div>
 }
 
+<!-- Virtual Envelope -->
+@if (showEnvelope()) {
+  <app-virtual-envelope (opened)="onEnvelopeOpened()"></app-virtual-envelope>
+}

@@ -43,21 +43,25 @@
     </div>
     <!-- ========== TABS NAVIGATION ========== -->
     <div class="detail-tabs">
-      <button class="tab-btn" [class.active]="activeTab() === 'info'" (click)="activeTab.set('info')">
+      <button class="tab-btn" [class.active]="activeTab() === 'info'" (click)="switchTab('info')">
         <span class="material-symbols-outlined tab-icon">info</span>
         {{ t9n.t('detail.tab_info') || 'Informations' }}
       </button>
-      <button class="tab-btn" [class.active]="activeTab() === 'gifts'" (click)="activeTab.set('gifts')">
+      <button class="tab-btn" [class.active]="activeTab() === 'gifts'" (click)="switchTab('gifts')">
         <span class="material-symbols-outlined tab-icon">redeem</span>
         {{ t9n.t('detail.tab_gifts') || 'Cadeaux' }}
       </button>
-      <button class="tab-btn" [class.active]="activeTab() === 'cards'" (click)="activeTab.set('cards')">
+      <button class="tab-btn" [class.active]="activeTab() === 'cards'" (click)="switchTab('cards')">
         <span class="material-symbols-outlined tab-icon">mail</span>
         {{ t9n.t('detail.tab_cards') || 'Cartes & Vœux' }}
       </button>
-      <button class="tab-btn" [class.active]="activeTab() === 'memories'" (click)="activeTab.set('memories')">
+      <button class="tab-btn" [class.active]="activeTab() === 'memories'" (click)="switchTab('memories')">
         <span class="material-symbols-outlined tab-icon">photo_camera</span>
         {{ t9n.t('detail.tab_memories') || 'Livre d\'Or' }}
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'capsule'" (click)="switchTab('capsule')">
+        <span class="material-symbols-outlined tab-icon">hourglass_top</span>
+        Time Capsule
       </button>
     </div>
 
@@ -264,6 +268,70 @@
       }
 
     </div> <!-- /tab-content -->
+
+    <!-- ===== TAB: TIME CAPSULE ===== -->
+    @if (activeTab() === 'capsule') {
+      <div class="capsule-section" style="padding: 24px;">
+        <div class="glass-card" style="padding: 24px; text-align: center;">
+          <span class="material-symbols-outlined" style="font-size: 48px; color: #6366f1; margin-bottom: 16px;">hourglass_top</span>
+          <h2 style="margin-bottom: 8px;">La Capsule Temporelle</h2>
+          
+          @if (isLoadingCapsule()) {
+            <p><span class="material-symbols-outlined rotating">autorenew</span> Chargement...</p>
+          } @else {
+            @if (timeCapsuleStatus() === 'LOCKED') {
+              <div style="background: #fef2f2; color: #991b1b; padding: 16px; border-radius: 12px; margin-bottom: 24px;">
+                <span class="material-symbols-outlined" style="font-size: 32px; margin-bottom: 8px;">lock_clock</span>
+                <h3>Capsule Verrouillée</h3>
+                <p>Les vidéos de la capsule ne seront débloquées que le jour de l'anniversaire !</p>
+                @if (timeCapsuleDaysRemaining() !== null) {
+                  <p style="font-weight: bold; margin-top: 8px;">Déblocage dans {{ timeCapsuleDaysRemaining() }} jours.</p>
+                }
+              </div>
+            } @else {
+              <div style="background: #ecfdf5; color: #065f46; padding: 16px; border-radius: 12px; margin-bottom: 24px;">
+                <span class="material-symbols-outlined" style="font-size: 32px; margin-bottom: 8px;">lock_open</span>
+                <h3>Capsule Déverrouillée !</h3>
+                <p>C'est le jour J ! Découvrez les messages de vos invités.</p>
+                <p style="font-size: 0.85rem; margin-top: 8px;"><em>Attention : Chaque vidéo visionnée s'autodétruira après la fermeture pour garantir la nature éphémère du message.</em></p>
+              </div>
+            }
+            
+            <div class="videos-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; text-align: left;">
+              @for (video of timeCapsuleVideos(); track video.id) {
+                <div class="video-card glass-panel" style="padding: 16px; border-radius: 12px; position: relative; overflow: hidden;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <span class="material-symbols-outlined" style="color: #6366f1;">account_circle</span>
+                      <strong style="font-size: 1.1rem;">{{ video.guestName }}</strong>
+                    </div>
+                  </div>
+                  
+                  @if (timeCapsuleStatus() === 'UNLOCKED') {
+                    <video controls style="width: 100%; border-radius: 8px; background: black; max-height: 200px; margin-bottom: 12px;">
+                      <source [src]="video.videoUrl" type="video/mp4">
+                      Votre navigateur ne supporte pas la lecture de vidéos.
+                    </video>
+                    
+                    <button class="btn-PRO" style="width: 100%; background: #ef4444; margin-top: 8px;" (click)="markCapsuleVideoViewed(video.id)">
+                      <span class="material-symbols-outlined">delete_sweep</span> Marquer comme vue (Supprimer)
+                    </button>
+                  } @else {
+                    <div style="height: 150px; background: #e5e7eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6b7280; font-style: italic;">
+                      Vidéo verrouillée
+                    </div>
+                  }
+                </div>
+              } @empty {
+                <div style="grid-column: 1 / -1; text-align: center; color: #6b7280; padding: 24px;">
+                  Aucune vidéo dans la capsule pour le moment.
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
 
   </div> <!-- /detail-card -->
 </div> <!-- /detail-wrapper -->

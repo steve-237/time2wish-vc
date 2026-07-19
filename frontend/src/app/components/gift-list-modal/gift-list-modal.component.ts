@@ -24,8 +24,8 @@ export class GiftListModalComponent {
   @Input() giftSuggestions: any[] = [];
   @Output() deleteGift = new EventEmitter<number>();
   @Output() generateShare = new EventEmitter<void>();
-  @Output() addGift = new EventEmitter<{name: string, description: string, priceRange: string, url: string}>();
-  @Output() updateGift = new EventEmitter<{id: number, data: {name: string, description: string, priceRange: string, url: string}}>();
+  @Output() addGift = new EventEmitter<{name: string, description: string, priceRange: string, url: string, imageUrl?: string}>();
+  @Output() updateGift = new EventEmitter<{id: number, data: {name: string, description: string, priceRange: string, url: string, imageUrl?: string}}>();
   @Output() generateGifts = new EventEmitter<void>();
 
   toastService = inject(ToastService);
@@ -39,7 +39,8 @@ export class GiftListModalComponent {
     name: '',
     description: '',
     priceRange: '',
-    url: ''
+    url: '',
+    imageUrl: ''
   };
 
   get userPlan() {
@@ -76,7 +77,8 @@ export class GiftListModalComponent {
       name: gift.name,
       description: gift.description,
       priceRange: gift.priceRange,
-      url: gift.url
+      url: gift.url,
+      imageUrl: gift.imageUrl || ''
     };
     this.showManualForm = true;
     // Scroll to form (optional, could use window.scrollTo)
@@ -92,13 +94,13 @@ export class GiftListModalComponent {
     }
     
     // Reset form
-    this.newGift = { name: '', description: '', priceRange: '', url: '' };
+    this.newGift = { name: '', description: '', priceRange: '', url: '', imageUrl: '' };
     this.editingGiftId = null;
     this.showManualForm = false;
   }
 
   cancelEdit() {
-    this.newGift = { name: '', description: '', priceRange: '', url: '' };
+    this.newGift = { name: '', description: '', priceRange: '', url: '', imageUrl: '' };
     this.editingGiftId = null;
     this.showManualForm = false;
   }

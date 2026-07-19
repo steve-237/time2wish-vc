@@ -1,0 +1,36 @@
+<div class="envelope-overlay" [class.fade-out]="isFullyOpened">
+  <div class="envelope-wrapper">
+    <div class="envelope-container" (click)="openEnvelope()" [class.is-open]="isOpening">
+      
+      <!-- Back of envelope -->
+      <div class="envelope-back"></div>
+
+      <!-- Letter inside -->
+      <div class="letter">
+        <div class="letter-content">
+          <div class="stamp-icon">🎁</div>
+          <h2>Surprise !</h2>
+          <p>Un message vous attend...</p>
+        </div>
+      </div>
+
+      <!-- Front flaps -->
+      <div class="envelope-bottom"></div>
+      <div class="envelope-left"></div>
+      <div class="envelope-right"></div>
+      
+      <!-- Top flap (opens) -->
+      <div class="envelope-top"></div>
+      
+      <!-- Wax Seal -->
+      <div class="wax-seal">
+        <span>T2W</span>
+      </div>
+      
+    </div>
+    
+    <div class="instruction-text" *ngIf="!isOpening">
+      👆 Touchez pour ouvrir
+    </div>
+  </div>
+</div>

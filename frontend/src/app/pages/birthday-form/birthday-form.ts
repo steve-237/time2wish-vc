@@ -134,7 +134,10 @@ export class BirthdayForm implements OnInit {
           this.gender(),
           b?.interests || [],
           b?.isFavorite || false,
-          undefined, undefined, undefined, undefined
+          b?.partyDate, 
+          b?.partyTime, 
+          b?.partyLocation, 
+          b?.partyDescription
         );
         this.audioService.playSuccessSound();
         this.notifService.logAction('UPDATE', `L'anniversaire de ${this.name()} a été mis à jour.`);

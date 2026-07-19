@@ -42,6 +42,7 @@ public class GiftService {
                 .description(dto.getDescription())
                 .priceRange(dto.getPriceRange())
                 .url(dto.getUrl())
+                .imageUrl(dto.getImageUrl())
                 .isReserved(false)
                 .build();
 
@@ -78,6 +79,7 @@ public class GiftService {
         gift.setDescription(dto.getDescription());
         gift.setPriceRange(dto.getPriceRange());
         gift.setUrl(dto.getUrl());
+        gift.setImageUrl(dto.getImageUrl());
 
         gift = giftRepository.save(gift);
         return mapToDto(gift, null);
@@ -114,6 +116,7 @@ public class GiftService {
                 .description(gift.getDescription())
                 .priceRange(gift.getPriceRange())
                 .url(gift.getUrl())
+                .imageUrl(gift.getImageUrl())
                 .isReserved(gift.getIsReserved())
                 .reservedByName(gift.getReservedByName())
                 .createdAt(gift.getCreatedAt())

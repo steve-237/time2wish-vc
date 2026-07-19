@@ -1,0 +1,82 @@
+<div class="page-container tm-fade-in">
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="material-symbols-outlined rotating">autorenew</span>
+      <p>{{ t9n.t('surprise.loading') || 'Chargement de votre surprise...' }}</p>
+    </div>
+  } @else if (error()) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined empty-icon" >error</span>
+      <h2>{{ t9n.t('surprise.error_title') || 'Oops !' }}</h2>
+      <p class="empty-state-text">{{ error() }}</p>
+    </div>
+  } @else if (birthday()) {
+    
+    <div class="shared-header glass-panel">
+      <h1>🎉 {{ t9n.t('surprise.title', birthday()?.name || '') || 'Joyeux Anniversaire ' + birthday()?.name + ' !' }}</h1>
+      <p class="subtitle">
+        {{ t9n.t('surprise.subtitle') || 'Vos proches ont préparé quelque chose de spécial pour vous...' }}
+      </p>
+    </div>
+
+    @if (!showEnvelope()) {
+      <div class="surprise-content tm-fade-in" style="margin-top: 32px; display: flex; flex-direction: column; gap: 32px;">
+        
+        <!-- Section: Livre d'Or (Memories) -->
+        <div class="glass-panel" style="padding: 24px;">
+          <h2 style="text-align: center; margin-bottom: 24px;">
+            📸 {{ t9n.t('surprise.memories_title') || 'Votre Livre d\'Or' }}
+          </h2>
+          <div class="masonry-grid" style="column-count: 2; column-gap: 16px;">
+            @for (memory of birthday()?.memories; track memory.id) {
+              <div class="memory-card glass-panel" style="break-inside: avoid; margin-bottom: 16px; padding: 16px;">
+                @if (memory.mediaUrl) {
+                  <img [src]="memory.mediaUrl" style="width: 100%; border-radius: 8px; margin-bottom: 12px; object-fit: cover;">
+                }
+                @if (memory.message) {
+                  <p style="font-style: italic; font-size: 1.1rem; margin-bottom: 8px;">"{{ memory.message }}"</p>
+                }
+                <div style="display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.9rem;">
+                  <span style="font-weight: bold;">— {{ memory.guestName }}</span>
+                  <span>{{ memory.createdAt | date:'shortDate' }}</span>
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-state" style="column-span: all;">
+                <span class="material-symbols-outlined empty-icon" >photo_library</span>
+                <p class="empty-state-text">{{ t9n.t('surprise.empty_memories') || 'Le livre d\'or est vide pour l\'instant.' }}</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Section: E-Card Signatures -->
+        <div class="glass-panel" style="padding: 24px;">
+          <h2 style="text-align: center; margin-bottom: 24px;">
+            ✍️ {{ t9n.t('surprise.signatures_title') || 'La Carte Géante' }}
+          </h2>
+          <div class="signatures-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px;">
+            @for (sig of birthday()?.signatures; track sig.id) {
+              <div class="signature-card" [style.background]="sig.color" [style.font-family]="sig.fontFamily">
+                <p class="sig-msg">{{ sig.message }}</p>
+                <span class="sig-name">— {{ sig.guestName }}</span>
+              </div>
+            } @empty {
+              <div class="empty-state" style="grid-column: 1 / -1;">
+                <span class="material-symbols-outlined empty-icon" >draw</span>
+                <p class="empty-state-text">{{ t9n.t('surprise.empty_signatures') || 'La carte n\'a pas encore été signée.' }}</p>
+              </div>
+            }
+          </div>
+        </div>
+        
+      </div>
+    }
+
+  }
+</div>
+
+<!-- Virtual Envelope -->
+@if (showEnvelope() && birthday()) {
+  <app-virtual-envelope (opened)="onEnvelopeOpened()"></app-virtual-envelope>
+}
