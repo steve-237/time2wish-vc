@@ -141,7 +141,7 @@
   color: var(--text-muted);
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease, border-bottom-color 0.2s ease;
   margin-bottom: -1px;
 
   &:hover {

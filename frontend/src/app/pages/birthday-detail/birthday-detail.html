@@ -8,11 +8,8 @@
     </div>
 
 @if (birthday()) {
-<div class="detail-wrapper">
-  
-  <div class="detail-card">
-    
-    <!-- Profile Banner Section -->
+
+    <!-- Profile Banner Section (FIXED — does not scroll) -->
     <div class="profile-banner">
       <div class="avatar-large-container" [class]="birthdayService.getUrgencyClass(daysUntil())">
         <img [src]="birthday()?.photoUrl" alt="{{ birthday()?.name }}" class="avatar-large">
@@ -41,7 +38,8 @@
         </div>
       </div>
     </div>
-    <!-- ========== TABS NAVIGATION ========== -->
+
+    <!-- ========== TABS NAVIGATION (FIXED — does not scroll) ========== -->
     <div class="detail-tabs">
       <button class="tab-btn" [class.active]="activeTab() === 'info'" (click)="switchTab('info')">
         <span class="material-symbols-outlined tab-icon">info</span>
@@ -65,8 +63,9 @@
       </button>
     </div>
 
-    <!-- ========== TAB CONTENT ========== -->
-    <div class="tab-content">
+    <!-- ========== SCROLLABLE TAB CONTENT ========== -->
+    <div class="detail-wrapper">
+      <div class="tab-content">
 
       <!-- ===== TAB: INFORMATIONS ===== -->
       @if (activeTab() === 'info') {
@@ -265,13 +264,9 @@
             }
           </div>
         </div>
-      }
-
-    </div> <!-- /tab-content -->
-
-    <!-- ===== TAB: TIME CAPSULE ===== -->
+      }    <!-- ===== TAB: TIME CAPSULE ===== -->
     @if (activeTab() === 'capsule') {
-      <div class="capsule-section" style="padding: 24px;">
+      <div class="capsule-section">
         <div class="glass-card" style="padding: 24px; text-align: center;">
           <span class="material-symbols-outlined" style="font-size: 48px; color: #6366f1; margin-bottom: 16px;">hourglass_top</span>
           <h2 style="margin-bottom: 8px;">La Capsule Temporelle</h2>
@@ -333,8 +328,8 @@
       </div>
     }
 
-  </div> <!-- /detail-card -->
-</div> <!-- /detail-wrapper -->
+    </div> <!-- /tab-content -->
+  </div> <!-- /detail-wrapper -->
 
 <!-- ========== FAB ACTIONS BAR (Sticky Footer) ========== -->
 <div class="fab-actions">

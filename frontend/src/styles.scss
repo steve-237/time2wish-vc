@@ -808,6 +808,14 @@ select.custom-select-control option {
   animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/* Birthday Detail Modal — override the default 400px cap */
+.tm-modal-content.detail-modal-content {
+  width: 800px;
+  max-width: 95vw;
+  height: 90vh;
+  overflow: hidden;  /* No scrollbar on the modal itself — .detail-wrapper scrolls */
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

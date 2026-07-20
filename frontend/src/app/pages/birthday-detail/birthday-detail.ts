@@ -414,6 +414,11 @@ export class BirthdayDetail implements OnInit {
     if (tab === 'capsule') {
       this.loadTimeCapsule();
     }
+    // Reset scroll position of the scrollable wrapper when switching tabs
+    setTimeout(() => {
+      const wrapper = document.querySelector('.detail-wrapper');
+      if (wrapper) wrapper.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 10);
   }
 
 }
