@@ -16,6 +16,7 @@ import { ExportService } from '../../services/export.service';
 import { ConfettiService } from '../../services/confetti.service';
 import { AuthService } from '../../services/auth.service';
 import { UiService } from '../../services/ui.service';
+import { GoogleSyncService } from '../../services/google-sync.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -295,4 +296,60 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     };
     reader.readAsText(file, 'UTF-8');
     }
+
+  // --- Google Sync Methods ---
+  private googleSyncService = inject(GoogleSyncService);
+
+  syncGoogleContacts() {
+    this.isOptionsMenuOpen.set(false);
+    this.requirePlan('PLUS', () => {
+      this.toastService.info('Vérification de la connexion Google...');
+      this.googleSyncService.syncContacts().subscribe({
+        next: (res) => {
+          this.toastService.success(res.message);
+          this.birthdayService.loadFromStorage(); // Refresh list
+        },
+        error: (err) => {
+          if (err.status === 400 && err.error?.error && err.error.error.includes('connected')) {
+            // Need to auth
+            this.toastService.info('Redirection vers Google pour autorisation...');
+            this.googleSyncService.getAuthUrl().subscribe({
+              next: (authRes) => {
+                window.location.href = authRes.url;
+              },
+              error: () => this.toastService.error('Erreur lors de la redirection vers Google.')
+            });
+          } else {
+            this.toastService.error('Erreur lors de la synchronisation des contacts Google.');
+          }
+        }
+      });
+    });
+  }
+
+  syncGoogleCalendar() {
+    this.isOptionsMenuOpen.set(false);
+    this.requirePlan('PRO', () => {
+      this.toastService.info('Vérification de la connexion Google...');
+      this.googleSyncService.syncCalendar().subscribe({
+        next: (res) => {
+          this.toastService.success(res.message);
+        },
+        error: (err) => {
+          if (err.status === 400 && err.error?.error && err.error.error.includes('connected')) {
+            // Need to auth
+            this.toastService.info('Redirection vers Google pour autorisation...');
+            this.googleSyncService.getAuthUrl().subscribe({
+              next: (authRes) => {
+                window.location.href = authRes.url;
+              },
+              error: () => this.toastService.error('Erreur lors de la redirection vers Google.')
+            });
+          } else {
+            this.toastService.error('Erreur lors de l\'exportation vers Google Calendar.');
+          }
+        }
+      });
+    });
+  }
 }

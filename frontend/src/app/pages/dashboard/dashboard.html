@@ -63,6 +63,19 @@
               <span style="flex: 1;">{{ t9n.t('dashboard.import_csv') || 'Importer CSV' }}</span>
               @if (userPlan === 'BASIC') { <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24;">lock</span> }
             </button>
+
+            <!-- Google Sync Buttons -->
+            <div style="height: 1px; background: var(--border-card); margin: 8px 0;"></div>
+            
+            <button (click)="syncGoogleContacts()" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 8px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 8px; font-size: 0.85rem;">
+              <span class="material-symbols-outlined" style="color: #4285F4; font-size: 1.1rem;">contacts</span>
+              <span style="flex: 1;">Google Contacts</span>
+            </button>
+
+            <button (click)="syncGoogleCalendar()" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 8px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 8px; font-size: 0.85rem;">
+              <span class="material-symbols-outlined" style="color: #0F9D58; font-size: 1.1rem;">edit_calendar</span>
+              <span style="flex: 1;">Google Calendar</span>
+            </button>
           </div>
         </div>
       }

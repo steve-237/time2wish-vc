@@ -71,6 +71,15 @@ public class User {
     @Column(name = "coins", nullable = false)
     private Integer coins = 0;
 
+    @Column(name = "google_access_token", columnDefinition = "TEXT")
+    private String googleAccessToken;
+
+    @Column(name = "google_refresh_token", columnDefinition = "TEXT")
+    private String googleRefreshToken;
+
+    @Column(name = "google_token_expiry")
+    private LocalDateTime googleTokenExpiry;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
