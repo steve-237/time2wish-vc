@@ -643,6 +643,10 @@ During deployment, we encountered and resolved several issues. Here are the deta
 - **Problem:** If a user's backend session expired or the server restarted, the frontend `localStorage` still held the outdated JWT. When making API calls like fetching birthdays, the backend returned `401 Unauthorized`, but the frontend `BirthdayService` silently caught the error and displayed an empty dashboard instead of forcing a logout.
 - **Solution:** We updated the Angular `auth.interceptor.ts` to globally catch all `401 Unauthorized` HTTP errors (except on the login route) and invoke `authService.logout()`, automatically redirecting the user to the login screen for a fresh session.
 
+#### 9. Angular White Screen on Vercel (Render Cold Start)
+- **Problem:** When accessing the production app on Vercel, the screen remained completely white for up to 2-5 minutes. This occurred because the `APP_INITIALIZER` in Angular (`app.config.ts`) was using `firstValueFrom(authService.refreshSession())` which completely blocked the app bootstrapping process until the HTTP request finished. Since the free-tier backend on Render spins down after 15 minutes of inactivity, this initial HTTP request took minutes to resolve while the backend container woke up.
+- **Solution:** We transitioned to an "Optimistic UI" approach. The `APP_INITIALIZER` now subscribes to the session refresh in the background but immediately returns `Promise.resolve(true)`, allowing the Angular app to boot instantly using cached `localStorage` data. We also implemented a non-blocking `ToastService` timeout that displays a discreet "Server waking up..." message if the backend takes more than 2.5 seconds to respond.
+
 ---
 
 ## 📱 How to Install the PWA
