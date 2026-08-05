@@ -3,6 +3,7 @@ package app.time2wish.service;
 import app.time2wish.model.User;
 import app.time2wish.model.Birthday;
 import app.time2wish.repository.UserRepository;
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
