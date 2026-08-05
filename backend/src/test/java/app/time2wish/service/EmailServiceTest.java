@@ -8,8 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,6 +25,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("EmailService – Tests Unitaires")
 class EmailServiceTest {
 
+    @Mock
+    private org.springframework.mail.javamail.JavaMailSender mailSender;
+
     @InjectMocks
     private EmailService emailService;
 
@@ -35,7 +40,7 @@ class EmailServiceTest {
     void setUp() {
         // Injecte le dossier temporaire comme répertoire de sortie
         ReflectionTestUtils.setField(emailService, "emailOutputDir", tempDir.toString());
-        ReflectionTestUtils.setField(emailService, "sendGridApiKey", "");
+        ReflectionTestUtils.setField(emailService, "fromAddress", "");
 
         User user = new User();
         user.setEmail("owner@example.com");
@@ -121,9 +126,10 @@ class EmailServiceTest {
     }
 
     @Test
-    @DisplayName("Aucun fichier ne devrait être créé si la clé SendGrid est présente (stub)")
+    @DisplayName("Aucun fichier ne devrait être créé si fromAddress est présent (envoi SMTP)")
     void sendBirthdayReminder_shouldNotWriteFile_whenSendGridKeyPresent() throws IOException {
-        ReflectionTestUtils.setField(emailService, "sendGridApiKey", "SG.fake_key_for_test");
+        ReflectionTestUtils.setField(emailService, "fromAddress", "test@time2wish.com");
+        when(mailSender.createMimeMessage()).thenReturn(new org.springframework.mail.javamail.JavaMailSenderImpl().createMimeMessage());
 
         emailService.sendBirthdayReminder(birthday);
 
@@ -131,7 +137,7 @@ class EmailServiceTest {
                 .filter(p -> p.toString().endsWith(".html"))
                 .toList();
 
-        // Pas de fichier — la clé SendGrid active le chemin API (stub dans le test)
+        // Pas de fichier — fromAddress active l'envoi SMTP (stub dans le test)
         assertThat(files).isEmpty();
     }
 }

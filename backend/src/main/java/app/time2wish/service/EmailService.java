@@ -116,7 +116,7 @@ public class EmailService {
               "<p style=\"color:#6b7280;font-size:0.9rem;margin-top:8px;line-height:1.6;\">" + birthday.getNotes() + "</p></div>"
             : "";
 
-        return "<!DOCTYPE html>\n" +
+        return ("<!DOCTYPE html>\n" +
                 "<html lang=\"fr\">\n" +
                 "<head>\n" +
                 "  <meta charset=\"UTF-8\">\n" +
@@ -166,7 +166,7 @@ public class EmailService {
                 "    </div>\n" +
                 "  </div>\n" +
                 "</body>\n" +
-                "</html>\n".formatted(
+                "</html>\n").formatted(
                     birthday.getName(),
                     urgencyColor,
                     photoSection,

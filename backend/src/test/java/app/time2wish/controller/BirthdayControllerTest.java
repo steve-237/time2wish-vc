@@ -6,7 +6,7 @@ import app.time2wish.repository.UserRepository;
 import app.time2wish.scheduler.BirthdayReminderScheduler;
 import app.time2wish.security.UserDetailsImpl;
 import app.time2wish.service.BirthdayService;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,8 +44,7 @@ class BirthdayControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @MockitoBean
     private BirthdayService birthdayService;
@@ -55,6 +54,21 @@ class BirthdayControllerTest {
 
     @MockitoBean
     private BirthdayReminderScheduler reminderScheduler;
+
+    @MockitoBean
+    private app.time2wish.service.IAService IAService;
+
+    @MockitoBean
+    private app.time2wish.service.SettingService settingService;
+
+    @MockitoBean
+    private app.time2wish.repository.PartyTaskRepository partyTaskRepository;
+
+    @MockitoBean
+    private app.time2wish.repository.MemoryItemRepository memoryItemRepository;
+
+    @MockitoBean
+    private app.time2wish.repository.ECardSignatureRepository eCardSignatureRepository;
 
     // Mock du filtre JWT – fournit un UserDetails déjà authentifié
     @MockitoBean
@@ -71,6 +85,7 @@ class BirthdayControllerTest {
         mockUser.setEmail("demo@time2wish.com");
         mockUser.setFullName("Demo User");
         mockUser.setPassword("encoded_password");
+        mockUser.setPlan(app.time2wish.model.PlanType.PRO);
 
         mockBirthday = Birthday.builder()
                 .id(10L)

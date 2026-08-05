@@ -44,6 +44,12 @@ public class AdminServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private app.time2wish.repository.PaymentTransactionRepository paymentTransactionRepository;
+
+    @Mock
+    private app.time2wish.repository.UserBadgeRepository userBadgeRepository;
+
     @InjectMocks
     private AdminService adminService;
 
@@ -119,8 +125,16 @@ public class AdminServiceTest {
 
     @Test
     void testGetStats() {
-        when(userRepository.count()).thenReturn(10L);
-        when(birthdayRepository.countByIsDeletedFalse()).thenReturn(20L);
+        List<User> users = new java.util.ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            User u = new User();
+            u.setId((long) i);
+            u.setPlan(app.time2wish.model.PlanType.BASIC);
+            u.setCreatedAt(java.time.LocalDateTime.now());
+            users.add(u);
+        }
+        when(userRepository.findAll()).thenReturn(users);
+        when(birthdayRepository.findByUserAndIsDeletedFalse(any())).thenReturn(List.of(new Birthday(), new Birthday()));
 
         StatsResponse stats = adminService.getStats();
 

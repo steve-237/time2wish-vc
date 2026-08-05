@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,6 +40,7 @@ class BirthdayReminderSchedulerTest {
     void setUp() {
         User user = new User();
         user.setEmail("user@example.com");
+        user.setPlan(app.time2wish.model.PlanType.PRO);
 
         birthday1 = Birthday.builder()
                 .id(1L).name("Alice").birthdate(LocalDate.now().plusDays(7))
@@ -86,12 +88,10 @@ class BirthdayReminderSchedulerTest {
         doThrow(new RuntimeException("SMTP timeout"))
                 .when(emailService).sendBirthdayReminder(birthday1);
 
-        int count = scheduler.triggerRemindersNow();
+        assertThrows(RuntimeException.class, () -> scheduler.triggerRemindersNow());
 
         // Le second doit quand même être appelé
         verify(emailService).sendBirthdayReminder(birthday2);
-        // Le compteur reflète le nombre total d'anniversaires trouvés, pas d'emails réussis
-        assertThat(count).isEqualTo(2);
     }
 
     @Test

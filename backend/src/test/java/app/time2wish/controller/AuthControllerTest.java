@@ -63,10 +63,17 @@ class AuthControllerTest {
     @MockitoBean
     private UserDetailsServiceImpl userDetailsService;
 
+    @MockitoBean
+    private app.time2wish.service.SettingService settingService;
+
+    @MockitoBean
+    private app.time2wish.repository.UserBadgeRepository userBadgeRepository;
+
     private User mockUser;
 
     @BeforeEach
     void setUp() {
+        org.mockito.Mockito.lenient().when(settingService.getBooleanSetting(any())).thenReturn(true);
         mockUser = new User();
         mockUser.setId(1L);
         mockUser.setEmail("test@time2wish.com");

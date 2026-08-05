@@ -14,7 +14,8 @@ import app.time2wish.security.WebSecurityConfig;
 import app.time2wish.security.JwtUtils;
 import app.time2wish.security.UserDetailsServiceImpl;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -43,23 +44,23 @@ public class AdminControllerTest {
     @MockitoBean
     private UserDetailsServiceImpl userDetailsService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @MockitoBean
+    private app.time2wish.service.SettingService settingService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     // --- GET /api/admin/users ---
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     public void testGetUsersAdminAccess() throws Exception {
         when(adminService.getAllUsers()).thenReturn(List.of());
-        mockMvc.perform(get("/api/admin/users"))
+        mockMvc.perform(get("/api/admin/users").with(user("admin").roles("ADMIN")))
                .andExpect(status().isOk());
     }
 
     @Test
-    @WithMockUser(roles = "USER")
     public void testGetUsersUserAccess() throws Exception {
-        mockMvc.perform(get("/api/admin/users"))
+        mockMvc.perform(get("/api/admin/users").with(user("user").roles("USER")))
                .andExpect(status().isForbidden());
     }
 
@@ -72,17 +73,15 @@ public class AdminControllerTest {
     // --- DELETE /api/admin/users/{id} ---
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     public void testDeleteUserAdminAccess() throws Exception {
         doNothing().when(adminService).deleteUser(anyLong());
-        mockMvc.perform(delete("/api/admin/users/1"))
+        mockMvc.perform(delete("/api/admin/users/1").with(user("admin").roles("ADMIN")).with(csrf()))
                .andExpect(status().isNoContent());
     }
 
     @Test
-    @WithMockUser(roles = "USER")
     public void testDeleteUserUserAccess() throws Exception {
-        mockMvc.perform(delete("/api/admin/users/1"))
+        mockMvc.perform(delete("/api/admin/users/1").with(user("user").roles("USER")).with(csrf()))
                .andExpect(status().isForbidden());
     }
 
@@ -93,46 +92,45 @@ public class AdminControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     public void testDeleteUserNotFound() throws Exception {
         org.mockito.Mockito.doThrow(new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND))
                 .when(adminService).deleteUser(anyLong());
-        mockMvc.perform(delete("/api/admin/users/999"))
+        mockMvc.perform(delete("/api/admin/users/999").with(user("admin").roles("ADMIN")).with(csrf()))
                .andExpect(status().isNotFound());
     }
 
     // --- PUT /api/admin/users/{id}/password ---
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     public void testUpdatePasswordAdminAccess() throws Exception {
         AdminPasswordUpdateRequest request = new AdminPasswordUpdateRequest("newPass");
         doNothing().when(adminService).updateUserPassword(anyLong(), any());
         
         mockMvc.perform(put("/api/admin/users/1/password")
+                .with(user("admin").roles("ADMIN")).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                .andExpect(status().isNoContent());
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     public void testUpdatePasswordNotFound() throws Exception {
         AdminPasswordUpdateRequest request = new AdminPasswordUpdateRequest("newPass");
         org.mockito.Mockito.doThrow(new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND))
                 .when(adminService).updateUserPassword(anyLong(), any());
         
         mockMvc.perform(put("/api/admin/users/999/password")
+                .with(user("admin").roles("ADMIN")).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                .andExpect(status().isNotFound());
     }
 
     @Test
-    @WithMockUser(roles = "USER")
     public void testUpdatePasswordUserAccess() throws Exception {
         AdminPasswordUpdateRequest request = new AdminPasswordUpdateRequest("newPass");
         mockMvc.perform(put("/api/admin/users/1/password")
+                .with(user("user").roles("USER")).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                .andExpect(status().isForbidden());
@@ -150,18 +148,16 @@ public class AdminControllerTest {
     // --- GET /api/admin/stats ---
 
     @Test
-    @WithMockUser(roles = "ADMIN")
     public void testGetStatsAdminAccess() throws Exception {
         StatsResponse statsResponse = new StatsResponse(10, 50, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyList(), 0.0, Collections.emptyMap());
         when(adminService.getStats()).thenReturn(statsResponse);
-        mockMvc.perform(get("/api/admin/stats"))
+        mockMvc.perform(get("/api/admin/stats").with(user("admin").roles("ADMIN")))
                .andExpect(status().isOk());
     }
 
     @Test
-    @WithMockUser(roles = "USER")
     public void testGetStatsUserAccess() throws Exception {
-        mockMvc.perform(get("/api/admin/stats"))
+        mockMvc.perform(get("/api/admin/stats").with(user("user").roles("USER")))
                .andExpect(status().isForbidden());
     }
 

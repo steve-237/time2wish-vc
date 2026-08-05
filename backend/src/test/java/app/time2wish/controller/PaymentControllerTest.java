@@ -51,6 +51,9 @@ class PaymentControllerTest {
     @MockitoBean
     private app.time2wish.security.JwtUtils jwtUtils;
 
+    @MockitoBean
+    private app.time2wish.service.SettingService settingService;
+
     private User mockUser;
     private UserDetailsImpl mockUserDetails;
 

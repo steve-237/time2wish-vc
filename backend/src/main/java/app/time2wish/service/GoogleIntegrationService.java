@@ -7,6 +7,7 @@ import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.calendar.CalendarScopes;
@@ -112,10 +113,11 @@ public class GoogleIntegrationService {
                     int year = bday.getYear() != null ? bday.getYear() : java.time.LocalDate.now().getYear();
                     java.time.LocalDate birthdate = java.time.LocalDate.of(year, bday.getMonth(), bday.getDay());
                     
-                    String name = "Unknown";
+                    String tempName = "Unknown";
                     if (person.getNames() != null && !person.getNames().isEmpty()) {
-                        name = person.getNames().get(0).getDisplayName();
+                        tempName = person.getNames().get(0).getDisplayName();
                     }
+                    final String name = tempName;
 
                     String email = null;
                     if (person.getEmailAddresses() != null && !person.getEmailAddresses().isEmpty()) {

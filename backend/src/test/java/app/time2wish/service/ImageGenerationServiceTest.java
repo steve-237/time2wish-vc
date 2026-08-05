@@ -23,9 +23,13 @@ class ImageGenerationServiceTest {
     @Mock
     private RestTemplate restTemplate;
 
+    @Mock
+    private app.time2wish.service.SettingService settingService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        org.mockito.Mockito.lenient().when(settingService.getBooleanSetting(anyString())).thenReturn(true);
         // Inject the mocked RestTemplate into the service since it's instantiated directly
         ReflectionTestUtils.setField(imageGenerationService, "restTemplate", restTemplate);
     }
