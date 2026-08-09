@@ -42,3 +42,14 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Mobile Native Build Outputs
+/android/app/build
+/android/build
+/android/.gradle
+/android/local.properties
+/android/captures
+/android/.idea
+/ios/App/Pods
+/ios/App/DerivedData
+/ios/App/build

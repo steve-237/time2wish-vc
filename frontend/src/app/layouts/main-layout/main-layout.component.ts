@@ -7,6 +7,7 @@ import { NotificationPanelComponent } from '../../components/notification-panel/
 import { PwaService } from '../../services/pwa.service';
 import { PricingComponent } from '../../pages/pricing/pricing.component';
 import { FeedbackModalComponent } from '../../components/feedback-modal/feedback-modal.component';
+import { MobileNavComponent } from '../../components/mobile-nav/mobile-nav.component';
 import { UiService } from '../../services/ui.service';
 import { ThemeService } from '../../services/theme.service';
 import { ToastService } from '../../services/toast.service';
@@ -16,7 +17,7 @@ import { AnnouncementService } from '../../services/announcement.service';
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, CommonModule, NotificationPanelComponent, PricingComponent, FeedbackModalComponent],
+  imports: [RouterOutlet, RouterLink, CommonModule, NotificationPanelComponent, PricingComponent, FeedbackModalComponent, MobileNavComponent],
   template: `
     @if (authService.isAuthenticated()) {
     <header class="glass-header">
@@ -191,6 +192,9 @@ import { AnnouncementService } from '../../services/announcement.service';
         </div>
       </div>
     </footer>
+
+    <!-- Mobile Navigation Bar -->
+    <app-mobile-nav></app-mobile-nav>
   `,
   styles: [`
     .announcement-banner {

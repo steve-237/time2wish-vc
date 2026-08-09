@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Time2Wish</string>
+    <string name="title_activity_main">Time2Wish</string>
+    <string name="package_name">app.time2wish.mobile</string>
+    <string name="custom_url_scheme">app.time2wish.mobile</string>
+</resources>

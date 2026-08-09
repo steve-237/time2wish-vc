@@ -114,4 +114,26 @@ The Angular 18 frontend abandons legacy paradigms in favor of modern APIs:
 - **CI/CD:** Multi-stage GitHub Actions workflows handle automatic testing (Maven `test`, Node `npm test`) and deployment triggering.
 - **Cloud Providers:** Neon.tech (DB), Render (Backend API), Vercel (Frontend UI).
 
+---
+
+## 7. Mobile Subsystem (Android, iOS & Browser Device Preview)
+
+Time2Wish features a native cross-platform mobile architecture built with **Ionic Capacitor 7**, reusing 100% of the Angular 21 Standalone frontend components, Signals, i18n, Glassmorphism design, and STOMP WebSockets.
+
+### Native Platforms
+- **Android Target (`frontend/android`)**: Native Gradle project configured with `minSdkVersion 24`, `targetSdkVersion 34`, and Android permissions (`INTERNET`, `VIBRATE`, `CAMERA`, `READ_EXTERNAL_STORAGE`, `POST_NOTIFICATIONS`).
+- **iOS Target (`frontend/ios`)**: Native Xcode Workspace (`App.xcworkspace`) targeting iOS 14+.
+
+### Native Plugins & Browser Fallbacks (`NativeFallbackService`)
+The mobile subsystem includes a unified cross-platform service (`NativeFallbackService`) that seamlessly routes native capabilities when running on mobile devices or provides web browser fallbacks when tested in DevTools Mobile View:
+- **Haptics (`@capacitor/haptics`)**: Micro-vibration feedback on native mobile; falls back to `navigator.vibrate`.
+- **Camera (`@capacitor/camera`)**: Photo capture/pick for memory items; falls back to HTML5 file input.
+- **Share Sheet (`@capacitor/share`)**: Native share sheet for secret birthday links; falls back to Web Share API or Clipboard.
+- **Notifications (`@capacitor/local-notifications`)**: Native local birthday reminders; falls back to HTML5 Notification API.
+
+### Build & Compilation Commands
+- **Angular Mobile Build**: `npm run build:mobile` (generates `dist/frontend/browser`)
+- **Capacitor Sync**: `npm run cap:sync` (synchronizes assets and native plugins into `android/` and `ios/`)
+- **Android APK Build**: `npm run build:apk` (compiles `frontend/android/app/build/outputs/apk/debug/app-debug.apk`)
+
 *This documentation is continually updated alongside system migrations and major architectural changes.*
