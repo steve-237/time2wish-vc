@@ -101,20 +101,27 @@ public class IAService {
                 ObjectMapper mapper = new ObjectMapper();
                 Map<String, Object> map = mapper.readValue(str, new TypeReference<Map<String, Object>>() {});
                 
+                // Helper: convert value to JSON string (preserves arrays/objects as valid JSON)
+                // Unlike .toString() which produces Java Map format like {key=value}
+                java.util.function.Function<Object, String> toJsonString = (obj) -> {
+                    if (obj instanceof String) return (String) obj;
+                    try { return mapper.writeValueAsString(obj); } catch (Exception e) { return obj.toString(); }
+                };
+
                 if (map.containsKey("response") && map.get("response") != null) {
-                    return cleanAndExtractText(map.get("response").toString());
+                    return cleanAndExtractText(toJsonString.apply(map.get("response")));
                 }
                 if (map.containsKey("result") && map.get("result") != null) {
-                    return cleanAndExtractText(map.get("result").toString());
+                    return cleanAndExtractText(toJsonString.apply(map.get("result")));
                 }
                 if (map.containsKey("output") && map.get("output") != null) {
-                    return cleanAndExtractText(map.get("output").toString());
+                    return cleanAndExtractText(toJsonString.apply(map.get("output")));
                 }
                 if (map.containsKey("text") && map.get("text") != null) {
-                    return cleanAndExtractText(map.get("text").toString());
+                    return cleanAndExtractText(toJsonString.apply(map.get("text")));
                 }
                 if (map.containsKey("content") && map.get("content") != null) {
-                    return cleanAndExtractText(map.get("content").toString());
+                    return cleanAndExtractText(toJsonString.apply(map.get("content")));
                 }
                 if (map.containsKey("choices")) {
                     List<Map<String, Object>> choices = (List<Map<String, Object>>) map.get("choices");
@@ -123,11 +130,11 @@ public class IAService {
                         if (firstChoice.containsKey("message")) {
                             Map<String, Object> msg = (Map<String, Object>) firstChoice.get("message");
                             if (msg != null && msg.containsKey("content")) {
-                                return cleanAndExtractText(msg.get("content").toString());
+                                return cleanAndExtractText(toJsonString.apply(msg.get("content")));
                             }
                         }
                         if (firstChoice.containsKey("text")) {
-                            return cleanAndExtractText(firstChoice.get("text").toString());
+                            return cleanAndExtractText(toJsonString.apply(firstChoice.get("text")));
                         }
                     }
                 }
