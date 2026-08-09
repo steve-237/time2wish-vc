@@ -653,6 +653,12 @@ During deployment, we encountered and resolved several issues. Here are the deta
   1. **JSON Array Substring Extractor:** The backend now automatically scans for the `[` and `]` delimiters in the AI response and extracts only the valid JSON array substring.
   2. **Regex Line Parser Fallback:** If JSON parsing still fails, a regex line parser (`parseTextGiftSuggestions`) extracts item names, prices, store suggestions, and tips from plain text bullet lists (`1. Item - Price - Store - Tip`), successfully returning AI-generated gifts with `AI` status instead of falling back to local mode.
 
+#### 11. Pollinations API `402 Payment Required` & DevToolBox Provider Promotion
+- **Problem:** Pollinations recently updated their API policy to reject requests containing `"model": "openai"` with `HTTP 402 Payment Required`, triggering a deprecation notice (`API key budget too low`). Because Pollinations was listed as Provider 1 in `IAService.java`, all AI generation requests immediately failed and fell back to local mode. Furthermore, DevToolBox (Provider 3) failed on multi-line prompts because string concatenation broke JSON formatting.
+- **Solution:** 
+  1. We promoted **DevToolBox POST API** (`devtoolbox-api.workers.dev`) to Provider 1 in `IAService.java` and updated its payload to use proper `ObjectMapper` JSON serialization.
+  2. We removed the `"model": "openai"` key from Pollinations POST requests (Provider 2), restoring anonymous HTTP 200 responses.
+
 ---
 
 ## 📱 How to Install the PWA
