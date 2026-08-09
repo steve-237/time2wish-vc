@@ -343,72 +343,120 @@ public class IAService {
         // Try the cascade of free APIs
         String generatedText = callFreeTextApis(prompt.toString());
 
-        if (generatedText != null) {
+        if (generatedText != null && !generatedText.trim().isEmpty()) {
             try {
+                String cleanText = generatedText.trim();
                 // Strip markdown code blocks if present
-                if (generatedText.startsWith("```json")) {
-                    generatedText = generatedText.substring(7);
+                if (cleanText.startsWith("```json")) {
+                    cleanText = cleanText.substring(7);
+                } else if (cleanText.startsWith("```")) {
+                    cleanText = cleanText.substring(3);
                 }
-                if (generatedText.startsWith("```")) {
-                    generatedText = generatedText.substring(3);
+                if (cleanText.endsWith("```")) {
+                    cleanText = cleanText.substring(0, cleanText.length() - 3);
                 }
-                if (generatedText.endsWith("```")) {
-                    generatedText = generatedText.substring(0, generatedText.length() - 3);
+                cleanText = cleanText.trim();
+
+                // Extract JSON array substring from [ to ] if surrounded by extra text
+                int firstBracket = cleanText.indexOf("[");
+                int lastBracket = cleanText.lastIndexOf("]");
+                if (firstBracket != -1 && lastBracket > firstBracket) {
+                    cleanText = cleanText.substring(firstBracket, lastBracket + 1);
                 }
-                generatedText = generatedText.trim();
                 
-                logUsage("GIFT", prompt.toString(), generatedText);
+                logUsage("GIFT", prompt.toString(), cleanText);
                 ObjectMapper mapper = new ObjectMapper();
-                List<GiftSuggestion> suggestions = mapper.readValue(generatedText, new TypeReference<List<GiftSuggestion>>() {});
+                List<GiftSuggestion> suggestions = mapper.readValue(cleanText, new TypeReference<List<GiftSuggestion>>() {});
                 
-                String amazonTag = settingService.getSetting(SettingService.AMAZON_AFFILIATE_TAG) != null ? settingService.getSetting(SettingService.AMAZON_AFFILIATE_TAG).getValue() : "time2wish-21";
-                String fnacTag = settingService.getSetting(SettingService.FNAC_AFFILIATE_TAG) != null ? settingService.getSetting(SettingService.FNAC_AFFILIATE_TAG).getValue() : "time2wish";
-                String etsyTag = settingService.getSetting(SettingService.ETSY_AFFILIATE_TAG) != null ? settingService.getSetting(SettingService.ETSY_AFFILIATE_TAG).getValue() : "time2wish";
-
-                for (GiftSuggestion s : suggestions) {
-                    String productName = s.getName();
-                    if (s.getPurchaseLink() != null && !s.getPurchaseLink().startsWith("http")) {
-                        productName = s.getPurchaseLink();
-                    }
-                    
-                    try {
-                        String encodedName = java.net.URLEncoder.encode(productName, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
-                        s.setImageUrl("https://image.pollinations.ai/prompt/" + encodedName + "%20isolated%20on%20white%20background");
-                    } catch (Exception e) {}
-
-                    if (s.getPurchaseLink() != null && !s.getPurchaseLink().startsWith("http")) {
-                        String searchTerm = "";
-                        try {
-                            searchTerm = java.net.URLEncoder.encode(s.getPurchaseLink(), java.nio.charset.StandardCharsets.UTF_8);
-                        } catch (Exception e) {}
-
-                        String wtb = s.getWhereToBuy() != null ? s.getWhereToBuy().toLowerCase() : "";
-                        if (wtb.contains("fnac")) {
-                            s.setPurchaseLink("https://www.fnac.com/SearchResult/ResultList.aspx?Search=" + searchTerm + "&awin=" + fnacTag);
-                        } else if (wtb.contains("etsy")) {
-                            s.setPurchaseLink("https://www.etsy.com/search?q=" + searchTerm + "&ref=" + etsyTag);
-                        } else if (wtb.contains("sephora")) {
-                            s.setPurchaseLink("https://www.sephora.fr/recherche?q=" + searchTerm);
-                        } else if (wtb.contains("decathlon")) {
-                            s.setPurchaseLink("https://www.decathlon.fr/search?Ntt=" + searchTerm);
-                        } else {
-                            String domain = "fr";
-                            if ("en".equalsIgnoreCase(lang)) domain = "com";
-                            else if ("de".equalsIgnoreCase(lang)) domain = "de";
-                            s.setPurchaseLink("https://www.amazon." + domain + "/s?k=" + searchTerm + "&tag=" + amazonTag);
-                        }
-                    }
+                if (suggestions != null && !suggestions.isEmpty()) {
+                    enrichGiftSuggestions(suggestions, lang);
+                    System.out.println("[AI Cascade] ✅ Parsed " + suggestions.size() + " AI gift suggestions successfully.");
+                    return new GiftSuggestionResponse(suggestions, "AI");
                 }
-                
-                return new GiftSuggestionResponse(suggestions, "AI");
             } catch (Exception e) {
-                System.err.println("[AI Cascade] ⚠️ Failed to parse AI gift response: " + e.getMessage());
+                System.err.println("[AI Cascade] ⚠️ Failed to parse JSON AI gift response: " + e.getMessage() + ". Trying line parser...");
+                // Attempt plain text list line parsing if AI returned bullet points instead of JSON
+                List<GiftSuggestion> parsedLines = parseTextGiftSuggestions(generatedText);
+                if (parsedLines != null && !parsedLines.isEmpty()) {
+                    enrichGiftSuggestions(parsedLines, lang);
+                    System.out.println("[AI Cascade] ✅ Parsed " + parsedLines.size() + " text-formatted AI gift suggestions.");
+                    return new GiftSuggestionResponse(parsedLines, "AI");
+                }
             }
         }
 
-        GiftSuggestionResponse fallback = new GiftSuggestionResponse(generateLocalFallbackGifts(name, age, gender, category, interests, lang), "LOCAL");
+        System.err.println("[AI Cascade] ⚠️ AI gift generation failed or returned unparseable output. Using enriched local fallback.");
+        List<GiftSuggestion> fallbackList = generateLocalFallbackGifts(name, age, gender, category, interests, lang);
         logUsage("GIFT", prompt.toString(), "Local Fallback JSON array");
-        return fallback;
+        return new GiftSuggestionResponse(fallbackList, "LOCAL");
+    }
+
+    /**
+     * Fallback parser for plain text / markdown bullet lists returned by AI models for gift ideas.
+     */
+    private List<GiftSuggestion> parseTextGiftSuggestions(String text) {
+        if (text == null || text.trim().isEmpty()) return null;
+        List<GiftSuggestion> list = new ArrayList<>();
+        String[] lines = text.split("\n");
+        for (String line : lines) {
+            String trimmed = line.trim();
+            // Match lines starting with 1., 2., 3., -, *, or •
+            if (trimmed.matches("^(?:\\d+[\\.\\)]|[-*•])\\s+.+")) {
+                String cleanLine = trimmed.replaceAll("^(?:\\d+[\\.\\)]|[-*•])\\s+", "");
+                String[] parts = cleanLine.split("[-–:;]");
+                String name = parts[0].trim();
+                if (!name.isEmpty()) {
+                    String price = parts.length > 1 ? parts[1].trim() : "20€ - 50€";
+                    String tips = parts.length > 2 ? parts[2].trim() : "Une excellente idée personnalisée.";
+                    list.add(new GiftSuggestion(name, price, "Boutiques spécialisées", name, tips));
+                }
+            }
+        }
+        return list.isEmpty() ? null : list;
+    }
+
+    /**
+     * Enriches gift suggestions with affiliate purchase links and image URLs.
+     */
+    private void enrichGiftSuggestions(List<GiftSuggestion> suggestions, String lang) {
+        String amazonTag = settingService.getSetting(SettingService.AMAZON_AFFILIATE_TAG) != null ? settingService.getSetting(SettingService.AMAZON_AFFILIATE_TAG).getValue() : "time2wish-21";
+        String fnacTag = settingService.getSetting(SettingService.FNAC_AFFILIATE_TAG) != null ? settingService.getSetting(SettingService.FNAC_AFFILIATE_TAG).getValue() : "time2wish";
+        String etsyTag = settingService.getSetting(SettingService.ETSY_AFFILIATE_TAG) != null ? settingService.getSetting(SettingService.ETSY_AFFILIATE_TAG).getValue() : "time2wish";
+
+        for (GiftSuggestion s : suggestions) {
+            String productName = s.getName();
+            if (s.getPurchaseLink() != null && !s.getPurchaseLink().startsWith("http")) {
+                productName = s.getPurchaseLink();
+            }
+            
+            try {
+                String encodedName = java.net.URLEncoder.encode(productName, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
+                s.setImageUrl("https://image.pollinations.ai/prompt/" + encodedName + "%20isolated%20on%20white%20background");
+            } catch (Exception e) {}
+
+            if (s.getPurchaseLink() == null || !s.getPurchaseLink().startsWith("http")) {
+                String searchTerm = "";
+                try {
+                    searchTerm = java.net.URLEncoder.encode(productName, java.nio.charset.StandardCharsets.UTF_8);
+                } catch (Exception e) {}
+
+                String wtb = s.getWhereToBuy() != null ? s.getWhereToBuy().toLowerCase() : "";
+                if (wtb.contains("fnac")) {
+                    s.setPurchaseLink("https://www.fnac.com/SearchResult/ResultList.aspx?Search=" + searchTerm + "&awin=" + fnacTag);
+                } else if (wtb.contains("etsy")) {
+                    s.setPurchaseLink("https://www.etsy.com/search?q=" + searchTerm + "&ref=" + etsyTag);
+                } else if (wtb.contains("sephora")) {
+                    s.setPurchaseLink("https://www.sephora.fr/recherche?q=" + searchTerm);
+                } else if (wtb.contains("decathlon")) {
+                    s.setPurchaseLink("https://www.decathlon.fr/search?Ntt=" + searchTerm);
+                } else {
+                    String domain = "fr";
+                    if ("en".equalsIgnoreCase(lang)) domain = "com";
+                    else if ("de".equalsIgnoreCase(lang)) domain = "de";
+                    s.setPurchaseLink("https://www.amazon." + domain + "/s?k=" + searchTerm + "&tag=" + amazonTag);
+                }
+            }
+        }
     }
 
     public GiftSuggestionResponse generateLocalFallbackResponse(String name, Integer age, String gender, String category, List<String> interests, String lang) {
