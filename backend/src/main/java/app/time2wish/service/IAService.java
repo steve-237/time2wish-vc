@@ -330,7 +330,7 @@ public class IAService {
         }
 
         StringBuilder prompt = new StringBuilder();
-        prompt.append("Suggest 3 gift ideas for a person with the following details:\n");
+        prompt.append("Suggest 6 creative and diverse gift ideas for a person with the following details:\n");
         prompt.append("- Name: ").append(name).append("\n");
         if (age != null && age > 0) {
             prompt.append("- Age: ").append(age).append(" years old\n");
@@ -376,15 +376,51 @@ public class IAService {
                     cleanText = cleanText.substring(firstBracket, lastBracket + 1);
                 }
 
-                // Sanitize JSON: quote unquoted values like  50-150€  or  10-20€/mois
-                // Pattern: matches a colon followed by whitespace and an unquoted value (not starting with " [ { or digit-only)
+                // Sanitize JSON: quote unquoted values like  50-150€
                 cleanText = cleanText.replaceAll(":\\s*([0-9][^,\"\\}\\]]*[^,\"\\}\\]\\s])", ": \"$1\"");
 
-                logUsage("GIFT", prompt.toString(), cleanText);
-                System.out.println("[AI Cascade] 🔍 Attempting to parse gift JSON: " + cleanText.substring(0, Math.min(cleanText.length(), 200)));
-                ObjectMapper mapper = new ObjectMapper();
+                // Build a lenient ObjectMapper that tolerates AI quirks
+                ObjectMapper mapper = com.fasterxml.jackson.databind.json.JsonMapper.builder()
+                    .enable(com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
+                    .enable(com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)
+                    .enable(com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_SINGLE_QUOTES)
+                    .enable(com.fasterxml.jackson.core.json.JsonReadFeature.ALLOW_TRAILING_COMMA)
+                    .build();
                 mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                List<GiftSuggestion> suggestions = mapper.readValue(cleanText, new TypeReference<List<GiftSuggestion>>() {});
+
+                logUsage("GIFT", prompt.toString(), cleanText);
+                System.out.println("[AI Cascade] 🔍 Attempting to parse gift JSON (" + cleanText.length() + " chars): " + cleanText.substring(0, Math.min(cleanText.length(), 300)));
+
+                // First try: parse directly as List<GiftSuggestion>
+                List<GiftSuggestion> suggestions = null;
+                try {
+                    suggestions = mapper.readValue(cleanText, new TypeReference<List<GiftSuggestion>>() {});
+                } catch (Exception directParseEx) {
+                    System.err.println("[AI Cascade] 🔄 Direct parse failed: " + directParseEx.getMessage());
+                    // Second try: AI sometimes wraps as array-of-strings like ["{ json... }"]
+                    try {
+                        List<String> stringList = mapper.readValue(cleanText, new TypeReference<List<String>>() {});
+                        if (stringList != null && !stringList.isEmpty()) {
+                            // Concatenate all strings and re-parse
+                            StringBuilder combined = new StringBuilder("[");
+                            for (int i = 0; i < stringList.size(); i++) {
+                                if (i > 0) combined.append(",");
+                                String s = stringList.get(i).trim();
+                                // If the string itself is a JSON object or array, include it directly
+                                if (s.startsWith("{") || s.startsWith("[")) {
+                                    combined.append(s);
+                                }
+                            }
+                            combined.append("]");
+                            String recombined = combined.toString();
+                            System.out.println("[AI Cascade] 🔄 Recombined from string-array: " + recombined.substring(0, Math.min(recombined.length(), 300)));
+                            suggestions = mapper.readValue(recombined, new TypeReference<List<GiftSuggestion>>() {});
+                        }
+                    } catch (Exception stringParseEx) {
+                        System.err.println("[AI Cascade] 🔄 String-array parse also failed: " + stringParseEx.getMessage());
+                        throw directParseEx; // Re-throw original to fall through to text parser
+                    }
+                }
                 
                 if (suggestions != null && !suggestions.isEmpty()) {
                     enrichGiftSuggestions(suggestions, lang);
@@ -393,6 +429,7 @@ public class IAService {
                 }
             } catch (Exception e) {
                 System.err.println("[AI Cascade] ⚠️ Failed to parse JSON AI gift response: " + e.getMessage() + ". Trying line parser...");
+                System.err.println("[AI Cascade] 🔍 Raw text was: " + generatedText.substring(0, Math.min(generatedText.length(), 500)));
                 // Attempt plain text list line parsing if AI returned bullet points instead of JSON
                 List<GiftSuggestion> parsedLines = parseTextGiftSuggestions(generatedText);
                 if (parsedLines != null && !parsedLines.isEmpty()) {
