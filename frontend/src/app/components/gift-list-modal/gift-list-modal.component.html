@@ -188,7 +188,7 @@
           } @else {
             <button class="btn-PRO gift-btn" (click)="generateGifts.emit()" [disabled]="isGeneratingGifts" style="padding: 12px 24px; font-size: 1rem; position: relative;">
               <span class="material-symbols-outlined" [class.rotating]="isGeneratingGifts">
-                {{ isGeneratingGifts ? 'autorenew' : 'auto_awesome' }}
+                {{ isGeneratingGifts ? 'sync' : 'auto_awesome' }}
               </span>
               {{ isGeneratingGifts ? (t9n.t('gifts.generating') || 'Génération en cours...') : (t9n.t('gifts.generate_ai') || 'Générer avec l\'IA') }}
               @if (userPlan !== 'PRO') { <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24; position: absolute; top: 8px; right: 8px;">lock</span> }
@@ -200,9 +200,28 @@
         </div>
 
         @if (isGeneratingGifts) {
-          <div class="gifts-loading" style="text-align: center; padding: 40px 0;">
-            <span class="material-symbols-outlined rotating loading-icon" style="font-size: 48px; color: var(--primary-color);">autorenew</span>
-            <p class="loading-text" style="color: var(--text-muted); margin-top: 16px;">{{ t9n.t('gifts.ai_analyzing') || 'L\'IA analyse les centres d\'intérêt...' }}</p>
+          <div class="ai-processing-overlay" style="position: relative; min-height: 180px; margin: 20px 0;">
+            <div class="ai-glow-orb purple"></div>
+            <div class="ai-glow-orb pink"></div>
+
+            <div class="ai-loader-core">
+              <div class="ai-pulse-ring ring-1"></div>
+              <div class="ai-pulse-ring ring-2"></div>
+              <div class="ai-pulse-ring ring-3"></div>
+
+              <div class="ai-icon-box">
+                <span class="material-symbols-outlined ai-magic-sparkle">auto_awesome</span>
+              </div>
+            </div>
+
+            <div class="ai-loading-status">
+              <span class="ai-shimmer-title">{{ t9n.t('gifts.ai_analyzing') || "L'IA recherche les meilleures idées cadeaux..." }}</span>
+              <span class="ai-loading-subtitle">Analyse personnalisée des centres d'intérêt</span>
+            </div>
+
+            <div class="ai-particle p1">🎁</div>
+            <div class="ai-particle p2">✨</div>
+            <div class="ai-particle p3">🌟</div>
           </div>
         }
 

@@ -60,8 +60,28 @@ import { Birthday } from '../../models/birthday.model';
 
           <div class="cg-preview-section">
             @if (isLoading()) {
-              <div class="cg-placeholder loader-placeholder">
-                <div class="tm-spinner"></div>
+              <div class="ai-processing-overlay" style="position: relative; min-height: 250px;">
+                <div class="ai-glow-orb purple"></div>
+                <div class="ai-glow-orb pink"></div>
+
+                <div class="ai-loader-core">
+                  <div class="ai-pulse-ring ring-1"></div>
+                  <div class="ai-pulse-ring ring-2"></div>
+                  <div class="ai-pulse-ring ring-3"></div>
+
+                  <div class="ai-icon-box">
+                    <span class="material-symbols-outlined ai-magic-sparkle">palette</span>
+                  </div>
+                </div>
+
+                <div class="ai-loading-status">
+                  <span class="ai-shimmer-title">{{ t9n.t('card_gen.loading') || "Création de l'illustration par l'IA..." }}</span>
+                  <span class="ai-loading-subtitle">Génération d'une carte virtuelle unique</span>
+                </div>
+
+                <div class="ai-particle p1">🎨</div>
+                <div class="ai-particle p2">✨</div>
+                <div class="ai-particle p3">🖼️</div>
               </div>
             } @else if (imageUrl()) {
               <div class="cg-result">

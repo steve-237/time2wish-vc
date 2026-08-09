@@ -2,6 +2,10 @@ package app.time2wish.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import app.time2wish.dto.GiftSuggestion;
 import app.time2wish.dto.GiftSuggestionResponse;
@@ -27,6 +31,9 @@ public class IAService {
     @Value("${app.IA.model:IA-1.5-flash}")
     private String model;
 
+    // Fast RestTemplate with short timeouts (5 seconds connect, 8 seconds read)
+    private final RestTemplate fastRestTemplate;
+    // Standard RestTemplate (for longer operations if needed)
     private final RestTemplate restTemplate = new RestTemplate();
     private final AILogRepository aiLogRepository;
     private final UserRepository userRepository;
@@ -36,6 +43,12 @@ public class IAService {
         this.aiLogRepository = aiLogRepository;
         this.userRepository = userRepository;
         this.settingService = settingService;
+
+        // Configure RestTemplate with appropriate timeouts for LLM text generation
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(10000); // 10 seconds to connect
+        factory.setReadTimeout(25000);    // 25 seconds read timeout for LLM generation
+        this.fastRestTemplate = new RestTemplate(factory);
     }
 
     private void logUsage(String featureType, String prompt, String generatedContent) {
@@ -56,6 +69,162 @@ public class IAService {
         }
     }
 
+    // =====================================================================
+    // FREE AI TEXT GENERATION — Cascading Fallback System
+    // Provider 1: Pollinations.ai POST JSON (OpenAI format, keyless)
+    // Provider 2: Pollinations.ai GET (Single line prompt)
+    // Provider 3: DevToolBox POST
+    // Fallback: Local rule-based template engine
+    // =====================================================================
+
+    /**
+     * Universal extractor to clean and parse text responses from any AI API (raw string or JSON).
+     */
+    private String cleanAndExtractText(String raw) {
+        if (raw == null || raw.trim().isEmpty()) return null;
+        String str = raw.trim();
+
+        // Strip markdown code blocks
+        if (str.startsWith("```json")) {
+            str = str.substring(7);
+        } else if (str.startsWith("```")) {
+            str = str.substring(3);
+        }
+        if (str.endsWith("```")) {
+            str = str.substring(0, str.length() - 3);
+        }
+        str = str.trim();
+
+        // If JSON object, extract text field recursively
+        if (str.startsWith("{") && str.endsWith("}")) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                Map<String, Object> map = mapper.readValue(str, new TypeReference<Map<String, Object>>() {});
+                
+                if (map.containsKey("response") && map.get("response") != null) {
+                    return cleanAndExtractText(map.get("response").toString());
+                }
+                if (map.containsKey("result") && map.get("result") != null) {
+                    return cleanAndExtractText(map.get("result").toString());
+                }
+                if (map.containsKey("output") && map.get("output") != null) {
+                    return cleanAndExtractText(map.get("output").toString());
+                }
+                if (map.containsKey("text") && map.get("text") != null) {
+                    return cleanAndExtractText(map.get("text").toString());
+                }
+                if (map.containsKey("content") && map.get("content") != null) {
+                    return cleanAndExtractText(map.get("content").toString());
+                }
+                if (map.containsKey("choices")) {
+                    List<Map<String, Object>> choices = (List<Map<String, Object>>) map.get("choices");
+                    if (choices != null && !choices.isEmpty()) {
+                        Map<String, Object> firstChoice = choices.get(0);
+                        if (firstChoice.containsKey("message")) {
+                            Map<String, Object> msg = (Map<String, Object>) firstChoice.get("message");
+                            if (msg != null && msg.containsKey("content")) {
+                                return cleanAndExtractText(msg.get("content").toString());
+                            }
+                        }
+                        if (firstChoice.containsKey("text")) {
+                            return cleanAndExtractText(firstChoice.get("text").toString());
+                        }
+                    }
+                }
+            } catch (Exception ignore) {}
+        }
+        return str;
+    }
+
+    /** Escape special characters for JSON string embedding */
+    private String escapeJson(String input) {
+        if (input == null) return "";
+        return input
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", " ")
+            .replace("\r", " ")
+            .replace("\t", " ");
+    }
+
+    private String callFreeTextApis(String prompt) {
+        // --- Provider 1: Pollinations POST JSON API (Free, keyless) ---
+        try {
+            String url = "https://text.pollinations.ai/";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, Object> message = new HashMap<>();
+            message.put("role", "user");
+            message.put("content", prompt);
+
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("messages", Collections.singletonList(message));
+            requestBody.put("model", "openai");
+            requestBody.put("jsonMode", false);
+
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonPayload = mapper.writeValueAsString(requestBody);
+
+            HttpEntity<String> entity = new HttpEntity<>(jsonPayload, headers);
+            String result = fastRestTemplate.postForObject(url, entity, String.class);
+
+            if (result != null && !result.trim().isEmpty()) {
+                String parsed = cleanAndExtractText(result);
+                if (parsed != null && !parsed.trim().isEmpty()) {
+                    System.out.println("[AI Cascade] ✅ Pollinations POST JSON responded successfully.");
+                    return parsed.trim();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[AI Cascade] ⚠️ Pollinations POST JSON failed: " + e.getMessage());
+        }
+
+        // --- Provider 2: Pollinations GET simple prompt ---
+        try {
+            // Clean prompt for GET (remove line breaks, keep single line)
+            String cleanPrompt = prompt.replaceAll("[\\r\\n]+", " ").trim();
+            String encodedPrompt = java.net.URLEncoder.encode(cleanPrompt, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
+            String url = "https://text.pollinations.ai/" + encodedPrompt;
+            String result = fastRestTemplate.getForObject(url, String.class);
+            if (result != null && !result.trim().isEmpty()) {
+                String parsed = cleanAndExtractText(result);
+                if (parsed != null && !parsed.trim().isEmpty()) {
+                    System.out.println("[AI Cascade] ✅ Pollinations GET responded successfully.");
+                    return parsed.trim();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[AI Cascade] ⚠️ Pollinations GET failed: " + e.getMessage());
+        }
+
+        // --- Provider 3: DevToolBox POST API ---
+        try {
+            String url = "https://devtoolbox-api.devtoolbox-api.workers.dev/ai/generate";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            String body = "{\"prompt\":\"" + escapeJson(prompt) + "\"}";
+            HttpEntity<String> entity = new HttpEntity<>(body, headers);
+            String result = fastRestTemplate.postForObject(url, entity, String.class);
+            if (result != null && !result.trim().isEmpty()) {
+                String parsed = cleanAndExtractText(result);
+                if (parsed != null && !parsed.trim().isEmpty()) {
+                    System.out.println("[AI Cascade] ✅ DevToolBox responded successfully.");
+                    return parsed.trim();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[AI Cascade] ⚠️ DevToolBox failed: " + e.getMessage());
+        }
+
+        System.err.println("[AI Cascade] ❌ All free AI providers failed. Using local fallback.");
+        return null;
+    }
+
+    // =====================================================================
+    // WISH GENERATION
+    // =====================================================================
+
     public String generateWish(String name, Integer age, String category, String notes, String tone, String lang, String extraInstructions) {
         if (!settingService.getBooleanSetting(SettingService.MODULE_AI_ENABLED)) {
             return generateLocalFallback(name, age, category, notes, tone, lang, extraInstructions);
@@ -63,21 +232,14 @@ public class IAService {
 
         String prompt = buildPrompt(name, age, category, notes, tone, lang, extraInstructions);
 
-        try {
-            String encodedPrompt = java.net.URLEncoder.encode(prompt, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
-            String url = "https://text.pollinations.ai/" + encodedPrompt;
-            
-            String generatedText = restTemplate.getForObject(url, String.class);
-            if (generatedText != null && !generatedText.trim().isEmpty()) {
-                String result = generatedText.trim();
-                logUsage("WISH", prompt, result);
-                return result;
-            }
-        } catch (Exception e) {
-            System.err.println("Error calling Pollinations AI for text: " + e.getMessage());
+        // Try the cascade of free APIs
+        String generatedText = callFreeTextApis(prompt);
+        if (generatedText != null) {
+            logUsage("WISH", prompt, generatedText);
+            return generatedText;
         }
 
-        // Fallback if API fails
+        // All APIs failed — use local fallback
         String fallbackResult = generateLocalFallback(name, age, category, notes, tone, lang, extraInstructions);
         logUsage("WISH", prompt, fallbackResult);
         return fallbackResult;
@@ -147,6 +309,10 @@ public class IAService {
         }
     }
 
+    // =====================================================================
+    // GIFT SUGGESTIONS
+    // =====================================================================
+
     public GiftSuggestionResponse generateGiftSuggestions(String name, Integer age, String gender, String category, List<String> interests, String lang) {
         if (!settingService.getBooleanSetting(SettingService.MODULE_AI_ENABLED)) {
             return generateLocalFallbackResponse(name, age, gender, category, interests, lang);
@@ -174,14 +340,12 @@ public class IAService {
         prompt.append("- purchaseLink: JUST the specific product name or search term for Amazon (e.g. 'Sony WH-1000XM4' or 'Lego Star Wars')\n");
         prompt.append("- preparationTips: how to present it or why it's a good idea\n");
 
-        try {
-            String encodedPrompt = java.net.URLEncoder.encode(prompt.toString(), java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
-            String url = "https://text.pollinations.ai/" + encodedPrompt;
+        // Try the cascade of free APIs
+        String generatedText = callFreeTextApis(prompt.toString());
 
-            String generatedText = restTemplate.getForObject(url, String.class);
-            
-            if (generatedText != null && !generatedText.trim().isEmpty()) {
-                generatedText = generatedText.trim();
+        if (generatedText != null) {
+            try {
+                // Strip markdown code blocks if present
                 if (generatedText.startsWith("```json")) {
                     generatedText = generatedText.substring(7);
                 }
@@ -192,6 +356,7 @@ public class IAService {
                     generatedText = generatedText.substring(0, generatedText.length() - 3);
                 }
                 generatedText = generatedText.trim();
+                
                 logUsage("GIFT", prompt.toString(), generatedText);
                 ObjectMapper mapper = new ObjectMapper();
                 List<GiftSuggestion> suggestions = mapper.readValue(generatedText, new TypeReference<List<GiftSuggestion>>() {});
@@ -236,9 +401,9 @@ public class IAService {
                 }
                 
                 return new GiftSuggestionResponse(suggestions, "AI");
+            } catch (Exception e) {
+                System.err.println("[AI Cascade] ⚠️ Failed to parse AI gift response: " + e.getMessage());
             }
-        } catch (Exception e) {
-            System.err.println("Error calling Pollinations AI for gift suggestions: " + e.getMessage());
         }
 
         GiftSuggestionResponse fallback = new GiftSuggestionResponse(generateLocalFallbackGifts(name, age, gender, category, interests, lang), "LOCAL");

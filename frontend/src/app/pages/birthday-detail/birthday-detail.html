@@ -9,31 +9,54 @@
 
 @if (birthday()) {
 
-    <!-- Profile Banner Section (FIXED — does not scroll) -->
+    <!-- Profile Banner Section (Clean, Perfectly Aligned Layout) -->
     <div class="profile-banner">
-      <div class="avatar-large-container" [class]="birthdayService.getUrgencyClass(daysUntil())">
-        <img [src]="birthday()?.photoUrl" alt="{{ birthday()?.name }}" class="avatar-large">
+      <div class="avatar-container" [class]="birthdayService.getUrgencyClass(daysUntil())">
+        <img [src]="birthday()?.photoUrl" alt="{{ birthday()?.name }}" class="avatar-img">
       </div>
-      
-      <div class="profile-meta">
-        <h1 class="profile-name">
-          {{ birthday()?.name }}
-          @if (birthday()?.gender === 'Masculin') { <span class="material-symbols-outlined gender-icon male" title="Masculin">male</span> }
-          @if (birthday()?.gender === 'Féminin') { <span class="material-symbols-outlined gender-icon female" title="Féminin">female</span> }
-          @if (birthday()?.gender === 'Autre') { <span class="material-symbols-outlined gender-icon other" title="Autre">transgender</span> }
-        </h1>
-        <div class="profile-tags">
-          <span class="tag-category" [class]="'tag-' + birthday()?.category?.toLowerCase()">
-            {{ birthday()?.category ? (t9n.t('categories.' + birthday()!.category) || birthday()?.category) : '' }}
-          </span>
+
+      <div class="profile-content">
+        <div class="profile-title-row">
+          <h1 class="profile-name">
+            {{ birthday()?.name }}
+            @if (birthday()?.gender === 'Masculin') { <span class="material-symbols-outlined gender-icon male" title="Masculin">male</span> }
+            @if (birthday()?.gender === 'Féminin') { <span class="material-symbols-outlined gender-icon female" title="Féminin">female</span> }
+            @if (birthday()?.gender === 'Autre') { <span class="material-symbols-outlined gender-icon other" title="Autre">transgender</span> }
+          </h1>
+
           <span class="badge-urgency" [class]="birthdayService.getUrgencyClass(daysUntil())">
+            <span class="material-symbols-outlined urgency-icon">
+              @if (daysUntil() === 0) { cake }
+              @else if (daysUntil() <= 7) { alarm }
+              @else { event }
+            </span>
             {{ getLabel(birthdayService.getCountdownLabel(daysUntil())) }}
           </span>
         </div>
-        <div class="social-actions" style="margin-top: 16px; display: flex; gap: 8px;">
-          <button class="btn-PRO" (click)="openPartyManager()" style="flex: 1; justify-content: center; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
-            <span class="material-symbols-outlined">settings</span>
-            {{ t9n.t('detail.manage_party') || 'Gérer la fête & les partages' }}
+
+        <div class="profile-details-row">
+          @if (birthday()?.birthdate) {
+            <span class="detail-item">
+              <span class="material-symbols-outlined detail-icon">cake</span>
+              {{ birthday()?.birthdate | date:'dd MMMM yyyy' }}
+            </span>
+          }
+          @if (birthday()?.category) {
+            <span class="detail-item category-tag" [class]="'tag-' + birthday()?.category?.toLowerCase()">
+              <span class="material-symbols-outlined detail-icon">group</span>
+              {{ t9n.t('categories.' + birthday()!.category) || birthday()?.category }}
+            </span>
+          }
+        </div>
+
+        <div class="profile-actions-row">
+          <button class="btn-PRO party-btn" (click)="openPartyManager()">
+            <span class="material-symbols-outlined">celebration</span>
+            {{ t9n.t('detail.manage_party') || 'Gérer la fête & partages' }}
+          </button>
+          <button class="btn-secondary wish-btn" (click)="isWishModalOpen.set(true)">
+            <span class="material-symbols-outlined">auto_awesome</span>
+            {{ daysUntil() === 0 ? 'Lui souhaiter !' : 'Envoyer un vœu' }}
           </button>
         </div>
       </div>

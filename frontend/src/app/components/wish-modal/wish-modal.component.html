@@ -107,8 +107,10 @@
             class="btn-PRO regenerate-btn" 
             [disabled]="isGenerating()"
             (click)="generateAiWish()">
-            <span class="material-symbols-outlined regenerate-icon">refresh</span>
-            <span>{{ t9n.t('wish.btn_regenerate') || 'Régénérer' }}</span>
+            <span class="material-symbols-outlined regenerate-icon" [class.rotating]="isGenerating()">
+              {{ isGenerating() ? 'sync' : 'refresh' }}
+            </span>
+            <span>{{ isGenerating() ? (t9n.t('wish.generating') || 'Génération en cours...') : (t9n.t('wish.btn_regenerate') || 'Régénérer') }}</span>
             @if (userPlan === 'BASIC' && aiCountdown()) {
               <span class="coin-cost" style="display: inline-flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 12px; margin-left: 8px; font-size: 0.85rem;">
                 <span class="material-symbols-outlined" style="font-size: 14px; color: #fcd34d;">generating_tokens</span> 10
@@ -225,13 +227,30 @@
           [disabled]="isGenerating()"
           [placeholder]="t9n.t('wish.message_placeholder') || 'Écrivez votre message...'"></textarea>
 
-        <!-- Generation Loading Overlay -->
+        <!-- Futuristic AI Processing Animation Overlay -->
         @if (isGenerating()) {
-        <div class="loading-overlay flex-center">
-          <div class="loader-spinner"></div>
-          <span class="ai-loading-text">
-            {{ t9n.t('wish.loading_ai') || 'Génération par l\'IA...' }}
-          </span>
+        <div class="ai-processing-overlay">
+          <div class="ai-glow-orb purple"></div>
+          <div class="ai-glow-orb pink"></div>
+
+          <div class="ai-loader-core">
+            <div class="ai-pulse-ring ring-1"></div>
+            <div class="ai-pulse-ring ring-2"></div>
+            <div class="ai-pulse-ring ring-3"></div>
+
+            <div class="ai-icon-box">
+              <span class="material-symbols-outlined ai-magic-sparkle">auto_awesome</span>
+            </div>
+          </div>
+
+          <div class="ai-loading-status">
+            <span class="ai-shimmer-title">{{ t9n.t('wish.loading_ai') || "L'IA prépare la magie..." }}</span>
+            <span class="ai-loading-subtitle">Rédaction personnalisée en cours</span>
+          </div>
+
+          <div class="ai-particle p1">✨</div>
+          <div class="ai-particle p2">⭐</div>
+          <div class="ai-particle p3">🌟</div>
         </div>
         }
       </div>

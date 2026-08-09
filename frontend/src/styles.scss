@@ -147,6 +147,18 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
+/* Global Rotation Animation Utility */
+.rotating {
+  animation: spinRotate 0.9s linear infinite !important;
+  display: inline-block !important;
+  transform-origin: center center;
+}
+
+@keyframes spinRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
@@ -246,6 +258,188 @@ h1, h2, h3, h4, h5, h6 {
 
 body.theme-blanc .btn-premium {
   color: #0f172a;
+}
+
+/* =====================================================================
+   AI PROCESSING ANIMATION (Futuristic Magic Loading State)
+   ===================================================================== */
+.ai-processing-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  overflow: hidden;
+  padding: 24px;
+  animation: aiFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  color: white;
+}
+
+@keyframes aiFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Glowing Ambient Background Orbs */
+.ai-glow-orb {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.5;
+  pointer-events: none;
+
+  &.purple {
+    background: #8b5cf6;
+    top: 5%;
+    left: 15%;
+    animation: floatOrb 4s ease-in-out infinite alternate;
+  }
+  &.pink {
+    background: #ec4899;
+    bottom: 5%;
+    right: 15%;
+    animation: floatOrb 5s ease-in-out infinite alternate-reverse;
+  }
+}
+
+@keyframes floatOrb {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(25px, -20px) scale(1.2); }
+}
+
+/* Core Magic Pulse Rings */
+.ai-loader-core {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.ai-pulse-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  animation: pulseExpand 2.4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+
+  &.ring-1 {
+    border-color: rgba(168, 85, 247, 0.7);
+    animation-delay: 0s;
+  }
+  &.ring-2 {
+    border-color: rgba(236, 72, 153, 0.6);
+    animation-delay: 0.8s;
+  }
+  &.ring-3 {
+    border-color: rgba(59, 130, 246, 0.5);
+    animation-delay: 1.6s;
+  }
+}
+
+@keyframes pulseExpand {
+  0% { transform: scale(0.6); opacity: 1; }
+  100% { transform: scale(1.65); opacity: 0; }
+}
+
+.ai-icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.4);
+  z-index: 2;
+  animation: aiRotateGlow 3s linear infinite;
+}
+
+@keyframes aiRotateGlow {
+  0% { transform: rotate(0deg); box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
+  50% { transform: rotate(180deg); box-shadow: 0 0 32px rgba(236, 72, 153, 0.8); }
+  100% { transform: rotate(360deg); box-shadow: 0 0 20px rgba(168, 85, 247, 0.6); }
+}
+
+.ai-magic-sparkle {
+  font-size: 26px !important;
+  color: #ffffff;
+  animation: sparkleBounce 1.6s ease-in-out infinite;
+}
+
+@keyframes sparkleBounce {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.25) rotate(15deg); }
+}
+
+/* Shimmer Loading Text */
+.ai-loading-status {
+  text-align: center;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ai-shimmer-title {
+  font-family: var(--font-title);
+  font-size: 1.05rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #c084fc 0%, #f472b6 35%, #60a5fa 70%, #c084fc 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textShimmer 2.2s linear infinite;
+}
+
+@keyframes textShimmer {
+  to { background-position: 200% center; }
+}
+
+.ai-loading-subtitle {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Floating Sparkle Particles */
+.ai-particle {
+  position: absolute;
+  font-size: 13px;
+  pointer-events: none;
+  opacity: 0;
+
+  &.p1 {
+    top: 22%;
+    left: 22%;
+    animation: floatParticle 2.5s ease-in-out infinite 0.2s;
+  }
+  &.p2 {
+    top: 25%;
+    right: 22%;
+    animation: floatParticle 3s ease-in-out infinite 0.8s;
+  }
+  &.p3 {
+    bottom: 22%;
+    left: 32%;
+    animation: floatParticle 2.7s ease-in-out infinite 1.4s;
+  }
+}
+
+@keyframes floatParticle {
+  0% { opacity: 0; transform: translateY(10px) scale(0.5); }
+  50% { opacity: 0.9; transform: translateY(-8px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-22px) scale(0.5); }
 }
 
 .btn-premium:hover {
