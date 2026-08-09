@@ -337,12 +337,13 @@ public class IAService {
         }
         prompt.append("- Language: ").append(lang).append("\n\n");
         
-        prompt.append("Return ONLY a valid JSON array of objects, with no markdown formatting or extra text. Each object must have these exact keys:\n");
-        prompt.append("- name: name of the gift\n");
-        prompt.append("- estimatedPrice: rough price range\n");
-        prompt.append("- whereToBuy: general store or website types\n");
-        prompt.append("- purchaseLink: JUST the specific product name or search term for Amazon (e.g. 'Sony WH-1000XM4' or 'Lego Star Wars')\n");
-        prompt.append("- preparationTips: how to present it or why it's a good idea\n");
+        prompt.append("Return ONLY a valid JSON array of objects, with no markdown formatting or extra text. ALL values MUST be quoted strings. Each object must have these exact keys:\n");
+        prompt.append("- name: string, name of the gift\n");
+        prompt.append("- estimatedPrice: string, rough price range (e.g. \"30-50€\")\n");
+        prompt.append("- whereToBuy: string, general store or website types\n");
+        prompt.append("- purchaseLink: string, JUST the specific product name or search term for Amazon (e.g. \"Sony WH-1000XM4\")\n");
+        prompt.append("- preparationTips: string, how to present it or why it's a good idea\n");
+        prompt.append("\nExample format: [{\"name\":\"Book\",\"estimatedPrice\":\"15-25€\",\"whereToBuy\":\"Amazon\",\"purchaseLink\":\"Bestseller book\",\"preparationTips\":\"Wrap it nicely\"}]\n");
 
         // Try the cascade of free APIs
         String generatedText = callFreeTextApis(prompt.toString());
@@ -367,9 +368,15 @@ public class IAService {
                 if (firstBracket != -1 && lastBracket > firstBracket) {
                     cleanText = cleanText.substring(firstBracket, lastBracket + 1);
                 }
-                
+
+                // Sanitize JSON: quote unquoted values like  50-150€  or  10-20€/mois
+                // Pattern: matches a colon followed by whitespace and an unquoted value (not starting with " [ { or digit-only)
+                cleanText = cleanText.replaceAll(":\\s*([0-9][^,\"\\}\\]]*[^,\"\\}\\]\\s])", ": \"$1\"");
+
                 logUsage("GIFT", prompt.toString(), cleanText);
+                System.out.println("[AI Cascade] 🔍 Attempting to parse gift JSON: " + cleanText.substring(0, Math.min(cleanText.length(), 200)));
                 ObjectMapper mapper = new ObjectMapper();
+                mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 List<GiftSuggestion> suggestions = mapper.readValue(cleanText, new TypeReference<List<GiftSuggestion>>() {});
                 
                 if (suggestions != null && !suggestions.isEmpty()) {
