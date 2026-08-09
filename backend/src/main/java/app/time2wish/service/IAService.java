@@ -354,6 +354,7 @@ public class IAService {
 
         // Try the cascade of free APIs
         String generatedText = callFreeTextApis(prompt.toString());
+        List<GiftSuggestion> aiSuggestions = new ArrayList<>();
 
         if (generatedText != null && !generatedText.trim().isEmpty()) {
             try {
@@ -423,9 +424,8 @@ public class IAService {
                 }
                 
                 if (suggestions != null && !suggestions.isEmpty()) {
-                    enrichGiftSuggestions(suggestions, lang);
+                    aiSuggestions.addAll(suggestions);
                     System.out.println("[AI Cascade] ✅ Parsed " + suggestions.size() + " AI gift suggestions successfully.");
-                    return new GiftSuggestionResponse(suggestions, "AI");
                 }
             } catch (Exception e) {
                 System.err.println("[AI Cascade] ⚠️ Failed to parse JSON AI gift response: " + e.getMessage() + ". Trying line parser...");
@@ -433,17 +433,29 @@ public class IAService {
                 // Attempt plain text list line parsing if AI returned bullet points instead of JSON
                 List<GiftSuggestion> parsedLines = parseTextGiftSuggestions(generatedText);
                 if (parsedLines != null && !parsedLines.isEmpty()) {
-                    enrichGiftSuggestions(parsedLines, lang);
+                    aiSuggestions.addAll(parsedLines);
                     System.out.println("[AI Cascade] ✅ Parsed " + parsedLines.size() + " text-formatted AI gift suggestions.");
-                    return new GiftSuggestionResponse(parsedLines, "AI");
                 }
             }
         }
 
-        System.err.println("[AI Cascade] ⚠️ AI gift generation failed or returned unparseable output. Using enriched local fallback.");
-        List<GiftSuggestion> fallbackList = generateLocalFallbackGifts(name, age, gender, category, interests, lang);
-        logUsage("GIFT", prompt.toString(), "Local Fallback JSON array");
-        return new GiftSuggestionResponse(fallbackList, "LOCAL");
+        int TARGET = 25;
+        List<GiftSuggestion> localSuggestions = generateLocalFallbackGifts(name, age, gender, category, interests, lang);
+
+        List<GiftSuggestion> combined = new ArrayList<>(aiSuggestions);
+        java.util.Set<String> existingNames = aiSuggestions.stream().map(s -> s.getName().toLowerCase()).collect(java.util.stream.Collectors.toSet());
+        for (GiftSuggestion local : localSuggestions) {
+            if (combined.size() >= TARGET) break;
+            if (!existingNames.contains(local.getName().toLowerCase())) {
+                combined.add(local);
+                existingNames.add(local.getName().toLowerCase());
+            }
+        }
+        
+        enrichGiftSuggestions(combined, lang);
+        String source = aiSuggestions.isEmpty() ? "LOCAL" : "AI";
+        logUsage("GIFT", prompt.toString(), "Hybrid fallback with source=" + source);
+        return new GiftSuggestionResponse(combined, source);
     }
 
     /**
@@ -519,87 +531,200 @@ public class IAService {
     }
 
     private List<GiftSuggestion> generateLocalFallbackGifts(String name, Integer age, String gender, String category, List<String> interests, String lang) {
-        boolean isEn = "en".equalsIgnoreCase(lang);
-        boolean isDe = "de".equalsIgnoreCase(lang);
+        List<GiftSuggestion> sports = new ArrayList<>();
+        sports.add(new GiftSuggestion("Tapis de yoga premium", "25-50€", "Decathlon/Amazon", "tapis yoga premium", "Idéal pour ses séances de sport."));
+        sports.add(new GiftSuggestion("Gourde isotherme personnalisée", "15-35€", "Amazon", "gourde isotherme", "Pratique pour rester hydraté."));
+        sports.add(new GiftSuggestion("Montre connectée fitness", "50-150€", "Boulanger/Amazon", "montre connectée fitness", "Pour suivre ses performances."));
+        sports.add(new GiftSuggestion("Sac de sport Nike/Adidas", "30-60€", "Nike Store/Amazon", "sac de sport", "Toujours utile pour l'entraînement."));
+        sports.add(new GiftSuggestion("Abonnement salle de sport (1 mois)", "30-50€", "Basic Fit/Neoness", "abonnement salle de sport", "Pour garder la forme."));
+        sports.add(new GiftSuggestion("Bandes de résistance élastiques", "15-30€", "Decathlon", "bandes resistance elastiques", "Pour s'entraîner partout."));
+        sports.add(new GiftSuggestion("Ballon de football officiel", "20-40€", "Decathlon", "ballon football", "Pour les matchs entre amis."));
 
-        List<GiftSuggestion> suggestions = new ArrayList<>();
+        List<GiftSuggestion> tech = new ArrayList<>();
+        tech.add(new GiftSuggestion("Écouteurs sans fil Bluetooth", "30-100€", "Boulanger/Amazon", "ecouteurs sans fil bluetooth", "Pour écouter de la musique partout."));
+        tech.add(new GiftSuggestion("Support téléphone voiture magnétique", "10-25€", "Amazon", "support telephone voiture magnetique", "Très pratique en conduisant."));
+        tech.add(new GiftSuggestion("Batterie externe 20000mAh", "20-40€", "Amazon", "batterie externe 20000mAh", "Pour ne jamais tomber en panne."));
+        tech.add(new GiftSuggestion("Enceinte Bluetooth portable", "30-80€", "Fnac/Amazon", "enceinte bluetooth portable", "Pour mettre l'ambiance."));
+        tech.add(new GiftSuggestion("Lampe LED de bureau avec chargeur sans fil", "25-50€", "Amazon", "lampe bureau led chargeur sans fil", "Un ajout moderne à son bureau."));
+        tech.add(new GiftSuggestion("Clé USB 128Go design", "15-25€", "Amazon", "cle usb 128go", "Pour stocker tous ses fichiers."));
+        tech.add(new GiftSuggestion("Ring light pour selfie/visio", "15-35€", "Amazon", "ring light", "Pour un éclairage parfait."));
+
+        List<GiftSuggestion> books = new ArrayList<>();
+        books.add(new GiftSuggestion("Bestseller du moment", "15-25€", "Fnac/Cultura", "bestseller livre", "Une valeur sûre."));
+        books.add(new GiftSuggestion("Liseuse électronique Kindle", "80-130€", "Amazon", "kindle liseuse", "Pour avoir tous ses livres avec soi."));
+        books.add(new GiftSuggestion("Abonnement Audible (3 mois)", "30€", "Amazon/Audible", "abonnement audible", "Pour écouter des livres en voiture."));
+        books.add(new GiftSuggestion("Coffret intégrale BD/Manga populaire", "30-60€", "Fnac", "coffret manga bd", "Pour les passionnés de lecture."));
+        books.add(new GiftSuggestion("Carnet Moleskine premium", "15-25€", "Fnac/Amazon", "carnet moleskine", "Pour noter toutes ses idées."));
+
+        List<GiftSuggestion> cooking = new ArrayList<>();
+        cooking.add(new GiftSuggestion("Coffret dégustation thés du monde", "20-40€", "Palais des Thés", "coffret the degustation", "Un moment de détente assuré."));
+        cooking.add(new GiftSuggestion("Kit cocktails maison avec shaker", "25-50€", "Amazon", "kit cocktail", "Pour des soirées réussies."));
+        cooking.add(new GiftSuggestion("Livre de recettes chef étoilé", "20-35€", "Fnac/Amazon", "livre recette chef", "Pour s'inspirer en cuisine."));
+        cooking.add(new GiftSuggestion("Planche à découper en bois d'olivier", "20-40€", "Amazon", "planche a decouper bois olivier", "Un très bel objet utile."));
+        cooking.add(new GiftSuggestion("Coffret épices rares du monde", "25-45€", "Amazon", "coffret epices", "Pour relever ses plats."));
+        cooking.add(new GiftSuggestion("Machine à pâtes fraîches", "30-60€", "Amazon", "machine a pates", "Pour faire ses pâtes maison."));
+        cooking.add(new GiftSuggestion("Tablier de cuisine personnalisé", "15-30€", "Amazon", "tablier cuisine", "Pour cuisiner avec style."));
+
+        List<GiftSuggestion> wellness = new ArrayList<>();
+        wellness.add(new GiftSuggestion("Coffret soins visage bio", "25-50€", "Sephora/Amazon", "coffret soins visage bio", "Pour prendre soin de soi."));
+        wellness.add(new GiftSuggestion("Diffuseur huiles essentielles avec LED", "20-40€", "Amazon", "diffuseur huiles essentielles", "Pour une atmosphère relaxante."));
+        wellness.add(new GiftSuggestion("Bougie parfumée luxe (Yankee Candle)", "15-30€", "Amazon", "bougie yankee candle", "Pour une ambiance chaleureuse."));
+        wellness.add(new GiftSuggestion("Kit massage relaxation", "20-45€", "Amazon", "kit massage", "Un moment de détente."));
+        wellness.add(new GiftSuggestion("Masque de nuit en soie", "10-25€", "Amazon", "masque de nuit soie", "Pour un sommeil réparateur."));
+        wellness.add(new GiftSuggestion("Coffret bain moussant et bombes de bain", "15-30€", "Lush/Amazon", "bombes de bain", "Pour un bain relaxant."));
+
+        List<GiftSuggestion> fashion = new ArrayList<>();
+        fashion.add(new GiftSuggestion("Écharpe cachemire", "30-80€", "Amazon/Galeries Lafayette", "echarpe cachemire", "Pour passer l'hiver au chaud."));
+        fashion.add(new GiftSuggestion("Portefeuille en cuir véritable", "20-50€", "Amazon", "portefeuille cuir", "Un classique toujours utile."));
+        fashion.add(new GiftSuggestion("Lunettes de soleil polarisées", "20-60€", "Amazon", "lunettes de soleil polarisees", "Pour protéger ses yeux avec style."));
+        fashion.add(new GiftSuggestion("Montre classique élégante", "30-100€", "Amazon", "montre homme femme", "Un accessoire intemporel."));
+        fashion.add(new GiftSuggestion("Sac à dos urbain tendance", "30-60€", "Amazon", "sac a dos urbain", "Pratique pour tous les jours."));
+
+        List<GiftSuggestion> home = new ArrayList<>();
+        home.add(new GiftSuggestion("Lampe d'ambiance LED connectée Philips Hue", "30-60€", "Amazon", "philips hue lampe", "Pour créer la bonne ambiance."));
+        home.add(new GiftSuggestion("Cadre photo numérique WiFi", "40-80€", "Amazon", "cadre photo numerique wifi", "Pour afficher ses meilleurs souvenirs."));
+        home.add(new GiftSuggestion("Plante d'intérieur avec pot design", "15-35€", "Jardiland", "plante interieur pot", "Pour apporter un peu de verdure."));
+        home.add(new GiftSuggestion("Couverture plaid polaire doux", "20-40€", "Amazon", "plaid polaire", "Idéal pour les soirées d'hiver."));
+        home.add(new GiftSuggestion("Horloge murale design moderne", "20-45€", "Amazon", "horloge murale design", "Un élément déco tendance."));
+
+        List<GiftSuggestion> experiences = new ArrayList<>();
+        experiences.add(new GiftSuggestion("Box escape game à la maison", "20-35€", "Amazon", "box escape game", "Une soirée ludique."));
+        experiences.add(new GiftSuggestion("Coffret Wonderbox aventure/détente", "30-100€", "Wonderbox", "coffret wonderbox", "Pour choisir son activité."));
+        experiences.add(new GiftSuggestion("Cours de cuisine en ligne (MasterClass)", "15-30€", "MasterClass", "cours cuisine", "Pour apprendre des meilleurs."));
+        experiences.add(new GiftSuggestion("Place de cinéma illimitée (1 mois)", "20-25€", "UGC/Pathé", "carte cinema", "Pour les cinéphiles."));
+        experiences.add(new GiftSuggestion("Atelier poterie/céramique", "30-60€", "Wecandoo", "atelier poterie", "Une activité créative."));
+
+        List<GiftSuggestion> personalized = new ArrayList<>();
+        personalized.add(new GiftSuggestion("Album photo personnalisé", "25-50€", "Cheerz/Photobox", "album photo personnalise", "Un cadeau unique et touchant."));
+        personalized.add(new GiftSuggestion("Mug personnalisé avec photo", "10-20€", "Amazon", "mug personnalise", "Pour penser à vous le matin."));
+        personalized.add(new GiftSuggestion("Bijou gravé personnalisé", "15-40€", "Amazon", "bijou grave", "Un souvenir précieux."));
+        personalized.add(new GiftSuggestion("Coussin personnalisé avec photo", "15-30€", "Amazon", "coussin personnalise", "Pour décorer avec une touche personnelle."));
+        personalized.add(new GiftSuggestion("Puzzle personnalisé avec photo", "15-25€", "Amazon", "puzzle photo personnalise", "Ludique et personnel."));
+
+        List<GiftSuggestion> gardening = new ArrayList<>();
+        gardening.add(new GiftSuggestion("Kit jardinage d'intérieur (herbes aromatiques)", "15-30€", "Amazon", "kit jardinage interieur", "Pour cultiver ses propres herbes."));
+        gardening.add(new GiftSuggestion("Hamac portable", "25-50€", "Amazon/Decathlon", "hamac portable", "Pour se relaxer dehors."));
+        gardening.add(new GiftSuggestion("Lampe solaire de jardin", "15-30€", "Amazon", "lampe solaire jardin", "Pour éclairer son extérieur."));
+
+        List<GiftSuggestion> eco = new ArrayList<>();
+        eco.add(new GiftSuggestion("Kit zéro déchet (gourde + couverts + sac)", "20-35€", "Amazon", "kit zero dechet", "Un geste pour la planète."));
+        eco.add(new GiftSuggestion("Lunch box inox compartimentée", "15-30€", "Amazon", "lunch box inox", "Pratique et durable."));
+        eco.add(new GiftSuggestion("Livre sur le développement durable", "15-25€", "Fnac", "livre developpement durable", "Pour s'informer et agir."));
+
+        List<GiftSuggestion> result = new ArrayList<>();
         String interestsStr = (interests != null) ? String.join(" ", interests).toLowerCase() : "";
-
-        // Rules based on interests
-        if (interestsStr.contains("sport") || interestsStr.contains("fitness") || interestsStr.contains("foot") || interestsStr.contains("tennis") || interestsStr.contains("gym")) {
-            if (isEn) suggestions.add(new GiftSuggestion("Sports Equipment / Match Tickets", "$30 - $100", "Sports store, Ticketmaster", "https://amazon.com/s?k=sports+equipment", "Perfect for their passion for sports."));
-            else if (isDe) suggestions.add(new GiftSuggestion("Sportausrüstung / Tickets", "30€ - 100€", "Sportgeschäft, Ticketmaster", "https://amazon.de/s?k=sport", "Perfekt für ihre Leidenschaft für Sport."));
-            else suggestions.add(new GiftSuggestion("Équipement sportif / Billets de match", "30€ - 100€", "Decathlon, Fnac Spectacles", "https://www.decathlon.fr/", "Idéal pour accompagner sa passion pour le sport."));
-        }
-        if (interestsStr.contains("livre") || interestsStr.contains("lecture") || interestsStr.contains("book") || interestsStr.contains("read")) {
-            if (isEn) suggestions.add(new GiftSuggestion("Bestseller Book / E-reader", "$15 - $120", "Bookstore, Amazon", "https://amazon.com/s?k=bestseller+books", "A great novel or a bookstore gift card."));
-            else if (isDe) suggestions.add(new GiftSuggestion("Bestseller-Buch / E-Reader", "15€ - 120€", "Buchhandlung, Amazon", "https://amazon.de/s?k=bestseller+buch", "Ein guter Roman oder ein Gutschein für die Buchhandlung."));
-            else suggestions.add(new GiftSuggestion("Livre Bestseller / Liseuse", "15€ - 120€", "Fnac, Cultura, Librairie", "https://livre.fnac.com/", "Un bon roman ou une carte cadeau en librairie."));
-        }
-        if (interestsStr.contains("jeux") || interestsStr.contains("game") || interestsStr.contains("video")) {
-            if (isEn) suggestions.add(new GiftSuggestion("Video Game / Board Game", "$20 - $70", "Gaming store", "https://amazon.com/s?k=board+games", "A fun game to play solo or with friends."));
-            else if (isDe) suggestions.add(new GiftSuggestion("Videospiel / Brettspiel", "20€ - 70€", "Spieleladen", "https://amazon.de/s?k=brettspiele", "Ein lustiges Spiel für alleine oder mit Freunden."));
-            else suggestions.add(new GiftSuggestion("Jeu Vidéo / Jeu de société", "20€ - 70€", "Micromania, Philibert", "https://www.philibertnet.com/", "Un jeu sympa à faire en solo ou entre amis."));
-        }
-        if (interestsStr.contains("voyage") || interestsStr.contains("travel") || interestsStr.contains("reise")) {
-            if (isEn) suggestions.add(new GiftSuggestion("Travel Accessories / Scratch Map", "$15 - $50", "Travel store", "https://amazon.com/s?k=travel+gifts", "Something useful for their next adventure."));
-            else if (isDe) suggestions.add(new GiftSuggestion("Reisezubehör / Rubbelweltkarte", "15€ - 50€", "Reisegeschäft", "https://amazon.de/s?k=reise+geschenke", "Etwas Nützliches für das nächste Abenteuer."));
-            else suggestions.add(new GiftSuggestion("Accessoire de voyage / Carte à gratter", "15€ - 50€", "Nature & Découvertes", "https://www.natureetdecouvertes.com/", "Quelque chose d'utile pour sa prochaine aventure."));
-        }
-        if (interestsStr.contains("musique") || interestsStr.contains("music") || interestsStr.contains("musik") || interestsStr.contains("concert")) {
-            if (isEn) suggestions.add(new GiftSuggestion("Concert Tickets / Vinyl Record", "$20 - $80", "Ticketmaster, Record store", "https://amazon.com/s?k=vinyl", "Great for music lovers."));
-            else if (isDe) suggestions.add(new GiftSuggestion("Konzertkarten / Schallplatte", "20€ - 80€", "Ticketmaster, Plattenladen", "https://amazon.de/s?k=schallplatte", "Toll für Musikliebhaber."));
-            else suggestions.add(new GiftSuggestion("Place de concert / Vinyle", "20€ - 80€", "Fnac Spectacles, Disquaire", "https://www.fnac.com/", "Parfait pour vibrer au rythme de sa musique préférée."));
-        }
-        if (interestsStr.contains("art") || interestsStr.contains("dessin") || interestsStr.contains("draw") || interestsStr.contains("paint")) {
-            if (isEn) suggestions.add(new GiftSuggestion("Art Supplies / Museum Pass", "$20 - $60", "Art store", "https://amazon.com/s?k=art+supplies", "Fuel their creativity."));
-            else if (isDe) suggestions.add(new GiftSuggestion("Künstlerbedarf / Museumspass", "20€ - 60€", "Kunstbedarf", "https://amazon.de/s?k=künstlerbedarf", "Fördere ihre Kreativität."));
-            else suggestions.add(new GiftSuggestion("Matériel d'Art / Pass Musée", "20€ - 60€", "Cultura, Géant des Beaux-Arts", "https://www.cultura.com/", "Pour nourrir sa créativité et son inspiration."));
-        }
-
-        // Rules based on age
-        if (age != null) {
-            if (age < 12) {
-                if (isEn) suggestions.add(new GiftSuggestion("Educational Toy / Lego Set", "$20 - $50", "Toy store", "https://amazon.com/s?k=lego", "Fun and educational."));
-                else if (isDe) suggestions.add(new GiftSuggestion("Lernspielzeug / Lego-Set", "20€ - 50€", "Spielzeugladen", "https://amazon.de/s?k=lego", "Spaßig und lehrreich."));
-                else suggestions.add(new GiftSuggestion("Jouet éducatif / Set Lego", "20€ - 50€", "JouéClub, Maxi Toys", "https://www.joueclub.fr/", "Amusant et stimulant pour son âge."));
-            } else if (age >= 18 && age < 30) {
-                if (isEn) suggestions.add(new GiftSuggestion("Tech Gadget / Wireless Earbuds", "$30 - $100", "Electronics store", "https://amazon.com/s?k=tech+gadget", "A cool gadget they'll use everyday."));
-                else if (isDe) suggestions.add(new GiftSuggestion("Tech-Gadget / Kabellose Kopfhörer", "30€ - 100€", "Elektronikmarkt", "https://amazon.de/s?k=tech+gadget", "Ein cooles Gadget für jeden Tag."));
-                else suggestions.add(new GiftSuggestion("Gadget Tech / Écouteurs sans fil", "30€ - 100€", "Boulanger, Amazon", "https://www.boulanger.com/", "Un gadget sympa à utiliser au quotidien."));
-            }
-        }
-
-        // General fallbacks to fill up the list
-        if (suggestions.size() < 3) {
-            if (isEn) {
-                suggestions.add(new GiftSuggestion("Custom Photo Album", "$25 - $50", "Online print shops", "https://amazon.com/s?k=photo+album", "Fill it with some of your favorite memories together."));
-                suggestions.add(new GiftSuggestion("Gourmet Gift Set", "$30 - $60", "Specialty food stores", "https://amazon.com/s?k=gourmet+gift", "Perfect for food lovers."));
-                suggestions.add(new GiftSuggestion("Gift Card", "$50+", "Any major store", "https://amazon.com/gift-cards", "When in doubt, let them choose."));
-            } else if (isDe) {
-                suggestions.add(new GiftSuggestion("Personalisiertes Fotoalbum", "25€ - 50€", "Online-Druckereien", "https://amazon.de/s?k=fotoalbum", "Fülle es mit schönen Erinnerungen."));
-                suggestions.add(new GiftSuggestion("Feinkost-Geschenkset", "30€ - 60€", "Feinkostläden", "https://amazon.de/s?k=feinkost", "Perfekt für Feinschmecker."));
-                suggestions.add(new GiftSuggestion("Gutschein", "50€+", "Jedes größere Geschäft", "https://amazon.de/gift-cards", "Wenn du dir unsicher bist, lass sie selbst wählen."));
-            } else {
-                suggestions.add(new GiftSuggestion("Album photo personnalisé", "25€ - 50€", "Cheerz, Photobox", "https://amazon.fr/s?k=album+photo", "Prenez le temps d'y glisser vos meilleurs souvenirs avec " + name + "."));
-                suggestions.add(new GiftSuggestion("Coffret découverte épicerie fine", "20€ - 40€", "Boutiques spécialisées", "https://amazon.fr/s?k=coffret+gourmand", "Un cadeau réconfortant qui fait toujours plaisir."));
-                suggestions.add(new GiftSuggestion("Carte cadeau Multi-enseignes", "50€+", "Fnac, Cultura, Illicado", "https://www.illicado.com/", "Idéal quand on manque d'inspiration ou que " + name + " est difficile à combler !"));
-            }
-        }
         
-        // Remove duplicates if any, and limit to 4 to give a nice selection
-        List<GiftSuggestion> results = suggestions.stream()
-            .distinct()
-            .limit(4)
-            .toList();
+        // 1. Interests
+        if (interestsStr.contains("sport") || interestsStr.contains("fitness") || interestsStr.contains("foot") || interestsStr.contains("gym")) {
+            Collections.shuffle(sports);
+            result.addAll(sports.subList(0, Math.min(3, sports.size())));
+        }
+        if (interestsStr.contains("tech") || interestsStr.contains("geek") || interestsStr.contains("informatique") || interestsStr.contains("jeu") || interestsStr.contains("game")) {
+            Collections.shuffle(tech);
+            result.addAll(tech.subList(0, Math.min(3, tech.size())));
+        }
+        if (interestsStr.contains("livre") || interestsStr.contains("lecture") || interestsStr.contains("read")) {
+            Collections.shuffle(books);
+            result.addAll(books.subList(0, Math.min(3, books.size())));
+        }
+        if (interestsStr.contains("cuisine") || interestsStr.contains("cook") || interestsStr.contains("gastronomie")) {
+            Collections.shuffle(cooking);
+            result.addAll(cooking.subList(0, Math.min(3, cooking.size())));
+        }
+        if (interestsStr.contains("bien-être") || interestsStr.contains("soin") || interestsStr.contains("beaute") || interestsStr.contains("wellness")) {
+            Collections.shuffle(wellness);
+            result.addAll(wellness.subList(0, Math.min(3, wellness.size())));
+        }
+        if (interestsStr.contains("mode") || interestsStr.contains("fashion") || interestsStr.contains("vetement")) {
+            Collections.shuffle(fashion);
+            result.addAll(fashion.subList(0, Math.min(3, fashion.size())));
+        }
+        if (interestsStr.contains("maison") || interestsStr.contains("deco") || interestsStr.contains("home")) {
+            Collections.shuffle(home);
+            result.addAll(home.subList(0, Math.min(3, home.size())));
+        }
+        if (interestsStr.contains("experience") || interestsStr.contains("voyage") || interestsStr.contains("travel") || interestsStr.contains("sortie") || interestsStr.contains("cinema")) {
+            Collections.shuffle(experiences);
+            result.addAll(experiences.subList(0, Math.min(3, experiences.size())));
+        }
+        if (interestsStr.contains("jardin") || interestsStr.contains("nature") || interestsStr.contains("garden")) {
+            Collections.shuffle(gardening);
+            result.addAll(gardening.subList(0, Math.min(3, gardening.size())));
+        }
+        if (interestsStr.contains("eco") || interestsStr.contains("nature") || interestsStr.contains("bio")) {
+            Collections.shuffle(eco);
+            result.addAll(eco.subList(0, Math.min(3, eco.size())));
+        }
 
-        for (GiftSuggestion s : results) {
+        // 2. Age-appropriate
+        if (age != null) {
+            if (age < 18) {
+                Collections.shuffle(experiences);
+                result.addAll(experiences.subList(0, 1));
+                Collections.shuffle(tech);
+                result.addAll(tech.subList(0, 1));
+            } else if (age >= 18 && age < 35) {
+                Collections.shuffle(tech);
+                result.addAll(tech.subList(0, 1));
+                Collections.shuffle(fashion);
+                result.addAll(fashion.subList(0, 1));
+            } else {
+                Collections.shuffle(cooking);
+                result.addAll(cooking.subList(0, 1));
+                Collections.shuffle(home);
+                result.addAll(home.subList(0, 1));
+            }
+        }
+
+        // 3. Category-appropriate (Relationship)
+        String cat = category != null ? category.toLowerCase() : "";
+        if (cat.contains("friend") || cat.contains("ami")) {
+            Collections.shuffle(experiences);
+            result.addAll(experiences.subList(0, 1));
+            Collections.shuffle(personalized);
+            result.addAll(personalized.subList(0, 1));
+        } else if (cat.contains("family") || cat.contains("famille") || cat.contains("parent")) {
+            Collections.shuffle(home);
+            result.addAll(home.subList(0, 1));
+            Collections.shuffle(cooking);
+            result.addAll(cooking.subList(0, 1));
+        } else if (cat.contains("partner") || cat.contains("amour") || cat.contains("conjoint")) {
+            Collections.shuffle(personalized);
+            result.addAll(personalized.subList(0, 2));
+            Collections.shuffle(wellness);
+            result.addAll(wellness.subList(0, 1));
+        } else if (cat.contains("colleague") || cat.contains("collegue")) {
+            Collections.shuffle(tech);
+            result.addAll(tech.subList(0, 1)); // desk tech
+            Collections.shuffle(books);
+            result.addAll(books.subList(0, 1));
+        }
+
+        // 4. Fill up with general popular gifts
+        List<GiftSuggestion> universal = new ArrayList<>();
+        universal.addAll(books);
+        universal.addAll(cooking);
+        universal.addAll(home);
+        universal.addAll(experiences);
+        universal.addAll(wellness);
+        universal.addAll(personalized);
+        Collections.shuffle(universal);
+        
+        result.addAll(universal);
+        
+        // Remove duplicates and limit to 30
+        List<GiftSuggestion> finalResult = result.stream()
+            .distinct()
+            .limit(30)
+            .collect(java.util.stream.Collectors.toList());
+
+        for (GiftSuggestion s : finalResult) {
             try {
                 String encodedName = java.net.URLEncoder.encode(s.getName(), java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
                 s.setImageUrl("https://image.pollinations.ai/prompt/" + encodedName + "%20isolated%20on%20white%20background");
             } catch (Exception e) {}
         }
-        
-        return results;
+
+        return finalResult;
     }
 }
