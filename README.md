@@ -647,6 +647,12 @@ During deployment, we encountered and resolved several issues. Here are the deta
 - **Problem:** When accessing the production app on Vercel, the screen remained completely white for up to 2-5 minutes. This occurred because the `APP_INITIALIZER` in Angular (`app.config.ts`) was using `firstValueFrom(authService.refreshSession())` which completely blocked the app bootstrapping process until the HTTP request finished. Since the free-tier backend on Render spins down after 15 minutes of inactivity, this initial HTTP request took minutes to resolve while the backend container woke up.
 - **Solution:** We transitioned to an "Optimistic UI" approach. The `APP_INITIALIZER` now subscribes to the session refresh in the background but immediately returns `Promise.resolve(true)`, allowing the Angular app to boot instantly using cached `localStorage` data. We also implemented a non-blocking `ToastService` timeout that displays a discreet "Server waking up..." message if the backend takes more than 2.5 seconds to respond.
 
+#### 10. AI Gift Generation Falling Back to LOCAL Mode (`cloud_off` Banner)
+- **Problem:** When generating gift suggestions via AI, free LLM models (Pollinations/DevToolBox) often return JSON arrays wrapped inside conversational text (e.g., `"Voici 3 idées cadeaux:\n[{"name":"..."}]"`) or formatted as plain text bullet points instead of strict JSON. The backend `ObjectMapper.readValue()` threw a `JsonParseException` on the surrounding text, causing the system to fall back to local offline suggestions and display the `cloud_off Le service IA est indisponible` banner in the UI.
+- **Solution:** We updated `IAService.java` with two resilient mechanisms:
+  1. **JSON Array Substring Extractor:** The backend now automatically scans for the `[` and `]` delimiters in the AI response and extracts only the valid JSON array substring.
+  2. **Regex Line Parser Fallback:** If JSON parsing still fails, a regex line parser (`parseTextGiftSuggestions`) extracts item names, prices, store suggestions, and tips from plain text bullet lists (`1. Item - Price - Store - Tip`), successfully returning AI-generated gifts with `AI` status instead of falling back to local mode.
+
 ---
 
 ## 📱 How to Install the PWA
