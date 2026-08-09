@@ -491,15 +491,18 @@ public class IAService {
         String etsyTag = settingService.getSetting(SettingService.ETSY_AFFILIATE_TAG) != null ? settingService.getSetting(SettingService.ETSY_AFFILIATE_TAG).getValue() : "time2wish";
 
         for (GiftSuggestion s : suggestions) {
+            String nameForImage = s.getName() != null && !s.getName().trim().isEmpty() ? s.getName() : "gift item";
+            
+            try {
+                String imagePrompt = "High quality studio product photograph of " + nameForImage + ", centered on clean white background, 4k photo";
+                String encodedPrompt = java.net.URLEncoder.encode(imagePrompt, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
+                s.setImageUrl("https://image.pollinations.ai/prompt/" + encodedPrompt + "?width=400&height=400&nologo=true");
+            } catch (Exception e) {}
+
             String productName = s.getName();
             if (s.getPurchaseLink() != null && !s.getPurchaseLink().startsWith("http")) {
                 productName = s.getPurchaseLink();
             }
-            
-            try {
-                String encodedName = java.net.URLEncoder.encode(productName, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
-                s.setImageUrl("https://image.pollinations.ai/prompt/" + encodedName + "%20isolated%20on%20white%20background");
-            } catch (Exception e) {}
 
             if (s.getPurchaseLink() == null || !s.getPurchaseLink().startsWith("http")) {
                 String searchTerm = "";
@@ -717,13 +720,6 @@ public class IAService {
             .distinct()
             .limit(30)
             .collect(java.util.stream.Collectors.toList());
-
-        for (GiftSuggestion s : finalResult) {
-            try {
-                String encodedName = java.net.URLEncoder.encode(s.getName(), java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
-                s.setImageUrl("https://image.pollinations.ai/prompt/" + encodedName + "%20isolated%20on%20white%20background");
-            } catch (Exception e) {}
-        }
 
         return finalResult;
     }
