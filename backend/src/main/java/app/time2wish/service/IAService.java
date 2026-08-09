@@ -148,7 +148,33 @@ public class IAService {
     }
 
     private String callFreeTextApis(String prompt) {
-        // --- Provider 1: Pollinations POST JSON API (Free, keyless) ---
+        // --- Provider 1: DevToolBox POST API (Free, keyless Cloudflare Worker LLM) ---
+        try {
+            String url = "https://devtoolbox-api.devtoolbox-api.workers.dev/ai/generate";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("prompt", prompt);
+
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonPayload = mapper.writeValueAsString(requestBody);
+
+            HttpEntity<String> entity = new HttpEntity<>(jsonPayload, headers);
+            String result = fastRestTemplate.postForObject(url, entity, String.class);
+
+            if (result != null && !result.trim().isEmpty()) {
+                String parsed = cleanAndExtractText(result);
+                if (parsed != null && !parsed.trim().isEmpty()) {
+                    System.out.println("[AI Cascade] ✅ DevToolBox POST responded successfully.");
+                    return parsed.trim();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[AI Cascade] ⚠️ DevToolBox POST failed: " + e.getMessage());
+        }
+
+        // --- Provider 2: Pollinations POST JSON API (Fallback) ---
         try {
             String url = "https://text.pollinations.ai/";
             HttpHeaders headers = new HttpHeaders();
@@ -160,8 +186,6 @@ public class IAService {
 
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("messages", Collections.singletonList(message));
-            requestBody.put("model", "openai");
-            requestBody.put("jsonMode", false);
 
             ObjectMapper mapper = new ObjectMapper();
             String jsonPayload = mapper.writeValueAsString(requestBody);
@@ -180,9 +204,8 @@ public class IAService {
             System.err.println("[AI Cascade] ⚠️ Pollinations POST JSON failed: " + e.getMessage());
         }
 
-        // --- Provider 2: Pollinations GET simple prompt ---
+        // --- Provider 3: Pollinations GET simple prompt ---
         try {
-            // Clean prompt for GET (remove line breaks, keep single line)
             String cleanPrompt = prompt.replaceAll("[\\r\\n]+", " ").trim();
             String encodedPrompt = java.net.URLEncoder.encode(cleanPrompt, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20");
             String url = "https://text.pollinations.ai/" + encodedPrompt;
@@ -196,25 +219,6 @@ public class IAService {
             }
         } catch (Exception e) {
             System.err.println("[AI Cascade] ⚠️ Pollinations GET failed: " + e.getMessage());
-        }
-
-        // --- Provider 3: DevToolBox POST API ---
-        try {
-            String url = "https://devtoolbox-api.devtoolbox-api.workers.dev/ai/generate";
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            String body = "{\"prompt\":\"" + escapeJson(prompt) + "\"}";
-            HttpEntity<String> entity = new HttpEntity<>(body, headers);
-            String result = fastRestTemplate.postForObject(url, entity, String.class);
-            if (result != null && !result.trim().isEmpty()) {
-                String parsed = cleanAndExtractText(result);
-                if (parsed != null && !parsed.trim().isEmpty()) {
-                    System.out.println("[AI Cascade] ✅ DevToolBox responded successfully.");
-                    return parsed.trim();
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("[AI Cascade] ⚠️ DevToolBox failed: " + e.getMessage());
         }
 
         System.err.println("[AI Cascade] ❌ All free AI providers failed. Using local fallback.");
