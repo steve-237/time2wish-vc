@@ -4,6 +4,24 @@ Time2Wish is a modern and premium web application designed to help you track, or
 
 ---
 
+## 🎉 Latest Release (v1.7.0) - The "Mobile Multi-Platform & Flutter" Update
+
+In this release, Time2Wish expands into a native multi-platform ecosystem with full iOS, Android, and Flutter mobile capabilities.
+
+### 📱 Angular 21 + Ionic Capacitor 7 Subsystem (`frontend/`)
+*   **Android Target (`frontend/android`):** Native Android Gradle project generating installable APK binaries (`app-debug.apk`).
+*   **iOS Target (`frontend/ios`):** Native Xcode workspace (`App.xcworkspace`) targeting iOS 14+.
+*   **Browser Mobile Preview (`NativeFallbackService`):** Fallback web service allowing 100% functional device testing directly inside Chrome/Edge DevTools Mobile View (Camera file pickers, Web Share API, `navigator.vibrate`, Web Notifications).
+*   **Mobile Navigation Bar:** Ergonomic bottom navigation bar (`MobileNavComponent`) with haptic touch feedback and safe-area notch padding (`env(safe-area-inset-top)` / `env(safe-area-inset-bottom)`).
+
+### 💙 Standalone Flutter 3.44 Native Application (`mobile_flutter/`)
+*   **Core Architecture:** Flutter 3.44.8 (Dart 3.12.2) standalone app at `mobile_flutter/`.
+*   **State & Networking:** `dio` HTTP client with automated JWT Bearer header interceptor, `flutter_secure_storage`, `provider`, and `go_router` declarative navigation.
+*   **Glassmorphism Theme:** Material 3 with `GlassCard` backdrop blur widgets, Outfit & Inter Google Fonts, dark/light theme tokens matching web design tokens (`#2563eb` primary, `#7c3aed` accent).
+*   **Sprint 1 Completed:** Authentication screens (`LoginScreen`, `RegisterScreen`), Birthdays countdown dashboard (`BirthdayListScreen`), WishCoins header badge, search filter, and bottom navigation shell (`MainNavShell`). Clean code verified with `flutter analyze` (**0 issues found**).
+
+---
+
 ## 🎉 Latest Release (v1.6.0) - The "Party Planner & Community Voting" Update
 
 In this release, we've extended the collaborative features of Time2Wish to streamline party organization and gift selection among friends and family.
