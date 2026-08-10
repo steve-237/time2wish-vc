@@ -136,4 +136,39 @@ The mobile subsystem includes a unified cross-platform service (`NativeFallbackS
 - **Capacitor Sync**: `npm run cap:sync` (synchronizes assets and native plugins into `android/` and `ios/`)
 - **Android APK Build**: `npm run build:apk` (compiles `frontend/android/app/build/outputs/apk/debug/app-debug.apk`)
 
+---
+
+## 8. Flutter Mobile Subsystem (`mobile_flutter/`)
+
+Time2Wish includes a standalone **Flutter 3.44+** native mobile application located in `mobile_flutter/`, providing native UI/UX with Glassmorphism widgets and direct integration with the Spring Boot REST API.
+
+### Core Architecture
+- **Framework & SDK**: Flutter 3.44.8 (Dart 3.12.2) via `D:\formations_personnelles\flutter\bin\flutter.bat`.
+- **State Management & Routing**: `go_router` (declarative routing with auth guards) and `provider` (state management).
+- **Networking**: `dio` client with base URL `http://localhost:8080/api` and automatic JWT Bearer token injection.
+- **Security**: `flutter_secure_storage` for persistent JWT tokens.
+- **Design System**: Material 3 with `GlassCard` backdrop blur widgets, dark/light theme tokens matching web colors (`#2563eb` primary, `#7c3aed` accent), and Google Fonts (`Inter` & `Outfit`).
+
+### Key Modules & Screens
+- **`AuthService` & Forms**: `LoginScreen` and `RegisterScreen` with validation and token storage.
+- **`MainNavShell`**: Responsive bottom navigation bar featuring 4 main tabs: Birthdays Dashboard, Contacts, STOMP Messaging preview, and Profile settings.
+- **`BirthdayListScreen`**: Upcoming birthday countdown cards, WishCoins display, and search filter.
+
+### Flutter Build & Run Commands
+- **Run Browser Preview in Chrome**:
+  ```bash
+  cd mobile_flutter
+  D:\formations_personnelles\flutter\bin\flutter.bat run -d chrome
+  ```
+- **Analyze Dart Codebase**:
+  ```bash
+  cd mobile_flutter
+  D:\formations_personnelles\flutter\bin\flutter.bat analyze
+  ```
+- **Compile Android APK**:
+  ```bash
+  cd mobile_flutter
+  D:\formations_personnelles\flutter\bin\flutter.bat build apk
+  ```
+
 *This documentation is continually updated alongside system migrations and major architectural changes.*
