@@ -15,8 +15,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _emailController = TextEditingController(text: 'demo@time2wish.app');
+  final _passwordController = TextEditingController(text: 'password123');
   String? _errorMessage;
 
   @override
@@ -26,7 +26,11 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _submitLogin() async {
+  void _submitLogin([String? email, String? password]) async {
+    if (email != null && password != null) {
+      _emailController.text = email;
+      _passwordController.text = password;
+    }
     if (!_formKey.currentState!.validate()) return;
     setState(() => _errorMessage = null);
 
