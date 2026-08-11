@@ -677,6 +677,17 @@ During deployment, we encountered and resolved several issues. Here are the deta
   1. We promoted **DevToolBox POST API** (`devtoolbox-api.workers.dev`) to Provider 1 in `IAService.java` and updated its payload to use proper `ObjectMapper` JSON serialization.
   2. We removed the `"model": "openai"` key from Pollinations POST requests (Provider 2), restoring anonymous HTTP 200 responses.
 
+#### 12. DevToolBox Unquoted JSON & Control Character Parsing (`Failed to parse AI gift response`)
+- **Problem:** DevToolBox (Llama 3.2 3B) often returns unquoted values (`"estimatedPrice": 50-150€`), literal newlines inside JSON string values, or wraps JSON objects as escaped strings inside a JSON array (`["{ \"name\": ... }"]`). Jackson's default `ObjectMapper` threw parsing errors (`Unexpected character ('-')` or `Illegal unquoted character`), triggering the local fallback banner.
+- **Solution:** We upgraded `IAService.java` with a multi-strategy JSON parser using Jackson's `ALLOW_UNESCAPED_CONTROL_CHARS`, `ALLOW_UNQUOTED_FIELD_NAMES`, `ALLOW_SINGLE_QUOTES`, and `ALLOW_TRAILING_COMMA`. We also added a regex sanitizer to quote unquoted numerical range values (`:\s*([0-9][^,"\}\]]*)`) and a secondary fallback parser to unpack escaped JSON strings from single-element string arrays.
+
+#### 13. Hybrid Gift Suggestion Engine (25 Target) & Realistic Product Image Generation
+- **Problem:** Small AI models (Llama 3.2 3B) often return only 1 to 3 suggestions per prompt. Users requested a larger, richer selection of 25 to 30 gift suggestions, alongside accurate product images matching the proposed items.
+- **Solution:**
+  1. Implemented a **Hybrid Engine** in `generateGiftSuggestions()`: AI suggestions are collected first, and if the count is below 25, a smart local catalog fills the remaining slots up to 25-30 gifts.
+  2. Expanded the local fallback catalog to 50+ gift ideas across 11 categories (Sports, Tech, Books, Cooking, Wellness, Fashion, Home, Experiences, Personalized, Gardening, Eco-friendly) with smart interest, age, and relationship matching.
+  3. Optimized Pollinations product image prompts in `enrichGiftSuggestions()` using `"High quality studio product photograph of " + s.getName() + ", centered on clean white background, 4k photo"` with `?width=400&height=400&nologo=true` parameters.
+
 ---
 
 ## 📱 How to Install the PWA
