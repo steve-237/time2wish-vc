@@ -1,12 +1,14 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
+  static const _tokenKey = 'jwt_token';
+
   final Dio dio = Dio(
     BaseOptions(
       baseUrl: 'http://localhost:8080/api',
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 5),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -14,13 +16,11 @@ class ApiService {
     ),
   );
 
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
-
   ApiService() {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final token = await _storage.read(key: 'jwt_token');
+          final token = await getToken();
           if (token != null && token.isNotEmpty) {
             options.headers['Authorization'] = 'Bearer $token';
           }
@@ -28,7 +28,7 @@ class ApiService {
         },
         onError: (DioException error, handler) async {
           if (error.response?.statusCode == 401) {
-            await _storage.delete(key: 'jwt_token');
+            await clearToken();
           }
           return handler.next(error);
         },
@@ -37,14 +37,17 @@ class ApiService {
   }
 
   Future<void> saveToken(String token) async {
-    await _storage.write(key: 'jwt_token', value: token);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_tokenKey, token);
   }
 
   Future<String?> getToken() async {
-    return await _storage.read(key: 'jwt_token');
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_tokenKey);
   }
 
   Future<void> clearToken() async {
-    await _storage.delete(key: 'jwt_token');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
   }
 }

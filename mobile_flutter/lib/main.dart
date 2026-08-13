@@ -13,59 +13,74 @@ void main() {
   runApp(const Time2WishApp());
 }
 
-class Time2WishApp extends StatelessWidget {
+class Time2WishApp extends StatefulWidget {
   const Time2WishApp({super.key});
+
+  @override
+  State<Time2WishApp> createState() => _Time2WishAppState();
+}
+
+class _Time2WishAppState extends State<Time2WishApp> {
+  late final ApiService _apiService;
+  late final AuthService _authService;
+  late final GoRouter _router;
+
+  @override
+  void initState() {
+    super.initState();
+    _apiService = ApiService();
+    _authService = AuthService(_apiService);
+
+    _router = GoRouter(
+      initialLocation: '/login',
+      refreshListenable: _authService,
+      routes: [
+        GoRoute(
+          path: '/login',
+          builder: (context, state) => const LoginScreen(),
+        ),
+        GoRoute(
+          path: '/register',
+          builder: (context, state) => const RegisterScreen(),
+        ),
+        GoRoute(
+          path: '/dashboard',
+          builder: (context, state) => const MainNavShell(),
+        ),
+      ],
+      redirect: (context, state) {
+        final isLoggedIn = _authService.isAuthenticated;
+        final isOnAuth = state.matchedLocation == '/login' ||
+            state.matchedLocation == '/register';
+
+        if (!isLoggedIn && !isOnAuth) return '/login';
+        if (isLoggedIn && isOnAuth) return '/dashboard';
+        return null;
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _router.dispose();
+    _authService.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<ApiService>(create: (_) => ApiService()),
-        ChangeNotifierProvider<AuthService>(
-          create: (context) => AuthService(context.read<ApiService>()),
-        ),
+        Provider<ApiService>.value(value: _apiService),
+        ChangeNotifierProvider<AuthService>.value(value: _authService),
       ],
-      child: Consumer<AuthService>(
-        builder: (context, authService, _) {
-          final GoRouter router = GoRouter(
-            initialLocation: '/dashboard',
-            routes: [
-              GoRoute(
-                path: '/login',
-                builder: (context, state) => const LoginScreen(),
-              ),
-              GoRoute(
-                path: '/register',
-                builder: (context, state) => const RegisterScreen(),
-              ),
-              GoRoute(
-                path: '/dashboard',
-                builder: (context, state) => const MainNavShell(),
-              ),
-            ],
-            redirect: (context, state) {
-              final loggingIn = state.matchedLocation == '/login' ||
-                  state.matchedLocation == '/register';
-
-              if (!authService.isAuthenticated && !loggingIn) {
-                return '/login';
-              }
-              if (authService.isAuthenticated && loggingIn) {
-                return '/dashboard';
-              }
-              return null;
-            },
-          );
-
-          return MaterialApp.router(
-            title: 'Time2Wish Mobile',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: ThemeMode.dark,
-            routerConfig: router,
-          );
-        },
+      child: MaterialApp.router(
+        title: 'Time2Wish Mobile',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.dark,
+        routerConfig: _router,
       ),
     );
   }
