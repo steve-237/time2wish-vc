@@ -150,9 +150,14 @@ Time2Wish includes a standalone **Flutter 3.44+** native mobile application loca
 - **Design System**: Material 3 with `GlassCard` backdrop blur widgets, dark/light theme tokens matching web colors (`#2563eb` primary, `#7c3aed` accent), and Google Fonts (`Inter` & `Outfit`).
 
 ### Key Modules & Screens
-- **`AuthService` & Forms**: `LoginScreen` and `RegisterScreen` with validation and token storage.
-- **`MainNavShell`**: Responsive bottom navigation bar featuring 4 main tabs: Birthdays Dashboard, Contacts, STOMP Messaging preview, and Profile settings.
-- **`BirthdayListScreen`**: Upcoming birthday countdown cards, WishCoins display, and search filter.
+- **`AuthService` & Forms**: `LoginScreen` and `RegisterScreen` with validation, token storage, and automatic offline demo fallback.
+- **`MainNavShell`**: Bottom navigation bar serving 4 core tabs: Birthdays Dashboard, Contacts & Social Network, STOMP Real-Time Messaging, and User Profile.
+- **`BirthdayListScreen` & `BirthdayDetailScreen`**: CRUD birthday management, interactive countdown cards, interest chips, party location details, and gift wishlist.
+- **`BirthdayFormScreen`**: Dual-mode creation/edit form with DatePicker and dynamic tag management.
+- **`AiService` & `AiWishDialog`**: Generative AI birthday wish creation supporting 5 distinct tones (*Friendly, Formal, Humorous, Romantic, Poetic*).
+- **`ContactsScreen` & `ContactService`**: Social graph management with pending invitation handling and contact search.
+- **`ConversationsScreen`, `ChatScreen` & `MessagingService`**: STOMP WebSocket real-time messaging, unread counts, and private/group chat rooms.
+- **`ProfileScreen` & `ProfileEditScreen`**: User account statistics, WishCoins balance display, and profile editing.
 
 ### Flutter Build & Run Commands
 - **Run Browser Preview in Chrome**:
@@ -164,6 +169,11 @@ Time2Wish includes a standalone **Flutter 3.44+** native mobile application loca
   ```bash
   cd mobile_flutter
   D:\formations_personnelles\flutter\bin\flutter.bat analyze
+  ```
+- **Compile Static Web Bundle**:
+  ```bash
+  cd mobile_flutter
+  D:\formations_personnelles\flutter\bin\flutter.bat build web
   ```
 - **Compile Android APK**:
   ```bash
