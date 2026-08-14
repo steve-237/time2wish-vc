@@ -5,11 +5,15 @@ import 'core/theme/app_theme.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_service.dart';
 import 'core/services/birthday_service.dart';
+import 'core/services/contact_service.dart';
+import 'core/services/messaging_service.dart';
+import 'core/services/gift_service.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/auth/presentation/register_screen.dart';
 import 'features/navigation/main_nav_shell.dart';
 import 'features/birthdays/presentation/birthday_detail_screen.dart';
 import 'features/birthdays/presentation/birthday_form_screen.dart';
+import 'features/messaging/presentation/chat_screen.dart';
 import 'features/profile/presentation/profile_edit_screen.dart';
 
 void main() {
@@ -28,6 +32,9 @@ class _Time2WishAppState extends State<Time2WishApp> {
   late final ApiService _apiService;
   late final AuthService _authService;
   late final BirthdayService _birthdayService;
+  late final ContactService _contactService;
+  late final MessagingService _messagingService;
+  late final GiftService _giftService;
   late final GoRouter _router;
 
   @override
@@ -36,6 +43,9 @@ class _Time2WishAppState extends State<Time2WishApp> {
     _apiService = ApiService();
     _authService = AuthService(_apiService);
     _birthdayService = BirthdayService(_apiService);
+    _contactService = ContactService(_apiService);
+    _messagingService = MessagingService(_apiService);
+    _giftService = GiftService(_apiService);
 
     _router = GoRouter(
       initialLocation: '/login',
@@ -72,6 +82,13 @@ class _Time2WishAppState extends State<Time2WishApp> {
           },
         ),
         GoRoute(
+          path: '/chat/:id',
+          builder: (context, state) {
+            final id = int.parse(state.pathParameters['id']!);
+            return ChatScreen(conversationId: id);
+          },
+        ),
+        GoRoute(
           path: '/profile/edit',
           builder: (context, state) => const ProfileEditScreen(),
         ),
@@ -93,6 +110,9 @@ class _Time2WishAppState extends State<Time2WishApp> {
     _router.dispose();
     _authService.dispose();
     _birthdayService.dispose();
+    _contactService.dispose();
+    _messagingService.dispose();
+    _giftService.dispose();
     super.dispose();
   }
 
@@ -103,6 +123,9 @@ class _Time2WishAppState extends State<Time2WishApp> {
         Provider<ApiService>.value(value: _apiService),
         ChangeNotifierProvider<AuthService>.value(value: _authService),
         ChangeNotifierProvider<BirthdayService>.value(value: _birthdayService),
+        ChangeNotifierProvider<ContactService>.value(value: _contactService),
+        ChangeNotifierProvider<MessagingService>.value(value: _messagingService),
+        ChangeNotifierProvider<GiftService>.value(value: _giftService),
       ],
       child: MaterialApp.router(
         title: 'Time2Wish Mobile',

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../birthdays/presentation/birthday_list_screen.dart';
+import '../contacts/presentation/contacts_screen.dart';
+import '../messaging/presentation/conversations_screen.dart';
 import '../profile/presentation/profile_screen.dart';
 
 class MainNavShell extends StatefulWidget {
@@ -15,8 +17,8 @@ class _MainNavShellState extends State<MainNavShell> {
 
   final List<Widget> _pages = [
     const BirthdayListScreen(),
-    const ContactsPlaceholder(),
-    const MessagingPlaceholder(),
+    const ContactsScreen(),
+    const ConversationsScreen(),
     const ProfileScreen(),
   ];
 
@@ -77,52 +79,6 @@ class _MainNavShellState extends State<MainNavShell> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class ContactsPlaceholder extends StatelessWidget {
-  const ContactsPlaceholder({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.group, size: 64, color: AppColors.textMutedDark),
-          SizedBox(height: 16),
-          Text(
-            'Liste des Contacts',
-            style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          Text('Vos contacts synchronisés s\'afficheront ici', style: TextStyle(color: AppColors.textMutedDark)),
-        ],
-      ),
-    );
-  }
-}
-
-class MessagingPlaceholder extends StatelessWidget {
-  const MessagingPlaceholder({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.chat_bubble, size: 64, color: AppColors.textMutedDark),
-          SizedBox(height: 16),
-          Text(
-            'Messagerie STOMP',
-            style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          Text('Vos discussions de groupe et salons secrets', style: TextStyle(color: AppColors.textMutedDark)),
-        ],
       ),
     );
   }

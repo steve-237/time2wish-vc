@@ -7,6 +7,7 @@ import '../../../core/widgets/glass_card.dart';
 import '../../../core/models/birthday_model.dart';
 import '../../../core/services/birthday_service.dart';
 import '../../../core/services/api_service.dart';
+import '../../../core/services/gift_service.dart';
 import 'ai_wish_dialog.dart';
 
 class BirthdayDetailScreen extends StatelessWidget {
@@ -126,6 +127,8 @@ class BirthdayDetailScreen extends StatelessWidget {
                       _buildPartySection(birthday),
                       const SizedBox(height: 24),
                     ],
+                    _buildGiftsSection(context, birthday),
+                    const SizedBox(height: 24),
                     _buildActionButtons(context, birthday),
                     const SizedBox(height: 40),
                   ],
@@ -362,6 +365,137 @@ class BirthdayDetailScreen extends StatelessWidget {
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildGiftsSection(BuildContext context, BirthdayModel birthday) {
+    final giftService = Provider.of<GiftService>(context);
+    final gifts = giftService.getGiftsForBirthday(birthday.id);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              '🎁 Idées Cadeaux & Cagnotte',
+              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            IconButton(
+              icon: const Icon(Icons.add_circle_outline, color: Color(0xFF38BDF8)),
+              onPressed: () {
+                final nameCtrl = TextEditingController();
+                final priceCtrl = TextEditingController();
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    backgroundColor: const Color(0xFF1E1B4B),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    title: const Text('Ajouter une idée cadeau', style: TextStyle(color: Colors.white)),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: nameCtrl,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(labelText: 'Nom du cadeau', labelStyle: TextStyle(color: AppColors.textMutedDark)),
+                        ),
+                        const SizedBox(height: 12),
+                        TextField(
+                          controller: priceCtrl,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(labelText: 'Budget (ex: 50€)', labelStyle: TextStyle(color: AppColors.textMutedDark)),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark))),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryBlue),
+                        onPressed: () {
+                          if (nameCtrl.text.isNotEmpty) {
+                            Navigator.pop(ctx);
+                            giftService.addGift(birthday.id, nameCtrl.text.trim(), null, priceCtrl.text.trim());
+                          }
+                        },
+                        child: const Text('Ajouter', style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (gifts.isEmpty)
+          const GlassCard(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Center(
+                child: Text('Aucune idée cadeau ajoutée pour l\'instant.', style: TextStyle(color: AppColors.textMutedDark)),
+              ),
+            ),
+          )
+        else
+          Column(
+            children: gifts.map((gift) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: GlassCard(
+                  child: Row(
+                    children: [
+                      Icon(
+                        gift.isReserved ? Icons.check_circle : Icons.card_giftcard,
+                        color: gift.isReserved ? Colors.greenAccent : AppColors.wishCoinsAmber,
+                        size: 28,
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              gift.name,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                decoration: gift.isReserved ? TextDecoration.lineThrough : null,
+                              ),
+                            ),
+                            if (gift.description != null) ...[
+                              const SizedBox(height: 2),
+                              Text(gift.description!, style: const TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                            ],
+                            if (gift.isReserved) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                'Réservé par ${gift.reservedByName ?? 'un ami'}',
+                                style: const TextStyle(color: Colors.greenAccent, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => giftService.toggleReserveGift(birthday.id, gift.id, 'Vous'),
+                        child: Text(
+                          gift.isReserved ? 'Libérer' : 'Réserver',
+                          style: TextStyle(
+                            color: gift.isReserved ? Colors.redAccent : const Color(0xFF38BDF8),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
       ],
     );
   }
