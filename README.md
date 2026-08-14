@@ -4,7 +4,22 @@ Time2Wish is a modern and premium web application designed to help you track, or
 
 ---
 
-## 🎉 Latest Release (v1.7.0) - The "Mobile Multi-Platform & Flutter" Update
+## 🎉 Latest Release (v1.8.0) - The "Full Mobile Subsystem & Real-Time Messaging" Update
+
+In this milestone release, Time2Wish delivers full mobile feature parity across the standalone **Flutter 3.44+ Mobile Application** (`mobile_flutter/`) and the **Ionic Capacitor 7 Native Subsystem** (`frontend/`).
+
+### 📱 Flutter Mobile Subsystem (`mobile_flutter/`)
+*   **Sprint 1 — Core Setup & Auth:** Glassmorphism UI tokens matching web design (`#2563eb`, `#7c3aed`), dark/light theme, `AuthService` with `SharedPreferences` persistent JWT authentication, login & registration with **automatic offline demo mode fallback**.
+*   **Sprint 2 — Birthday CRUD & AI Wishes:** `BirthdayService` provider, `BirthdayListScreen` with pull-to-refresh and search, `BirthdayDetailScreen` with countdown cards, `BirthdayFormScreen` with DatePicker & dynamic interest tag manager, and `AiService` generating personalized wishes across 5 distinct tones (*Friendly, Formal, Humorous, Romantic, Poetic*).
+*   **Sprint 3 — Contacts, Real-Time Messaging & Gifts Wishlist:**
+    *   **Contacts Management (`ContactsScreen`):** Social graph with tabbed view (*Mes Contacts* & *Demandes en attente*), dynamic user search, accept/reject request handlers, and add-by-email dialog.
+    *   **Real-Time STOMP Messaging (`ConversationsScreen` & `ChatScreen`):** Live WebSocket thread streams, unread badges, and interactive chat room (`/chat/:id`) with bubble UI.
+    *   **Gifts Wishlist & Crowdfunding:** `GiftService` integration on `BirthdayDetailScreen` with interactive gift reservation toggles (*"Réserver" / "Libérer"*) and custom gift creation.
+*   **Sprint 4 — Native Haptics & Verification:** `DeviceService` providing physical haptic feedback (`HapticFeedback.lightImpact()`), zero-error static code analysis (`flutter analyze`), and static web production bundle served at `http://localhost:8085`.
+
+---
+
+## 🎉 Previous Release (v1.7.0) - The "Mobile Multi-Platform & Flutter" Update
 
 In this release, Time2Wish expands into a native multi-platform ecosystem with full iOS, Android, and Flutter mobile capabilities.
 
