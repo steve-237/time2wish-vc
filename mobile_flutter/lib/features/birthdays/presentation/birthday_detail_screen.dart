@@ -8,6 +8,7 @@ import '../../../core/models/birthday_model.dart';
 import '../../../core/services/birthday_service.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/services/gift_service.dart';
+import '../../../core/services/device_service.dart';
 import 'ai_wish_dialog.dart';
 
 class BirthdayDetailScreen extends StatelessWidget {
@@ -481,7 +482,10 @@ class BirthdayDetailScreen extends StatelessWidget {
                         ),
                       ),
                       TextButton(
-                        onPressed: () => giftService.toggleReserveGift(birthday.id, gift.id, 'Vous'),
+                        onPressed: () {
+                          DeviceService.triggerLightHaptic();
+                          giftService.toggleReserveGift(birthday.id, gift.id, 'Vous');
+                        },
                         child: Text(
                           gift.isReserved ? 'Libérer' : 'Réserver',
                           style: TextStyle(
