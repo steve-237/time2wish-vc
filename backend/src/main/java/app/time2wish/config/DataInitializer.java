@@ -16,6 +16,7 @@ public class DataInitializer {
     public CommandLineRunner initData(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
             userRepository.findByEmail("superadmin@time2wish.com").ifPresentOrElse(user -> {
+                user.setPassword(passwordEncoder.encode("password123"));
                 user.setRole(Role.ROLE_SUPERADMIN);
                 user.setPlan(PlanType.PRO);
                 userRepository.save(user);
@@ -32,6 +33,7 @@ public class DataInitializer {
             });
 
             userRepository.findByEmail("demo@time2wish.com").ifPresentOrElse(user -> {
+                user.setPassword(passwordEncoder.encode("password"));
                 user.setRole(Role.ROLE_USER);
                 user.setPlan(PlanType.BASIC);
                 userRepository.save(user);
