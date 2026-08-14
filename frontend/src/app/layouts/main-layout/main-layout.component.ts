@@ -193,8 +193,10 @@ import { AnnouncementService } from '../../services/announcement.service';
       </div>
     </footer>
 
-    <!-- Mobile Navigation Bar -->
-    <app-mobile-nav></app-mobile-nav>
+    <!-- Mobile Navigation Bar (Only displayed when authenticated on mobile) -->
+    @if (authService.isAuthenticated()) {
+      <app-mobile-nav></app-mobile-nav>
+    }
   `,
   styles: [`
     .announcement-banner {
