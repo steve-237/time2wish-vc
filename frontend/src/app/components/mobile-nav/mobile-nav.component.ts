@@ -69,8 +69,12 @@ import { NativeFallbackService } from '../../services/native-fallback.service';
     </nav>
   `,
   styles: [`
+    :host {
+      display: none !important;
+    }
+
     .mobile-nav-container {
-      display: none; /* Shown on screens <= 768px */
+      display: none !important; /* Shown on screens <= 768px */
       position: fixed;
       bottom: 0;
       left: 0;
@@ -85,8 +89,11 @@ import { NativeFallbackService } from '../../services/native-fallback.service';
     }
 
     @media (max-width: 768px) {
+      :host {
+        display: block !important;
+      }
       .mobile-nav-container {
-        display: block;
+        display: block !important;
       }
     }
 

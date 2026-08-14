@@ -1398,6 +1398,12 @@ body.dark-theme .dropdown-item-hover:hover { background: rgba(255, 255, 255, 0.0
 .z-modal { z-index: 3000 !important; }
 
 /* Mobile Native & Safe Area Adjustments */
+@media (min-width: 769px) {
+  app-mobile-nav, .mobile-nav-container {
+    display: none !important;
+  }
+}
+
 @media (max-width: 768px) {
   body {
     padding-top: env(safe-area-inset-top, 0px);
