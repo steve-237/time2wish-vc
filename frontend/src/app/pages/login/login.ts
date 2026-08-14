@@ -5,6 +5,7 @@ import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { TranslationService } from '../../services/translation.service';
 import { ToastService } from '../../services/toast.service';
+import { GoogleSyncService } from '../../services/google-sync.service';
 
 @Component({
   selector: 'app-login',
@@ -15,6 +16,7 @@ import { ToastService } from '../../services/toast.service';
 })
 export class Login implements OnInit {
   authService = inject(AuthService);
+  googleSyncService = inject(GoogleSyncService);
   t9n = inject(TranslationService);
   router = inject(Router);
   route = inject(ActivatedRoute);
@@ -143,5 +145,27 @@ export class Login implements OnInit {
         }
       });
     }
+  }
+
+  loginWithGoogle() {
+    this.isLoading.set(true);
+    this.googleSyncService.getAuthUrl().subscribe({
+      next: (res) => {
+        if (res && res.url) {
+          window.location.href = res.url;
+        } else {
+          this.isLoading.set(false);
+          this.toastService.error('Erreur: URL d\'autorisation Google non disponible.');
+        }
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.toastService.error(
+          this.t9n.currentLang() === 'en'
+            ? 'Error redirecting to Google.'
+            : (this.t9n.currentLang() === 'de' ? 'Fehler bei der Weiterleitung zu Google.' : 'Erreur lors de la redirection vers Google.')
+        );
+      }
+    });
   }
 }

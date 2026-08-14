@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../core/services/auth_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../birthdays/presentation/birthday_list_screen.dart';
+import '../profile/presentation/profile_screen.dart';
 
 class MainNavShell extends StatefulWidget {
   const MainNavShell({super.key});
@@ -18,7 +17,7 @@ class _MainNavShellState extends State<MainNavShell> {
     const BirthdayListScreen(),
     const ContactsPlaceholder(),
     const MessagingPlaceholder(),
-    const ProfilePlaceholder(),
+    const ProfileScreen(),
   ];
 
   @override
@@ -124,66 +123,6 @@ class MessagingPlaceholder extends StatelessWidget {
           SizedBox(height: 8),
           Text('Vos discussions de groupe et salons secrets', style: TextStyle(color: AppColors.textMutedDark)),
         ],
-      ),
-    );
-  }
-}
-
-class ProfilePlaceholder extends StatelessWidget {
-  const ProfilePlaceholder({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-    final user = authService.currentUser;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [AppColors.primaryBlue, AppColors.accentPurple],
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  user?.fullName[0] ?? 'U',
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              user?.fullName ?? 'Utilisateur Time2Wish',
-              style: const TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              user?.email ?? 'user@time2wish.app',
-              style: const TextStyle(color: AppColors.textMutedDark),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: () async {
-                await authService.logout();
-              },
-              icon: const Icon(Icons.logout, color: Colors.white),
-              label: const Text('Se déconnecter', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

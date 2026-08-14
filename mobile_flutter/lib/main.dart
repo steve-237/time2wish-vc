@@ -4,9 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_service.dart';
+import 'core/services/birthday_service.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/auth/presentation/register_screen.dart';
 import 'features/navigation/main_nav_shell.dart';
+import 'features/birthdays/presentation/birthday_detail_screen.dart';
+import 'features/birthdays/presentation/birthday_form_screen.dart';
+import 'features/profile/presentation/profile_edit_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +27,7 @@ class Time2WishApp extends StatefulWidget {
 class _Time2WishAppState extends State<Time2WishApp> {
   late final ApiService _apiService;
   late final AuthService _authService;
+  late final BirthdayService _birthdayService;
   late final GoRouter _router;
 
   @override
@@ -30,6 +35,7 @@ class _Time2WishAppState extends State<Time2WishApp> {
     super.initState();
     _apiService = ApiService();
     _authService = AuthService(_apiService);
+    _birthdayService = BirthdayService(_apiService);
 
     _router = GoRouter(
       initialLocation: '/login',
@@ -46,6 +52,28 @@ class _Time2WishAppState extends State<Time2WishApp> {
         GoRoute(
           path: '/dashboard',
           builder: (context, state) => const MainNavShell(),
+        ),
+        GoRoute(
+          path: '/birthday/new',
+          builder: (context, state) => const BirthdayFormScreen(),
+        ),
+        GoRoute(
+          path: '/birthday/:id',
+          builder: (context, state) {
+            final id = int.parse(state.pathParameters['id']!);
+            return BirthdayDetailScreen(birthdayId: id);
+          },
+        ),
+        GoRoute(
+          path: '/birthday/:id/edit',
+          builder: (context, state) {
+            final id = int.parse(state.pathParameters['id']!);
+            return BirthdayFormScreen(birthdayId: id);
+          },
+        ),
+        GoRoute(
+          path: '/profile/edit',
+          builder: (context, state) => const ProfileEditScreen(),
         ),
       ],
       redirect: (context, state) {
@@ -64,6 +92,7 @@ class _Time2WishAppState extends State<Time2WishApp> {
   void dispose() {
     _router.dispose();
     _authService.dispose();
+    _birthdayService.dispose();
     super.dispose();
   }
 
@@ -73,6 +102,7 @@ class _Time2WishAppState extends State<Time2WishApp> {
       providers: [
         Provider<ApiService>.value(value: _apiService),
         ChangeNotifierProvider<AuthService>.value(value: _authService),
+        ChangeNotifierProvider<BirthdayService>.value(value: _birthdayService),
       ],
       child: MaterialApp.router(
         title: 'Time2Wish Mobile',
