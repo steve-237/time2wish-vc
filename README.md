@@ -2,6 +2,8 @@
 
 Time2Wish is a modern and premium web application designed to help you track, organize, and celebrate the birthdays of your social circles (family, friends, colleagues). Featuring an elegant glassmorphism design, interactive sound effects, and advanced management features, it ensures you will never forget a birthday again.
 
+> 🔑 **Credentials & Environment Reference:** For development and production login credentials (Admin & Demo accounts) as well as environment service URLs for Web and Mobile apps, refer to [CREDENTIALS.md](file:///d:/formations_personnelles/time2wish-ai/CREDENTIALS.md).
+
 ---
 
 ## 🎉 Latest Release (v1.8.0) - The "Full Mobile Subsystem & Real-Time Messaging" Update
