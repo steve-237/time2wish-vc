@@ -1,18 +1,32 @@
 import 'package:flutter/material.dart';
 import '../models/contact_model.dart';
 import 'api_service.dart';
+import 'local_storage_service.dart';
 
 class ContactService extends ChangeNotifier {
   final ApiService _apiService;
+  final LocalStorageService _storageService = LocalStorageService();
   List<ContactModel> _contacts = [];
   List<ContactModel> _pendingRequests = [];
   bool _isLoading = false;
 
-  ContactService(this._apiService);
+  ContactService(this._apiService) {
+    _initLocalStorage();
+  }
 
   List<ContactModel> get contacts => _contacts;
   List<ContactModel> get pendingRequests => _pendingRequests;
   bool get isLoading => _isLoading;
+
+  Future<void> _initLocalStorage() async {
+    _contacts = await _storageService.loadContacts();
+    if (_contacts.isEmpty) {
+      _contacts = _getDemoContacts();
+      await _storageService.saveContacts(_contacts);
+    }
+    _pendingRequests = _getDemoPendingRequests();
+    notifyListeners();
+  }
 
   Future<void> fetchContacts() async {
     _isLoading = true;
@@ -24,11 +38,16 @@ class ContactService extends ChangeNotifier {
         _contacts = (response.data as List)
             .map((json) => ContactModel.fromJson(json))
             .toList();
+        await _storageService.saveContacts(_contacts);
       }
       await fetchPendingRequests();
     } catch (e) {
-      debugPrint('[ContactService] API offline, loading demo contacts: $e');
-      _contacts = _getDemoContacts();
+      debugPrint('[ContactService] Offline mode loading local contacts: $e');
+      _contacts = await _storageService.loadContacts();
+      if (_contacts.isEmpty) {
+        _contacts = _getDemoContacts();
+        await _storageService.saveContacts(_contacts);
+      }
       _pendingRequests = _getDemoPendingRequests();
     } finally {
       _isLoading = false;
@@ -45,63 +64,58 @@ class ContactService extends ChangeNotifier {
             .toList();
       }
     } catch (e) {
-      debugPrint('[ContactService] API offline pending requests fallback');
+      debugPrint('[ContactService] Offline pending requests fallback');
     }
   }
 
   Future<bool> acceptRequest(int contactId) async {
-    try {
-      final response = await _apiService.dio.put('/contacts/$contactId/accept');
-      if (response.statusCode == 200) {
-        final accepted = _pendingRequests.firstWhere((c) => c.id == contactId);
-        _pendingRequests.removeWhere((c) => c.id == contactId);
-        _contacts.add(ContactModel(
-          id: accepted.id,
-          userId: accepted.userId,
-          fullName: accepted.fullName,
-          email: accepted.email,
-          avatarUrl: accepted.avatarUrl,
-          status: 'ACCEPTED',
-        ));
-        notifyListeners();
-        return true;
-      }
-    } catch (e) {
-      debugPrint('[ContactService] API offline accept fallback');
-      final index = _pendingRequests.indexWhere((c) => c.id == contactId);
-      if (index != -1) {
-        final accepted = _pendingRequests.removeAt(index);
-        _contacts.add(ContactModel(
-          id: accepted.id,
-          userId: accepted.userId,
-          fullName: accepted.fullName,
-          email: accepted.email,
-          status: 'ACCEPTED',
-        ));
-        notifyListeners();
-        return true;
-      }
+    final index = _pendingRequests.indexWhere((c) => c.id == contactId);
+    if (index != -1) {
+      final accepted = _pendingRequests.removeAt(index);
+      final newContact = ContactModel(
+        id: accepted.id,
+        userId: accepted.userId,
+        fullName: accepted.fullName,
+        email: accepted.email,
+        status: 'ACCEPTED',
+      );
+      _contacts.add(newContact);
+      await _storageService.saveContacts(_contacts);
+      notifyListeners();
     }
-    return false;
+
+    try {
+      await _apiService.dio.put('/contacts/$contactId/accept');
+    } catch (_) {}
+    return true;
   }
 
   Future<bool> rejectRequest(int contactId) async {
+    _pendingRequests.removeWhere((c) => c.id == contactId);
+    notifyListeners();
+
     try {
       await _apiService.dio.put('/contacts/$contactId/reject');
     } catch (_) {}
-    _pendingRequests.removeWhere((c) => c.id == contactId);
-    notifyListeners();
     return true;
   }
 
   Future<bool> sendContactRequest(String email) async {
+    final newContact = ContactModel(
+      id: DateTime.now().millisecondsSinceEpoch,
+      userId: DateTime.now().millisecondsSinceEpoch,
+      fullName: email.split('@').first,
+      email: email,
+      status: 'ACCEPTED',
+    );
+    _contacts.add(newContact);
+    await _storageService.saveContacts(_contacts);
+    notifyListeners();
+
     try {
       await _apiService.dio.post('/contacts/request/by-email', data: {'email': email});
-      return true;
-    } catch (e) {
-      // Local demo mock response
-      return true;
-    }
+    } catch (_) {}
+    return true;
   }
 
   List<ContactModel> _getDemoContacts() {

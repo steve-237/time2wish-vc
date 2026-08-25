@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'api_service.dart';
+import 'local_storage_service.dart';
 
 class UserModel {
   final int id;
@@ -18,17 +19,28 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'] ?? 0,
-      email: json['email'] ?? '',
-      fullName: json['fullName'] ?? json['username'] ?? json['email'] ?? 'User',
-      coins: json['coins'] ?? json['wishCoins'] ?? 0,
-      planType: json['planType'] ?? 'BASIC',
+      id: json['id'] ?? 1,
+      email: json['email'] ?? 'demo@time2wish.app',
+      fullName: json['fullName'] ?? json['username'] ?? json['email'] ?? 'Utilisateur Autonome',
+      coins: json['coins'] ?? json['wishCoins'] ?? 100,
+      planType: json['planType'] ?? 'PREMIUM',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'fullName': fullName,
+      'coins': coins,
+      'planType': planType,
+    };
   }
 }
 
 class AuthService extends ChangeNotifier {
   final ApiService _apiService;
+  final LocalStorageService _storageService = LocalStorageService();
   UserModel? _currentUser;
   bool _isAuthenticated = false;
   bool _isLoading = false;
@@ -52,15 +64,31 @@ class AuthService extends ChangeNotifier {
         if (response.statusCode == 200 && response.data != null) {
           _currentUser = UserModel.fromJson(response.data);
           _isAuthenticated = true;
+          await _storageService.saveProfile(_currentUser!.toJson());
+          return;
         }
       }
     } catch (e) {
-      _isAuthenticated = false;
-      _currentUser = null;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+      debugPrint('[AuthService] API offline/unreachable: $e');
     }
+
+    // Offline mode: load from LocalStorageService or default local user profile
+    final storedProfile = await _storageService.loadProfile();
+    if (storedProfile != null) {
+      _currentUser = UserModel.fromJson(storedProfile);
+    } else {
+      _currentUser = UserModel(
+        id: 1,
+        email: 'mon.compte@time2wish.local',
+        fullName: 'Utilisateur Autonome',
+        coins: 100,
+        planType: 'PREMIUM',
+      );
+      await _storageService.saveProfile(_currentUser!.toJson());
+    }
+    _isAuthenticated = true;
+    _isLoading = false;
+    notifyListeners();
   }
 
   Future<bool> login(String email, String password) async {
@@ -83,25 +111,26 @@ class AuthService extends ChangeNotifier {
             id: 1,
             email: email,
             fullName: email.split('@')[0],
-            coins: 50,
+            coins: 100,
             planType: 'PREMIUM',
           );
         }
+        await _storageService.saveProfile(_currentUser!.toJson());
         _isAuthenticated = true;
         return true;
       }
       return false;
     } catch (e) {
-      debugPrint('[AuthService] Backend API offline/unreachable: $e. Falling back to Demo Mode.');
-      // Demo Mode Fallback for testing UI offline
-      await _apiService.saveToken('demo_jwt_token_123');
+      debugPrint('[AuthService] Offline login fallback.');
+      await _apiService.saveToken('offline_jwt_token_123');
       _currentUser = UserModel(
         id: 1,
-        email: email.isNotEmpty ? email : 'demo@time2wish.app',
-        fullName: email.contains('@') ? email.split('@')[0] : 'Demo User',
-        coins: 50,
+        email: email.isNotEmpty ? email : 'mon.compte@time2wish.local',
+        fullName: email.contains('@') ? email.split('@')[0] : 'Utilisateur Autonome',
+        coins: 100,
         planType: 'PREMIUM',
       );
+      await _storageService.saveProfile(_currentUser!.toJson());
       _isAuthenticated = true;
       return true;
     } finally {
@@ -111,26 +140,7 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<bool> register(String fullName, String email, String password) async {
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      final response = await _apiService.dio.post('/auth/register', data: {
-        'fullName': fullName,
-        'email': email,
-        'password': password,
-      });
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return await login(email, password);
-      }
-      return false;
-    } catch (e) {
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    return await login(email, password);
   }
 
   Future<void> logout() async {

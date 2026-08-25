@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
 import '../models/gift_model.dart';
 import 'api_service.dart';
+import 'local_storage_service.dart';
 
 class GiftService extends ChangeNotifier {
   final ApiService _apiService;
-  final Map<int, List<GiftModel>> _giftsCache = {};
+  final LocalStorageService _storageService = LocalStorageService();
+  Map<int, List<GiftModel>> _giftsCache = {};
   bool _isLoading = false;
 
-  GiftService(this._apiService);
+  GiftService(this._apiService) {
+    _initLocalStorage();
+  }
 
   bool get isLoading => _isLoading;
+
+  Future<void> _initLocalStorage() async {
+    _giftsCache = await _storageService.loadGifts();
+    notifyListeners();
+  }
 
   List<GiftModel> getGiftsForBirthday(int birthdayId) {
     return _giftsCache[birthdayId] ?? _getDemoGifts(birthdayId);
@@ -25,11 +34,16 @@ class GiftService extends ChangeNotifier {
         _giftsCache[birthdayId] = (response.data as List)
             .map((json) => GiftModel.fromJson(json))
             .toList();
+        await _storageService.saveGifts(_giftsCache);
       }
     } catch (e) {
-      debugPrint('[GiftService] API offline gift fetch fallback: $e');
-      if (!_giftsCache.containsKey(birthdayId)) {
+      debugPrint('[GiftService] Offline mode gift fetch fallback: $e');
+      final loaded = await _storageService.loadGifts();
+      if (loaded.containsKey(birthdayId)) {
+        _giftsCache[birthdayId] = loaded[birthdayId]!;
+      } else if (!_giftsCache.containsKey(birthdayId)) {
         _giftsCache[birthdayId] = _getDemoGifts(birthdayId);
+        await _storageService.saveGifts(_giftsCache);
       }
     } finally {
       _isLoading = false;
@@ -50,18 +64,19 @@ class GiftService extends ChangeNotifier {
       _giftsCache[birthdayId] = [];
     }
     _giftsCache[birthdayId]!.add(newGift);
+    await _storageService.saveGifts(_giftsCache);
     notifyListeners();
 
     try {
       await _apiService.dio.post('/birthdays/$birthdayId/gifts', data: newGift.toJson());
     } catch (e) {
-      debugPrint('[GiftService] API offline add gift fallback');
+      debugPrint('[GiftService] Offline add gift saved locally');
     }
     return newGift;
   }
 
   Future<void> toggleReserveGift(int birthdayId, int giftId, String userName) async {
-    final list = _giftsCache[birthdayId] ?? [];
+    final list = _giftsCache[birthdayId] ?? _getDemoGifts(birthdayId);
     final index = list.indexWhere((g) => g.id == giftId);
     if (index != -1) {
       final current = list[index];
@@ -79,6 +94,8 @@ class GiftService extends ChangeNotifier {
         upvotes: current.upvotes,
         downvotes: current.downvotes,
       );
+      _giftsCache[birthdayId] = list;
+      await _storageService.saveGifts(_giftsCache);
       notifyListeners();
     }
   }
@@ -88,7 +105,7 @@ class GiftService extends ChangeNotifier {
       GiftModel(
         id: 1,
         birthdayId: birthdayId,
-        name: 'Casque Réduction de Bruit',
+        name: 'Casque Réduction de Bruit 🎧',
         description: 'Pour ses voyages et écouter de la musique au calme',
         priceRange: '150€ - 200€',
         isReserved: true,
@@ -98,7 +115,7 @@ class GiftService extends ChangeNotifier {
       GiftModel(
         id: 2,
         birthdayId: birthdayId,
-        name: ' Coffret Dégustation Chocolat d\'Exception',
+        name: 'Coffret Dégustation Chocolat d\'Exception 🍫',
         description: 'Sélection artisanale grands crus',
         priceRange: '35€ - 50€',
         isReserved: false,
@@ -107,7 +124,7 @@ class GiftService extends ChangeNotifier {
       GiftModel(
         id: 3,
         birthdayId: birthdayId,
-        name: ' Smartwatch Sport & Santé',
+        name: 'Smartwatch Sport & Santé ⌚',
         description: 'Suivi activité et rythme cardiaque',
         priceRange: '120€ - 180€',
         isReserved: false,

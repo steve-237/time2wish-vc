@@ -6,7 +6,7 @@ class ApiService {
 
   final Dio dio = Dio(
     BaseOptions(
-      baseUrl: 'http://localhost:8080/api',
+      baseUrl: 'http://localhost:8081/api',
       connectTimeout: const Duration(seconds: 5),
       receiveTimeout: const Duration(seconds: 5),
       headers: {

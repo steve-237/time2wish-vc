@@ -82,6 +82,26 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                           '${birthdayService.birthdays.length} anniversaires · ${birthdayService.upcomingThisMonth} ce mois',
                           style: const TextStyle(fontSize: 13, color: AppColors.textMutedDark),
                         ),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.5)),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.bolt, color: Colors.greenAccent, size: 12),
+                              SizedBox(width: 4),
+                              Text(
+                                '100% Autonome & Hors-Ligne',
+                                style: TextStyle(color: Colors.greenAccent, fontSize: 10, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                     Container(

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import '../models/birthday_model.dart';
 import 'api_service.dart';
+import 'local_storage_service.dart';
 
 class BirthdayService extends ChangeNotifier {
   final ApiService _apiService;
+  final LocalStorageService _storageService = LocalStorageService();
   List<BirthdayModel> _birthdays = [];
   bool _isLoading = false;
   String? _error;
 
-  BirthdayService(this._apiService);
+  BirthdayService(this._apiService) {
+    _initLocalStorage();
+  }
 
   List<BirthdayModel> get birthdays => _birthdays;
   bool get isLoading => _isLoading;
@@ -24,11 +28,20 @@ class BirthdayService extends ChangeNotifier {
     final now = DateTime.now();
     return _birthdays.where((b) {
       final nextBd = DateTime(now.year, b.birthdate.month, b.birthdate.day);
-      return nextBd.month == now.month && nextBd.year == now.year;
+      return nextBd.month == now.month;
     }).length;
   }
 
-  /// Fetch all birthdays from API or use demo data
+  Future<void> _initLocalStorage() async {
+    _birthdays = await _storageService.loadBirthdays();
+    if (_birthdays.isEmpty) {
+      _birthdays = _getDemoBirthdays();
+      await _storageService.saveBirthdays(_birthdays);
+    }
+    notifyListeners();
+  }
+
+  /// Fetch all birthdays from API if online, or fallback to local storage
   Future<void> fetchBirthdays() async {
     _isLoading = true;
     _error = null;
@@ -40,10 +53,15 @@ class BirthdayService extends ChangeNotifier {
         _birthdays = (response.data as List)
             .map((json) => BirthdayModel.fromJson(json))
             .toList();
+        await _storageService.saveBirthdays(_birthdays);
       }
     } catch (e) {
-      debugPrint('[BirthdayService] API offline, loading demo data: $e');
-      _birthdays = _getDemoBirthdays();
+      debugPrint('[BirthdayService] Offline mode: loading local storage: $e');
+      _birthdays = await _storageService.loadBirthdays();
+      if (_birthdays.isEmpty) {
+        _birthdays = _getDemoBirthdays();
+        await _storageService.saveBirthdays(_birthdays);
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -59,79 +77,78 @@ class BirthdayService extends ChangeNotifier {
     }
   }
 
-  /// Create a new birthday
+  /// Create a new birthday with local persistence
   Future<BirthdayModel?> createBirthday(BirthdayModel birthday) async {
+    final newId = birthday.id != 0 ? birthday.id : DateTime.now().millisecondsSinceEpoch;
+    final created = birthday.copyWith(
+      id: newId,
+      createdAt: DateTime.now(),
+    );
+
+    _birthdays.add(created);
+    await _storageService.saveBirthdays(_birthdays);
+    notifyListeners();
+
     try {
-      final response = await _apiService.dio.post(
+      await _apiService.dio.post(
         '/birthdays',
-        data: birthday.toJson(),
+        data: created.toJson(),
       );
-      if (response.statusCode == 201 && response.data != null) {
-        final created = BirthdayModel.fromJson(response.data);
-        _birthdays.add(created);
-        notifyListeners();
-        return created;
-      }
     } catch (e) {
-      debugPrint('[BirthdayService] API offline, creating locally: $e');
-      final localBirthday = birthday.copyWith(
-        id: DateTime.now().millisecondsSinceEpoch,
-        createdAt: DateTime.now(),
-      );
-      _birthdays.add(localBirthday);
-      notifyListeners();
-      return localBirthday;
+      debugPrint('[BirthdayService] Offline create: saved locally: $e');
     }
-    return null;
+    return created;
   }
 
-  /// Update an existing birthday
+  /// Update an existing birthday with local persistence
   Future<BirthdayModel?> updateBirthday(int id, BirthdayModel birthday) async {
-    try {
-      final response = await _apiService.dio.put(
-        '/birthdays/$id',
-        data: birthday.toJson(),
-      );
-      if (response.statusCode == 200 && response.data != null) {
-        final updated = BirthdayModel.fromJson(response.data);
-        final index = _birthdays.indexWhere((b) => b.id == id);
-        if (index != -1) {
-          _birthdays[index] = updated;
-          notifyListeners();
-        }
-        return updated;
+    final index = _birthdays.indexWhere((b) => b.id == id);
+    if (index != -1) {
+      final updated = birthday.copyWith(id: id);
+      _birthdays[index] = updated;
+      await _storageService.saveBirthdays(_birthdays);
+      notifyListeners();
+
+      try {
+        await _apiService.dio.put(
+          '/birthdays/$id',
+          data: updated.toJson(),
+        );
+      } catch (e) {
+        debugPrint('[BirthdayService] Offline update: saved locally: $e');
       }
-    } catch (e) {
-      debugPrint('[BirthdayService] API offline, updating locally: $e');
-      final index = _birthdays.indexWhere((b) => b.id == id);
-      if (index != -1) {
-        _birthdays[index] = birthday.copyWith(id: id);
-        notifyListeners();
-        return _birthdays[index];
-      }
+      return updated;
     }
     return null;
   }
 
-  /// Delete a birthday
+  /// Delete a birthday with local persistence
   Future<bool> deleteBirthday(int id) async {
+    _birthdays.removeWhere((b) => b.id == id);
+    await _storageService.saveBirthdays(_birthdays);
+    notifyListeners();
+
     try {
-      final response = await _apiService.dio.delete('/birthdays/$id');
-      if (response.statusCode == 200) {
-        _birthdays.removeWhere((b) => b.id == id);
-        notifyListeners();
-        return true;
-      }
+      await _apiService.dio.delete('/birthdays/$id');
     } catch (e) {
-      debugPrint('[BirthdayService] API offline, deleting locally: $e');
-      _birthdays.removeWhere((b) => b.id == id);
-      notifyListeners();
-      return true;
+      debugPrint('[BirthdayService] Offline delete: removed locally: $e');
     }
-    return false;
+    return true;
   }
 
-  /// Demo data for offline mode
+  /// Toggle favorite status locally
+  Future<void> toggleFavorite(int id) async {
+    final index = _birthdays.indexWhere((b) => b.id == id);
+    if (index != -1) {
+      _birthdays[index] = _birthdays[index].copyWith(
+        isFavorite: !_birthdays[index].isFavorite,
+      );
+      await _storageService.saveBirthdays(_birthdays);
+      notifyListeners();
+    }
+  }
+
+  /// Demo seed data for first initialization
   List<BirthdayModel> _getDemoBirthdays() {
     final now = DateTime.now();
     return [
@@ -165,7 +182,7 @@ class BirthdayService extends ChangeNotifier {
         birthdate: DateTime(2000, now.month + 1, 15),
         category: 'TRAVAIL',
         gender: 'F',
-        notes: 'Collègue préférée, aime les livres',
+        notes: 'Collègue préférée, aime les livres 📚',
         interests: ['Lecture', 'Yoga', 'Cinéma'],
         isFavorite: false,
         reminderDays: 5,
@@ -177,24 +194,13 @@ class BirthdayService extends ChangeNotifier {
         birthdate: DateTime(1992, now.month + 1, 28),
         category: 'AMIS',
         gender: 'M',
-        notes: 'Organiser une fête surprise! 🎉',
+        notes: 'Organiser une fête surprise ! 🎉',
         interests: ['Football', 'Photographie'],
         isFavorite: true,
         partyLocation: 'Chez Sophie',
         partyDescription: 'Fête surprise pour ses 33 ans',
         reminderDays: 7,
         createdAt: now.subtract(const Duration(days: 45)),
-      ),
-      BirthdayModel(
-        id: 5,
-        name: 'Camille Petit',
-        birthdate: DateTime(1998, now.month + 2, 8),
-        category: 'FAMILLE',
-        gender: 'F',
-        interests: ['Danse', 'Mode', 'Art'],
-        isFavorite: false,
-        reminderDays: 3,
-        createdAt: now.subtract(const Duration(days: 90)),
       ),
     ];
   }
