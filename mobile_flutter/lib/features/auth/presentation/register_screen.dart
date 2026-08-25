@@ -105,8 +105,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   // Glassmorphism Form Card
                   GlassCard(
-                    opacity: 0.15,
-                    blur: 20,
+                    blurAmount: 20,
                     child: Form(
                       key: _formKey,
                       child: Column(

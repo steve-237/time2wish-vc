@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
-import '../../../core/theme/app_theme.dart';
 import '../../../core/services/ai_service.dart';
 import '../../../core/services/api_service.dart';
-import '../../../core/widgets/glass_card.dart';
+import '../../../core/theme/app_theme.dart';
 
 class AiWishDialog extends StatefulWidget {
   final int birthdayId;
@@ -17,11 +15,7 @@ class AiWishDialog extends StatefulWidget {
     required this.apiService,
   });
 
-  static Future<void> show(
-    BuildContext context,
-    int birthdayId,
-    ApiService apiService,
-  ) {
+  static Future<void> show(BuildContext context, int birthdayId, ApiService apiService) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -38,53 +32,58 @@ class AiWishDialog extends StatefulWidget {
 }
 
 class _AiWishDialogState extends State<AiWishDialog> {
-  String _selectedTone = 'FRIENDLY';
-  bool _isGenerating = false;
-  String? _generatedWish;
   late final AiService _aiService;
+  String _selectedTone = 'AMICAL';
+  String _generatedWish = '';
+  bool _isLoading = false;
+  String? _error;
+
+  final Map<String, Map<String, dynamic>> _tones = {
+    'AMICAL': {'label': 'Amical 😊', 'icon': Icons.sentiment_satisfied_alt, 'color': AppColors.primaryCyan},
+    'HUMORISTIQUE': {'label': 'Drôle 😂', 'icon': Icons.mood, 'color': AppColors.wishCoinsAmber},
+    'FORMEL': {'label': 'Formel 👔', 'icon': Icons.business_center, 'color': Colors.blueAccent},
+    'ROMANTIQUE': {'label': 'Romantique ❤️', 'icon': Icons.favorite, 'color': AppColors.accentPink},
+    'POETIQUE': {'label': 'Poétique ✨', 'icon': Icons.auto_awesome, 'color': AppColors.accentPurple},
+  };
 
   @override
   void initState() {
     super.initState();
     _aiService = AiService(widget.apiService);
+    _generateWish();
   }
 
   Future<void> _generateWish() async {
     setState(() {
-      _isGenerating = true;
-      _generatedWish = null;
+      _isLoading = true;
+      _error = null;
     });
 
     try {
       final wish = await _aiService.generateWish(
         birthdayId: widget.birthdayId,
         tone: _selectedTone,
-        lang: 'fr',
       );
-      if (mounted) {
-        setState(() => _generatedWish = wish);
-      }
+      setState(() {
+        _generatedWish = wish;
+        _isLoading = false;
+      });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isGenerating = false);
-      }
+      setState(() {
+        _error = 'Erreur lors de la génération. Réessayez.';
+        _isLoading = false;
+      });
     }
   }
 
   void _copyToClipboard() {
-    if (_generatedWish != null) {
-      Clipboard.setData(ClipboardData(text: _generatedWish!));
+    if (_generatedWish.isNotEmpty) {
+      Clipboard.setData(ClipboardData(text: _generatedWish));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('✅ Copié dans le presse-papier !'),
-          backgroundColor: AppColors.primaryBlue,
-          duration: Duration(seconds: 2),
+          content: Text('Vœu copié dans le presse-papier ! 📋'),
+          backgroundColor: AppColors.primaryCyan,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }
@@ -93,174 +92,160 @@ class _AiWishDialogState extends State<AiWishDialog> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
       decoration: const BoxDecoration(
         color: Color(0xFF0F172A),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        border: Border(top: BorderSide(color: Colors.white10, width: 1)),
       ),
-      padding: const EdgeInsets.all(24.0),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Drag handle
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
+          // Header Bar
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.auto_awesome, color: AppColors.primaryCyan, size: 24),
+                  SizedBox(width: 10),
+                  Text(
+                    'Générateur de Vœux IA ✨',
+                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
-            ),
+              IconButton(
+                icon: const Icon(Icons.close, color: AppColors.textMutedDark),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
-          // Title
-          const Text(
-            '🤖 Générer un Vœu IA',
-            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Choisissez un ton et laissez l\'IA créer un message personnalisé',
-            style: TextStyle(color: AppColors.textMutedDark, fontSize: 13),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-
-          // Tone selector label
-          const Text('Ton du message', style: TextStyle(color: AppColors.textMutedDark, fontSize: 14)),
-          const SizedBox(height: 12),
-
-          // Tone chips
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: AiService.tones.map((toneMap) {
-                final key = toneMap['key']!;
-                final label = toneMap['label']!;
+          // Tone Selector Horizontal Cards
+          const Text('Choisissez le ton :', style: TextStyle(color: AppColors.textMutedDark, fontSize: 13)),
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 44,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: _tones.entries.map((entry) {
+                final key = entry.key;
+                final data = entry.value;
                 final isSelected = _selectedTone == key;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: GestureDetector(
-                    onTap: () => setState(() => _selectedTone = key),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        gradient: isSelected
-                            ? const LinearGradient(colors: [AppColors.primaryBlue, AppColors.accentPurple])
-                            : null,
-                        color: isSelected ? null : Colors.white.withValues(alpha: 0.05),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isSelected ? Colors.transparent : Colors.white.withValues(alpha: 0.1),
-                        ),
+                final color = data['color'] as Color;
+
+                return GestureDetector(
+                  onTap: () {
+                    if (_selectedTone != key) {
+                      setState(() => _selectedTone = key);
+                      _generateWish();
+                    }
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isSelected ? color.withValues(alpha: 0.25) : Colors.white.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected ? color : Colors.white.withValues(alpha: 0.1),
+                        width: isSelected ? 1.5 : 1.0,
                       ),
-                      child: Text(
-                        label,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : AppColors.textMutedDark,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(data['icon'] as IconData, size: 16, color: isSelected ? color : AppColors.textMutedDark),
+                        const SizedBox(width: 6),
+                        Text(
+                          data['label'] as String,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : AppColors.textMutedDark,
+                            fontSize: 13,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 );
               }).toList(),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
 
-          // Content area
-          if (_generatedWish == null && !_isGenerating) ...[
-            const Spacer(),
-            // Generate button
-            Container(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [AppColors.primaryBlue, AppColors.accentPurple]),
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [BoxShadow(color: AppColors.primaryBlue.withValues(alpha: 0.4), blurRadius: 16)],
-              ),
-              child: ElevatedButton(
-                onPressed: _generateWish,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.auto_awesome, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text('Générer', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
+          // Wish Result Box
+          Container(
+            padding: const EdgeInsets.all(18),
+            constraints: const BoxConstraints(minHeight: 120),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
             ),
-            const SizedBox(height: 16),
-          ] else if (_isGenerating) ...[
-            const Spacer(),
-            const Column(
-              children: [
-                SpinKitThreeBounce(color: AppColors.accentPurple, size: 30.0),
-                SizedBox(height: 16),
-                Text('L\'IA rédige votre message...', style: TextStyle(color: AppColors.textMutedDark, fontSize: 14)),
-              ],
-            ),
-            const Spacer(),
-          ] else if (_generatedWish != null) ...[
-            Expanded(
-              child: SingleChildScrollView(
-                child: GlassCard(
-                  opacity: 0.12,
-                  blur: 16,
-                  child: Text(
-                    _generatedWish!,
-                    style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.6),
+            child: _isLoading
+                ? const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SpinKitThreeBounce(color: AppColors.primaryCyan, size: 28),
+                      SizedBox(height: 12),
+                      Text('L\'IA rédige un vœu sur mesure...', style: TextStyle(color: AppColors.textMutedDark, fontSize: 13)),
+                    ],
+                  )
+                : _error != null
+                    ? Center(child: Text(_error!, style: const TextStyle(color: AppColors.accentPink)))
+                    : SelectableText(
+                        _generatedWish,
+                        style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.5),
+                      ),
+          ),
+          const SizedBox(height: 20),
+
+          // Action Buttons
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _isLoading ? null : _generateWish,
+                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  label: const Text('Régénérer', style: TextStyle(color: Colors.white)),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            // Action buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildActionButton(Icons.copy, 'Copier', AppColors.primaryBlue, _copyToClipboard),
-                _buildActionButton(Icons.share, 'Partager', AppColors.accentPink, () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Partage bientôt disponible')),
-                  );
-                }),
-                _buildActionButton(Icons.refresh, 'Regénérer', AppColors.wishCoinsAmber, _generateWish),
-              ],
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton(IconData icon, String label, Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-              border: Border.all(color: color.withValues(alpha: 0.3)),
-            ),
-            child: Icon(icon, color: color, size: 22),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: AppColors.primaryGradient,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: ElevatedButton.icon(
+                    onPressed: _isLoading || _generatedWish.isEmpty ? null : _copyToClipboard,
+                    icon: const Icon(Icons.copy, color: Colors.white),
+                    label: const Text('Copier', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(label, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w500)),
         ],
       ),
     );

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/birthday_service.dart';
-import '../../../core/widgets/glass_card.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/glass_card.dart';
+import '../../../core/widgets/glowing_badge.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -13,8 +13,9 @@ class ProfileScreen extends StatelessWidget {
   void _showLogoutDialog(BuildContext context, AuthService authService) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF1E1B4B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Déconnexion', style: TextStyle(color: Colors.white)),
         content: const Text(
           'Voulez-vous vraiment vous déconnecter ?',
@@ -22,59 +23,22 @@ class ProfileScreen extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler', style: TextStyle(color: Colors.white)),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
+              backgroundColor: AppColors.accentPink,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(ctx);
               authService.logout();
               context.go('/login');
             },
             child: const Text('Se déconnecter', style: TextStyle(color: Colors.white)),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildPlanBadge(String? planType) {
-    Color badgeColor;
-    String badgeText;
-    switch (planType?.toUpperCase()) {
-      case 'PREMIUM':
-        badgeColor = AppColors.accentPurple;
-        badgeText = 'PREMIUM';
-        break;
-      case 'PLUS':
-        badgeColor = AppColors.primaryBlue;
-        badgeText = 'PLUS';
-        break;
-      default:
-        badgeColor = Colors.grey;
-        badgeText = 'BASIC';
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: badgeColor.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: badgeColor.withValues(alpha: 0.5)),
-      ),
-      child: Text(
-        badgeText,
-        style: TextStyle(
-          color: badgeColor,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-        ),
       ),
     );
   }
@@ -95,65 +59,63 @@ class ProfileScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(24.0),
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
           children: [
-            // Hero Section
-            Center(
+            // Profile Header Card
+            GlassCard(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
               child: Column(
                 children: [
                   Container(
-                    width: 80,
-                    height: 80,
+                    width: 88,
+                    height: 88,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: [AppColors.primaryBlue, AppColors.accentPurple],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      gradient: AppColors.primaryGradient,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primaryBlue.withValues(alpha: 0.3),
-                          blurRadius: 12,
+                          color: AppColors.primaryCyan.withValues(alpha: 0.35),
+                          blurRadius: 20,
                           offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      initial,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
+                    child: Center(
+                      child: Text(
+                        initial,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     user.fullName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 22),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     user.email,
-                    style: const TextStyle(
-                      color: AppColors.textMutedDark,
-                      fontSize: 14,
-                    ),
+                    style: const TextStyle(color: AppColors.textMutedDark, fontSize: 13),
                   ),
                   const SizedBox(height: 12),
-                  _buildPlanBadge(user.planType),
+                  GlowingBadge(
+                    label: '${user.planType} MEMBER',
+                    icon: Icons.workspace_premium,
+                    color: AppColors.accentPurple,
+                    isSelected: true,
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 32),
 
-            // Stats Row
+            const SizedBox(height: 24),
+
+            // Statistics Row Cards
             Row(
               children: [
                 Expanded(
@@ -170,7 +132,7 @@ class ProfileScreen extends StatelessWidget {
                     title: 'Ce mois',
                     value: '${birthdayService.upcomingThisMonth}',
                     icon: Icons.calendar_month,
-                    iconColor: AppColors.primaryBlue,
+                    iconColor: AppColors.primaryCyan,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -184,93 +146,84 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 32),
 
-            // Menu
+            const SizedBox(height: 28),
+
+            // Menu Section
             const Text(
-              'Général',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              'Paramètres du compte',
+              style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
+
             GlassCard(
               padding: EdgeInsets.zero,
               child: Column(
                 children: [
                   ListTile(
-                    leading: const Icon(Icons.edit, color: Colors.white),
+                    leading: const Icon(Icons.edit, color: AppColors.primaryCyan),
                     title: const Text('Modifier le profil', style: TextStyle(color: Colors.white)),
                     trailing: const Icon(Icons.chevron_right, color: AppColors.textMutedDark),
                     onTap: () => context.push('/profile/edit'),
                   ),
-                  Divider(color: Colors.white.withValues(alpha: 0.1), height: 1),
+                  Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
                   ListTile(
-                    leading: const Icon(Icons.notifications, color: Colors.white),
-                    title: const Text('Notifications', style: TextStyle(color: Colors.white)),
+                    leading: const Icon(Icons.notifications_outlined, color: AppColors.accentPurple),
+                    title: const Text('Notifications locales', style: TextStyle(color: Colors.white)),
+                    subtitle: const Text('Actives (J-7, J-3, Jour J)', style: TextStyle(color: AppColors.textMutedDark, fontSize: 11)),
                     trailing: const Icon(Icons.chevron_right, color: AppColors.textMutedDark),
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Bientôt disponible'),
-                          backgroundColor: AppColors.accentPurple.withValues(alpha: 0.8),
-                          behavior: SnackBarBehavior.floating,
+                        const SnackBar(
+                          content: Text('Rappels locaux actifs 🔔'),
+                          backgroundColor: AppColors.primaryCyan,
                         ),
                       );
                     },
                   ),
-                  Divider(color: Colors.white.withValues(alpha: 0.1), height: 1),
+                  Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
                   ListTile(
-                    leading: const Icon(Icons.dark_mode, color: Colors.white),
-                    title: const Text('Thème sombre', style: TextStyle(color: Colors.white)),
+                    leading: const Icon(Icons.dark_mode_outlined, color: AppColors.wishCoinsAmber),
+                    title: const Text('Mode sombre Glassmorphic', style: TextStyle(color: Colors.white)),
                     trailing: Switch(
                       value: true,
-                      onChanged: (val) {},
-                      activeColor: AppColors.primaryBlue,
+                      onChanged: (_) {},
+                      activeTrackColor: AppColors.primaryCyan,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-            const Text(
-              'Autre',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
+
+            const SizedBox(height: 20),
+
             GlassCard(
               padding: EdgeInsets.zero,
               child: ListTile(
-                leading: const Icon(Icons.info_outline, color: Colors.white),
-                title: const Text('Version', style: TextStyle(color: Colors.white)),
-                trailing: const Text('1.0.0', style: TextStyle(color: AppColors.textMutedDark)),
+                leading: const Icon(Icons.info_outline, color: Colors.white70),
+                title: const Text('Version de l\'application', style: TextStyle(color: Colors.white)),
+                trailing: const Text('1.8.0 (Offline-First)', style: TextStyle(color: AppColors.successGreen, fontWeight: FontWeight.bold, fontSize: 12)),
               ),
             ),
+
             const SizedBox(height: 32),
 
-            // Logout
+            // Logout Button
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.withValues(alpha: 0.2),
-                foregroundColor: Colors.red,
+                backgroundColor: AppColors.accentPink.withValues(alpha: 0.15),
+                foregroundColor: AppColors.accentPink,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  side: BorderSide(color: Colors.red.withValues(alpha: 0.5)),
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: AppColors.accentPink.withValues(alpha: 0.4)),
                 ),
               ),
               icon: const Icon(Icons.logout),
               label: const Text('Se déconnecter', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               onPressed: () => _showLogoutDialog(context, authService),
             ),
-            const SizedBox(height: 32),
           ],
         ),
       ),
@@ -297,7 +250,7 @@ class _StatCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       child: Column(
         children: [
-          Icon(icon, color: iconColor, size: 28),
+          Icon(icon, color: iconColor, size: 26),
           const SizedBox(height: 8),
           Text(
             value,
@@ -312,7 +265,7 @@ class _StatCard extends StatelessWidget {
             title,
             style: const TextStyle(
               color: AppColors.textMutedDark,
-              fontSize: 12,
+              fontSize: 11,
             ),
             textAlign: TextAlign.center,
           ),
