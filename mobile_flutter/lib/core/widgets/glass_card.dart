@@ -30,7 +30,7 @@ class GlassCard extends StatelessWidget {
     final effectiveBgColor = backgroundColor ?? Colors.white.withValues(alpha: 0.06);
     final effectiveBorderColor = borderColor ?? Colors.white.withValues(alpha: 0.12);
 
-    return Container(
+    final Widget containerWidget = Container(
       margin: margin,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
@@ -71,5 +71,15 @@ class GlassCard extends StatelessWidget {
         ),
       ),
     );
+
+    if (onTap != null) {
+      return GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: containerWidget,
+      );
+    }
+
+    return containerWidget;
   }
 }

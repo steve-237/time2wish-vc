@@ -60,8 +60,32 @@ class BirthdayDetailScreen extends StatelessWidget {
 
     if (birthday == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Anniversaire non trouvé')),
-        body: const Center(child: Text('Cet anniversaire n\'existe pas.', style: TextStyle(color: Colors.white))),
+        appBar: AppBar(
+          title: const Text('Détails Anniversaire'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => context.pop(),
+          ),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.cake_outlined, size: 64, color: AppColors.textMutedDark),
+              const SizedBox(height: 16),
+              const Text('Anniversaire introuvable', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              const Text('Cet anniversaire a été supprimé ou n\'existe pas.', style: TextStyle(color: AppColors.textMutedDark)),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryCyan),
+                onPressed: () => context.go('/dashboard'),
+                icon: const Icon(Icons.home, color: Colors.white),
+                label: const Text('Retour au tableau de bord', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
