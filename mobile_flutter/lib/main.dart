@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_service.dart';
@@ -16,8 +17,9 @@ import 'features/birthdays/presentation/birthday_form_screen.dart';
 import 'features/messaging/presentation/chat_screen.dart';
 import 'features/profile/presentation/profile_edit_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('fr_FR', null);
   runApp(const Time2WishApp());
 }
 
