@@ -67,7 +67,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F172A),
+        backgroundColor: AppColors.backgroundDeep,
         elevation: 1,
         title: Row(
           children: [
@@ -96,7 +96,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   const Text(
                     'En ligne via WebSocket STOMP',
-                    style: TextStyle(color: Colors.greenAccent, fontSize: 10),
+                    style: TextStyle(color: AppColors.successGreen, fontSize: 10),
                   ),
                 ],
               ),
@@ -108,8 +108,7 @@ class _ChatScreenState extends State<ChatScreen> {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0F172A), Color(0xFF1E1B4B)],
+            colors: [AppColors.backgroundDeep, AppColors.backgroundDialogDark],
           ),
         ),
         child: Column(
@@ -156,7 +155,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 if (!isMe)
                                   Text(
                                     msg.senderName,
-                                    style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 11, fontWeight: FontWeight.bold),
+                                    style: const TextStyle(color: AppColors.cyanLight, fontSize: 11, fontWeight: FontWeight.bold),
                                   ),
                                 Text(
                                   msg.content,
@@ -185,7 +184,7 @@ class _ChatScreenState extends State<ChatScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: const Color(0xFF0F172A).withValues(alpha: 0.95),
+                color: AppColors.backgroundDeep.withValues(alpha: 0.95),
                 border: const Border(top: BorderSide(color: Colors.white10)),
               ),
               child: SafeArea(

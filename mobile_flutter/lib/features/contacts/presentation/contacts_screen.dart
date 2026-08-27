@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/services/contact_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
+import '../../../core/widgets/glowing_badge.dart';
 
 class ContactsScreen extends StatefulWidget {
   const ContactsScreen({super.key});
@@ -34,66 +35,126 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
 
   void _showAddContactDialog(BuildContext context) {
     final emailController = TextEditingController();
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1B4B),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Ajouter un Contact', style: TextStyle(color: Colors.white)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Entrez l\'adresse email de l\'utilisateur pour lui envoyer une demande.',
-              style: TextStyle(color: AppColors.textMutedDark, fontSize: 13),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: 'Email',
-                labelStyle: const TextStyle(color: AppColors.textMutedDark),
-                filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.06),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-                ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(ctx).viewInsets.bottom,
+        ),
+        child: Container(
+          margin: const EdgeInsets.all(16),
+          child: GlassCard(
+            blurAmount: 24,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Handle bar
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.textMutedDark.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Ajouter un Contact',
+                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Entrez l\'adresse email de l\'utilisateur pour lui envoyer une demande.',
+                    style: TextStyle(color: AppColors.textMutedDark, fontSize: 13),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    style: const TextStyle(color: Colors.white),
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      labelStyle: const TextStyle(color: AppColors.textMutedDark),
+                      prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textMutedDark),
+                      filled: true,
+                      fillColor: Colors.white.withValues(alpha: 0.06),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: AppColors.borderLight),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: AppColors.borderLight),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(color: AppColors.primaryCyan, width: 1.5),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          ),
+                          child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark)),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: AppColors.primaryGradient,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            ),
+                            onPressed: () async {
+                              final email = emailController.text.trim();
+                              if (email.isNotEmpty) {
+                                Navigator.pop(ctx);
+                                final service = context.read<ContactService>();
+                                await service.sendContactRequest(email);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Demande de contact envoyée avec succès !'),
+                                      backgroundColor: AppColors.primaryBlue,
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                            child: const Text('Envoyer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryBlue,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            onPressed: () async {
-              final email = emailController.text.trim();
-              if (email.isNotEmpty) {
-                Navigator.pop(ctx);
-                final service = context.read<ContactService>();
-                await service.sendContactRequest(email);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Demande de contact envoyée avec succès !'),
-                      backgroundColor: AppColors.primaryBlue,
-                    ),
-                  );
-                }
-              }
-            },
-            child: const Text('Envoyer', style: TextStyle(color: Colors.white)),
-          ),
-        ],
       ),
     );
   }
@@ -129,16 +190,10 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                       ),
                     ),
                     if (contactService.pendingRequests.isNotEmpty)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.accentPink,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '${contactService.pendingRequests.length} attente',
-                          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                        ),
+                      GlowingBadge(
+                        label: '${contactService.pendingRequests.length} attente',
+                        color: AppColors.accentPink,
+                        isSelected: true,
                       ),
                   ],
                 ),
@@ -165,7 +220,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
           TabBar(
             controller: _tabController,
             indicatorColor: AppColors.primaryBlue,
-            labelColor: const Color(0xFF38BDF8),
+            labelColor: AppColors.cyanLight,
             unselectedLabelColor: AppColors.textMutedDark,
             tabs: [
               Tab(text: 'Mes Contacts (${contactService.contacts.length})'),
@@ -247,7 +302,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.chat_bubble_outline, color: Color(0xFF38BDF8)),
+                  icon: const Icon(Icons.chat_bubble_outline, color: AppColors.cyanLight),
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Discussion avec ${contact.fullName}')),
@@ -314,7 +369,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.check_circle, color: Colors.greenAccent, size: 28),
+                      icon: const Icon(Icons.check_circle, color: AppColors.successGreen, size: 28),
                       onPressed: () async {
                         await service.acceptRequest(request.id);
                         if (context.mounted) {
@@ -325,7 +380,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                       },
                     ),
                     IconButton(
-                      icon: const Icon(Icons.cancel, color: Colors.redAccent, size: 28),
+                      icon: const Icon(Icons.cancel, color: AppColors.accentPink, size: 28),
                       onPressed: () => service.rejectRequest(request.id),
                     ),
                   ],

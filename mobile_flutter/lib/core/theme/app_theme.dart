@@ -20,6 +20,11 @@ class AppColors {
   static const Color textMutedDark = Color(0xFF94A3B8);
   static const Color borderLight = Color(0x1AFFFFFF);
 
+  // Additional accent colors (replaces hardcoded hex values scattered across screens)
+  static const Color cyanLight = Color(0xFF38BDF8);
+  static const Color backgroundDialogDark = Color(0xFF1E1B4B);
+  static const Color backgroundDeep = Color(0xFF0F172A);
+
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [Color(0xFF0EA5E9), Color(0xFF6366F1)],
@@ -96,6 +101,27 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.primaryCyan, width: 1.5),
         ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: const Color(0xFF1E1B4B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        titleTextStyle: GoogleFonts.outfit(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+        contentTextStyle: const TextStyle(color: AppColors.textMutedDark, fontSize: 14),
+      ),
+      tabBarTheme: TabBarThemeData(
+        indicatorColor: AppColors.primaryCyan,
+        labelColor: AppColors.cyanLight,
+        unselectedLabelColor: AppColors.textMutedDark,
+        indicatorSize: TabBarIndicatorSize.label,
+        labelStyle: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13),
+        unselectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 13),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.surfaceDark,
+        contentTextStyle: const TextStyle(color: Colors.white, fontSize: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        behavior: SnackBarBehavior.floating,
+        elevation: 8,
       ),
     );
   }

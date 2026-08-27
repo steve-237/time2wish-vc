@@ -104,7 +104,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
             colorScheme: const ColorScheme.dark(
               primary: AppColors.primaryBlue,
               onPrimary: Colors.white,
-              surface: Color(0xFF0F172A),
+              surface: AppColors.backgroundDeep,
               onSurface: Colors.white,
             ),
           ),
@@ -235,11 +235,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
       ),
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0F172A), Color(0xFF1E1B4B)],
-          ),
+          gradient: AppColors.backgroundGradient,
         ),
         child: _isInitializing
             ? const Center(
@@ -316,7 +312,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                             padding: const EdgeInsets.all(16.0),
                             child: DropdownButtonFormField<String>(
                               value: _category,
-                              dropdownColor: const Color(0xFF1E1B4B),
+                              dropdownColor: AppColors.backgroundDialogDark,
                               style: const TextStyle(color: Colors.white),
                               decoration: _inputDecoration('Catégorie').copyWith(
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -434,7 +430,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                         showDialog(
                                           context: context,
                                           builder: (context) => AlertDialog(
-                                            backgroundColor: const Color(0xFF1E1B4B),
+                                            backgroundColor: AppColors.backgroundDialogDark,
                                             title: const Text('Ajouter un intérêt', style: TextStyle(color: Colors.white)),
                                             content: TextField(
                                               controller: _interestController,
@@ -556,16 +552,27 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                         const SizedBox(height: 32),
                         
                         // Submit Button
-                        SizedBox(
+                        Container(
                           height: 56,
+                          decoration: BoxDecoration(
+                            gradient: AppColors.primaryGradient,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primaryCyan.withValues(alpha: 0.35),
+                                blurRadius: 16,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _submitForm,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryBlue,
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              elevation: 0,
                             ),
                             child: _isLoading
                                 ? const SpinKitThreeBounce(color: Colors.white, size: 24)

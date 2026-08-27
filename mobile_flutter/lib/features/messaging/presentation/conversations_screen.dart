@@ -6,7 +6,7 @@ import '../../../core/services/messaging_service.dart';
 import '../../../core/models/conversation_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
-
+import '../../../core/widgets/glowing_badge.dart';
 class ConversationsScreen extends StatefulWidget {
   const ConversationsScreen({super.key});
 
@@ -56,16 +56,11 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                   ],
                 ),
                 if (messagingService.totalUnread > 0)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryBlue,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '${messagingService.totalUnread} non-lus',
-                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                    ),
+                  GlowingBadge(
+                    label: '${messagingService.totalUnread} non-lus',
+                    icon: Icons.mark_email_unread_outlined,
+                    color: AppColors.primaryCyan,
+                    isSelected: true,
                   ),
               ],
             ),
@@ -130,7 +125,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                           ? [AppColors.wishCoinsAmber, AppColors.accentPink]
                           : conv.isGroup
                               ? [AppColors.accentPurple, AppColors.primaryBlue]
-                              : [AppColors.primaryBlue, const Color(0xFF38BDF8)],
+                              : [AppColors.primaryBlue, AppColors.cyanLight],
                     ),
                   ),
                   child: Center(
@@ -148,7 +143,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                   Container(
                     padding: const EdgeInsets.all(2),
                     decoration: const BoxDecoration(
-                      color: Color(0xFF0F172A),
+                      color: AppColors.backgroundDeep,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -184,7 +179,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                         Text(
                           timeStr,
                           style: TextStyle(
-                            color: hasUnread ? const Color(0xFF38BDF8) : AppColors.textMutedDark,
+                            color: hasUnread ? AppColors.cyanLight : AppColors.textMutedDark,
                             fontSize: 11,
                           ),
                         ),
@@ -206,16 +201,11 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                         ),
                       ),
                       if (hasUnread)
-                        Container(
+                        GlowingBadge(
+                          label: '${conv.unreadCount}',
+                          color: AppColors.primaryCyan,
+                          isSelected: true,
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: const BoxDecoration(
-                            color: AppColors.primaryBlue,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            '${conv.unreadCount}',
-                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
                         ),
                     ],
                   ),

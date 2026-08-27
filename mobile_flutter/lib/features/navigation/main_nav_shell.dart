@@ -33,9 +33,18 @@ class _MainNavShellState extends State<MainNavShell> {
         ),
         child: SafeArea(
           bottom: false,
-          child: IndexedStack(
-            index: _currentIndex,
-            children: _pages,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: child,
+            ),
+            child: KeyedSubtree(
+              key: ValueKey<int>(_currentIndex),
+              child: _pages[_currentIndex],
+            ),
           ),
         ),
       ),
@@ -49,7 +58,7 @@ class _MainNavShellState extends State<MainNavShell> {
               height: 72,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFF0F172A).withValues(alpha: 0.8),
+                color: AppColors.backgroundDeep.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(28),
                 border: Border.all(
                   color: Colors.white.withValues(alpha: 0.12),
