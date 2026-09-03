@@ -82,30 +82,31 @@ export class AuthService {
     );
   }
 
+  reloadUserProfile(): Observable<User | null> {
+    const token = this.getStoredToken();
+    if (!token) return of(null);
+
+    return this.http.get<AuthResponse>(`${environment.apiUrl}/users/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).pipe(
+      tap(res => this.saveSession(res)),
+      map(() => this.currentUser()),
+      catchError(() => of(this.currentUser()))
+    );
+  }
+
   refreshSession(): Observable<boolean> {
     const storedToken = this.getStoredToken();
     const storedUser = this.getStoredProfile();
 
-    // If we have a stored token, try to validate it via the refresh endpoint
-    // Otherwise, if we have stored user info + cookie, try cookie-based refresh
     if (storedToken && storedUser) {
-      // We already have credentials in localStorage — restore them into signals
       this.accessToken.set(storedToken);
       this.currentUser.set(storedUser);
 
-      // Try to refresh the token from the backend to get a fresh JWT
-      return this.http.post<AuthResponse>(`${this.API_URL}/refresh`, {}, { withCredentials: true }).pipe(
-        tap(res => {
-          this.saveSession(res);
-          this.isLoaded.set(true);
-        }),
+      // Fetch fresh profile from backend using Authorization Bearer token (100% cross-origin reliable)
+      return this.reloadUserProfile().pipe(
         map(() => true),
-        catchError(() => {
-          // Refresh failed but we still have the stored token — keep the session alive
-          // The token may still be valid (it will fail on API calls if truly expired)
-          this.isLoaded.set(true);
-          return of(true);
-        })
+        catchError(() => of(true))
       );
     }
 

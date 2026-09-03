@@ -151,6 +151,11 @@ import { environment } from '../../../environments/environment';
                 <span class="material-symbols-outlined">phone_iphone</span>
                 Mobile Money (MTN / Orange)
               </button>
+
+              <button class="btn btn-popular" [disabled]="isLoading()" (click)="switchPlanDirectly()" style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer;">
+                <span class="material-symbols-outlined">bolt</span>
+                Activer le Forfait Immédiatement
+              </button>
             </div>
 
             <div style="display: flex; justify-content: center;">
@@ -222,6 +227,31 @@ export class PricingComponent {
     });
   }
 
+  switchPlanDirectly() {
+    const plan = this.planToConfirm();
+    if (!plan) return;
+
+    this.isLoading.set(true);
+    const token = this.authService.accessToken();
+
+    this.http.put<{message: string, plan: string}>(`${environment.apiUrl}/users/me/plan`, { plan }, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
+      next: () => {
+        this.authService.reloadUserProfile().subscribe(() => {
+          this.isLoading.set(false);
+          this.toastService.success(`Forfait mis à jour avec succès : ${plan} !`);
+          this.cancelPlanChange();
+          this.close.emit();
+        });
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.toastService.error(err.error?.message || 'Erreur lors de la mise à jour du forfait');
+      }
+    });
+  }
+
   checkoutWith(provider: string) {
     const plan = this.planToConfirm();
     if (!plan) return;
@@ -235,7 +265,7 @@ export class PricingComponent {
 
     this.http.post<{url: string}>(environment.apiUrl + '/payments/checkout', payload).subscribe({
       next: (res) => {
-        // Redirection vers la passerelle de paiement (ici simulée)
+        // Redirection vers la passerelle de paiement
         window.location.href = res.url;
       },
       error: (err) => {
