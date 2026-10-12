@@ -40,3 +40,5 @@ backend/uploads/
 .agents/
 .skills/
 scratch/
+
+dist-mobile/
