@@ -115,4 +115,13 @@ export class GiftListModalComponent {
       this.toastService.error('Erreur lors de la copie du lien.');
     });
   }
+
+  getGiftPrice(gift: Gift): number | undefined {
+    if (!gift || !gift.priceRange) return undefined;
+    const match = gift.priceRange.match(/(\d+(?:[.,]\d+)?)/g);
+    if (!match || match.length === 0) return undefined;
+    const numbers = match.map(n => parseFloat(n.replace(',', '.')));
+    const maxVal = Math.max(...numbers);
+    return isNaN(maxVal) || maxVal <= 0 ? undefined : maxVal;
+  }
 }

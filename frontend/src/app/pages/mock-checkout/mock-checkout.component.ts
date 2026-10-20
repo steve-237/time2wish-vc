@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../services/auth.service';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-mock-checkout',
@@ -13,24 +14,24 @@ import { AuthService } from '../../services/auth.service';
     <div class="mock-checkout-page">
       <div class="glass-card checkout-card">
         <div class="header">
-          <h2>Passerelle de Paiement Fictive</h2>
+          <h2>{{ t9n.t('mock_checkout.title') || 'Passerelle de Paiement Fictive' }}</h2>
           <span class="badge" [class]="provider()">{{ provider() }}</span>
         </div>
         
         <div class="details">
-          <p>Vous êtes sur le point de payer pour le plan <strong>{{ plan() }}</strong>.</p>
+          <p [innerHTML]="t9n.t('mock_checkout.prompt', plan()) || ('Vous êtes sur le point de payer pour le plan <strong>' + plan() + '</strong>.')"></p>
           <div class="amount">{{ plan() === 'PRO' ? '9,99 €' : '4,99 €' }}</div>
         </div>
 
         <div class="actions">
-          <button class="btn btn-select cancel-btn" (click)="cancel()" [disabled]="isLoading()">Annuler</button>
+          <button class="btn btn-select cancel-btn" (click)="cancel()" [disabled]="isLoading()">{{ t9n.t('mock_checkout.btn_cancel') || 'Annuler' }}</button>
           <button class="btn btn-popular pay-btn" (click)="simulatePayment()" [disabled]="isLoading()">
-            {{ isLoading() ? 'Traitement...' : 'Simuler le Paiement' }}
+            {{ isLoading() ? (t9n.t('mock_checkout.btn_processing') || 'Traitement...') : (t9n.t('mock_checkout.btn_pay') || 'Simuler le Paiement') }}
           </button>
         </div>
         
         <p class="disclaimer">
-          Ceci est une page de simulation (Mock). En production, vous seriez redirigé vers l'interface de Stripe, PayPal, ou de l'opérateur Mobile Money.
+          {{ t9n.t('mock_checkout.disclaimer') || 'Ceci est une page de simulation (Mock). En production, vous seriez redirigé vers l\\'interface de Stripe, PayPal, ou de l\\'opérateur Mobile Money.' }}
         </p>
       </div>
     </div>
@@ -132,6 +133,7 @@ export class MockCheckoutComponent implements OnInit {
   router = inject(Router);
   http = inject(HttpClient);
   authService = inject(AuthService);
+  t9n = inject(TranslationService);
 
   provider = signal<string>('STRIPE');
   plan = signal<string>('PLUS');
@@ -168,7 +170,7 @@ export class MockCheckoutComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-        alert('Erreur du webhook simulé');
+        alert(this.t9n.t('mock_checkout.toast_error') || 'Erreur du webhook simulé');
       }
     });
   }

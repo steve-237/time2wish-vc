@@ -1,17 +1,19 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FeedbackService, Feedback } from '../../../services/feedback.service';
+import { TranslationService } from '../../../services/translation.service';
 
 @Component({
   selector: 'app-admin-feedbacks',
   standalone: true,
   imports: [CommonModule, DatePipe],
+
   template: `
     <div class="admin-container">
       <div class="header-container flex-between">
         <div>
-          <h2 class="page-title">Avis Utilisateurs ⭐</h2>
-          <p class="page-subtitle">Consultez les retours d'expérience sur l'application</p>
+          <h2 class="page-title">{{ t9n.t('admin.feedbacks.title') || 'Avis Utilisateurs ⭐' }}</h2>
+          <p class="page-subtitle">{{ t9n.t('admin.feedbacks.subtitle') || 'Consultez les retours d\\'expérience sur l\\'application' }}</p>
         </div>
         <div class="global-rating" *ngIf="feedbacks().length > 0">
           <div class="rating-value">{{ averageRating() | number:'1.1-1' }}</div>
@@ -20,17 +22,17 @@ import { FeedbackService, Feedback } from '../../../services/feedback.service';
               <span class="material-symbols-outlined" [class.active]="star <= Math.round(averageRating())">star</span>
             }
           </div>
-          <div class="rating-count">{{ feedbacks().length }} avis</div>
+          <div class="rating-count">{{ t9n.t('admin.feedbacks.reviews_count', feedbacks().length) || (feedbacks().length + ' avis') }}</div>
         </div>
       </div>
 
       <div class="filters mb-4">
-        <button class="filter-btn" [class.active]="filter() === 0" (click)="filter.set(0)">Tous</button>
-        <button class="filter-btn" [class.active]="filter() === 5" (click)="filter.set(5)">5 étoiles</button>
-        <button class="filter-btn" [class.active]="filter() === 4" (click)="filter.set(4)">4 étoiles</button>
-        <button class="filter-btn" [class.active]="filter() === 3" (click)="filter.set(3)">3 étoiles</button>
-        <button class="filter-btn" [class.active]="filter() === 2" (click)="filter.set(2)">2 étoiles</button>
-        <button class="filter-btn" [class.active]="filter() === 1" (click)="filter.set(1)">1 étoile</button>
+        <button class="filter-btn" [class.active]="filter() === 0" (click)="filter.set(0)">{{ t9n.t('admin.feedbacks.filter_all') || 'Tous' }}</button>
+        <button class="filter-btn" [class.active]="filter() === 5" (click)="filter.set(5)">{{ t9n.t('admin.feedbacks.filter_5_stars') || '5 étoiles' }}</button>
+        <button class="filter-btn" [class.active]="filter() === 4" (click)="filter.set(4)">{{ t9n.t('admin.feedbacks.filter_4_stars') || '4 étoiles' }}</button>
+        <button class="filter-btn" [class.active]="filter() === 3" (click)="filter.set(3)">{{ t9n.t('admin.feedbacks.filter_3_stars') || '3 étoiles' }}</button>
+        <button class="filter-btn" [class.active]="filter() === 2" (click)="filter.set(2)">{{ t9n.t('admin.feedbacks.filter_2_stars') || '2 étoiles' }}</button>
+        <button class="filter-btn" [class.active]="filter() === 1" (click)="filter.set(1)">{{ t9n.t('admin.feedbacks.filter_1_star') || '1 étoile' }}</button>
       </div>
 
       <div class="feedbacks-grid">
@@ -39,7 +41,7 @@ import { FeedbackService, Feedback } from '../../../services/feedback.service';
             <div class="card-header">
               <img [src]="fb.user?.avatarUrl || getInitialsAvatar(fb.user?.fullName)" class="user-avatar" alt="Avatar">
               <div class="user-info">
-                <strong>{{ fb.user?.fullName || 'Utilisateur inconnu' }}</strong>
+                <strong>{{ fb.user?.fullName || (t9n.t('common.unknown_user') || 'Utilisateur inconnu') }}</strong>
                 <span>{{ fb.createdAt | date:'short' }}</span>
               </div>
             </div>
@@ -52,13 +54,13 @@ import { FeedbackService, Feedback } from '../../../services/feedback.service';
 
             <div class="comment-text">
               <span *ngIf="fb.comment">{{ fb.comment }}</span>
-              <span *ngIf="!fb.comment" class="no-comment">Aucun commentaire fourni.</span>
+              <span *ngIf="!fb.comment" class="no-comment">{{ t9n.t('admin.feedbacks.no_comment') || 'Aucun commentaire fourni.' }}</span>
             </div>
           </div>
         } @empty {
           <div class="empty-state">
             <span class="material-symbols-outlined">sentiment_dissatisfied</span>
-            <p>Aucun avis trouvé pour ce filtre.</p>
+            <p>{{ t9n.t('admin.feedbacks.empty_filter') || 'Aucun avis trouvé pour ce filtre.' }}</p>
           </div>
         }
       </div>
@@ -107,6 +109,7 @@ import { FeedbackService, Feedback } from '../../../services/feedback.service';
 })
 export class AdminFeedbacksComponent implements OnInit {
   private feedbackService = inject(FeedbackService);
+  t9n = inject(TranslationService);
   
   feedbacks = signal<Feedback[]>([]);
   filter = signal<number>(0);

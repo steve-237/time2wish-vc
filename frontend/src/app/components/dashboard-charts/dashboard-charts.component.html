@@ -25,7 +25,7 @@
 
   <!-- Pie Chart: Birthdays by Gender -->
   <div class="glass-card chart-card" [class.locked-chart]="userPlan === 'BASIC'">
-    <h3 class="chart-title">Répartition par Genre</h3>
+    <h3 class="chart-title">{{ t9n.t('charts.birthdays_by_gender') || 'Répartition par Genre' }}</h3>
     <div class="chart-wrapper">
       <canvas baseChart
               [data]="genderChartData"
@@ -36,15 +36,15 @@
     @if (userPlan === 'BASIC') {
       <div class="lock-overlay">
         <span class="material-symbols-outlined">lock</span>
-        <p>Forfait PLUS requis</p>
-        <button class="btn-PRO" (click)="uiService.isPricingModalOpen.set(true)">Débloquer</button>
+        <p>{{ t9n.t('charts.plus_required') }}</p>
+        <button class="btn-PRO" (click)="uiService.isPricingModalOpen.set(true)">{{ t9n.t('charts.btn_unlock') }}</button>
       </div>
     }
   </div>
 
   <!-- Bar Chart: Age Distribution -->
   <div class="glass-card chart-card" [class.locked-chart]="userPlan === 'BASIC'">
-    <h3 class="chart-title">Répartition par Âge</h3>
+    <h3 class="chart-title">{{ t9n.t('charts.age_distribution') || 'Répartition par Âge' }}</h3>
     <div class="chart-wrapper">
       <canvas baseChart
               [data]="ageChartData"
@@ -55,15 +55,15 @@
     @if (userPlan === 'BASIC') {
       <div class="lock-overlay">
         <span class="material-symbols-outlined">lock</span>
-        <p>Forfait PLUS requis</p>
-        <button class="btn-PRO" (click)="uiService.isPricingModalOpen.set(true)">Débloquer</button>
+        <p>{{ t9n.t('charts.plus_required') }}</p>
+        <button class="btn-PRO" (click)="uiService.isPricingModalOpen.set(true)">{{ t9n.t('charts.btn_unlock') }}</button>
       </div>
     }
   </div>
 
   <!-- Polar Area Chart: Zodiac Signs -->
   <div class="glass-card chart-card" [class.locked-chart]="userPlan !== 'PRO'">
-    <h3 class="chart-title">Signes Astrologiques</h3>
+    <h3 class="chart-title">{{ t9n.t('charts.zodiac_signs') || 'Signes Astrologiques' }}</h3>
     <div class="chart-wrapper">
       <canvas baseChart
               [data]="zodiacChartData"
@@ -74,15 +74,15 @@
     @if (userPlan !== 'PRO') {
       <div class="lock-overlay">
         <span class="material-symbols-outlined">workspace_premium</span>
-        <p>Forfait PRO requis</p>
-        <button class="btn-PRO" (click)="uiService.isPricingModalOpen.set(true)">Débloquer</button>
+        <p>{{ t9n.t('charts.pro_required') }}</p>
+        <button class="btn-PRO" (click)="uiService.isPricingModalOpen.set(true)">{{ t9n.t('charts.btn_unlock') }}</button>
       </div>
     }
   </div>
 
   <!-- Horizontal Bar Chart: Top Interests -->
   <div class="glass-card chart-card" [class.locked-chart]="userPlan !== 'PRO'">
-    <h3 class="chart-title">Centres d'intérêt (Top 7)</h3>
+    <h3 class="chart-title">{{ t9n.t('charts.top_interests') || 'Centres d\'intérêt (Top 7)' }}</h3>
     <div class="chart-wrapper">
       <canvas baseChart
               [data]="interestsChartData"
@@ -93,15 +93,15 @@
     @if (userPlan !== 'PRO') {
       <div class="lock-overlay">
         <span class="material-symbols-outlined">workspace_premium</span>
-        <p>Forfait PRO requis</p>
-        <button class="btn-PRO" (click)="uiService.isPricingModalOpen.set(true)">Débloquer</button>
+        <p>{{ t9n.t('charts.pro_required') }}</p>
+        <button class="btn-PRO" (click)="uiService.isPricingModalOpen.set(true)">{{ t9n.t('charts.btn_unlock') }}</button>
       </div>
     }
   </div>
 
   <!-- Radar Chart: Jours de Naissance -->
   <div class="glass-card chart-card" [class.locked-chart]="userPlan !== 'PRO'">
-    <h3 class="chart-title">Jours de Naissance</h3>
+    <h3 class="chart-title">{{ t9n.t('charts.birth_days_of_week') || 'Jours de Naissance' }}</h3>
     <div class="chart-wrapper">
       <canvas baseChart
               [data]="weekdayChartData"
@@ -112,15 +112,15 @@
     @if (userPlan !== 'PRO') {
       <div class="lock-overlay">
         <span class="material-symbols-outlined">workspace_premium</span>
-        <p>Forfait PRO requis</p>
-        <button class="btn-PRO" (click)="uiService.isPricingModalOpen.set(true)">Débloquer</button>
+        <p>{{ t9n.t('charts.pro_required') }}</p>
+        <button class="btn-PRO" (click)="uiService.isPricingModalOpen.set(true)">{{ t9n.t('charts.btn_unlock') }}</button>
       </div>
     }
   </div>
 
   <!-- Doughnut Chart: Paramètres de Rappel -->
   <div class="glass-card chart-card" [class.locked-chart]="userPlan !== 'PRO'">
-    <h3 class="chart-title">Paramètres de Rappel</h3>
+    <h3 class="chart-title">{{ t9n.t('charts.reminder_settings') || 'Paramètres de Rappel' }}</h3>
     <div class="chart-wrapper">
       <canvas baseChart
               [data]="remindersChartData"
@@ -131,15 +131,15 @@
     @if (userPlan !== 'PRO') {
       <div class="lock-overlay">
         <span class="material-symbols-outlined">workspace_premium</span>
-        <p>Forfait PRO requis</p>
-        <button class="btn-PRO" (click)="uiService.isPricingModalOpen.set(true)">Débloquer</button>
+        <p>{{ t9n.t('charts.pro_required') }}</p>
+        <button class="btn-PRO" (click)="uiService.isPricingModalOpen.set(true)">{{ t9n.t('charts.btn_unlock') }}</button>
       </div>
     }
   </div>
 
   <!-- Pie Chart: Favoris -->
   <div class="glass-card chart-card" [class.locked-chart]="userPlan !== 'PRO'">
-    <h3 class="chart-title">Contacts Favoris</h3>
+    <h3 class="chart-title">{{ t9n.t('charts.favorite_contacts') || 'Contacts Favoris' }}</h3>
     <div class="chart-wrapper">
       <canvas baseChart
               [data]="favoritesChartData"
@@ -150,8 +150,8 @@
     @if (userPlan !== 'PRO') {
       <div class="lock-overlay">
         <span class="material-symbols-outlined">workspace_premium</span>
-        <p>Forfait PRO requis</p>
-        <button class="btn-PRO" (click)="uiService.isPricingModalOpen.set(true)">Débloquer</button>
+        <p>{{ t9n.t('charts.pro_required') }}</p>
+        <button class="btn-PRO" (click)="uiService.isPricingModalOpen.set(true)">{{ t9n.t('charts.btn_unlock') }}</button>
       </div>
     }
   </div>

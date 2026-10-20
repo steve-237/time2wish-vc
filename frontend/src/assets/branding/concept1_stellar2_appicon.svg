@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="sqBg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B0F19" />
+      <stop offset="50%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#1E1B4B" />
+    </linearGradient>
+    <linearGradient id="sqBorder1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#818CF8" stop-opacity="0.3" />
+    </linearGradient>
+    <radialGradient id="sqGlow1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="c1IconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="50%" stop-color="#6366F1" />
+      <stop offset="100%" stop-color="#A855F7" />
+    </linearGradient>
+    <linearGradient id="c1IconStar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#EA580C" />
+    </linearGradient>
+    <filter id="c1IconFilter" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base -->
+  <rect x="16" y="16" width="480" height="480" rx="112" ry="112" fill="url(#sqBg1)" />
+  <rect x="16" y="16" width="480" height="480" rx="112" ry="112" fill="none" stroke="url(#sqBorder1)" stroke-width="3" />
+
+  <!-- Ambient Light -->
+  <circle cx="256" cy="256" r="180" fill="url(#sqGlow1)" />
+
+  <!-- Centered Scaled Icon Mark (Scale ~3.2, Center at 256, 256) -->
+  <g transform="translate(256, 256) scale(3.1) translate(-60, -60)">
+    <circle cx="60" cy="60" r="46" fill="none" stroke="#38BDF8" stroke-width="1.8" stroke-dasharray="4 8" opacity="0.35" />
+    <path d="M 40 38 C 40 22, 54 16, 66 16 C 80 16, 88 26, 88 38 C 88 52, 78 66, 60 80 L 38 94 L 88 94" fill="none" stroke="url(#c1IconGrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+    <g transform="translate(88, 20)" filter="url(#c1IconFilter)">
+      <path d="M 0 -16 Q 1.5 -3.5 13 0 Q 1.5 3.5 0 16 Q -1.5 3.5 -13 0 Q -1.5 -3.5 0 -16 Z" fill="url(#c1IconStar)" />
+      <circle cx="0" cy="0" r="2.5" fill="#FFFFFF" />
+    </g>
+  </g>
+</svg>

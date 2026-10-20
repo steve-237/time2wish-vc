@@ -28,7 +28,7 @@ export class SurpriseComponent implements OnInit {
     if (tokenParam) {
       this.loadSharedList(tokenParam);
     } else {
-      this.error.set("Lien surprise invalide.");
+      this.error.set(this.t9n.t('surprise.error_invalid_link') || "Lien surprise invalide.");
       this.isLoading.set(false);
     }
   }
@@ -45,7 +45,7 @@ export class SurpriseComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load shared list', err);
-        this.error.set("Ce lien surprise est invalide ou a expiré.");
+        this.error.set(this.t9n.t('surprise.error_link_expired') || "Ce lien surprise est invalide ou a expiré.");
         this.isLoading.set(false);
       }
     });

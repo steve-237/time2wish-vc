@@ -16,10 +16,10 @@
   <div class="preview-wrapper">
     <img [src]="currentImageUrl" alt="Preview" class="image-preview">
     <div class="preview-overlay">
-      <button type="button" class="btn-icon-danger" (click)="removeImage($event)" title="Remove image">
+      <button type="button" class="btn-icon-danger" (click)="removeImage($event)" [title]="t9n.t('upload.remove')">
         <span class="material-symbols-outlined">delete</span>
       </button>
-      <button type="button" class="btn-icon-primary" (click)="fileInput.click()" title="Change image">
+      <button type="button" class="btn-icon-primary" (click)="fileInput.click()" [title]="t9n.t('upload.change')">
         <span class="material-symbols-outlined">cached</span>
       </button>
     </div>

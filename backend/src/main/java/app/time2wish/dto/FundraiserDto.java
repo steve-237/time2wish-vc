@@ -17,6 +17,8 @@ public class FundraiserDto {
     private Long giftId;
     private BigDecimal targetAmount;
     private BigDecimal currentAmount;
+    private BigDecimal remainingAmount;
+    private Boolean isCompleted;
     private String currency;
     private Boolean active;
     private List<PledgeDto> pledges;

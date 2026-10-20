@@ -9,7 +9,7 @@
       <button 
         (click)="toggleFavorite(b, $event)" 
         class="fav-btn"
-        [title]="b.isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'">
+        [title]="b.isFavorite ? t9n.t('dashboard.remove_favorite') : t9n.t('dashboard.add_favorite')">
         <span class="material-symbols-outlined star-icon" [class.filled]="b.isFavorite">star</span>
       </button>
     </div>
@@ -24,9 +24,9 @@
       <!-- User Info -->
       <h3 class="birthday-name grid-name">
         {{ b.name }}
-        @if (b.gender === 'Masculin') { <span class="material-symbols-outlined gender-icon male" title="Masculin">male</span> }
-        @if (b.gender === 'Féminin') { <span class="material-symbols-outlined gender-icon female" title="Féminin">female</span> }
-        @if (b.gender === 'Autre') { <span class="material-symbols-outlined gender-icon other" title="Autre">transgender</span> }
+        @if (b.gender === 'Masculin') { <span class="material-symbols-outlined gender-icon male" [title]="t9n.t('gender.male')">male</span> }
+        @if (b.gender === 'Féminin') { <span class="material-symbols-outlined gender-icon female" [title]="t9n.t('gender.female')">female</span> }
+        @if (b.gender === 'Autre') { <span class="material-symbols-outlined gender-icon other" [title]="t9n.t('gender.other')">transgender</span> }
       </h3>
       
       <p class="birthday-date grid-date">
@@ -39,12 +39,12 @@
         <!-- Nouveau Badge -->
         @if (birthdayService.lastAddedBirthdayId() === b.id) {
         <span class="badge-new">
-          <span class="material-symbols-outlined new-icon">new_releases</span> Nouveau
+          <span class="material-symbols-outlined new-icon">new_releases</span> {{ t9n.t('dashboard.badge_new') }}
         </span>
         }
 
         @if (b.showAge !== false) {
-        <span class="age-badge grid-age">{{ getAge(b.birthdate) }} {{ t9n.currentLang() === 'en' ? 'yrs' : 'ans' }}</span>
+        <span class="age-badge grid-age">{{ getAge(b.birthdate) }} {{ t9n.t('common.years_short') }}</span>
         }
         
         <span class="badge-urgency grid-urgency" [class]="birthdayService.getUrgencyClass(birthdayService.getDaysUntil(b.birthdate))">

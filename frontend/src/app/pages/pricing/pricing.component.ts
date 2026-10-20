@@ -23,8 +23,7 @@ import { environment } from '../../../environments/environment';
           <p>{{ t9n.t('pricing.subtitle') }}</p>
           <div style="margin-top: 16px; display: inline-flex; align-items: center; gap: 8px; background: rgba(245, 158, 11, 0.1); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(245, 158, 11, 0.2);">
             <span class="material-symbols-outlined" style="color: #f59e0b;">generating_tokens</span>
-            <span style="font-size: 0.9rem; color: var(--text-muted);">
-              <strong>WishCoins</strong> : Utilisez-les pour générer des idées de cadeaux et vœux avec l'IA. Obtenez-les via nos forfaits !
+            <span style="font-size: 0.9rem; color: var(--text-muted);" [innerHTML]="t9n.t('pricing.wishcoins_banner')">
             </span>
           </div>
         </div>
@@ -118,20 +117,20 @@ import { environment } from '../../../environments/environment';
               
               <!-- Promo Code Section -->
               <div class="promo-section" style="background: rgba(var(--primary-hsl), 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px dashed var(--primary);">
-                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-muted);">Avez-vous un code promo ?</label>
+                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-muted);">{{ t9n.t('pricing.have_promo_code') || 'Avez-vous un code promo ?' }}</label>
                 <div style="display: flex; gap: 0.5rem;">
-                  <input type="text" [(ngModel)]="promoCode" placeholder="Code (ex: SUMMER20)" style="flex: 1; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-card); background: var(--bg-main); color: var(--text-main); text-transform: uppercase;">
+                  <input type="text" [(ngModel)]="promoCode" [placeholder]="t9n.t('pricing.promo_placeholder') || 'Code (ex: SUMMER20)'" style="flex: 1; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-card); background: var(--bg-main); color: var(--text-main); text-transform: uppercase;">
                   <button class="btn btn-primary" [disabled]="!promoCode || isCheckingPromo()" (click)="applyPromo()" style="padding: 0.5rem 1rem;">
-                    {{ isCheckingPromo() ? '...' : 'Appliquer' }}
+                    {{ isCheckingPromo() ? '...' : (t9n.t('pricing.btn_apply') || 'Appliquer') }}
                   </button>
                 </div>
                 @if (appliedDiscount()) {
                   <div style="margin-top: 0.5rem; color: #10b981; font-weight: bold; font-size: 0.9rem;">
                     <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">check_circle</span>
-                    Code appliqué : -{{ appliedDiscount() }}%
+                    {{ t9n.t('pricing.promo_applied', appliedDiscount()!) || ('Code appliqué : -' + appliedDiscount() + '%') }}
                   </div>
                   <div style="margin-top: 0.5rem; font-size: 1.1rem;">
-                    Nouveau prix : <span style="text-decoration: line-through; opacity: 0.5; margin-right: 0.5rem;">{{ getBasePrice() }}€</span>
+                    {{ t9n.t('pricing.new_price') || 'Nouveau prix :' }} <span style="text-decoration: line-through; opacity: 0.5; margin-right: 0.5rem;">{{ getBasePrice() }}€</span>
                     <strong>{{ getDiscountedPrice() }}€</strong>
                   </div>
                 }
@@ -139,22 +138,22 @@ import { environment } from '../../../environments/environment';
 
               <button class="btn btn-select" [disabled]="isLoading()" (click)="checkoutWith('STRIPE')" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                 <span class="material-symbols-outlined">credit_card</span>
-                Carte de Crédit (Stripe)
+                {{ t9n.t('pricing.payment_stripe') || 'Carte de Crédit (Stripe)' }}
               </button>
               
               <button class="btn btn-select" [disabled]="isLoading()" (click)="checkoutWith('PAYPAL')" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                 <span class="material-symbols-outlined">account_balance_wallet</span>
-                PayPal
+                {{ t9n.t('pricing.payment_paypal') || 'PayPal' }}
               </button>
               
               <button class="btn btn-select" [disabled]="isLoading()" (click)="checkoutWith('MOMO')" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                 <span class="material-symbols-outlined">phone_iphone</span>
-                Mobile Money (MTN / Orange)
+                {{ t9n.t('pricing.payment_momo') || 'Mobile Money (MTN / Orange)' }}
               </button>
 
               <button class="btn btn-popular" [disabled]="isLoading()" (click)="switchPlanDirectly()" style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer;">
                 <span class="material-symbols-outlined">bolt</span>
-                Activer le Forfait Immédiatement
+                {{ t9n.t('pricing.btn_activate_immediately') || 'Activer le Forfait Immédiatement' }}
               </button>
             </div>
 
@@ -217,12 +216,12 @@ export class PricingComponent {
       next: (res) => {
         this.appliedDiscount.set(res.discountPercentage);
         this.isCheckingPromo.set(false);
-        this.toastService.success('Code promo appliqué !');
+        this.toastService.success(this.t9n.t('pricing.toast_promo_applied') || 'Code promo appliqué !');
       },
       error: (err) => {
         this.appliedDiscount.set(null);
         this.isCheckingPromo.set(false);
-        this.toastService.error(err.error?.message || 'Code invalide');
+        this.toastService.error(err.error?.message || this.t9n.t('pricing.toast_invalid_code') || 'Code invalide');
       }
     });
   }
@@ -240,14 +239,14 @@ export class PricingComponent {
       next: () => {
         this.authService.reloadUserProfile().subscribe(() => {
           this.isLoading.set(false);
-          this.toastService.success(`Forfait mis à jour avec succès : ${plan} !`);
+          this.toastService.success(this.t9n.t('pricing.toast_plan_updated', plan) || `Forfait mis à jour avec succès : ${plan} !`);
           this.cancelPlanChange();
           this.close.emit();
         });
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.toastService.error(err.error?.message || 'Erreur lors de la mise à jour du forfait');
+        this.toastService.error(err.error?.message || this.t9n.t('pricing.error_change') || 'Erreur lors de la mise à jour du forfait');
       }
     });
   }
@@ -269,7 +268,7 @@ export class PricingComponent {
         window.location.href = res.url;
       },
       error: (err) => {
-        this.toastService.error('Erreur lors de l\'initialisation du paiement');
+        this.toastService.error(this.t9n.t('pricing.toast_payment_init_error') || 'Erreur lors de l\'initialisation du paiement');
         this.isLoading.set(false);
       }
     });

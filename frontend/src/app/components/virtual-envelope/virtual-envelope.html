@@ -9,8 +9,8 @@
       <div class="letter">
         <div class="letter-content">
           <div class="stamp-icon">🎁</div>
-          <h2>Surprise !</h2>
-          <p>Un message vous attend...</p>
+          <h2>{{ t9n.t('surprise.envelope_title') || 'Surprise !' }}</h2>
+          <p>{{ t9n.t('surprise.envelope_subtitle') || 'Un message vous attend...' }}</p>
         </div>
       </div>
 
@@ -30,7 +30,7 @@
     </div>
     
     <div class="instruction-text" *ngIf="!isOpening">
-      👆 Touchez pour ouvrir
+      {{ t9n.t('surprise.envelope_touch') || '👆 Touchez pour ouvrir' }}
     </div>
   </div>
 </div>

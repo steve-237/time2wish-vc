@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AnnouncementService, Announcement } from '../../../services/announcement.service';
 import { ToastService } from '../../../services/toast.service';
+import { TranslationService } from '../../../services/translation.service';
 
 @Component({
   selector: 'app-admin-announcements',
@@ -12,46 +13,46 @@ import { ToastService } from '../../../services/toast.service';
     <div class="admin-container">
       <div class="header-container flex-between">
         <div>
-          <h2 class="page-title">Annonces Globales</h2>
-          <p class="page-subtitle">Publiez des messages importants pour tous les utilisateurs</p>
+          <h2 class="page-title">{{ t9n.t('admin.announcements.title') || 'Annonces Globales' }}</h2>
+          <p class="page-subtitle">{{ t9n.t('admin.announcements.subtitle') || 'Publiez des messages importants pour tous les utilisateurs' }}</p>
         </div>
         <button class="btn-PRO" (click)="isModalOpen.set(true)" *ngIf="!isModalOpen()">
           <span class="material-symbols-outlined">campaign</span>
-          Nouvelle Annonce
+          {{ t9n.t('admin.announcements.btn_new') || 'Nouvelle Annonce' }}
         </button>
       </div>
 
       <!-- New Announcement Form -->
       @if (isModalOpen()) {
         <div class="glass-card mb-4">
-          <h3>Rédiger une annonce</h3>
+          <h3>{{ t9n.t('admin.announcements.form_title') || 'Rédiger une annonce' }}</h3>
           <div class="form-group mt-3">
-            <label class="form-label">Titre</label>
-            <input type="text" class="form-control" [(ngModel)]="newAnnouncement.title" placeholder="Ex: Maintenance prévue, Nouvelle fonctionnalité...">
+            <label class="form-label">{{ t9n.t('admin.announcements.label_title') || 'Titre' }}</label>
+            <input type="text" class="form-control" [(ngModel)]="newAnnouncement.title" [placeholder]="t9n.t('admin.announcements.placeholder_title') || 'Ex: Maintenance prévue, Nouvelle fonctionnalité...'">
           </div>
           <div class="form-group mt-3">
-            <label class="form-label">Message</label>
-            <textarea class="form-control" rows="3" [(ngModel)]="newAnnouncement.message" placeholder="Détails de l'annonce..."></textarea>
+            <label class="form-label">{{ t9n.t('admin.announcements.label_message') || 'Message' }}</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="newAnnouncement.message" [placeholder]="t9n.t('admin.announcements.placeholder_message')"></textarea>
           </div>
           <div class="form-group mt-3">
-            <label class="form-label">Type d'affichage</label>
+            <label class="form-label">{{ t9n.t('admin.announcements.label_type') || 'Type d\\'affichage' }}</label>
             <select class="form-control" [(ngModel)]="newAnnouncement.type">
-              <option value="INFO">Information (Bleu)</option>
-              <option value="SUCCESS">Succès (Vert)</option>
-              <option value="WARNING">Avertissement (Orange)</option>
+              <option value="INFO">{{ t9n.t('admin.announcements.type_info') || 'Information (Bleu)' }}</option>
+              <option value="SUCCESS">{{ t9n.t('admin.announcements.type_success') || 'Succès (Vert)' }}</option>
+              <option value="WARNING">{{ t9n.t('admin.announcements.type_warning') || 'Avertissement (Orange)' }}</option>
             </select>
           </div>
           
           <label class="toggle-switch mt-4" style="display: flex; align-items: center; gap: 12px; cursor: pointer; width: fit-content;">
             <input type="checkbox" [(ngModel)]="newAnnouncement.active">
             <span class="slider"></span>
-            <span style="color: var(--text-main); font-weight: 500;">Activer immédiatement</span>
+            <span style="color: var(--text-main); font-weight: 500;">{{ t9n.t('admin.announcements.label_activate_now') || 'Activer immédiatement' }}</span>
           </label>
 
           <div class="mt-4 flex-gap">
-            <button class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+            <button class="btn btn-secondary" (click)="closeModal()">{{ t9n.t('common.cancel') || 'Annuler' }}</button>
             <button class="btn-PRO" (click)="submitAnnouncement()" [disabled]="!newAnnouncement.title || !newAnnouncement.message || isSubmitting()">
-              {{ isSubmitting() ? 'Création...' : "Créer l'annonce" }}
+              {{ isSubmitting() ? (t9n.t('admin.announcements.creating') || 'Création...') : (t9n.t('admin.announcements.btn_create') || "Créer l'annonce") }}
             </button>
           </div>
         </div>
@@ -61,11 +62,11 @@ import { ToastService } from '../../../services/toast.service';
         <table class="data-table">
           <thead>
             <tr>
-              <th>Statut</th>
-              <th>Type</th>
-              <th>Titre & Message</th>
-              <th>Date de création</th>
-              <th style="text-align: right;">Action</th>
+              <th>{{ t9n.t('admin.announcements.col_status') || 'Statut' }}</th>
+              <th>{{ t9n.t('admin.announcements.col_type') || 'Type' }}</th>
+              <th>{{ t9n.t('admin.announcements.col_title_message') || 'Titre & Message' }}</th>
+              <th>{{ t9n.t('admin.announcements.col_date') || 'Date de création' }}</th>
+              <th style="text-align: right;">{{ t9n.t('admin.announcements.col_action') || 'Action' }}</th>
             </tr>
           </thead>
           <tbody>
@@ -73,7 +74,7 @@ import { ToastService } from '../../../services/toast.service';
               <tr [class.is-active]="ann.active">
                 <td>
                   <span class="badge" [ngClass]="ann.active ? 'badge-success' : 'badge-neutral'">
-                    {{ ann.active ? 'Publiée' : 'Brouillon' }}
+                    {{ ann.active ? (t9n.t('admin.announcements.status_published') || 'Publiée') : (t9n.t('admin.announcements.status_draft') || 'Brouillon') }}
                   </span>
                 </td>
                 <td>
@@ -87,12 +88,12 @@ import { ToastService } from '../../../services/toast.service';
                 <td style="text-align: right;">
                   <button class="btn btn-sm" [ngClass]="ann.active ? 'btn-secondary text-error' : 'btn-PRO'" (click)="toggle(ann.id)">
                     <span class="material-symbols-outlined">{{ ann.active ? 'visibility_off' : 'visibility' }}</span>
-                    {{ ann.active ? 'Masquer' : 'Publier' }}
+                    {{ ann.active ? (t9n.t('admin.announcements.btn_hide') || 'Masquer') : (t9n.t('admin.announcements.btn_publish') || 'Publier') }}
                   </button>
                 </td>
               </tr>
             } @empty {
-              <tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">Aucune annonce.</td></tr>
+              <tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">{{ t9n.t('admin.announcements.empty') || 'Aucune annonce.' }}</td></tr>
             }
           </tbody>
         </table>
@@ -139,6 +140,7 @@ import { ToastService } from '../../../services/toast.service';
 export class AdminAnnouncementsComponent implements OnInit {
   private announcementService = inject(AnnouncementService);
   private toast = inject(ToastService);
+  t9n = inject(TranslationService);
 
   announcements = signal<Announcement[]>([]);
   isModalOpen = signal(false);
@@ -171,12 +173,12 @@ export class AdminAnnouncementsComponent implements OnInit {
     this.announcementService.createAnnouncement(this.newAnnouncement).subscribe({
       next: (ann) => {
         this.announcements.update(arr => [ann, ...arr]);
-        this.toast.success('Annonce créée');
+        this.toast.success(this.t9n.t('admin.announcements.toast_created') || 'Annonce créée');
         this.closeModal();
         this.isSubmitting.set(false);
       },
       error: () => {
-        this.toast.error('Erreur lors de la création');
+        this.toast.error(this.t9n.t('admin.announcements.toast_create_error') || 'Erreur lors de la création');
         this.isSubmitting.set(false);
       }
     });

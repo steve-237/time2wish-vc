@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -11,32 +12,32 @@ import { AuthService } from '../../services/auth.service';
     <div class="admin-layout">
       <aside class="admin-sidebar">
         <div class="sidebar-header">
-          <h2>Admin Panel</h2>
+          <h2>{{ t9n.t('admin.layout.panel_title') || 'Admin Panel' }}</h2>
         </div>
         <nav class="sidebar-nav">
-          <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item">Dashboard</a>
-          <a routerLink="/admin/users" routerLinkActive="active" class="nav-item">Users</a>
-          <a routerLink="/admin/payments" routerLinkActive="active" class="nav-item">Paiements 💳</a>
-          <a routerLink="/admin/announcements" routerLinkActive="active" class="nav-item">Annonces 📢</a>
-          <a routerLink="/admin/feedbacks" routerLinkActive="active" class="nav-item">Avis ⭐</a>
-          <a routerLink="/admin/promos" routerLinkActive="active" class="nav-item">Codes Promo 🎟️</a>
-          <a routerLink="/admin/gifts" routerLinkActive="active" class="nav-item">Cadeaux 🎁</a>
-          <a routerLink="/admin/ai-moderation" routerLinkActive="active" class="nav-item">Modération IA 🤖</a>
-          <a routerLink="/admin/support" routerLinkActive="active" class="nav-item">Support 🎧</a>
-          <a routerLink="/admin/logs" routerLinkActive="active" class="nav-item">Logs Système 🖥️</a>
-          <a routerLink="/admin/settings" routerLinkActive="active" class="nav-item">Paramètres ⚙️</a>
-          <a routerLink="/dashboard" class="nav-item back-link">Back to App</a>
+          <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item">{{ t9n.t('admin.layout.nav_dashboard') || 'Dashboard' }}</a>
+          <a routerLink="/admin/users" routerLinkActive="active" class="nav-item">{{ t9n.t('admin.layout.nav_users') || 'Users' }}</a>
+          <a routerLink="/admin/payments" routerLinkActive="active" class="nav-item">{{ t9n.t('admin.layout.nav_payments') || 'Paiements 💳' }}</a>
+          <a routerLink="/admin/announcements" routerLinkActive="active" class="nav-item">{{ t9n.t('admin.layout.nav_announcements') || 'Annonces 📢' }}</a>
+          <a routerLink="/admin/feedbacks" routerLinkActive="active" class="nav-item">{{ t9n.t('admin.layout.nav_feedbacks') || 'Avis ⭐' }}</a>
+          <a routerLink="/admin/promos" routerLinkActive="active" class="nav-item">{{ t9n.t('admin.layout.nav_promos') || 'Codes Promo 🎟️' }}</a>
+          <a routerLink="/admin/gifts" routerLinkActive="active" class="nav-item">{{ t9n.t('admin.layout.nav_gifts') || 'Cadeaux 🎁' }}</a>
+          <a routerLink="/admin/ai-moderation" routerLinkActive="active" class="nav-item">{{ t9n.t('admin.layout.nav_ai_moderation') || 'Modération IA 🤖' }}</a>
+          <a routerLink="/admin/support" routerLinkActive="active" class="nav-item">{{ t9n.t('admin.layout.nav_support') || 'Support 🎧' }}</a>
+          <a routerLink="/admin/logs" routerLinkActive="active" class="nav-item">{{ t9n.t('admin.layout.nav_logs') || 'Logs Système 🖥️' }}</a>
+          <a routerLink="/admin/settings" routerLinkActive="active" class="nav-item">{{ t9n.t('admin.layout.nav_settings') || 'Paramètres ⚙️' }}</a>
+          <a routerLink="/dashboard" class="nav-item back-link">{{ t9n.t('admin.layout.nav_back_to_app') || 'Back to App' }}</a>
         </nav>
       </aside>
 
       <main class="admin-main">
         <header class="admin-header">
           <div class="header-title">
-            Time2Wish Administration
+            {{ t9n.t('admin.layout.header_title') || 'Time2Wish Administration' }}
           </div>
           <div class="header-actions">
-            <span class="admin-user">{{ authService.currentUser()?.fullName }} (Admin)</span>
-            <button class="logout-btn" (click)="onLogout()">Logout</button>
+            <span class="admin-user">{{ authService.currentUser()?.fullName }} {{ t9n.t('admin.layout.role_badge') || '(Admin)' }}</span>
+            <button class="logout-btn" (click)="onLogout()">{{ t9n.t('admin.layout.btn_logout') || 'Logout' }}</button>
           </div>
         </header>
         <div class="admin-content">
@@ -160,6 +161,7 @@ import { AuthService } from '../../services/auth.service';
 export class AdminLayoutComponent {
   authService = inject(AuthService);
   router = inject(Router);
+  t9n = inject(TranslationService);
 
   onLogout() {
     this.authService.logout().subscribe(() => {

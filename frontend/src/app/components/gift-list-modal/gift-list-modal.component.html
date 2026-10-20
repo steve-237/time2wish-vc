@@ -165,7 +165,7 @@
                   Cagnotte
                 </button>
                 @if (expandedGiftId === gift.id) {
-                  <app-fundraiser-widget [giftId]="gift.id!"></app-fundraiser-widget>
+                  <app-fundraiser-widget [giftId]="gift.id!" [estimatedPrice]="getGiftPrice(gift)"></app-fundraiser-widget>
                 }
               </div>
             }

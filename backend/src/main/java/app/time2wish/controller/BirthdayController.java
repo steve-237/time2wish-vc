@@ -108,12 +108,12 @@ public class BirthdayController {
     }
 
     private ResponseEntity<?> validateBirthdayLimits(BirthdayRequest request, User user, Long birthdayIdToUpdate) {
-        // Validate reminders
+        // Validate reminders - clamp gracefully to user plan allowance instead of failing with 403
         Short rDays = request.getReminderDays() != null ? request.getReminderDays() : (short) 0;
         if (user.getPlan() == app.time2wish.model.PlanType.BASIC && rDays > 0) {
-            return ResponseEntity.status(403).body(new MessageResponse("BASIC plan can only set reminder for Day D (0)."));
+            request.setReminderDays((short) 0);
         } else if (user.getPlan() == app.time2wish.model.PlanType.PLUS && rDays > 1) {
-            return ResponseEntity.status(403).body(new MessageResponse("PLUS plan can only set reminder up to 1 day before."));
+            request.setReminderDays((short) 1);
         }
 
         // Validate favorites

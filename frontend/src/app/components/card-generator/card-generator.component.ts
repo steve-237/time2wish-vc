@@ -75,8 +75,8 @@ import { Birthday } from '../../models/birthday.model';
                 </div>
 
                 <div class="ai-loading-status">
-                  <span class="ai-shimmer-title">{{ t9n.t('card_gen.loading') || "Création de l'illustration par l'IA..." }}</span>
-                  <span class="ai-loading-subtitle">Génération d'une carte virtuelle unique</span>
+                  <span class="ai-shimmer-title">{{ t9n.t('card_gen.ai_loading') || t9n.t('card_gen.loading') }}</span>
+                  <span class="ai-loading-subtitle">{{ t9n.t('card_gen.ai_subtitle') }}</span>
                 </div>
 
                 <div class="ai-particle p1">🎨</div>
@@ -85,7 +85,7 @@ import { Birthday } from '../../models/birthday.model';
               </div>
             } @else if (imageUrl()) {
               <div class="cg-result">
-                <img [src]="imageUrl()" alt="Generated card" class="cg-image">
+                <img [src]="imageUrl()" [alt]="t9n.t('card_gen.alt_generated_card')" class="cg-image">
                 <a [href]="imageUrl()" [download]="'carte_' + birthday?.name + '.jpg'" target="_blank" class="btn-secondary cg-download-btn">
                   <span class="material-symbols-outlined">download</span>
                   {{ t9n.t('card_gen.btn_download') || 'Télécharger' }}
@@ -115,7 +115,7 @@ import { Birthday } from '../../models/birthday.model';
           <div class="gallery-grid">
             @for (img of fallbackImages; track img) {
               <div class="gallery-item" (click)="selectFallback(img)" [class.selected]="selectedFallback() === img">
-                <img [src]="img" alt="Carte d'anniversaire">
+                <img [src]="img" [alt]="t9n.t('card_gen.alt_birthday_card')">
                 @if (selectedFallback() === img) {
                   <div class="gallery-item-overlay">
                     <span class="material-symbols-outlined">check_circle</span>
@@ -431,12 +431,12 @@ export class CardGeneratorComponent {
               const res = JSON.parse(reader.result as string);
               this.errorMsg.set(res.message);
             } catch {
-              this.errorMsg.set(this.t9n.currentLang() === 'en' ? 'Image generation API is not configured yet.' : "L'API de génération d'images n'est pas encore configurée.");
+              this.errorMsg.set(this.t9n.t('card_gen.err_api_unconfigured'));
             }
           };
           reader.readAsText(err.error);
         } else {
-          this.errorMsg.set(this.t9n.currentLang() === 'en' ? 'An error occurred during generation.' : 'Une erreur est survenue lors de la génération.');
+          this.errorMsg.set(this.t9n.t('card_gen.err_generation'));
         }
       }
     });

@@ -12,30 +12,30 @@ import { TranslationService } from '../../services/translation.service';
   template: `
     <div class="support-container">
       <div class="header-container">
-        <h2 class="page-title">Support & Assistance</h2>
-        <p class="page-subtitle">Contactez notre équipe pour toute question ou problème.</p>
+        <h2 class="page-title">{{ t9n.t('support_tickets.title') || 'Support & Assistance' }}</h2>
+        <p class="page-subtitle">{{ t9n.t('support_tickets.subtitle') || 'Contactez notre équipe pour toute question ou problème.' }}</p>
         <button class="btn-PRO mt-3" (click)="isModalOpen.set(true)" *ngIf="!isModalOpen()">
           <span class="material-symbols-outlined">add_comment</span>
-          Nouveau Ticket
+          {{ t9n.t('support_tickets.btn_new_ticket') || 'Nouveau Ticket' }}
         </button>
       </div>
 
       <!-- New Ticket Form -->
       @if (isModalOpen()) {
         <div class="glass-card mb-4">
-          <h3>Ouvrir un nouveau ticket</h3>
+          <h3>{{ t9n.t('support_tickets.open_new_ticket') || 'Ouvrir un nouveau ticket' }}</h3>
           <div class="form-group">
-            <label class="form-label">Sujet</label>
-            <input type="text" class="form-control" [(ngModel)]="newSubject" placeholder="Ex: Problème avec mon paiement">
+            <label class="form-label">{{ t9n.t('support_tickets.label_subject') || 'Sujet' }}</label>
+            <input type="text" class="form-control" [(ngModel)]="newSubject" [placeholder]="t9n.t('support_tickets.placeholder_subject') || 'Ex: Problème avec mon paiement'">
           </div>
           <div class="form-group mt-3">
-            <label class="form-label">Message</label>
-            <textarea class="form-control" rows="4" [(ngModel)]="newMessage" placeholder="Décrivez votre problème en détail..."></textarea>
+            <label class="form-label">{{ t9n.t('support_tickets.label_message') || 'Message' }}</label>
+            <textarea class="form-control" rows="4" [(ngModel)]="newMessage" [placeholder]="t9n.t('support_tickets.placeholder_message') || 'Décrivez votre problème en détail...'"></textarea>
           </div>
           <div class="mt-4 flex-gap">
-            <button class="btn btn-secondary" (click)="isModalOpen.set(false)">Annuler</button>
+            <button class="btn btn-secondary" (click)="isModalOpen.set(false)">{{ t9n.t('support_tickets.btn_cancel') || 'Annuler' }}</button>
             <button class="btn-PRO" (click)="submitTicket()" [disabled]="!newSubject || !newMessage || isSubmitting()">
-              {{ isSubmitting() ? 'Envoi...' : 'Envoyer la demande' }}
+              {{ isSubmitting() ? (t9n.t('support_tickets.btn_sending') || 'Envoi...') : (t9n.t('support_tickets.btn_send') || 'Envoyer la demande') }}
             </button>
           </div>
         </div>
@@ -43,11 +43,11 @@ import { TranslationService } from '../../services/translation.service';
 
       <!-- Tickets List -->
       <div class="tickets-list">
-        <h3>Vos tickets récents</h3>
+        <h3>{{ t9n.t('support_tickets.recent_tickets') || 'Vos tickets récents' }}</h3>
         @if (tickets().length === 0) {
           <div class="empty-state">
             <span class="material-symbols-outlined">chat_bubble_outline</span>
-            <p>Vous n'avez aucun ticket de support ouvert.</p>
+            <p>{{ t9n.t('support_tickets.empty') || "Vous n'avez aucun ticket de support ouvert." }}</p>
           </div>
         }
         @for (ticket of tickets(); track ticket.id) {
@@ -62,7 +62,7 @@ import { TranslationService } from '../../services/translation.service';
                 'status-resolved': ticket.status === 'RESOLVED',
                 'status-closed': ticket.status === 'CLOSED'
               }">
-                {{ ticket.status === 'OPEN' ? 'Ouvert' : (ticket.status === 'RESOLVED' ? 'Résolu' : 'Fermé') }}
+                {{ ticket.status === 'OPEN' ? (t9n.t('support_tickets.status_open') || 'Ouvert') : (ticket.status === 'RESOLVED' ? (t9n.t('support_tickets.status_resolved') || 'Résolu') : (t9n.t('support_tickets.status_closed') || 'Fermé')) }}
               </span>
             </div>
             <div class="ticket-body">
@@ -72,7 +72,7 @@ import { TranslationService } from '../../services/translation.service';
                 <div class="admin-reply-box">
                   <div class="reply-header">
                     <span class="material-symbols-outlined icon-admin">support_agent</span>
-                    <strong>Réponse de l'équipe</strong>
+                    <strong>{{ t9n.t('support_tickets.team_reply') || "Réponse de l'équipe" }}</strong>
                     <span class="reply-date">{{ ticket.repliedAt | date:'short' }}</span>
                   </div>
                   <p class="reply-message">{{ ticket.adminReply }}</p>
@@ -80,7 +80,7 @@ import { TranslationService } from '../../services/translation.service';
               } @else {
                 <div class="waiting-reply">
                   <span class="material-symbols-outlined">pending</span>
-                  <em>En attente d'une réponse de notre équipe...</em>
+                  <em>{{ t9n.t('support_tickets.waiting_reply') || "En attente d'une réponse de notre équipe..." }}</em>
                 </div>
               }
             </div>
@@ -125,6 +125,7 @@ import { TranslationService } from '../../services/translation.service';
 export class SupportComponent implements OnInit {
   private supportService = inject(SupportService);
   private toast = inject(ToastService);
+  t9n = inject(TranslationService);
 
   tickets = signal<SupportTicket[]>([]);
   isModalOpen = signal(false);
@@ -140,7 +141,7 @@ export class SupportComponent implements OnInit {
   loadTickets() {
     this.supportService.getMyTickets().subscribe({
       next: (data) => this.tickets.set(data),
-      error: () => this.toast.error('Erreur lors du chargement des tickets')
+      error: () => this.toast.error(this.t9n.t('support_tickets.toast_load_error') || 'Erreur lors du chargement des tickets')
     });
   }
 
@@ -155,10 +156,10 @@ export class SupportComponent implements OnInit {
         this.newSubject = '';
         this.newMessage = '';
         this.isSubmitting.set(false);
-        this.toast.success('Ticket envoyé avec succès');
+        this.toast.success(this.t9n.t('support_tickets.toast_send_success') || 'Ticket envoyé avec succès');
       },
       error: () => {
-        this.toast.error("Erreur lors de l'envoi du ticket");
+        this.toast.error(this.t9n.t('support_tickets.toast_send_error') || "Erreur lors de l'envoi du ticket");
         this.isSubmitting.set(false);
       }
     });

@@ -83,7 +83,7 @@ export class PartyOrganizerModalComponent implements OnInit {
         this.partyTime(),
         this.partyLocation(),
         this.partyDescription()
-      );
+      ).subscribe();
       this.toastService.success('Détails de la fête sauvegardés.');
     }
   }

@@ -13,7 +13,7 @@
           <button 
             (click)="toggleFavorite(element, $event)" 
             class="fav-btn"
-            [title]="element.isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'">
+            [title]="element.isFavorite ? t9n.t('dashboard.remove_favorite') : t9n.t('dashboard.add_favorite')">
             <span class="material-symbols-outlined star-icon" [class.filled]="element.isFavorite">star</span>
           </button>
         </div>
@@ -22,24 +22,24 @@
 
     <!-- Name Column -->
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Nom </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ t9n.t('birthday_list.col_name') }} </th>
       <td mat-cell *matCellDef="let element" class="fw-bold"> 
         {{element.name}}
         <!-- Nouveau Badge -->
         @if (birthdayService.lastAddedBirthdayId() === element.id) {
         <span class="badge-new list-new-badge">
-          Nouveau
+          {{ t9n.t('dashboard.badge_new') }}
         </span>
         }
-        @if (element.gender === 'Masculin') { <span class="material-symbols-outlined gender-icon male" title="Masculin">male</span> }
-        @if (element.gender === 'Féminin') { <span class="material-symbols-outlined gender-icon female" title="Féminin">female</span> }
-        @if (element.gender === 'Autre') { <span class="material-symbols-outlined gender-icon other" title="Autre">transgender</span> }
+        @if (element.gender === 'Masculin') { <span class="material-symbols-outlined gender-icon male" [title]="t9n.t('gender.male')">male</span> }
+        @if (element.gender === 'Féminin') { <span class="material-symbols-outlined gender-icon female" [title]="t9n.t('gender.female')">female</span> }
+        @if (element.gender === 'Autre') { <span class="material-symbols-outlined gender-icon other" [title]="t9n.t('gender.other')">transgender</span> }
       </td>
     </ng-container>
 
     <!-- Birthdate Column -->
     <ng-container matColumnDef="birthdate">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ t9n.t('birthday_list.col_date') }} </th>
       <td mat-cell *matCellDef="let element"> 
         <span class="flex-center gap-sm list-date-wrapper">
           <span class="material-symbols-outlined icon-sm">event</span>
@@ -51,7 +51,7 @@
 
     <!-- Category Column -->
     <ng-container matColumnDef="category">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Catégorie </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ t9n.t('birthday_list.col_category') }} </th>
       <td mat-cell *matCellDef="let element"> 
         <span class="tag-category" [class]="'tag-' + element.category.toLowerCase()">{{ t9n.t('categories.' + element.category) || element.category }}</span>
       </td>
@@ -59,7 +59,7 @@
 
     <!-- Countdown Column -->
     <ng-container matColumnDef="countdown">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Statut </th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ t9n.t('birthday_list.col_status') }} </th>
       <td mat-cell *matCellDef="let element">
         <span 
           class="badge-urgency" 
@@ -72,7 +72,7 @@
 
     <!-- Actions Column -->
     <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <th mat-header-cell *matHeaderCellDef> {{ t9n.t('birthday_list.col_actions') }} </th>
       <td mat-cell *matCellDef="let element">
         <div class="flex-center gap-sm list-actions-wrapper">
           @if (birthdayService.getDaysUntil(element.birthdate) === 0) {
@@ -97,6 +97,6 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;" [routerLink]="['/dashboard/birthday', row.id]" class="table-row-hover"></tr>
   </table>
 
-  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page of birthdays"></mat-paginator>
+  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons [attr.aria-label]="t9n.t('birthday_list.paginator_aria_label')"></mat-paginator>
 
 </div>

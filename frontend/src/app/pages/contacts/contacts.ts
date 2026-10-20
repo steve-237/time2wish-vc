@@ -103,7 +103,7 @@ import { ToastService } from '../../services/toast.service';
                     <span class="material-symbols-outlined">chat</span>
                     {{ t9n.t('contacts.message') || 'Message' }}
                   </button>
-                  <button class="btn-icon" (click)="remove(contact.id)" title="Supprimer">
+                  <button class="btn-icon" (click)="remove(contact.id)" [title]="t9n.t('contacts.delete') || 'Supprimer'">
                     <span class="material-symbols-outlined text-danger">delete</span>
                   </button>
                 </div>

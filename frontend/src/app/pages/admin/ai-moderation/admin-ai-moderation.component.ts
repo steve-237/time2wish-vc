@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { TranslationService } from '../../../services/translation.service';
 
 interface AiLogDto {
   id: number;
@@ -20,26 +21,26 @@ interface AiLogDto {
   imports: [CommonModule, DatePipe],
   template: `
     <div class="logs-container">
-      <h2 class="page-title">Modération IA</h2>
-      <p class="page-subtitle">Historique des requêtes et contenus générés par l'IA.</p>
+      <h2 class="page-title">{{ t9n.t('admin.ai_moderation.title') || 'Modération IA' }}</h2>
+      <p class="page-subtitle">{{ t9n.t('admin.ai_moderation.subtitle') || 'Historique des requêtes et contenus générés par l\\'IA.' }}</p>
       
       <div class="filters">
-        <button class="filter-btn" [class.active]="filter() === 'ALL'" (click)="filter.set('ALL')">Tous</button>
-        <button class="filter-btn" [class.active]="filter() === 'WISH'" (click)="filter.set('WISH')">Vœux (Texte)</button>
-        <button class="filter-btn" [class.active]="filter() === 'GIFT'" (click)="filter.set('GIFT')">Cadeaux (JSON)</button>
-        <button class="filter-btn" [class.active]="filter() === 'IMAGE'" (click)="filter.set('IMAGE')">Images</button>
+        <button class="filter-btn" [class.active]="filter() === 'ALL'" (click)="filter.set('ALL')">{{ t9n.t('admin.ai_moderation.filter_all') || 'Tous' }}</button>
+        <button class="filter-btn" [class.active]="filter() === 'WISH'" (click)="filter.set('WISH')">{{ t9n.t('admin.ai_moderation.filter_wishes') || 'Vœux (Texte)' }}</button>
+        <button class="filter-btn" [class.active]="filter() === 'GIFT'" (click)="filter.set('GIFT')">{{ t9n.t('admin.ai_moderation.filter_gifts') || 'Cadeaux (JSON)' }}</button>
+        <button class="filter-btn" [class.active]="filter() === 'IMAGE'" (click)="filter.set('IMAGE')">{{ t9n.t('admin.ai_moderation.filter_images') || 'Images' }}</button>
       </div>
 
       <div class="table-wrapper">
         <table class="logs-table">
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Utilisateur</th>
-              <th>Type</th>
-              <th>Prompt (Requête)</th>
-              <th>Contenu Généré</th>
-              <th>Coût (Tokens)</th>
+              <th>{{ t9n.t('admin.ai_moderation.col_date') || 'Date' }}</th>
+              <th>{{ t9n.t('admin.ai_moderation.col_user') || 'Utilisateur' }}</th>
+              <th>{{ t9n.t('admin.ai_moderation.col_type') || 'Type' }}</th>
+              <th>{{ t9n.t('admin.ai_moderation.col_prompt') || 'Prompt (Requête)' }}</th>
+              <th>{{ t9n.t('admin.ai_moderation.col_generated_content') || 'Contenu Généré' }}</th>
+              <th>{{ t9n.t('admin.ai_moderation.col_tokens_cost') || 'Coût (Tokens)' }}</th>
             </tr>
           </thead>
           <tbody>
@@ -70,7 +71,7 @@ interface AiLogDto {
             }
             @if (filteredLogs().length === 0) {
               <tr>
-                <td colspan="6" class="empty-state">Aucun log IA trouvé.</td>
+                <td colspan="6" class="empty-state">{{ t9n.t('admin.ai_moderation.empty') || 'Aucun log IA trouvé.' }}</td>
               </tr>
             }
           </tbody>
@@ -113,6 +114,7 @@ interface AiLogDto {
 })
 export class AdminAiLogsComponent implements OnInit {
   private http = inject(HttpClient);
+  t9n = inject(TranslationService);
   logs = signal<AiLogDto[]>([]);
   filter = signal<string>('ALL');
   

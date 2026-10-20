@@ -123,21 +123,34 @@ class _LoginScreenState extends State<LoginScreen>
                   _animatedChild(
                     0,
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: 86,
+                      height: 86,
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: AppColors.primaryGradient,
+                        borderRadius: BorderRadius.circular(22),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.accentPurple.withValues(alpha: 0.5),
+                            color: AppColors.primaryCyan.withValues(alpha: 0.45),
                             blurRadius: 24,
-                            spreadRadius: 2,
+                            spreadRadius: 1,
+                          ),
+                          BoxShadow(
+                            color: AppColors.accentPurple.withValues(alpha: 0.35),
+                            blurRadius: 32,
+                            spreadRadius: 4,
                           ),
                         ],
                       ),
-                      child: const Center(
-                        child: Text('🎂', style: TextStyle(fontSize: 40)),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(22),
+                        child: Image.asset(
+                          'assets/branding/time2wish_icon_192.png',
+                          width: 86,
+                          height: 86,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const Center(
+                            child: Text('🎂', style: TextStyle(fontSize: 40)),
+                          ),
+                        ),
                       ),
                     ),
                   ),

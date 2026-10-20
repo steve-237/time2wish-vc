@@ -3,6 +3,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { ToastService } from '../../../services/toast.service';
+import { TranslationService } from '../../../services/translation.service';
 
 interface GiftDto {
   id: number;
@@ -21,8 +22,8 @@ interface GiftDto {
   template: `
     <div class="admin-container">
       <div class="header-container mb-4">
-        <h2 class="page-title">Cadeaux 🎁</h2>
-        <p class="page-subtitle">Modération des idées cadeaux générées ou ajoutées par les utilisateurs</p>
+        <h2 class="page-title">{{ t9n.t('admin.gifts.title') || 'Cadeaux 🎁' }}</h2>
+        <p class="page-subtitle">{{ t9n.t('admin.gifts.subtitle') || 'Modération des idées cadeaux générées ou ajoutées par les utilisateurs' }}</p>
       </div>
 
       <div class="gifts-grid">
@@ -36,7 +37,7 @@ interface GiftDto {
                   <span class="material-symbols-outlined">card_giftcard</span>
                 </div>
               }
-              <button class="delete-btn" (click)="deleteGift(gift)" title="Supprimer ce cadeau">
+              <button class="delete-btn" (click)="deleteGift(gift)" [title]="t9n.t('admin.gifts.delete_tooltip') || 'Supprimer ce cadeau'">
                 <span class="material-symbols-outlined">delete</span>
               </button>
             </div>
@@ -47,25 +48,25 @@ interface GiftDto {
               
               <div class="gift-stats">
                 <div class="stat-item">
-                  <span class="stat-label">Prix</span>
+                  <span class="stat-label">{{ t9n.t('admin.gifts.label_price') || 'Prix' }}</span>
                   <span class="stat-value">{{ gift.price | currency:'EUR' }}</span>
                 </div>
                 <div class="stat-item">
-                  <span class="stat-label">Cagnotte</span>
+                  <span class="stat-label">{{ t9n.t('admin.gifts.label_funding') || 'Cagnotte' }}</span>
                   <span class="stat-value text-primary">{{ gift.currentFunding | currency:'EUR' }}</span>
                 </div>
               </div>
               
               <div class="gift-footer">
-                <span class="badge">Anniversaire #{{ gift.birthdayId }}</span>
-                <span class="badge warning" *ngIf="gift.currentFunding > 0">Financé à {{ (gift.currentFunding / gift.price * 100) | number:'1.0-0' }}%</span>
+                <span class="badge">{{ t9n.t('admin.gifts.birthday_badge', gift.birthdayId) || ('Anniversaire #' + gift.birthdayId) }}</span>
+                <span class="badge warning" *ngIf="gift.currentFunding > 0">{{ t9n.t('admin.gifts.funded_percentage', ((gift.currentFunding / gift.price * 100) | number:'1.0-0') ?? '') || ('Financé à ' + (((gift.currentFunding / gift.price * 100) | number:'1.0-0') ?? '') + '%') }}</span>
               </div>
             </div>
           </div>
         } @empty {
           <div class="empty-state">
             <span class="material-symbols-outlined">inbox</span>
-            <p>Aucun cadeau trouvé dans la base de données.</p>
+            <p>{{ t9n.t('admin.gifts.empty') || 'Aucun cadeau trouvé dans la base de données.' }}</p>
           </div>
         }
       </div>
@@ -199,6 +200,7 @@ interface GiftDto {
 export class AdminGiftsComponent implements OnInit {
   private http = inject(HttpClient);
   private toast = inject(ToastService);
+  t9n = inject(TranslationService);
   
   gifts = signal<GiftDto[]>([]);
 
@@ -209,18 +211,19 @@ export class AdminGiftsComponent implements OnInit {
   loadGifts() {
     this.http.get<GiftDto[]>(`${environment.apiUrl}/admin/gifts`).subscribe({
       next: (data) => this.gifts.set(data),
-      error: () => this.toast.error('Erreur lors du chargement des cadeaux')
+      error: () => this.toast.error(this.t9n.t('admin.gifts.toast_load_error') || 'Erreur lors du chargement des cadeaux')
     });
   }
 
   deleteGift(gift: GiftDto) {
-    if(confirm(`Voulez-vous supprimer définitivement le cadeau "${gift.title}" ?`)) {
+    const confirmMsg = this.t9n.t('admin.gifts.confirm_delete', gift.title) || `Voulez-vous supprimer définitivement le cadeau "${gift.title}" ?`;
+    if(confirm(confirmMsg)) {
       this.http.delete(`${environment.apiUrl}/admin/gifts/${gift.id}`).subscribe({
         next: () => {
           this.gifts.update(list => list.filter(g => g.id !== gift.id));
-          this.toast.success('Cadeau supprimé avec succès');
+          this.toast.success(this.t9n.t('admin.gifts.toast_delete_success') || 'Cadeau supprimé avec succès');
         },
-        error: () => this.toast.error('Impossible de supprimer ce cadeau (il a peut-être des contributions)')
+        error: () => this.toast.error(this.t9n.t('admin.gifts.toast_delete_error') || 'Impossible de supprimer ce cadeau (il a peut-être des contributions)')
       });
     }
   }

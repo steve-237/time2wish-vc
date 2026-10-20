@@ -56,7 +56,7 @@
           </button>
           <button class="btn-secondary wish-btn" (click)="isWishModalOpen.set(true)">
             <span class="material-symbols-outlined">auto_awesome</span>
-            {{ daysUntil() === 0 ? 'Lui souhaiter !' : 'Envoyer un vœu' }}
+            {{ daysUntil() === 0 ? (t9n.t('detail.wish_now') || 'Lui souhaiter !') : (t9n.t('detail.send_wish') || 'Envoyer un vœu') }}
           </button>
         </div>
       </div>
@@ -82,7 +82,7 @@
       </button>
       <button class="tab-btn" [class.active]="activeTab() === 'capsule'" (click)="switchTab('capsule')">
         <span class="material-symbols-outlined tab-icon">hourglass_top</span>
-        Time Capsule
+        {{ t9n.t('detail.tab_time_capsule') || 'Time Capsule' }}
       </button>
     </div>
 
@@ -292,26 +292,26 @@
       <div class="capsule-section">
         <div class="glass-card" style="padding: 24px; text-align: center;">
           <span class="material-symbols-outlined" style="font-size: 48px; color: #6366f1; margin-bottom: 16px;">hourglass_top</span>
-          <h2 style="margin-bottom: 8px;">La Capsule Temporelle</h2>
+          <h2 style="margin-bottom: 8px;">{{ t9n.t('detail.capsule_title') || 'La Capsule Temporelle' }}</h2>
           
           @if (isLoadingCapsule()) {
-            <p><span class="material-symbols-outlined rotating">autorenew</span> Chargement...</p>
+            <p><span class="material-symbols-outlined rotating">autorenew</span> {{ t9n.t('common.loading') || 'Chargement...' }}</p>
           } @else {
             @if (timeCapsuleStatus() === 'LOCKED') {
               <div style="background: #fef2f2; color: #991b1b; padding: 16px; border-radius: 12px; margin-bottom: 24px;">
                 <span class="material-symbols-outlined" style="font-size: 32px; margin-bottom: 8px;">lock_clock</span>
-                <h3>Capsule Verrouillée</h3>
-                <p>Les vidéos de la capsule ne seront débloquées que le jour de l'anniversaire !</p>
+                <h3>{{ t9n.t('detail.capsule_locked_title') || 'Capsule Verrouillée' }}</h3>
+                <p>{{ t9n.t('detail.capsule_locked_desc') || "Les vidéos de la capsule ne seront débloquées que le jour de l'anniversaire !" }}</p>
                 @if (timeCapsuleDaysRemaining() !== null) {
-                  <p style="font-weight: bold; margin-top: 8px;">Déblocage dans {{ timeCapsuleDaysRemaining() }} jours.</p>
+                  <p style="font-weight: bold; margin-top: 8px;">{{ t9n.t('detail.capsule_unlock_countdown', timeCapsuleDaysRemaining() ?? 0) }}</p>
                 }
               </div>
             } @else {
               <div style="background: #ecfdf5; color: #065f46; padding: 16px; border-radius: 12px; margin-bottom: 24px;">
                 <span class="material-symbols-outlined" style="font-size: 32px; margin-bottom: 8px;">lock_open</span>
-                <h3>Capsule Déverrouillée !</h3>
-                <p>C'est le jour J ! Découvrez les messages de vos invités.</p>
-                <p style="font-size: 0.85rem; margin-top: 8px;"><em>Attention : Chaque vidéo visionnée s'autodétruira après la fermeture pour garantir la nature éphémère du message.</em></p>
+                <h3>{{ t9n.t('detail.capsule_unlocked_title') || 'Capsule Déverrouillée !' }}</h3>
+                <p>{{ t9n.t('detail.capsule_unlocked_desc') || "C'est le jour J ! Découvrez les messages de vos invités." }}</p>
+                <p style="font-size: 0.85rem; margin-top: 8px;"><em>{{ t9n.t('detail.capsule_ephemeral_warning') }}</em></p>
               </div>
             }
             
@@ -328,21 +328,21 @@
                   @if (timeCapsuleStatus() === 'UNLOCKED') {
                     <video controls style="width: 100%; border-radius: 8px; background: black; max-height: 200px; margin-bottom: 12px;">
                       <source [src]="video.videoUrl" type="video/mp4">
-                      Votre navigateur ne supporte pas la lecture de vidéos.
+                      {{ t9n.t('detail.capsule_video_unsupported') }}
                     </video>
                     
                     <button class="btn-PRO" style="width: 100%; background: #ef4444; margin-top: 8px;" (click)="markCapsuleVideoViewed(video.id)">
-                      <span class="material-symbols-outlined">delete_sweep</span> Marquer comme vue (Supprimer)
+                      <span class="material-symbols-outlined">delete_sweep</span> {{ t9n.t('detail.capsule_mark_viewed_delete') }}
                     </button>
                   } @else {
                     <div style="height: 150px; background: #e5e7eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6b7280; font-style: italic;">
-                      Vidéo verrouillée
+                      {{ t9n.t('detail.capsule_video_locked') }}
                     </div>
                   }
                 </div>
               } @empty {
                 <div style="grid-column: 1 / -1; text-align: center; color: #6b7280; padding: 24px;">
-                  Aucune vidéo dans la capsule pour le moment.
+                  {{ t9n.t('detail.capsule_empty') }}
                 </div>
               }
             </div>

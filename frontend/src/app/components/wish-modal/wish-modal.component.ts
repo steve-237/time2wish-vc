@@ -103,10 +103,10 @@ export class WishModalComponent implements OnInit {
       error: (err) => {
         console.error('Failed to generate AI wish', err);
         if (err.status === 429) {
-          this.toastService.error(err.error.message || "Génération bloquée par le délai.");
+          this.toastService.error(err.error?.message || this.t9n.t('wish.toast_blocked_delay') || "Génération bloquée par le délai.");
           this.authService.refreshSession().subscribe();
         } else if (err.status === 403) {
-          this.toastService.info("La génération magique par IA nécessite le forfait PLUS.");
+          this.toastService.info(this.t9n.t('wish.toast_plus_required') || "La génération magique par IA nécessite le forfait PLUS.");
           this.uiService.isPricingModalOpen.set(true);
         } else {
           // Fallback locally
@@ -179,7 +179,13 @@ export class WishModalComponent implements OnInit {
       window.open(url, '_blank');
     } else {
       const emailAddress = this.birthday.email || '';
-      const subject = encodeURIComponent(this.t9n.currentLang() === 'en' ? `Happy Birthday ${this.birthday.name}!` : `Joyeux Anniversaire ${this.birthday.name} !`);
+      const lang = this.t9n.currentLang();
+      const subjectText = lang === 'en' 
+        ? `Happy Birthday ${this.birthday.name}!` 
+        : lang === 'de' 
+        ? `Alles Gute zum Geburtstag ${this.birthday.name}!` 
+        : `Joyeux Anniversaire ${this.birthday.name} !`;
+      const subject = encodeURIComponent(subjectText);
       const url = `mailto:${emailAddress}?subject=${subject}&body=${encodedText}`;
       window.open(url, '_blank');
     }

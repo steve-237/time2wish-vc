@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { ToastService } from '../../../services/toast.service';
+import { TranslationService } from '../../../services/translation.service';
 
 @Component({
   selector: 'app-admin-logs',
@@ -12,15 +13,15 @@ import { ToastService } from '../../../services/toast.service';
     <div class="admin-container">
       <div class="header-container">
         <div>
-          <h2 class="page-title">Logs Système 🖥️</h2>
-          <p class="page-subtitle">Suivi en direct des événements du serveur (500 dernières lignes)</p>
+          <h2 class="page-title">{{ t9n.t('admin.logs.title') || 'Logs Système 🖥️' }}</h2>
+          <p class="page-subtitle">{{ t9n.t('admin.logs.subtitle') || 'Suivi en direct des événements du serveur (500 dernières lignes)' }}</p>
         </div>
         <div class="actions">
           <button class="btn btn-secondary" (click)="clearLogs()" [disabled]="isLoading()">
-            <span class="material-symbols-outlined">delete</span> Effacer
+            <span class="material-symbols-outlined">delete</span> {{ t9n.t('admin.logs.btn_clear') || 'Effacer' }}
           </button>
           <button class="btn btn-primary" (click)="loadLogs()" [disabled]="isLoading()">
-            <span class="material-symbols-outlined" [class.spin]="isLoading()">refresh</span> Rafraîchir
+            <span class="material-symbols-outlined" [class.spin]="isLoading()">refresh</span> {{ t9n.t('admin.logs.btn_refresh') || 'Rafraîchir' }}
           </button>
         </div>
       </div>
@@ -36,13 +37,13 @@ import { ToastService } from '../../../services/toast.service';
         </div>
         <div class="terminal-body" #terminalBody>
           @if (logs().length === 0 && !isLoading()) {
-            <div class="empty-logs">Aucun log disponible ou fichier vide.</div>
+            <div class="empty-logs">{{ t9n.t('admin.logs.empty') || 'Aucun log disponible ou fichier vide.' }}</div>
           }
           @for (line of logs(); track $index) {
             <div class="log-line" [class.error]="isError(line)" [class.warn]="isWarn(line)">{{ line }}</div>
           }
           @if (isLoading()) {
-            <div class="log-line loading-text">Chargement des logs...</div>
+            <div class="log-line loading-text">{{ t9n.t('admin.logs.loading') || 'Chargement des logs...' }}</div>
           }
         </div>
       </div>
@@ -123,6 +124,7 @@ import { ToastService } from '../../../services/toast.service';
 export class AdminLogsComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   private toast = inject(ToastService);
+  t9n = inject(TranslationService);
   
   logs = signal<string[]>([]);
   isLoading = signal(false);
@@ -158,13 +160,14 @@ export class AdminLogsComponent implements OnInit, OnDestroy {
   }
 
   clearLogs() {
-    if(confirm('Êtes-vous sûr de vouloir vider le fichier de log ?')) {
+    const confirmMsg = this.t9n.t('admin.logs.confirm_clear') || 'Êtes-vous sûr de vouloir vider le fichier de log ?';
+    if(confirm(confirmMsg)) {
       this.http.delete(`${environment.apiUrl}/admin/logs`).subscribe({
         next: () => {
           this.logs.set([]);
-          this.toast.success('Logs effacés');
+          this.toast.success(this.t9n.t('admin.logs.toast_cleared') || 'Logs effacés');
         },
-        error: () => this.toast.error('Erreur lors de la suppression des logs')
+        error: () => this.toast.error(this.t9n.t('admin.logs.toast_clear_error') || 'Erreur lors de la suppression des logs')
       });
     }
   }

@@ -146,21 +146,29 @@ class _RegisterScreenState extends State<RegisterScreen>
                     Column(
                       children: [
                         Container(
-                          width: 72,
-                          height: 72,
+                          width: 80,
+                          height: 80,
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: AppColors.accentGradient,
+                            borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.accentPink.withValues(alpha: 0.5),
+                                color: AppColors.accentPink.withValues(alpha: 0.4),
                                 blurRadius: 24,
-                                spreadRadius: 2,
+                                spreadRadius: 1,
                               ),
                             ],
                           ),
-                          child: const Center(
-                            child: Text('🎉', style: TextStyle(fontSize: 36)),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.asset(
+                              'assets/branding/time2wish_icon_192.png',
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => const Center(
+                                child: Text('🎉', style: TextStyle(fontSize: 36)),
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),

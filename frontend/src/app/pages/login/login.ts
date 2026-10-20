@@ -55,13 +55,7 @@ export class Login implements OnInit {
     // Check for timeout reason
     this.route.queryParams.subscribe(params => {
       if (params['reason'] === 'timeout') {
-        const lang = this.t9n.currentLang();
-        const messages: Record<string, string> = {
-          fr: 'Vous avez été déconnecté pour cause d\'inactivité (10 minutes).',
-          en: 'You have been disconnected due to inactivity (10 minutes).',
-          de: 'Sie wurden wegen Inaktivität abgemeldet (10 Minuten).'
-        };
-        const msg = messages[lang] || messages['fr'];
+        const msg = this.t9n.t('auth.timeout_message') || 'Vous avez été déconnecté pour cause d\'inactivité (10 minutes).';
         this.timeoutMessage.set(msg);
       }
     });
@@ -94,7 +88,7 @@ export class Login implements OnInit {
 
   sendForgotPassword() {
     if (!this.forgotEmail()) {
-      alert(this.t9n.currentLang() === 'en' ? 'Please enter an email address.' : 'Veuillez entrer une adresse email.');
+      alert(this.t9n.t('login.enter_email_alert'));
       return;
     }
     // Simulation
@@ -105,7 +99,7 @@ export class Login implements OnInit {
     this.errorMessage.set('');
 
     if (!this.email() || !this.password()) {
-      this.errorMessage.set('Veuillez remplir tous les champs obligatoires.');
+      this.errorMessage.set(this.t9n.t('login.error_required_fields'));
       return;
     }
 
@@ -117,13 +111,13 @@ export class Login implements OnInit {
         if (success) {
           this.router.navigate(['/dashboard']);
         } else {
-          this.errorMessage.set('Identifiants incorrects.');
+          this.errorMessage.set(this.t9n.t('login.error_invalid_credentials'));
         }
       });
     } else {
       // Register flow
       if (!this.fullName()) {
-        this.errorMessage.set('Le nom complet est obligatoire.');
+        this.errorMessage.set(this.t9n.t('login.error_name_required'));
         return;
       }
       
@@ -136,12 +130,12 @@ export class Login implements OnInit {
             if (loginSuccess) {
               this.router.navigate(['/dashboard']);
             } else {
-              this.errorMessage.set('Erreur de connexion automatique.');
+              this.errorMessage.set(this.t9n.t('login.error_auto_login'));
             }
           });
         } else {
           this.isLoading.set(false);
-          this.errorMessage.set('Cet email est déjà enregistré.');
+          this.errorMessage.set(this.t9n.t('login.error_email_registered'));
         }
       });
     }
@@ -155,16 +149,12 @@ export class Login implements OnInit {
           window.location.href = res.url;
         } else {
           this.isLoading.set(false);
-          this.toastService.error('Erreur: URL d\'autorisation Google non disponible.');
+          this.toastService.error(this.t9n.t('login.error_google_auth_url'));
         }
       },
       error: () => {
         this.isLoading.set(false);
-        this.toastService.error(
-          this.t9n.currentLang() === 'en'
-            ? 'Error redirecting to Google.'
-            : (this.t9n.currentLang() === 'de' ? 'Fehler bei der Weiterleitung zu Google.' : 'Erreur lors de la redirection vers Google.')
-        );
+        this.toastService.error(this.t9n.t('login.error_google_redirect'));
       }
     });
   }

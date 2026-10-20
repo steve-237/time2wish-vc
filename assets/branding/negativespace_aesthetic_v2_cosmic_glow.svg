@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <!-- Deep Cosmic Bloom Background -->
+    <radialGradient id="nebulaBase" cx="45%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#1E1B4B" />
+      <stop offset="40%" stop-color="#0F172A" />
+      <stop offset="75%" stop-color="#0B0F19" />
+      <stop offset="100%" stop-color="#030712" />
+    </radialGradient>
+
+    <!-- Glowing Cyber Violet to Electric Cyan Outer Rim -->
+    <linearGradient id="neonRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="45%" stop-color="#818CF8" />
+      <stop offset="85%" stop-color="#C084FC" />
+      <stop offset="100%" stop-color="#F43F5E" />
+    </linearGradient>
+
+    <!-- Ambient Core Nebula -->
+    <radialGradient id="nebulaCore" cx="50%" cy="55%" r="45%">
+      <stop offset="0%" stop-color="#6366F1" stop-opacity="0.3" />
+      <stop offset="60%" stop-color="#0EA5E9" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Liquid Flame Gradients -->
+    <linearGradient id="liquidFlame" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#FF0055" />
+      <stop offset="30%" stop-color="#FF5E00" />
+      <stop offset="70%" stop-color="#FFB703" />
+      <stop offset="100%" stop-color="#FDFFB6" />
+    </linearGradient>
+
+    <radialGradient id="flameSun" cx="50%" cy="65%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="55%" stop-color="#FFF9DB" />
+      <stop offset="100%" stop-color="#FF9E00" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="coronaGlow" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#FF9E00" stop-opacity="0.5" />
+      <stop offset="70%" stop-color="#FF0055" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#FF0055" stop-opacity="0" />
+    </radialGradient>
+
+    <linearGradient id="wishSparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="50%" stop-color="#FDE047" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="liquidShadow" x="-25%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#4F46E5" flood-opacity="0.45" />
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.7" />
+    </filter>
+  </defs>
+
+  <!-- 1. Medallion Outer Chassis with Multi-Layer Glow -->
+  <g filter="url(#liquidShadow)">
+    <circle cx="60" cy="60" r="50" fill="url(#nebulaBase)" />
+    <!-- Gradient Inner Halo -->
+    <circle cx="60" cy="60" r="49" fill="url(#nebulaCore)" />
+    <!-- Radiant Neon Contour Edge -->
+    <circle cx="60" cy="60" r="49" fill="none" stroke="url(#neonRim)" stroke-width="2" />
+    <!-- Specular Arc -->
+    <path d="M 20 50 C 25 25, 45 14, 60 14 C 75 14, 95 25, 100 50" fill="none" stroke="#FFFFFF" stroke-width="1" opacity="0.4" />
+  </g>
+
+  <!-- 2. Orbital Constellation Dial -->
+  <!-- Subtle Glowing Orbit Loop -->
+  <circle cx="60" cy="60" r="42" fill="none" stroke="#818CF8" stroke-width="0.75" stroke-dasharray="2 6" opacity="0.4" />
+
+  <!-- Hour Nodes -->
+  <g fill="#E0E7FF" opacity="0.6">
+    <circle cx="60" cy="18" r="2" />
+    <circle cx="102" cy="60" r="2" />
+    <circle cx="60" cy="102" r="2" />
+    <circle cx="18" cy="60" r="2" />
+  </g>
+
+  <!-- 3. Negative Space Fluid Sculpture: Candle Body & Curved Hand -->
+  <g id="fluidFigure">
+    <!-- Candle Base: Curved Organic Pillar with Smooth Base Fillet -->
+    <path d="M 53 58
+             C 53 53, 56.5 52, 60 52
+             C 63.5 52, 67 53, 67 58
+             L 67 86
+             C 67 90.5, 63.8 94, 60 94
+             C 56.2 94, 53 90.5, 53 86
+             Z" 
+          fill="#FFFFFF" />
+
+    <!-- Streamlined Aerodynamic Hand to 2 o'clock -->
+    <path d="M 59 56
+             C 63 56, 75 48, 86 37
+             C 87.5 35.5, 89 37, 87.5 38.5
+             C 77 49, 65 62, 61 62
+             C 59 62, 58 60, 59 56 Z" 
+          fill="#FFFFFF" />
+
+    <!-- Luminescent Pivot Core with Cyan Ring -->
+    <circle cx="60" cy="58" r="4.8" fill="#4F46E5" />
+    <circle cx="60" cy="58" r="3.2" fill="#38BDF8" />
+    <circle cx="60" cy="58" r="1.5" fill="#FFFFFF" />
+  </g>
+
+  <!-- 4. Living Liquid Flame -->
+  <!-- Corona Glow -->
+  <circle cx="60" cy="33" r="18" fill="url(#coronaGlow)" />
+
+  <!-- Organic Teardrop with Gentle Wind Sway -->
+  <path d="M 60 16
+           C 56 23, 49 32, 50 40
+           C 51 47, 56 50, 60 50
+           C 64 50, 69 47, 70 40
+           C 71 32, 64 23, 60 16 Z" 
+        fill="url(#liquidFlame)" />
+
+  <!-- Solar Core -->
+  <path d="M 60 25
+           C 57.5 30, 53.5 36, 54.5 42
+           C 55.5 46, 58 47.5, 60 47.5
+           C 62 47.5, 64.5 46, 65.5 42
+           C 66.5 36, 62.5 30, 60 25 Z" 
+        fill="url(#flameSun)" />
+
+  <!-- Apex Spark Point -->
+  <circle cx="60" cy="17" r="1.4" fill="#FFFFFF" />
+
+  <!-- 5. Ethereal Star Spark at 2 O'Clock (Wish Epicenter) -->
+  <g transform="translate(89, 35)" filter="url(#softGlow)">
+    <!-- Primary 4-pointed Spark -->
+    <path d="M 0 -13 Q 1.5 -2.5 10.5 0 Q 1.5 2.5 0 13 Q -1.5 2.5 -10.5 0 Q -1.5 -2.5 0 -13 Z" 
+          fill="url(#wishSparkGrad)" />
+
+    <!-- 45-degree Diagonal Micro Glow -->
+    <path d="M 0 -5.5 Q 0.7 -1 4.5 0 Q 0.7 1 0 5.5 Q -0.7 1 -4.5 0 Q -0.7 -1 0 -5.5 Z" 
+          fill="#FFFFFF" transform="rotate(45)" opacity="0.9" />
+
+    <!-- Supernova Center -->
+    <circle cx="0" cy="0" r="2" fill="#FFFFFF" />
+
+    <!-- Micro Orbiting Sparks -->
+    <circle cx="8" cy="-5" r="1.1" fill="#FEF08A" opacity="0.9" />
+    <circle cx="-6" cy="-6" r="0.9" fill="#F43F5E" opacity="0.8" />
+  </g>
+</svg>

@@ -81,10 +81,10 @@ export class ExportService {
         }
         
         const notes = notesIdx !== -1 ? cols[notesIdx] : '';
-        const reminderDays = reminderIdx !== -1 ? parseInt(cols[reminderIdx], 10) || 7 : 7;
+        const reminderDays = reminderIdx !== -1 ? parseInt(cols[reminderIdx], 10) || 0 : 0;
         const photoUrl = photoIdx !== -1 ? cols[photoIdx] : '';
         
-        this.birthdayService.addBirthday(name, date, category, notes, reminderDays, photoUrl);
+        this.birthdayService.addBirthday(name, date, category, notes, reminderDays, photoUrl).subscribe();
         importCount++;
       }
       

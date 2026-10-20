@@ -17,6 +17,8 @@ export interface Fundraiser {
   giftId: number;
   targetAmount: number;
   currentAmount: number;
+  remainingAmount?: number;
+  isCompleted?: boolean;
   currency: string;
   active: boolean;
   pledges: Pledge[];
@@ -37,5 +39,11 @@ export class FundraiserService {
 
   addPledge(fundraiserId: number, pledge: Partial<Pledge>): Observable<Fundraiser> {
     return this.http.post<Fundraiser>(`${this.apiUrl}/${fundraiserId}/pledges`, pledge);
+  }
+
+  updateTarget(fundraiserId: number, target: number): Observable<Fundraiser> {
+    return this.http.put<Fundraiser>(`${this.apiUrl}/${fundraiserId}/target`, null, {
+      params: { target }
+    });
   }
 }

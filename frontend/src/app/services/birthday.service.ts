@@ -6,6 +6,7 @@ import { effect } from '@angular/core';
 import { ToastService } from './toast.service';
 import { TranslationService } from './translation.service';
 import { UiService } from './ui.service';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root'
@@ -85,8 +86,16 @@ export class BirthdayService {
     this.isLoading.set(true);
     this.http.get<Birthday[]>(this.API_URL).subscribe({
       next: (list) => {
-        // Map backend Date object or String format if necessary
-        this.birthdays.set(list);
+        // If a birthday was just added, make sure it's not accidentally lost if the server list doesn't have it yet
+        const lastAddedId = this.lastAddedBirthdayId();
+        let updatedList = list;
+        if (lastAddedId !== null) {
+          const currentlySaved = this.birthdays().find(b => b.id === lastAddedId);
+          if (currentlySaved && !list.some(b => b.id === lastAddedId)) {
+            updatedList = [currentlySaved, ...list];
+          }
+        }
+        this.birthdays.set(updatedList);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -100,7 +109,7 @@ export class BirthdayService {
     return this.activeBirthdays().find(b => b.id === id);
   }
 
-  addBirthday(name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre', interests: string[] = [], isFavorite = false): void {
+  addBirthday(name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 0, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre', interests: string[] = [], isFavorite = false): Observable<Birthday> {
     const randomHex = Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
     const defaultPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${randomHex}&color=fff&rounded=true&bold=true`;
 
@@ -123,30 +132,35 @@ export class BirthdayService {
       partyDescription: null
     };
 
-    this.http.post<Birthday>(this.API_URL, payload).subscribe({
-      next: (saved) => {
-        this.birthdays.update(list => [...list, saved]);
-        this.toastService.success(this.t9n.t('toasts.add_success', saved.name));
-        this.lastAddedBirthdayId.set(saved.id);
-        setTimeout(() => {
-          if (this.lastAddedBirthdayId() === saved.id) {
-            this.lastAddedBirthdayId.set(null);
+    return this.http.post<Birthday>(this.API_URL, payload).pipe(
+      tap({
+        next: (saved) => {
+          this.birthdays.update(list => {
+            const exists = list.some(b => b.id === saved.id);
+            return exists ? list : [saved, ...list];
+          });
+          this.toastService.success(this.t9n.t('toasts.add_success', saved.name));
+          this.lastAddedBirthdayId.set(saved.id);
+          setTimeout(() => {
+            if (this.lastAddedBirthdayId() === saved.id) {
+              this.lastAddedBirthdayId.set(null);
+            }
+          }, 15000);
+        },
+        error: (err) => {
+          console.error('Failed to create birthday via API', err);
+          if (err.status === 403) {
+            this.toastService.info(this.t9n.t('toasts.limit_reached') || "Limite atteinte pour votre forfait. Veuillez passer au forfait supérieur.");
+            this.uiService.isPricingModalOpen.set(true);
+          } else {
+            this.toastService.error(this.t9n.t('toasts.import_error'));
           }
-        }, 15000);
-      },
-      error: (err) => {
-        console.error('Failed to create birthday via API', err);
-        if (err.status === 403) {
-          this.toastService.info("Limite atteinte pour votre forfait. Veuillez passer au forfait supérieur.");
-          this.uiService.isPricingModalOpen.set(true);
-        } else {
-          this.toastService.error(this.t9n.t('toasts.import_error'));
         }
-      }
-    });
+      })
+    );
   }
 
-  updateBirthday(id: number, name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 7, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre', interests: string[] = [], isFavorite = false, partyDate?: string, partyTime?: string, partyLocation?: string, partyDescription?: string): void {
+  updateBirthday(id: number, name: string, birthdate: string, category: BirthdayCategory, notes?: string, reminderDays = 0, photoUrl?: string, showAge = true, email?: string, whatsapp?: string, gender?: 'Masculin' | 'Féminin' | 'Autre', interests: string[] = [], isFavorite = false, partyDate?: string, partyTime?: string, partyLocation?: string, partyDescription?: string): Observable<Birthday> {
     const payload = {
       name,
       birthdate,
@@ -166,21 +180,23 @@ export class BirthdayService {
       partyDescription: partyDescription || null
     };
 
-    this.http.put<Birthday>(`${this.API_URL}/${id}`, payload).subscribe({
-      next: (updated) => {
-        this.birthdays.update(list => list.map(b => b.id === id ? updated : b));
-        this.toastService.success(this.t9n.t('toasts.update_success', updated.name));
-      },
-      error: (err) => {
-        console.error('Failed to update birthday via API', err);
-        if (err.status === 403) {
-          this.toastService.info("Action non permise pour votre forfait. Veuillez passer au forfait supérieur.");
-          this.uiService.isPricingModalOpen.set(true);
-        } else {
-          this.toastService.error(this.t9n.t('toasts.import_error'));
+    return this.http.put<Birthday>(`${this.API_URL}/${id}`, payload).pipe(
+      tap({
+        next: (updated) => {
+          this.birthdays.update(list => list.map(b => b.id === id ? updated : b));
+          this.toastService.success(this.t9n.t('toasts.update_success', updated.name));
+        },
+        error: (err) => {
+          console.error('Failed to update birthday via API', err);
+          if (err.status === 403) {
+            this.toastService.info(this.t9n.t('toasts.action_not_allowed') || "Action non permise pour votre forfait. Veuillez passer au forfait supérieur.");
+            this.uiService.isPricingModalOpen.set(true);
+          } else {
+            this.toastService.error(this.t9n.t('toasts.import_error'));
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   deleteBirthday(id: number): void {
@@ -223,7 +239,7 @@ export class BirthdayService {
       birthday.partyTime,
       birthday.partyLocation,
       birthday.partyDescription
-    );
+    ).subscribe();
   }
 
   removeInterest(birthdayId: number, interest: string): void {
@@ -250,7 +266,7 @@ export class BirthdayService {
       birthday.partyTime,
       birthday.partyLocation,
       birthday.partyDescription
-    );
+    ).subscribe();
   }
 
   toggleFavorite(id: number, isFavorite: boolean): void {
@@ -278,7 +294,7 @@ export class BirthdayService {
       birthday.partyTime,
       birthday.partyLocation,
       birthday.partyDescription
-    );
+    ).subscribe();
   }
 
   generateGiftSuggestions(id: number, lang: string) {
@@ -426,12 +442,16 @@ export class BirthdayService {
 
   // Helper method to compute days until next occurrence
   getDaysUntil(birthdateStr: string): number {
-    const birthdate = new Date(birthdateStr);
+    if (!birthdateStr) return 0;
+    const parts = birthdateStr.split('T')[0].split('-');
+    const bMonth = parseInt(parts[1], 10) - 1;
+    const bDay = parseInt(parts[2], 10);
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const currentYear = today.getFullYear();
-    const nextOccurrence = new Date(currentYear, birthdate.getMonth(), birthdate.getDate());
+    const nextOccurrence = new Date(currentYear, bMonth, bDay);
 
     if (nextOccurrence.getTime() < today.getTime()) {
       nextOccurrence.setFullYear(currentYear + 1);

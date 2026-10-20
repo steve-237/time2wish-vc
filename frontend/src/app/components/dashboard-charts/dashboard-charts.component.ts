@@ -344,7 +344,11 @@ export class DashboardChartsComponent implements OnChanges {
     // 9. Calculate Reminder Settings
     const reminderCount: { [key: string]: number } = {};
     list.forEach(b => {
-      const key = b.reminderDays === 0 ? 'Jour J' : (b.reminderDays === 1 ? '1 jour avant' : `${b.reminderDays} jours avant`);
+      const key = b.reminderDays === 0
+        ? (this.t9n.t('charts.reminder_day_j') || 'Jour J')
+        : (b.reminderDays === 1
+            ? (this.t9n.t('charts.reminder_one_day_before') || '1 jour avant')
+            : (this.t9n.t('charts.reminder_x_days_before', b.reminderDays) || `${b.reminderDays} jours avant`));
       reminderCount[key] = (reminderCount[key] || 0) + 1;
     });
 

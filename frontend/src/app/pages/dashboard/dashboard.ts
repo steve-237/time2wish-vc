@@ -57,7 +57,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     if (userIndex >= requiredIndex) {
       action();
     } else {
-      this.toastService.info(`Cette fonctionnalité nécessite le forfait ${requiredPlan}.`);
+      this.toastService.info(this.t9n.t('common.plan_required', requiredPlan) || `Cette fonctionnalité nécessite le forfait ${requiredPlan}.`);
       this.uiService.isPricingModalOpen.set(true);
     }
   }
@@ -90,11 +90,17 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     const cat = this.selectedCategory();
     const month = this.selectedMonth();
     const tf = this.timeFilter();
+    const lastAddedId = this.birthdayService.lastAddedBirthdayId();
 
     return this.birthdayService.activeBirthdays().filter(b => {
+      // If this birthday was just added, always show it immediately in the grid
+      if (lastAddedId !== null && b.id === lastAddedId) {
+        return true;
+      }
+
       const matchesSearch = !query || b.name.toLowerCase().includes(query);
       const matchesCat = cat === 'All' || b.category === cat;
-      const bMonth = new Date(b.birthdate).getMonth();
+      const bMonth = this.getBirthMonth(b.birthdate);
       const matchesMonth = month === -1 || bMonth === month;
       
       const isPast = this.isBirthdayPast(b.birthdate);
@@ -105,22 +111,37 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     });
   });
 
+  getBirthMonth(birthdateStr: string): number {
+    if (!birthdateStr) return 0;
+    const parts = birthdateStr.split('T')[0].split('-');
+    return parseInt(parts[1], 10) - 1;
+  }
+
   /** Check if a birthday's occurrence this year has already passed */
   isBirthdayPast(birthdateStr: string): boolean {
-    const birthdate = new Date(birthdateStr);
+    if (!birthdateStr) return false;
+    const parts = birthdateStr.split('T')[0].split('-');
+    const bMonth = parseInt(parts[1], 10) - 1;
+    const bDay = parseInt(parts[2], 10);
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const thisYearOccurrence = new Date(today.getFullYear(), birthdate.getMonth(), birthdate.getDate());
+    const thisYearOccurrence = new Date(today.getFullYear(), bMonth, bDay);
     return thisYearOccurrence.getTime() < today.getTime();
   }
 
   /** Calculate current age from birthdate */
   getAge(birthdateStr: string): number {
-    const birthdate = new Date(birthdateStr);
+    if (!birthdateStr) return 0;
+    const parts = birthdateStr.split('T')[0].split('-');
+    const bYear = parseInt(parts[0], 10);
+    const bMonth = parseInt(parts[1], 10) - 1;
+    const bDay = parseInt(parts[2], 10);
+
     const today = new Date();
-    let age = today.getFullYear() - birthdate.getFullYear();
-    const monthDiff = today.getMonth() - birthdate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
+    let age = today.getFullYear() - bYear;
+    const monthDiff = today.getMonth() - bMonth;
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < bDay)) {
       age--;
     }
     return age;
@@ -251,11 +272,11 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     const id = this.birthdayIdToDelete();
     if (id !== null) {
       const birthdayToDel = this.filteredBirthdays().find(b => b.id === id);
-      const name = birthdayToDel ? birthdayToDel.name : 'Inconnu';
+      const name = birthdayToDel ? birthdayToDel.name : (this.t9n.t('common.unknown') || 'Inconnu');
       
       this.birthdayService.deleteBirthday(id);
       this.audioService.playDeleteSound();
-      this.notifService.logAction('DELETE', `L'anniversaire de ${name} a été supprimé.`);
+      this.notifService.logAction('DELETE', this.t9n.t('notifications.deleted_desc', name) || `L'anniversaire de ${name} a été supprimé.`);
     }
     this.isConfirmModalOpen.set(false);
     this.birthdayIdToDelete.set(null);
@@ -277,7 +298,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (err) => {
         this.reminderStatus.set('error');
-        this.reminderMessage.set(err?.error?.message || 'Erreur lors du déclenchement des rappels.');
+        this.reminderMessage.set(err?.error?.message || this.t9n.t('dashboard.error_trigger_reminders') || 'Erreur lors du déclenchement des rappels.');
         setTimeout(() => this.reminderStatus.set('idle'), 6000);
       }
     });
@@ -303,7 +324,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   syncGoogleContacts() {
     this.isOptionsMenuOpen.set(false);
     this.requirePlan('PLUS', () => {
-      this.toastService.info('Vérification de la connexion Google...');
+      this.toastService.info(this.t9n.t('google_sync.checking_connection') || 'Vérification de la connexion Google...');
       this.googleSyncService.syncContacts().subscribe({
         next: (res) => {
           this.toastService.success(res.message);
@@ -312,15 +333,15 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         error: (err) => {
           if (err.status === 400 && err.error?.error && err.error.error.includes('connected')) {
             // Need to auth
-            this.toastService.info('Redirection vers Google pour autorisation...');
+            this.toastService.info(this.t9n.t('google_sync.redirecting') || 'Redirection vers Google pour autorisation...');
             this.googleSyncService.getAuthUrl().subscribe({
               next: (authRes) => {
                 window.location.href = authRes.url;
               },
-              error: () => this.toastService.error('Erreur lors de la redirection vers Google.')
+              error: () => this.toastService.error(this.t9n.t('google_sync.redirect_error') || 'Erreur lors de la redirection vers Google.')
             });
           } else {
-            this.toastService.error('Erreur lors de la synchronisation des contacts Google.');
+            this.toastService.error(this.t9n.t('google_sync.sync_contacts_error') || 'Erreur lors de la synchronisation des contacts Google.');
           }
         }
       });
@@ -330,7 +351,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   syncGoogleCalendar() {
     this.isOptionsMenuOpen.set(false);
     this.requirePlan('PRO', () => {
-      this.toastService.info('Vérification de la connexion Google...');
+      this.toastService.info(this.t9n.t('google_sync.checking_connection') || 'Vérification de la connexion Google...');
       this.googleSyncService.syncCalendar().subscribe({
         next: (res) => {
           this.toastService.success(res.message);
@@ -338,15 +359,15 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         error: (err) => {
           if (err.status === 400 && err.error?.error && err.error.error.includes('connected')) {
             // Need to auth
-            this.toastService.info('Redirection vers Google pour autorisation...');
+            this.toastService.info(this.t9n.t('google_sync.redirecting') || 'Redirection vers Google pour autorisation...');
             this.googleSyncService.getAuthUrl().subscribe({
               next: (authRes) => {
                 window.location.href = authRes.url;
               },
-              error: () => this.toastService.error('Erreur lors de la redirection vers Google.')
+              error: () => this.toastService.error(this.t9n.t('google_sync.redirect_error') || 'Erreur lors de la redirection vers Google.')
             });
           } else {
-            this.toastService.error('Erreur lors de l\'exportation vers Google Calendar.');
+            this.toastService.error(this.t9n.t('google_sync.sync_calendar_error') || 'Erreur lors de l\'exportation vers Google Calendar.');
           }
         }
       });

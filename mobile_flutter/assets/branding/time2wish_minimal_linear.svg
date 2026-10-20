@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <linearGradient id="linearGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0EA5E9" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </linearGradient>
+  </defs>
+
+  <!-- Complete Minimalist Clock Circle -->
+  <circle cx="60" cy="60" r="44" 
+          fill="none" 
+          stroke="url(#linearGrad)" 
+          stroke-width="5" />
+
+  <!-- 4 Clean Cardinal Markers -->
+  <line x1="60" y1="22" x2="60" y2="28" stroke="#38BDF8" stroke-width="3" stroke-linecap="round" />
+  <line x1="98" y1="60" x2="92" y2="60" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" opacity="0.6" />
+  <line x1="60" y1="98" x2="60" y2="92" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" opacity="0.6" />
+  <line x1="22" y1="60" x2="28" y2="60" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" opacity="0.6" />
+
+  <!-- Hour hand pointing towards 2 o'clock -->
+  <line x1="60" y1="60" x2="74" y2="48" 
+        stroke="#FFFFFF" 
+        stroke-width="4.5" 
+        stroke-linecap="round" />
+
+  <!-- Center Pivot Pin -->
+  <circle cx="60" cy="60" r="4" fill="#0EA5E9" />
+
+  <!-- 2 O'Clock Spark / Wish Star (Replaces standard minute hand end) -->
+  <g transform="translate(84, 38)">
+    <path d="M 0 -13 Q 1 -2.5 9 0 Q 1 2.5 0 13 Q -1 2.5 -9 0 Q -1 -2.5 0 -13 Z" 
+          fill="#F59E0B" />
+    <circle cx="0" cy="0" r="2" fill="#FFFFFF" />
+  </g>
+</svg>

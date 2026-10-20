@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FeedbackService } from '../../services/feedback.service';
 import { ToastService } from '../../services/toast.service';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-feedback-modal',
@@ -15,20 +16,20 @@ import { ToastService } from '../../services/toast.service';
         @if (isSubmitted()) {
           <div class="success-view text-center">
             <span class="material-symbols-outlined text-success" style="font-size: 4rem; margin-bottom: 1rem;">check_circle</span>
-            <h3 style="margin-bottom: 0.5rem;">Merci pour votre retour !</h3>
-            <p class="text-muted" style="margin-bottom: 2rem;">Votre avis nous aide énormément à améliorer l'application.</p>
-            <button class="btn-PRO" (click)="close.emit()" style="width: 100%;">Fermer</button>
+            <h3 style="margin-bottom: 0.5rem;">{{ t9n.t('feedback.success_title') }}</h3>
+            <p class="text-muted" style="margin-bottom: 2rem;">{{ t9n.t('feedback.success_desc') }}</p>
+            <button class="btn-PRO" (click)="close.emit()" style="width: 100%;">{{ t9n.t('common.close') }}</button>
           </div>
         } @else {
           <div class="modal-header">
-            <h3>Donnez-nous votre avis</h3>
+            <h3>{{ t9n.t('feedback.modal_title') }}</h3>
             <button class="icon-btn" (click)="close.emit()">
               <span class="material-symbols-outlined">close</span>
             </button>
           </div>
 
           <div class="modal-body">
-            <p class="text-center text-muted mb-4">Comment évaluez-vous votre expérience avec Time2Wish ?</p>
+            <p class="text-center text-muted mb-4">{{ t9n.t('feedback.rating_question') }}</p>
             
             <div class="stars-container flex-center mb-4">
               @for (star of [1, 2, 3, 4, 5]; track star) {
@@ -41,15 +42,15 @@ import { ToastService } from '../../services/toast.service';
             </div>
 
             <div class="form-group">
-              <label class="form-label">Votre commentaire (optionnel)</label>
-              <textarea class="form-control" rows="4" [(ngModel)]="comment" placeholder="Qu'avez-vous particulièrement apprécié ? Que pourrions-nous améliorer ?"></textarea>
+              <label class="form-label">{{ t9n.t('feedback.comment_label') }}</label>
+              <textarea class="form-control" rows="4" [(ngModel)]="comment" [placeholder]="t9n.t('feedback.comment_placeholder')"></textarea>
             </div>
           </div>
 
           <div class="modal-footer mt-4 flex-gap">
-            <button class="btn btn-secondary" (click)="close.emit()">Annuler</button>
+            <button class="btn btn-secondary" (click)="close.emit()">{{ t9n.t('common.cancel') }}</button>
             <button class="btn-PRO" (click)="submit()" [disabled]="rating() === 0 || isSubmitting()">
-              {{ isSubmitting() ? 'Envoi...' : 'Envoyer mon avis' }}
+              {{ isSubmitting() ? t9n.t('feedback.sending') : t9n.t('feedback.btn_submit') }}
             </button>
           </div>
         }
@@ -108,6 +109,7 @@ export class FeedbackModalComponent {
   
   private feedbackService = inject(FeedbackService);
   private toast = inject(ToastService);
+  public t9n = inject(TranslationService);
 
   rating = signal<number>(0);
   comment = '';
@@ -124,7 +126,7 @@ export class FeedbackModalComponent {
         this.isSubmitted.set(true);
       },
       error: () => {
-        this.toast.error('Une erreur est survenue lors de l\'envoi.');
+        this.toast.error(this.t9n.t('feedback.error_sending') || 'Une erreur est survenue lors de l\'envoi.');
         this.isSubmitting.set(false);
       }
     });

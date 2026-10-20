@@ -35,12 +35,14 @@ export class BirthdayForm implements OnInit {
   isEditMode = signal<boolean>(false);
   birthdayId = signal<number | null>(null);
 
+  isSubmitting = signal<boolean>(false);
+
   // Form Fields
   name = signal<string>('');
   birthdate = signal<string>('');
   category = signal<BirthdayCategory>('Friend');
   notes = signal<string>('');
-  reminderDays = signal<number>(7);
+  reminderDays = signal<number>(0);
   photoUrl = signal<string>('');
   showAge = signal<boolean>(true);
   email = signal<string>('');
@@ -94,6 +96,15 @@ export class BirthdayForm implements OnInit {
       } else {
         this.router.navigate(['/dashboard']);
       }
+    } else {
+      // Create mode: initialize reminderDays according to userPlan permissions
+      if (this.userPlan === 'BASIC') {
+        this.reminderDays.set(0);
+      } else if (this.userPlan === 'PLUS') {
+        this.reminderDays.set(1);
+      } else {
+        this.reminderDays.set(7);
+      }
     }
   }
 
@@ -105,16 +116,26 @@ export class BirthdayForm implements OnInit {
     this.errorMessage.set('');
 
     if (!this.name() || !this.birthdate()) {
-      this.errorMessage.set(this.t9n.t('form.name') + ' et ' + this.t9n.t('form.birthdate') + ' sont obligatoires.');
+      this.errorMessage.set(this.t9n.t('form.error_required_fields') || 'Veuillez remplir tous les champs obligatoires.');
       return;
     }
 
     // Basic date validation
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!dateRegex.test(this.birthdate())) {
-      this.errorMessage.set('La date de naissance doit être au format AAAA-MM-JJ.');
+      this.errorMessage.set(this.t9n.t('form.error_date_format') || 'La date de naissance doit être au format AAAA-MM-JJ.');
       return;
     }
+
+    // Clamp reminderDays to userPlan allowance to guarantee no 403 Forbidden
+    let validReminderDays = this.reminderDays();
+    if (this.userPlan === 'BASIC') {
+      validReminderDays = 0;
+    } else if (this.userPlan === 'PLUS' && validReminderDays > 1) {
+      validReminderDays = 1;
+    }
+
+    this.isSubmitting.set(true);
 
     if (this.isEditMode()) {
       const id = this.birthdayId();
@@ -126,7 +147,7 @@ export class BirthdayForm implements OnInit {
           this.birthdate(),
           this.category(),
           this.notes(),
-          this.reminderDays(),
+          validReminderDays,
           this.photoUrl(),
           this.showAge(),
           this.email(),
@@ -138,9 +159,18 @@ export class BirthdayForm implements OnInit {
           b?.partyTime, 
           b?.partyLocation, 
           b?.partyDescription
-        );
-        this.audioService.playSuccessSound();
-        this.notifService.logAction('UPDATE', `L'anniversaire de ${this.name()} a été mis à jour.`);
+        ).subscribe({
+          next: () => {
+            this.isSubmitting.set(false);
+            this.audioService.playSuccessSound();
+            this.notifService.logAction('UPDATE', this.t9n.t('form.log_birthday_updated', this.name()) || `L'anniversaire de ${this.name()} a été mis à jour.`);
+            this.router.navigate(['/dashboard']);
+          },
+          error: (err) => {
+            this.isSubmitting.set(false);
+            this.errorMessage.set(err.error?.message || this.t9n.t('toasts.import_error'));
+          }
+        });
       }
     } else {
       this.birthdayService.addBirthday(
@@ -148,17 +178,24 @@ export class BirthdayForm implements OnInit {
         this.birthdate(),
         this.category(),
         this.notes(),
-        this.reminderDays(),
+        validReminderDays,
         this.photoUrl(),
         this.showAge(),
         this.email(),
         this.whatsapp(),
         this.gender()
-      );
-      this.audioService.playSuccessSound();
-      this.notifService.logAction('ADD', `L'anniversaire de ${this.name()} a été ajouté.`);
+      ).subscribe({
+        next: (saved) => {
+          this.isSubmitting.set(false);
+          this.audioService.playSuccessSound();
+          this.notifService.logAction('ADD', this.t9n.t('form.log_birthday_added', this.name()) || `L'anniversaire de ${this.name()} a été ajouté.`);
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          this.isSubmitting.set(false);
+          this.errorMessage.set(err.error?.message || this.t9n.t('toasts.import_error'));
+        }
+      });
     }
-
-    this.router.navigate(['/dashboard']);
   }
 }

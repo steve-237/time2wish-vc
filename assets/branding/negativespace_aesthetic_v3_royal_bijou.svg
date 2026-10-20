@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <!-- Midnight Deep Sapphire Dial -->
+    <radialGradient id="sapphireDial" cx="40%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#1E293B" />
+      <stop offset="45%" stop-color="#0F172A" />
+      <stop offset="80%" stop-color="#090E17" />
+      <stop offset="100%" stop-color="#030712" />
+    </radialGradient>
+
+    <!-- Warm Champagne & Solar Gold Bezel -->
+    <linearGradient id="champagneBezel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFBEB" />
+      <stop offset="25%" stop-color="#FCD34D" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="75%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#78350F" />
+    </linearGradient>
+
+    <linearGradient id="goldSheen" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9" />
+      <stop offset="40%" stop-color="#FDE68A" stop-opacity="0.5" />
+      <stop offset="80%" stop-color="#B45309" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#FDE68A" stop-opacity="0.4" />
+    </linearGradient>
+
+    <!-- Molten Gold Flame -->
+    <linearGradient id="moltenFlame" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#EA580C" />
+      <stop offset="35%" stop-color="#F59E0B" />
+      <stop offset="75%" stop-color="#FDE047" />
+      <stop offset="100%" stop-color="#FFFFFF" />
+    </linearGradient>
+
+    <radialGradient id="moltenCore" cx="50%" cy="65%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="60%" stop-color="#FEF9C3" />
+      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="goldHalo" cx="50%" cy="45%" r="50%">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.4" />
+      <stop offset="60%" stop-color="#D97706" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#D97706" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Diamond Star Flare -->
+    <filter id="jewelryGlow" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="2.8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="royalShadow" x="-20%" y="-15%" width="140%" height="145%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#D97706" flood-opacity="0.35" />
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000000" flood-opacity="0.8" />
+    </filter>
+  </defs>
+
+  <!-- 1. Royal Gold Medallion Base -->
+  <g filter="url(#royalShadow)">
+    <circle cx="60" cy="60" r="50" fill="url(#sapphireDial)" />
+    <!-- Outer Gold Bezel Rim -->
+    <circle cx="60" cy="60" r="49" fill="none" stroke="url(#champagneBezel)" stroke-width="2.2" />
+    <!-- Fine Inner Gold Filigree Bevel -->
+    <circle cx="60" cy="60" r="47.5" fill="none" stroke="url(#goldSheen)" stroke-width="0.8" />
+  </g>
+
+  <!-- 2. Fine Swiss Watch Index Track -->
+  <circle cx="60" cy="60" r="43.5" fill="none" stroke="#FDE68A" stroke-width="0.75" stroke-dasharray="1 4" opacity="0.45" />
+
+  <!-- 12h, 3h, 6h, 9h Gold Indices -->
+  <g fill="url(#champagneBezel)">
+    <polygon points="60,18 61.5,24 58.5,24" />
+    <polygon points="102,60 96,61.5 96,58.5" />
+    <polygon points="60,102 61.5,96 58.5,96" />
+    <polygon points="18,60 24,61.5 24,58.5" />
+  </g>
+
+  <!-- 3. Top Glass Sheen -->
+  <path d="M 24 45 C 32 24, 46 17, 60 17 C 74 17, 88 24, 96 45 C 82 31, 68 25, 60 25 C 52 25, 38 31, 24 45 Z" 
+        fill="#FFFFFF" opacity="0.08" />
+
+  <!-- 4. Negative Space Sculpture (Ivory White with Gold Accents) -->
+  <g id="jewelryFigure">
+    <!-- Candle Base -->
+    <path d="M 53 58
+             C 53 52.5, 56.5 51.5, 60 51.5
+             C 63.5 51.5, 67 52.5, 67 58
+             L 67 87
+             C 67 91.2, 63.8 94.5, 60 94.5
+             C 56.2 94.5, 53 91.2, 53 87
+             Z" 
+          fill="#FFFFFF" />
+
+    <!-- Dauphine Minute Hand to 2h -->
+    <path d="M 60 58 
+             L 86 38 
+             C 87.5 37, 88.5 38.5, 87 39.5
+             L 62 62 Z" 
+          fill="#FFFFFF" />
+    <!-- Shaded Facet -->
+    <path d="M 60 58 
+             L 87 39.5
+             L 61 63
+             C 60 62, 59.5 60, 60 58 Z" 
+          fill="#F1F5F9" />
+
+    <!-- Gold Center Pivot Jewel -->
+    <circle cx="60" cy="58" r="5" fill="url(#champagneBezel)" />
+    <circle cx="60" cy="58" r="2.2" fill="#FFFFFF" />
+  </g>
+
+  <!-- 5. Molten Gold Flame -->
+  <!-- Ambient Gold Halo -->
+  <ellipse cx="60" cy="34" rx="17" ry="19" fill="url(#goldHalo)" />
+
+  <!-- Outer Flame Body -->
+  <path d="M 60 17
+           C 57 23, 49 32, 50 40
+           C 51 46, 56 49, 60 49
+           C 64 49, 69 46, 70 40
+           C 71 32, 63 23, 60 17 Z"
+        fill="url(#moltenFlame)" />
+
+  <!-- White Core -->
+  <path d="M 60 25
+           C 58 29, 54 35, 55 41
+           C 56 45, 58 46.5, 60 46.5
+           C 62 46.5, 64 45, 65 41
+           C 66 35, 62 29, 60 25 Z"
+        fill="url(#moltenCore)" />
+
+  <!-- 6. Diamond Solitaire Spark at 2 O'Clock -->
+  <g transform="translate(89, 36)" filter="url(#jewelryGlow)">
+    <!-- 4-point Diamond Star -->
+    <path d="M 0 -13 Q 1.5 -2.5 10 0 Q 1.5 2.5 0 13 Q -1.5 2.5 -10 0 Q -1.5 -2.5 0 -13 Z" 
+          fill="url(#champagneBezel)" />
+    
+    <!-- Micro Cross -->
+    <path d="M 0 -5.5 Q 0.6 -1 4.5 0 Q 0.6 1 0 5.5 Q -0.6 1 -4.5 0 Q -0.6 -1 0 -5.5 Z" 
+          fill="#FFFFFF" transform="rotate(45)" opacity="0.95" />
+
+    <circle cx="0" cy="0" r="2" fill="#FFFFFF" />
+
+    <circle cx="8" cy="-5" r="1.1" fill="#FFFBEB" opacity="0.9" />
+    <circle cx="-6" cy="-6" r="0.9" fill="#FCD34D" opacity="0.8" />
+  </g>
+</svg>

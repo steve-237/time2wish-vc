@@ -1,13 +1,13 @@
 <div class="calendar-wrapper glass-card">
   <!-- Calendar Header -->
   <div class="calendar-header flex-between">
-    <button (click)="prevMonth()" class="icon-btn nav-btn" title="Mois Précédent">
+    <button (click)="prevMonth()" class="icon-btn nav-btn" [title]="t9n.t('calendar.prev_month')">
       <span class="material-symbols-outlined">chevron_left</span>
     </button>
     
     <h2 class="calendar-title">{{ currentMonthName() }} {{ currentYear() }}</h2>
     
-    <button (click)="nextMonth()" class="icon-btn nav-btn" title="Mois Suivant">
+    <button (click)="nextMonth()" class="icon-btn nav-btn" [title]="t9n.t('calendar.next_month')">
       <span class="material-symbols-outlined">chevron_right</span>
     </button>
   </div>
@@ -53,7 +53,7 @@
               <span class="category-indicator" [style.background]="getCategoryColor(b.category)"></span>
               <span class="tooltip-name">
                 {{ b.name }}
-                <span *ngIf="b.showAge !== false" class="age-badge-xs">{{ getAge(b.birthdate) }} {{ t9n.currentLang() === 'en' ? 'yrs' : 'ans' }}</span>
+                <span *ngIf="b.showAge !== false" class="age-badge-xs">{{ getAge(b.birthdate) }} {{ t9n.t('common.years_short') }}</span>
               </span>
             </div>
             <div class="tooltip-actions">
@@ -61,7 +61,7 @@
               <button 
                 class="tooltip-action-btn wish-btn" 
                 (click)="onSendWish(b, $event)" 
-                title="Souhaiter">
+                [title]="t9n.t('dashboard.btn_wish')">
                 <span class="material-symbols-outlined">send</span>
               </button>
               <!-- Edit Action -->

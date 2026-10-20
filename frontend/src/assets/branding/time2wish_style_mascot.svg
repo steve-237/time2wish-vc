@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <linearGradient id="mascotBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <linearGradient id="hatGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F43F5E" />
+      <stop offset="50%" stop-color="#EC4899" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </linearGradient>
+    <linearGradient id="hatStar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#EA580C" />
+    </linearGradient>
+    <filter id="mascotShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <!-- Confetti bits around mascot -->
+  <circle cx="22" cy="46" r="2.5" fill="#F43F5E" />
+  <circle cx="98" cy="48" r="3" fill="#FBBF24" />
+  <circle cx="26" cy="78" r="2" fill="#8B5CF6" />
+  <circle cx="94" cy="76" r="2.5" fill="#38BDF8" />
+
+  <!-- Main Clock Mascot Face Base -->
+  <circle cx="60" cy="68" r="38" fill="url(#mascotBody)" filter="url(#mascotShadow)" />
+  
+  <!-- Outer Rim Ring / Clock Bezel -->
+  <circle cx="60" cy="68" r="35" fill="none" stroke="#FFFFFF" stroke-width="2.5" opacity="0.4" />
+
+  <!-- Playful Clock Winder / Button on Top Right (at 2 o'clock) -->
+  <rect x="85" y="40" width="8" height="5" rx="2" fill="#FFFFFF" transform="rotate(35, 89, 42)" />
+
+  <!-- Mascot Happy Face / Clock Hands -->
+  <!-- Left Eye: Cheerful Wink Arc -->
+  <path d="M 44 64 Q 49 59 54 64" fill="none" stroke="#0F172A" stroke-width="3" stroke-linecap="round" />
+
+  <!-- Right Eye: Sparkle Star Eye -->
+  <g transform="translate(72, 63)">
+    <path d="M 0 -5 Q 0.5 -1 4 0 Q 0.5 1 0 5 Q -0.5 1 -4 0 Q -0.5 -1 0 -5 Z" fill="#FEF08A" />
+  </g>
+
+  <!-- Happy Smile Mouth / Clock Hands Meeting in Joy -->
+  <path d="M 50 74 Q 60 84 70 74" fill="none" stroke="#0F172A" stroke-width="3.5" stroke-linecap="round" />
+  <!-- Rosy Cheeks -->
+  <circle cx="44" cy="72" r="3" fill="#F43F5E" opacity="0.6" />
+  <circle cx="76" cy="72" r="3" fill="#F43F5E" opacity="0.6" />
+
+  <!-- Festive Party Hat on Top (Tilted) -->
+  <g transform="translate(62, 38) rotate(-14)">
+    <!-- Hat Cone -->
+    <polygon points="0,-24 -14,10 14,10" fill="url(#hatGrad)" filter="url(#mascotShadow)" />
+    <!-- Hat Stripes -->
+    <path d="M -7, -4 L 7, -4" stroke="#FEF08A" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M -11, 4 L 11, 4" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" />
+    <!-- Hat Pom-Pom: Sparkling 4-point AI Star -->
+    <g transform="translate(0, -26)">
+      <path d="M 0 -9 Q 1 -2 7 0 Q 1 2 0 9 Q -1 2 -7 0 Q -1 -2 0 -9 Z" fill="url(#hatStar)" />
+      <circle cx="0" cy="0" r="1.5" fill="#FFFFFF" />
+    </g>
+  </g>
+</svg>

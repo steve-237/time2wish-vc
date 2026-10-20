@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupportService, SupportTicket } from '../../../services/support.service';
 import { ToastService } from '../../../services/toast.service';
+import { TranslationService } from '../../../services/translation.service';
 
 @Component({
   selector: 'app-admin-support',
@@ -11,8 +12,8 @@ import { ToastService } from '../../../services/toast.service';
   template: `
     <div class="support-container">
       <div class="header-container">
-        <h2 class="page-title">Support & Tickets</h2>
-        <p class="page-subtitle">Gérez les demandes de support des utilisateurs</p>
+        <h2 class="page-title">{{ t9n.t('admin.support.title') || 'Support & Tickets' }}</h2>
+        <p class="page-subtitle">{{ t9n.t('admin.support.subtitle') || 'Gérez les demandes de support des utilisateurs' }}</p>
       </div>
 
       <div class="table-wrapper">
@@ -20,11 +21,11 @@ import { ToastService } from '../../../services/toast.service';
           <thead>
             <tr>
               <th style="width: 80px;">ID</th>
-              <th>Utilisateur</th>
-              <th>Sujet</th>
-              <th>Statut</th>
-              <th>Date</th>
-              <th style="text-align: right;">Actions</th>
+              <th>{{ t9n.t('admin.support.col_user') || 'Utilisateur' }}</th>
+              <th>{{ t9n.t('admin.support.col_subject') || 'Sujet' }}</th>
+              <th>{{ t9n.t('admin.support.col_status') || 'Statut' }}</th>
+              <th>{{ t9n.t('admin.support.col_date') || 'Date' }}</th>
+              <th style="text-align: right;">{{ t9n.t('admin.support.col_actions') || 'Actions' }}</th>
             </tr>
           </thead>
           <tbody>
@@ -44,22 +45,22 @@ import { ToastService } from '../../../services/toast.service';
                     'status-resolved': ticket.status === 'RESOLVED',
                     'status-closed': ticket.status === 'CLOSED'
                   }">
-                    <option value="OPEN">Ouvert</option>
-                    <option value="RESOLVED">Résolu</option>
-                    <option value="CLOSED">Fermé</option>
+                    <option value="OPEN">{{ t9n.t('admin.support.status_open') || 'Ouvert' }}</option>
+                    <option value="RESOLVED">{{ t9n.t('admin.support.status_resolved') || 'Résolu' }}</option>
+                    <option value="CLOSED">{{ t9n.t('admin.support.status_closed') || 'Fermé' }}</option>
                   </select>
                 </td>
                 <td class="date-cell">{{ ticket.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
                 <td class="actions-cell">
                   <button class="btn btn-secondary btn-sm" (click)="openTicket(ticket)">
                     <span class="material-symbols-outlined">visibility</span>
-                    Traiter
+                    {{ t9n.t('admin.support.btn_process') || 'Traiter' }}
                   </button>
                 </td>
               </tr>
             } @empty {
               <tr>
-                <td colspan="6" class="empty-state">Aucun ticket trouvé.</td>
+                <td colspan="6" class="empty-state">{{ t9n.t('admin.support.empty') || 'Aucun ticket trouvé.' }}</td>
               </tr>
             }
           </tbody>
@@ -72,7 +73,7 @@ import { ToastService } from '../../../services/toast.service';
           <div class="tm-modal-content ticket-modal">
             <div class="modal-header flex-between">
               <div>
-                <span class="ticket-id">Ticket #{{ selectedTicket()?.id }}</span>
+                <span class="ticket-id">{{ t9n.t('admin.support.ticket_number') || 'Ticket #' }}{{ selectedTicket()?.id }}</span>
                 <h3>{{ selectedTicket()?.subject }}</h3>
               </div>
               <button class="icon-btn" (click)="selectedTicket.set(null)">
@@ -92,7 +93,7 @@ import { ToastService } from '../../../services/toast.service';
               @if (selectedTicket()?.adminReply) {
                 <div class="admin-message-box mt-3">
                   <div class="box-header">
-                    <span class="admin-name">Réponse (Admin)</span>
+                    <span class="admin-name">{{ t9n.t('admin.support.admin_reply_badge') || 'Réponse (Admin)' }}</span>
                     <span class="date">{{ selectedTicket()?.repliedAt | date:'medium' }}</span>
                   </div>
                   <p>{{ selectedTicket()?.adminReply }}</p>
@@ -100,12 +101,12 @@ import { ToastService } from '../../../services/toast.service';
               }
 
               <div class="reply-section mt-4">
-                <h4>Répondre à l'utilisateur</h4>
-                <textarea class="form-control" rows="4" [(ngModel)]="replyMessage" placeholder="Écrivez votre réponse ici..."></textarea>
+                <h4>{{ t9n.t('admin.support.reply_section_title') || 'Répondre à l\\'utilisateur' }}</h4>
+                <textarea class="form-control" rows="4" [(ngModel)]="replyMessage" [placeholder]="t9n.t('admin.support.placeholder_reply') || 'Écrivez votre réponse ici...'"></textarea>
                 <div class="mt-3" style="text-align: right;">
                   <button class="btn-PRO" (click)="submitReply()" [disabled]="!replyMessage || isSubmitting()">
                     <span class="material-symbols-outlined">send</span>
-                    Envoyer la réponse
+                    {{ t9n.t('admin.support.btn_send_reply') || 'Envoyer la réponse' }}
                   </button>
                 </div>
               </div>
@@ -168,6 +169,7 @@ import { ToastService } from '../../../services/toast.service';
 export class AdminSupportComponent implements OnInit {
   private supportService = inject(SupportService);
   private toast = inject(ToastService);
+  t9n = inject(TranslationService);
 
   tickets = signal<SupportTicket[]>([]);
   selectedTicket = signal<SupportTicket | null>(null);
@@ -181,7 +183,7 @@ export class AdminSupportComponent implements OnInit {
   loadTickets() {
     this.supportService.getAllTickets().subscribe({
       next: (data) => this.tickets.set(data),
-      error: () => this.toast.error('Erreur lors du chargement des tickets')
+      error: () => this.toast.error(this.t9n.t('admin.support.toast_load_error') || 'Erreur lors du chargement des tickets')
     });
   }
 
@@ -195,9 +197,9 @@ export class AdminSupportComponent implements OnInit {
     this.supportService.updateTicketStatus(ticket.id, newStatus).subscribe({
       next: (updated) => {
         this.tickets.update(arr => arr.map(t => t.id === updated.id ? updated : t));
-        this.toast.success('Statut mis à jour');
+        this.toast.success(this.t9n.t('admin.support.toast_status_updated') || 'Statut mis à jour');
       },
-      error: () => this.toast.error('Erreur lors de la mise à jour')
+      error: () => this.toast.error(this.t9n.t('admin.support.toast_update_error') || 'Erreur lors de la mise à jour')
     });
   }
 
@@ -211,10 +213,10 @@ export class AdminSupportComponent implements OnInit {
         this.tickets.update(arr => arr.map(t => t.id === updated.id ? updated : t));
         this.selectedTicket.set(null);
         this.isSubmitting.set(false);
-        this.toast.success('Réponse envoyée');
+        this.toast.success(this.t9n.t('admin.support.toast_reply_sent') || 'Réponse envoyée');
       },
       error: () => {
-        this.toast.error("Erreur lors de l'envoi");
+        this.toast.error(this.t9n.t('admin.support.toast_send_error') || "Erreur lors de l'envoi");
         this.isSubmitting.set(false);
       }
     });

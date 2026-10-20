@@ -71,16 +71,16 @@ export class Profile implements OnInit {
   // App mode and Color theme are now managed by ThemeService
 
   themes = [
-    { id: 'theme-ocean', name: 'Océan', color1: '#2563eb', color2: '#7c3aed' },
-    { id: 'theme-emerald', name: 'Émeraude', color1: '#10b981', color2: '#06b6d4' },
-    { id: 'theme-rose', name: 'Rose', color1: '#f43f5e', color2: '#f97316' },
-    { id: 'theme-amber', name: 'Ambre', color1: '#eab308', color2: '#f97316' },
-    { id: 'theme-royal', name: 'Royal', color1: '#a855f7', color2: '#ec4899' },
-    { id: 'theme-ruby', name: 'Rubis', color1: '#e11d48', color2: '#f472b6' },
-    { id: 'theme-midnight', name: 'Minuit', color1: '#4f46e5', color2: '#c084fc' },
-    { id: 'theme-sunset', name: 'Crépuscule', color1: '#f97316', color2: '#e11d48' },
-    { id: 'theme-noir', name: 'Noir', color1: '#111827', color2: '#4b5563' },
-    { id: 'theme-blanc', name: 'Blanc', color1: '#f3f4f6', color2: '#9ca3af' },
+    { id: 'theme-ocean', key: 'ocean', name: 'Océan', color1: '#2563eb', color2: '#7c3aed' },
+    { id: 'theme-emerald', key: 'emerald', name: 'Émeraude', color1: '#10b981', color2: '#06b6d4' },
+    { id: 'theme-rose', key: 'rose', name: 'Rose', color1: '#f43f5e', color2: '#f97316' },
+    { id: 'theme-amber', key: 'amber', name: 'Ambre', color1: '#eab308', color2: '#f97316' },
+    { id: 'theme-royal', key: 'royal', name: 'Royal', color1: '#a855f7', color2: '#ec4899' },
+    { id: 'theme-ruby', key: 'ruby', name: 'Rubis', color1: '#e11d48', color2: '#f472b6' },
+    { id: 'theme-midnight', key: 'midnight', name: 'Minuit', color1: '#4f46e5', color2: '#c084fc' },
+    { id: 'theme-sunset', key: 'twilight', name: 'Crépuscule', color1: '#f97316', color2: '#e11d48' },
+    { id: 'theme-noir', key: 'dark', name: 'Noir', color1: '#111827', color2: '#4b5563' },
+    { id: 'theme-blanc', key: 'light', name: 'Blanc', color1: '#f3f4f6', color2: '#9ca3af' },
   ];
   languages: { code: string; label: string; flagUrl: string }[] = [
     { code: 'fr', label: 'Français', flagUrl: 'https://flagcdn.com/w40/fr.png' },
@@ -94,6 +94,10 @@ export class Profile implements OnInit {
     return this.languages.find(l => l.code === this.t9n.currentLang())?.flagUrl || 'https://flagcdn.com/w40/fr.png';
   }
 
+  getThemeName(theme: { key: string; name: string }): string {
+    return this.t9n.t('theme.' + theme.key) || theme.name;
+  }
+
   setAppMode(mode: 'light' | 'dark' | 'oled') {
     this.themeService.setAppMode(mode);
   }
@@ -101,8 +105,9 @@ export class Profile implements OnInit {
   setColorTheme(themeId: string) {
     this.themeService.setColorTheme(themeId);
     
-    const themeName = this.themes.find(t => t.id === themeId)?.name || themeId;
-    this.toastService.success(this.t9n.currentLang() === 'en' ? `Theme ${themeName} applied` : `Thème ${themeName} appliqué`);
+    const themeObj = this.themes.find(t => t.id === themeId);
+    const themeName = themeObj ? this.getThemeName(themeObj) : themeId;
+    this.toastService.success(this.t9n.t('profile.theme_applied', themeName) || `Thème ${themeName} appliqué`);
   }
 
   setLanguage(lang: string) {
@@ -112,7 +117,7 @@ export class Profile implements OnInit {
 
   onSaveProfile() {
     if (!this.fullName()) {
-      this.toastService.error(this.t9n.currentLang() === 'en' ? 'Full name is required.' : 'Le nom complet est obligatoire.');
+      this.toastService.error(this.t9n.t('profile.name_required') || 'Le nom complet est obligatoire.');
       return;
     }
 
@@ -123,24 +128,24 @@ export class Profile implements OnInit {
         if (success) {
           this.toastService.success(this.t9n.t('profile.msg_profile_success') || 'Profil mis à jour avec succès.');
         } else {
-          this.toastService.error(this.t9n.currentLang() === 'en' ? 'Error updating profile.' : 'Erreur lors de la mise à jour du profil.');
+          this.toastService.error(this.t9n.t('profile.error_update_profile') || 'Erreur lors de la mise à jour du profil.');
         }
       },
       error: () => {
         this.isSaving.set(false);
-        this.toastService.error(this.t9n.currentLang() === 'en' ? 'Server error.' : 'Erreur serveur.');
+        this.toastService.error(this.t9n.t('common.error_server') || 'Erreur serveur.');
       }
     });
   }
 
   onUpdatePassword() {
     if (!this.currentPassword() || !this.newPassword() || !this.confirmPassword()) {
-      this.toastService.error(this.t9n.currentLang() === 'en' ? 'Please fill in all password fields.' : 'Veuillez remplir tous les champs de mot de passe.');
+      this.toastService.error(this.t9n.t('profile.error_fill_passwords') || 'Veuillez remplir tous les champs de mot de passe.');
       return;
     }
 
     if (this.newPassword() !== this.confirmPassword()) {
-      this.toastService.error(this.t9n.currentLang() === 'en' ? 'New passwords do not match.' : 'Les nouveaux mots de passe ne correspondent pas.');
+      this.toastService.error(this.t9n.t('profile.error_passwords_dont_match') || 'Les nouveaux mots de passe ne correspondent pas.');
       return;
     }
 
@@ -154,12 +159,12 @@ export class Profile implements OnInit {
           this.newPassword.set('');
           this.confirmPassword.set('');
         } else {
-          this.toastService.error(this.t9n.currentLang() === 'en' ? 'Incorrect current password or error.' : 'Mot de passe actuel incorrect ou erreur.');
+          this.toastService.error(this.t9n.t('profile.error_incorrect_password') || 'Mot de passe actuel incorrect ou erreur.');
         }
       },
       error: () => {
         this.isSavingPassword.set(false);
-        this.toastService.error(this.t9n.currentLang() === 'en' ? 'Server error. Incorrect current password?' : 'Erreur serveur. Mot de passe actuel incorrect ?');
+        this.toastService.error(this.t9n.t('profile.error_server_password') || 'Erreur serveur. Mot de passe actuel incorrect ?');
       }
     });
   }
@@ -173,11 +178,11 @@ export class Profile implements OnInit {
     this.http.post<any>(`${environment.apiUrl}/birthdays/test-reminders`, {}).subscribe({
       next: (res) => {
         this.isTestingEmail.set(false);
-        this.toastService.success(res.message || 'Test effectué');
+        this.toastService.success(res.message || this.t9n.t('profile.test_email_success') || 'Test effectué');
       },
       error: () => {
         this.isTestingEmail.set(false);
-        this.toastService.error('Erreur lors du test d\'envoi.');
+        this.toastService.error(this.t9n.t('profile.test_email_error') || 'Erreur lors du test d\'envoi.');
       }
     });
   }

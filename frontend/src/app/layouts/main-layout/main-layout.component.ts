@@ -24,9 +24,9 @@ import { AnnouncementService } from '../../services/announcement.service';
       <div class="header-content flex-between gap-md">
         
         <!-- Logo -->
-        <a routerLink="/dashboard" class="logo-link flex-center gap-sm">
+        <a routerLink="/dashboard" class="logo-link flex-center gap-sm" title="Time2Wish">
+          <img src="branding/time2wish_mark.svg" alt="Time2Wish" class="brand-logo-img" width="34" height="34">
           <span class="gradient-text">Time2Wish</span>
-          <span>🎂</span>
         </a>
 
         <!-- Toolbar actions -->
@@ -48,7 +48,7 @@ import { AnnouncementService } from '../../services/announcement.service';
 
           <!-- Install PWA Button -->
           @if (pwaService.canInstall()) {
-          <button (click)="pwaService.installApp()" class="btn-secondary pwa-btn" title="Installer l'application" style="padding: 8px; border-radius: 50%;">
+          <button (click)="pwaService.installApp()" class="btn-secondary pwa-btn" [title]="t9n.t('nav.install_app_tooltip')" style="padding: 8px; border-radius: 50%;">
             <span class="material-symbols-outlined pwa-icon" style="margin:0;">install_desktop</span>
           </button>
           }
@@ -57,7 +57,7 @@ import { AnnouncementService } from '../../services/announcement.service';
           <app-notification-panel></app-notification-panel>
 
           <!-- WishCoins Display -->
-          <button class="coins-display flex-center" (click)="uiService.isPricingModalOpen.set(true)" style="gap: 4px; padding: 6px 12px; background: rgba(245, 158, 11, 0.15); border-radius: 20px; border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; font-weight: 700; font-size: 0.95rem; margin: 0 4px; cursor: pointer; transition: all 0.2s ease;" title="Vos WishCoins - Cliquez pour recharger" onmouseover="this.style.background='rgba(245, 158, 11, 0.25)'" onmouseout="this.style.background='rgba(245, 158, 11, 0.15)'">
+          <button class="coins-display flex-center" (click)="uiService.isPricingModalOpen.set(true)" style="gap: 4px; padding: 6px 12px; background: rgba(245, 158, 11, 0.15); border-radius: 20px; border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; font-weight: 700; font-size: 0.95rem; margin: 0 4px; cursor: pointer; transition: all 0.2s ease;" [title]="t9n.t('nav.wishcoins_tooltip') || 'Vos WishCoins - Cliquez pour recharger'" onmouseover="this.style.background='rgba(245, 158, 11, 0.25)'" onmouseout="this.style.background='rgba(245, 158, 11, 0.15)'">
             <span class="material-symbols-outlined" style="font-size: 18px; color: #f59e0b;">generating_tokens</span>
             <span>{{ authService.currentUser()?.coins || 0 }}</span>
           </button>
@@ -94,20 +94,20 @@ import { AnnouncementService } from '../../services/announcement.service';
                 @if (isAdmin()) {
                 <a routerLink="/admin" class="dropdown-item dropdown-item-hover" (click)="isProfileMenuOpen.set(false)" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; text-decoration: none; color: var(--text-main); border-radius: 10px; font-size: 0.9rem;">
                   <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.2rem;">admin_panel_settings</span>
-                  <span>Administration</span>
+                  <span>{{ t9n.t('nav.admin_panel') || 'Administration' }}</span>
                 </a>
                 }
 
                 <!-- Support Button -->
                 <a routerLink="/dashboard/support" class="dropdown-item dropdown-item-hover" (click)="isProfileMenuOpen.set(false)" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; text-decoration: none; color: var(--text-main); border-radius: 10px; font-size: 0.9rem;">
                   <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.2rem;">support_agent</span>
-                  <span>Support & Contact</span>
+                  <span>{{ t9n.t('nav.support_contact') || 'Support & Contact' }}</span>
                 </a>
 
                 <!-- Feedback Button -->
                 <button (click)="isFeedbackModalOpen.set(true); isProfileMenuOpen.set(false)" class="dropdown-item dropdown-item-hover" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 10px; font-size: 0.9rem;">
                   <span class="material-symbols-outlined" style="color: var(--text-muted); font-size: 1.2rem;">rate_review</span>
-                  <span>Donner mon avis</span>
+                  <span>{{ t9n.t('feedback.modal_title') || 'Donner mon avis' }}</span>
                 </button>
 
                 <!-- App mode switch -->
@@ -116,7 +116,7 @@ import { AnnouncementService } from '../../services/announcement.service';
                     {{ themeService.appMode() === 'light' ? 'dark_mode' : (themeService.appMode() === 'dark' ? 'contrast' : 'light_mode') }}
                   </span>
                   <span>
-                    {{ themeService.appMode() === 'light' ? 'Mode Sombre' : (themeService.appMode() === 'dark' ? 'Mode OLED' : 'Mode Clair') }}
+                    {{ themeService.appMode() === 'light' ? (t9n.t('theme.dark_mode') || 'Mode Sombre') : (themeService.appMode() === 'dark' ? (t9n.t('theme.oled_mode') || 'Mode OLED') : (t9n.t('theme.light_mode') || 'Mode Clair')) }}
                   </span>
                   @if (themeService.appMode() === 'dark' && authService.currentUser()?.plan === 'BASIC') {
                     <span class="material-symbols-outlined" style="font-size: 1rem; color: #fbbf24; margin-left: auto;">lock</span>
@@ -125,7 +125,7 @@ import { AnnouncementService } from '../../services/announcement.service';
 
                 <!-- Language Selector -->
                 <div class="dropdown-item-group" style="padding: 10px 12px; margin-top: 4px; border-top: 1px solid var(--border-card);">
-                  <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; display: block;">Langue</span>
+                  <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; display: block;">{{ t9n.t('nav.language') || 'Langue' }}</span>
                   <div style="display: flex; gap: 8px;">
                     @for (lang of languages; track lang.code) {
                       <button (click)="setLanguage(lang.code)" class="lang-pill" [style.background]="t9n.currentLang() === lang.code ? 'rgba(37, 99, 235, 0.1)' : 'transparent'" [style.borderColor]="t9n.currentLang() === lang.code ? 'var(--primary-color)' : 'var(--border-card)'" [style.color]="t9n.currentLang() === lang.code ? 'var(--primary-color)' : 'var(--text-main)'" style="border: 1px solid; border-radius: 20px; padding: 6px 12px; font-size: 0.85rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; flex: 1; justify-content: center;">
@@ -295,7 +295,7 @@ export class MainLayoutComponent implements OnInit {
     } else if (this.themeService.appMode() === 'dark') {
       const userPlan = this.authService.currentUser()?.plan || 'BASIC';
       if (userPlan === 'BASIC') {
-        this.toastService.info("Le thème OLED nécessite le forfait PLUS.");
+        this.toastService.info(this.t9n.t('theme.oled_requires_plus') || "Le thème OLED nécessite le forfait PLUS.");
         this.uiService.isPricingModalOpen.set(true);
         this.themeService.setAppMode('light'); // cycle back to light
       } else {

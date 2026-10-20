@@ -38,16 +38,15 @@
         <div class="countdown-banner glass-card" style="margin-bottom: 1rem; padding: 1rem; border-left: 4px solid #fbbf24; background: rgba(251, 191, 36, 0.1);">
           <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
             <span class="material-symbols-outlined" style="color: #fbbf24;">hourglass_bottom</span>
-            <span style="font-weight: 600; color: var(--text-color);">Limite atteinte (1/semaine) et fonds insuffisants</span>
+            <span style="font-weight: 600; color: var(--text-color);">{{ t9n.t('wish.limit_reached_banner') || 'Limite atteinte (1/semaine) et fonds insuffisants' }}</span>
           </div>
           <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">
-            Prochaine génération IA disponible dans : <strong style="color: #fbbf24;">{{ aiCountdown() }}</strong>
+            {{ t9n.t('wish.next_ai_available') || 'Prochaine génération IA disponible dans :' }} <strong style="color: #fbbf24;">{{ aiCountdown() }}</strong>
           </p>
-          <p style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-secondary);">
-            Ou rechargez des <strong>WishCoins</strong> pour continuer à utiliser l'IA !
+          <p style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-secondary);" [innerHTML]="t9n.t('wish.recharge_coins')">
           </p>
           <button class="btn btn-PRO" style="margin-top: 1rem; width: 100%;" (click)="uiService.isPricingModalOpen.set(true)">
-            Débloquer l'IA Illimitée
+            {{ t9n.t('wish.unlock_unlimited_ai') || 'Débloquer l\\'IA Illimitée' }}
           </button>
         </div>
       } @else {
@@ -245,7 +244,7 @@
 
           <div class="ai-loading-status">
             <span class="ai-shimmer-title">{{ t9n.t('wish.loading_ai') || "L'IA prépare la magie..." }}</span>
-            <span class="ai-loading-subtitle">Rédaction personnalisée en cours</span>
+            <span class="ai-loading-subtitle">{{ t9n.t('wish.ai_writing_subtitle') || 'Rédaction personnalisée en cours' }}</span>
           </div>
 
           <div class="ai-particle p1">✨</div>

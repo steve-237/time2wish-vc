@@ -36,6 +36,12 @@ yarn-error.log*
 # Uploads
 backend/uploads/
 
+# Root Mockups & Screenshots
+/crop_*.png
+/test_cropped_card.png
+/time2wish_*.png
+/time2wish_*.jpg
+
 # AI System & Agents (Do not commit)
 .agents/
 .skills/

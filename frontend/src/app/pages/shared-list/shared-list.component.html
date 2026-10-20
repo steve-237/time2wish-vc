@@ -41,7 +41,7 @@
         ✍️ {{ t9n.t('shared.tab_card') || 'Signer la Carte' }}
       </button>
       <button class="tab-btn" [class.active]="activeTab() === 'capsule'" (click)="activeTab.set('capsule')"   >
-        ⏳ Time Capsule
+        ⏳ {{ t9n.t('shared.tab_capsule') || 'Time Capsule' }}
       </button>
     </div>
 
@@ -50,7 +50,7 @@
       @if (!tinderMode() && unvotedGifts().length > 0) {
         <button class="btn-premium" style="margin-bottom: 24px; padding: 12px 24px; font-size: 1.1rem; border-radius: 30px;" (click)="startTinderMode()">
           <span class="material-symbols-outlined" style="margin-right: 8px;">style</span>
-          {{ t9n.t('shared.play_tinder') || '🎮 Jouer au Tinder des Cadeaux ! (' + unvotedGifts().length + ' restants)' }}
+          {{ t9n.t('shared.play_tinder', unvotedGifts().length) }}
         </button>
       }
     </div>
@@ -104,10 +104,10 @@
         </div>
         <p class="tinder-hint" style="text-align: center; color: #6b7280; margin-top: 32px; font-size: 0.95rem;">
           <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: bottom; margin-right: 4px;">swipe</span>
-          Glissez à gauche ou à droite, ou utilisez les boutons !
+          {{ t9n.t('shared.tinder_hint') }}
         </p>
         <div style="text-align: center; margin-top: 16px;">
-          <button class="btn-secondary" style="border-radius: 20px;" (click)="closeTinderMode()">Quitter le jeu</button>
+          <button class="btn-secondary" style="border-radius: 20px;" (click)="closeTinderMode()">{{ t9n.t('shared.exit_game') }}</button>
         </div>
       </div>
     } @else {
@@ -132,17 +132,17 @@
                   @if (gift.url.includes('amazon.')) {
                     <a [href]="gift.url" target="_blank" class="gift-link amazon-link" title="{{ gift.url }}" style="background-color: #f97316; color: #fff; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; margin-top: 4px; text-decoration: none; width: fit-content;">
                       <span class="material-symbols-outlined" style="font-size: 16px;">shopping_cart</span>
-                      Acheter sur Amazon
+                      {{ t9n.t('shared.buy_amazon') }}
                     </a>
                   } @else if (gift.url.includes('fnac.')) {
                     <a [href]="gift.url" target="_blank" class="gift-link fnac-link" title="{{ gift.url }}" style="background-color: #eab308; color: #000; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; margin-top: 4px; text-decoration: none; width: fit-content;">
                       <span class="material-symbols-outlined" style="font-size: 16px;">shopping_bag</span>
-                      Acheter sur Fnac
+                      {{ t9n.t('shared.buy_fnac') }}
                     </a>
                   } @else if (gift.url.includes('etsy.')) {
                     <a [href]="gift.url" target="_blank" class="gift-link etsy-link" title="{{ gift.url }}" style="background-color: #f97316; color: #fff; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; margin-top: 4px; text-decoration: none; width: fit-content;">
                       <span class="material-symbols-outlined" style="font-size: 16px;">storefront</span>
-                      Acheter sur Etsy
+                      {{ t9n.t('shared.buy_etsy') }}
                     </a>
                   } @else {
                     <a [href]="gift.url" target="_blank" class="gift-link" style="display: block; margin-top: 4px;">
@@ -163,6 +163,15 @@
                 <span class="material-symbols-outlined">redeem</span>
                 {{ t9n.t('shared.reserve_gift') || 'Je réserve ce cadeau !' }}
               </button>
+            }
+
+            <!-- Cagnotte Button & Widget -->
+            <button class="btn-PRO" style="width: 100%; margin-top: 8px; padding: 6px 12px; font-size: 0.85rem; background: linear-gradient(135deg, #fcd34d, #f59e0b); color: #000;" (click)="toggleCagnotte(gift.id)">
+              <span class="material-symbols-outlined" style="font-size: 18px;">crowdsource</span>
+              {{ t9n.t('fundraiser.title') || 'Cagnotte' }}
+            </button>
+            @if (expandedGiftId() === gift.id) {
+              <app-fundraiser-widget [giftId]="gift.id!" [estimatedPrice]="getGiftPrice(gift)"></app-fundraiser-widget>
             }
 
             <div class="gift-voting" style="margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 16px;  padding-top: 12px;">
@@ -242,7 +251,7 @@
                     <span class="badge" >
                       {{ t9n.t('shared.taken_by', task.assigneeName || '') || 'Pris par ' + task.assigneeName }}
                     </span>
-                    <button class="icon-btn" (click)="unassignTask(task.id)" [title]="t9n.t('shared.cant_do_it') || 'Je ne peux plus m\'en occuper'" >
+                    <button class="icon-btn" (click)="unassignTask(task.id)" [title]="t9n.t('shared.cant_do_it')">
                       <span class="material-symbols-outlined" style="font-size: 18px;">close</span>
                     </button>
                   </div>
@@ -388,18 +397,18 @@
       <div class="glass-panel" style="margin-bottom: 24px; padding: 24px;">
         <h3>
           <span class="material-symbols-outlined">hourglass_top</span>
-          Time Capsule ⏳
+          {{ t9n.t('shared.capsule_title') }}
         </h3>
-        <p>Enregistrez ou uploadez une courte vidéo pour le fêté. Elle sera scellée et invisible jusqu'au jour de son anniversaire ! Une fois visionnée, elle s'autodétruira pour faire de la place.</p>
+        <p>{{ t9n.t('shared.capsule_desc') }}</p>
         
         <div class="floating-group no-margin-bottom" style="margin-bottom: 16px;">
           <input type="text" id="c-name" class="floating-input" placeholder=" " [(ngModel)]="timeCapsuleGuestName">
-          <label for="c-name" class="floating-label">Votre prénom</label>
+          <label for="c-name" class="floating-label">{{ t9n.t('shared.your_name') }}</label>
         </div>
         
         <div class="file-upload" style="margin-bottom: 24px;">
           <label>
-            <span class="material-symbols-outlined">videocam</span> Ajouter une vidéo (Max 20MB)
+            <span class="material-symbols-outlined">videocam</span> {{ t9n.t('shared.capsule_add_video') }}
             <input type="file" accept="video/mp4,video/quicktime,video/webm" (change)="onTimeCapsuleFileSelected($event)" style="display: none;">
           </label>
           @if (timeCapsuleFile()) {
@@ -415,16 +424,16 @@
         
         <button class="btn-premium" (click)="submitTimeCapsule()" [disabled]="isTimeCapsuleSubmitting()" style="width: 100%;">
           @if (isTimeCapsuleSubmitting()) {
-            <span class="material-symbols-outlined rotating">autorenew</span> Envoi dans la capsule en cours...
+            <span class="material-symbols-outlined rotating">autorenew</span> {{ t9n.t('shared.capsule_uploading') }}
           } @else {
-            <span class="material-symbols-outlined">lock</span> Sceller la vidéo dans la Time Capsule
+            <span class="material-symbols-outlined">lock</span> {{ t9n.t('shared.capsule_seal_video') }}
           }
         </button>
       </div>
 
       <div class="success-banner" style="background-color: #fef2f2; color: #991b1b; border: 1px solid #fca5a5;">
         <span class="material-symbols-outlined">lock_clock</span>
-        <span>Votre vidéo ne pourra pas être vue ni modifiée après l'envoi. Elle restera secrète jusqu'au jour J !</span>
+        <span>{{ t9n.t('shared.capsule_notice') }}</span>
       </div>
     </div>
     }

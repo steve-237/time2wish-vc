@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PromoService, PromoCode } from '../../../services/promo.service';
 import { ToastService } from '../../../services/toast.service';
+import { TranslationService } from '../../../services/translation.service';
 
 @Component({
   selector: 'app-admin-promos',
@@ -12,11 +13,11 @@ import { ToastService } from '../../../services/toast.service';
     <div class="admin-container">
       <div class="header-container flex-between mb-4">
         <div>
-          <h2 class="page-title">Codes Promotionnels 🎟️</h2>
-          <p class="page-subtitle">Gérez les codes de réduction pour vos utilisateurs</p>
+          <h2 class="page-title">{{ t9n.t('admin.promos.title') || 'Codes Promotionnels 🎟️' }}</h2>
+          <p class="page-subtitle">{{ t9n.t('admin.promos.subtitle') || 'Gérez les codes de réduction pour vos utilisateurs' }}</p>
         </div>
         <button class="btn-PRO" (click)="isCreateModalOpen.set(true)">
-          <span class="material-symbols-outlined">add</span> Créer un code
+          <span class="material-symbols-outlined">add</span> {{ t9n.t('admin.promos.btn_create_code') || 'Créer un code' }}
         </button>
       </div>
 
@@ -24,12 +25,12 @@ import { ToastService } from '../../../services/toast.service';
         <table class="data-table">
           <thead>
             <tr>
-              <th>Code</th>
-              <th>Réduction</th>
-              <th>Utilisations</th>
-              <th>Expiration</th>
-              <th>Statut</th>
-              <th style="text-align: right;">Actions</th>
+              <th>{{ t9n.t('admin.promos.col_code') || 'Code' }}</th>
+              <th>{{ t9n.t('admin.promos.col_discount') || 'Réduction' }}</th>
+              <th>{{ t9n.t('admin.promos.col_uses') || 'Utilisations' }}</th>
+              <th>{{ t9n.t('admin.promos.col_expiration') || 'Expiration' }}</th>
+              <th>{{ t9n.t('admin.promos.col_status') || 'Statut' }}</th>
+              <th style="text-align: right;">{{ t9n.t('admin.promos.col_actions') || 'Actions' }}</th>
             </tr>
           </thead>
           <tbody>
@@ -53,7 +54,7 @@ import { ToastService } from '../../../services/toast.service';
                   @if (promo.expiresAt) {
                     <span [class.expired]="isExpired(promo.expiresAt)">{{ promo.expiresAt | date:'shortDate' }}</span>
                   } @else {
-                    <span class="text-muted">Jamais</span>
+                    <span class="text-muted">{{ t9n.t('admin.promos.never_expires') || 'Jamais' }}</span>
                   }
                 </td>
                 <td>
@@ -63,7 +64,7 @@ import { ToastService } from '../../../services/toast.service';
                   </label>
                 </td>
                 <td class="actions-cell">
-                  <button class="icon-btn text-danger" (click)="deletePromo(promo)" title="Supprimer">
+                  <button class="icon-btn text-danger" (click)="deletePromo(promo)" [title]="t9n.t('common.delete') || 'Supprimer'">
                     <span class="material-symbols-outlined">delete</span>
                   </button>
                 </td>
@@ -72,7 +73,7 @@ import { ToastService } from '../../../services/toast.service';
               <tr>
                 <td colspan="6" class="empty-state">
                   <span class="material-symbols-outlined">local_activity</span>
-                  <p>Aucun code promo créé. Commencez par en ajouter un !</p>
+                  <p>{{ t9n.t('admin.promos.empty') || 'Aucun code promo créé. Commencez par en ajouter un !' }}</p>
                 </td>
               </tr>
             }
@@ -86,30 +87,30 @@ import { ToastService } from '../../../services/toast.service';
       <div class="modal-backdrop" (click)="isCreateModalOpen.set(false)">
         <div class="modal-container" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h3>Nouveau Code Promo</h3>
+            <h3>{{ t9n.t('admin.promos.modal_title') || 'Nouveau Code Promo' }}</h3>
             <button class="icon-btn" (click)="isCreateModalOpen.set(false)">
               <span class="material-symbols-outlined">close</span>
             </button>
           </div>
           <div class="modal-body">
             <div class="form-group mb-3">
-              <label class="form-label">Code (Ex: SUMMER20)</label>
+              <label class="form-label">{{ t9n.t('admin.promos.label_code') || 'Code (Ex: SUMMER20)' }}</label>
               <input type="text" class="form-control" [(ngModel)]="newPromo.code" style="text-transform: uppercase;">
             </div>
             <div class="form-group mb-3">
-              <label class="form-label">Pourcentage de réduction (%)</label>
+              <label class="form-label">{{ t9n.t('admin.promos.label_discount') || 'Pourcentage de réduction (%)' }}</label>
               <input type="number" class="form-control" [(ngModel)]="newPromo.discountPercentage" min="1" max="100">
             </div>
             <div class="form-group mb-3">
-              <label class="form-label">Nombre max d'utilisations (laisser vide si illimité)</label>
+              <label class="form-label">{{ t9n.t('admin.promos.label_max_uses') || 'Nombre max d\\'utilisations (laisser vide si illimité)' }}</label>
               <input type="number" class="form-control" [(ngModel)]="newPromo.maxUses" min="1">
             </div>
             <div class="form-group mb-4">
-              <label class="form-label">Date d'expiration (optionnel)</label>
+              <label class="form-label">{{ t9n.t('admin.promos.label_expiration') || 'Date d\\'expiration (optionnel)' }}</label>
               <input type="datetime-local" class="form-control" [(ngModel)]="newPromo.expiresAt">
             </div>
             <button class="btn-PRO w-100" (click)="createPromo()" [disabled]="!newPromo.code || !newPromo.discountPercentage">
-              Créer le code
+              {{ t9n.t('admin.promos.btn_submit') || 'Créer le code' }}
             </button>
           </div>
         </div>
@@ -170,6 +171,7 @@ import { ToastService } from '../../../services/toast.service';
 export class AdminPromosComponent implements OnInit {
   private promoService = inject(PromoService);
   private toast = inject(ToastService);
+  t9n = inject(TranslationService);
   
   promos = signal<PromoCode[]>([]);
   isCreateModalOpen = signal(false);
@@ -195,10 +197,10 @@ export class AdminPromosComponent implements OnInit {
         this.promos.update(list => [res, ...list]);
         this.isCreateModalOpen.set(false);
         this.newPromo = { code: '', discountPercentage: 20 };
-        this.toast.success('Code promo créé avec succès !');
+        this.toast.success(this.t9n.t('admin.promos.toast_created') || 'Code promo créé avec succès !');
       },
       error: (err) => {
-        this.toast.error(err.error || 'Erreur lors de la création');
+        this.toast.error(err.error || this.t9n.t('admin.promos.toast_create_error') || 'Erreur lors de la création');
       }
     });
   }
@@ -208,12 +210,13 @@ export class AdminPromosComponent implements OnInit {
       next: (res) => {
         this.promos.update(list => list.map(p => p.id === promo.id ? res : p));
       },
-      error: () => this.toast.error('Erreur')
+      error: () => this.toast.error(this.t9n.t('common.error') || 'Erreur')
     });
   }
 
   deletePromo(promo: PromoCode) {
-    if(confirm(`Voulez-vous supprimer le code ${promo.code} ?`)) {
+    const confirmMsg = this.t9n.t('admin.promos.confirm_delete', promo.code) || `Voulez-vous supprimer le code ${promo.code} ?`;
+    if(confirm(confirmMsg)) {
       this.promoService.deletePromo(promo.id!).subscribe({
         next: () => {
           this.promos.update(list => list.filter(p => p.id !== promo.id));

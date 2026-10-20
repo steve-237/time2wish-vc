@@ -117,9 +117,9 @@
             class="custom-select-control profile-theme-select" 
             [ngModel]="themeService.appMode()"
             (ngModelChange)="setAppMode($event)">
-            <option value="light">☀️ Clair</option>
-            <option value="dark">🌙 Sombre (Défaut)</option>
-            <option value="oled">🌌 Noir OLED</option>
+            <option value="light">{{ t9n.t('profile.theme_light') || '☀️ Clair' }}</option>
+            <option value="dark">{{ t9n.t('profile.theme_dark') || '🌙 Sombre (Défaut)' }}</option>
+            <option value="oled">{{ t9n.t('profile.theme_oled') || '🌌 Noir OLED' }}</option>
           </select>
           <label class="floating-label profile-theme-label" for="p-theme">{{ t9n.t('profile.theme') || 'Thème' }}</label>
           <span class="material-symbols-outlined select-chevron">expand_more</span>
@@ -138,7 +138,7 @@
           class="theme-color-btn"
           [class.active]="themeService.colorTheme() === theme.id"
           [style.background]="'linear-gradient(135deg, ' + theme.color1 + ' 0%, ' + theme.color2 + ' 100%)'"
-          [title]="theme.name">
+          [title]="getThemeName(theme)">
           @if (themeService.colorTheme() === theme.id) { <span class="material-symbols-outlined profile-color-check">check</span> }
         </button>
         }
@@ -203,11 +203,11 @@
 
     <div class="mt-40"></div>
 
-    <h2 class="form-section-title">Outils Développeur</h2>
+    <h2 class="form-section-title">{{ t9n.t('profile.section_developer_tools') || 'Outils Développeur' }}</h2>
     <div class="form-actions" style="justify-content: flex-start;">
       <button type="button" class="btn-secondary" style="border: 1px solid var(--border-card);" (click)="testEmail()" [disabled]="isTestingEmail()">
         <span class="material-symbols-outlined">{{ isTestingEmail() ? 'sync' : 'mail' }}</span>
-        Tester l'envoi d'emails (Rappels)
+        {{ t9n.t('profile.btn_test_reminders_email') || "Tester l'envoi d'emails (Rappels)" }}
       </button>
     </div>
 

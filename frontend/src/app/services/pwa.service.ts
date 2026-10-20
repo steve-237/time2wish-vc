@@ -25,9 +25,7 @@ export class PwaService {
     if (this.swUpdate.isEnabled) {
       this.swUpdate.versionUpdates.subscribe((evt: any) => {
         if (evt.type === 'VERSION_READY') {
-          const msg = this.t9n.currentLang() === 'en' 
-            ? 'A new version is available! Refresh to update.' 
-            : 'Une nouvelle version est disponible ! Rafraîchissez pour mettre à jour.';
+          const msg = this.t9n.t('pwa.new_version_available') || 'Une nouvelle version est disponible ! Rafraîchissez pour mettre à jour.';
           this.toastService.info(msg);
           // Optional: setTimeout(() => window.location.reload(), 3000);
         }
@@ -55,7 +53,7 @@ export class PwaService {
       this.deferredPrompt = null;
       this.canInstall.set(false);
       this.showIosPrompt.set(false);
-      this.toastService.success(this.t9n.currentLang() === 'en' ? 'App installed successfully!' : 'Application installée avec succès !');
+      this.toastService.success(this.t9n.t('pwa.installed_success') || 'Application installée avec succès !');
     });
 
     // iOS Detection
@@ -81,18 +79,14 @@ export class PwaService {
     if (this.isIos()) {
       // Show iOS instruction toast
       this.showIosPrompt.set(true);
-      const msg = this.t9n.currentLang() === 'en' 
-        ? 'To install: tap the Share button at the bottom, then "Add to Home Screen".' 
-        : 'Pour installer : touchez l\'icône Partager en bas, puis "Sur l\'écran d\'accueil".';
+      const msg = this.t9n.t('pwa.ios_instructions') || 'Pour installer : touchez l\'icône Partager en bas, puis "Sur l\'écran d\'accueil".';
       this.toastService.info(msg);
       return;
     }
 
     if (!this.deferredPrompt) {
       if (isDevMode()) {
-        const msg = this.t9n.currentLang() === 'en'
-          ? 'Development simulation: The native install prompt would appear here in production.'
-          : 'Simulation dev : L\'invite d\'installation native apparaîtrait ici en production.';
+        const msg = this.t9n.t('pwa.dev_simulation_prompt') || 'Simulation dev : L\'invite d\'installation native apparaîtrait ici en production.';
         this.toastService.info(msg);
       }
       return;

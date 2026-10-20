@@ -61,4 +61,13 @@ public class FundingController {
         FundraiserDto updated = fundraiserService.addPledge(fundraiserId, user, request);
         return ResponseEntity.ok(updated);
     }
+
+    // Update target amount
+    @PutMapping("/{fundraiserId}/target")
+    public ResponseEntity<FundraiserDto> updateTarget(
+            @PathVariable Long fundraiserId,
+            @RequestParam BigDecimal target) {
+        checkModuleEnabled();
+        return ResponseEntity.ok(fundraiserService.updateTargetAmount(fundraiserId, target));
+    }
 }

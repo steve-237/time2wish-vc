@@ -1150,10 +1150,27 @@ select.custom-select-control option {
   font-weight: 800;
   font-family: var(--font-title);
   transition: transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-logo-img {
+  display: block;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(14, 165, 233, 0.45));
+  transition: transform 0.25s ease, filter 0.25s ease;
 }
 
 .logo-link:hover {
-  transform: scale(1.05);
+  transform: scale(1.03);
+}
+
+.logo-link:hover .brand-logo-img {
+  transform: rotate(-6deg) scale(1.1);
+  filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.6));
 }
 
 .nav-link {

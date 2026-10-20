@@ -180,20 +180,20 @@ describe('BirthdayService', () => {
         birthdate: '2000-12-25',
         category: 'Family',
         isDeleted: false,
-        reminderDays: 7,
+        reminderDays: 0,
         photoUrl: 'https://ui-avatars.com/api/?name=Eve&background=random&color=fff&rounded=true&bold=true'
       };
       mockHttp.post.mockReturnValue(of(newBirthday));
 
       service.birthdays.set([]);
-      service.addBirthday('Eve', '2000-12-25', 'Family');
+      service.addBirthday('Eve', '2000-12-25', 'Family').subscribe();
 
       expect(mockHttp.post).toHaveBeenCalledWith('http://localhost:8081/api/birthdays', expect.objectContaining({
         name: 'Eve',
         birthdate: '2000-12-25',
         category: 'Family',
         notes: undefined,
-        reminderDays: 7,
+        reminderDays: 0,
         photoUrl: expect.stringContaining('https://ui-avatars.com/api/?name=Eve'),
         showAge: true,
         email: undefined,
@@ -206,26 +206,30 @@ describe('BirthdayService', () => {
     });
 
     it('should update a birthday in the signal list', () => {
-      const original: Birthday = { id: 5, userId: 1, name: 'Old Name', birthdate: '1990-01-01', category: 'Friend', isDeleted: false, reminderDays: 7 };
-      const updated: Birthday = { id: 5, userId: 1, name: 'New Name', birthdate: '1990-01-01', category: 'Friend', isDeleted: false, reminderDays: 7 };
+      const original: Birthday = { id: 5, userId: 1, name: 'Old Name', birthdate: '1990-01-01', category: 'Friend', isDeleted: false, reminderDays: 0 };
+      const updated: Birthday = { id: 5, userId: 1, name: 'New Name', birthdate: '1990-01-01', category: 'Friend', isDeleted: false, reminderDays: 0 };
       mockHttp.put.mockReturnValue(of(updated));
 
       service.birthdays.set([original]);
-      service.updateBirthday(5, 'New Name', '1990-01-01', 'Friend');
+      service.updateBirthday(5, 'New Name', '1990-01-01', 'Friend').subscribe();
 
       expect(mockHttp.put).toHaveBeenCalledWith('http://localhost:8081/api/birthdays/5', {
         name: 'New Name',
         birthdate: '1990-01-01',
         category: 'Friend',
         notes: undefined,
-        reminderDays: 7,
+        reminderDays: 0,
         photoUrl: undefined,
         showAge: true,
         email: undefined,
         whatsapp: undefined,
         gender: undefined,
         interests: [],
-        isFavorite: false
+        isFavorite: false,
+        partyDate: null,
+        partyTime: null,
+        partyLocation: null,
+        partyDescription: null
       });
       expect(service.birthdays()).toContainEqual(updated);
       expect(service.birthdays()).not.toContainEqual(original);

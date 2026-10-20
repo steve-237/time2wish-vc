@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 140" width="100%" height="100%">
+  <defs>
+    <!-- Mark Gradients -->
+    <linearGradient id="hMarkRing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0EA5E9" />
+      <stop offset="50%" stop-color="#6366F1" />
+      <stop offset="100%" stop-color="#A855F7" />
+    </linearGradient>
+
+    <linearGradient id="hOrbitGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.2" />
+      <stop offset="50%" stop-color="#818CF8" stop-opacity="0.8" />
+      <stop offset="85%" stop-color="#F59E0B" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#FEF08A" stop-opacity="1" />
+    </linearGradient>
+
+    <radialGradient id="hStarCore" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="40%" stop-color="#FEF08A" />
+      <stop offset="80%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Typography Gradients -->
+    <linearGradient id="textCyanGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0EA5E9" />
+    </linearGradient>
+
+    <linearGradient id="textWishGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#818CF8" />
+      <stop offset="50%" stop-color="#C084FC" />
+      <stop offset="100%" stop-color="#F43F5E" />
+    </linearGradient>
+
+    <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0EA5E9" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </linearGradient>
+
+    <filter id="hGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="hStarGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Left: Icon Mark (Scaled & Centered around x=70, y=70) -->
+  <g transform="translate(10, 0)">
+    <!-- Central Dial -->
+    <g transform="translate(65, 70)">
+      <circle cx="0" cy="0" r="48" fill="#0F172A" stroke="url(#hMarkRing)" stroke-width="2" />
+      <circle cx="0" cy="0" r="40" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="2 4" opacity="0.8" />
+      
+      <!-- Hour Ticks -->
+      <rect x="-1" y="-36" width="2" height="6" rx="1" fill="#38BDF8" />
+      <rect x="30" y="-1" width="6" height="2" rx="1" fill="#94A3B8" opacity="0.6" />
+      <rect x="-1" y="30" width="2" height="6" rx="1" fill="#94A3B8" opacity="0.6" />
+      <rect x="-36" y="-1" width="6" height="2" rx="1" fill="#94A3B8" opacity="0.6" />
+      <circle cx="26" cy="-15" r="2.5" fill="#F59E0B" />
+
+      <!-- Hands pointing to 2:00 -->
+      <path d="M 0 3 L -1.5 0 L -0.5 -18 Q 0 -22 0.5 -18 L 1.5 0 Z" fill="#E2E8F0" />
+      <path d="M 0 3 L -1 0 L 16 -16 Q 19 -19 21 -16 L 1 1.5 Z" fill="url(#hMarkRing)" />
+      <circle cx="0" cy="0" r="4" fill="#0F172A" stroke="#38BDF8" stroke-width="1.5" />
+      <circle cx="0" cy="0" r="1.5" fill="#FEF08A" />
+    </g>
+
+    <!-- Orbital Light Ribbon -->
+    <ellipse cx="65" cy="70" rx="60" ry="28"
+             fill="none" stroke="url(#hOrbitGrad)" stroke-width="2.5"
+             transform="rotate(-26, 65, 70)"
+             filter="url(#hGlow)" />
+
+    <!-- 2 O'Clock AI Wish Spark (At x=102, y=38) -->
+    <g transform="translate(102, 38)">
+      <path d="M 0 -20 Q 1 -5 5 -1 Q 20 0 5 1 Q 1 5 0 20 Q -1 5 -5 1 Q -20 0 -5 -1 Q -1 -5 0 -20 Z"
+            fill="url(#hStarCore)"
+            filter="url(#hStarGlow)" />
+      <path d="M 0 -9 Q 0.5 -2.5 2.5 -0.5 Q 9 0 2.5 0.5 Q 0.5 2.5 0 9 Q -0.5 2.5 -2.5 0.5 Q -9 0 -2.5 -0.5 Q -0.5 -2.5 0 -9 Z"
+            fill="#FFFFFF"
+            transform="rotate(45)" />
+      <circle cx="0" cy="0" r="2" fill="#FFFFFF" />
+      <circle cx="12" cy="-6" r="1.2" fill="#FDE047" opacity="0.8" />
+      <circle cx="-10" cy="-11" r="1" fill="#67E8F9" opacity="0.8" />
+    </g>
+  </g>
+
+  <!-- Right: Wordmark & Typography -->
+  <g transform="translate(160, 0)">
+    <!-- "Time" -->
+    <text x="0" y="80" 
+          font-family="'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+          font-size="52" 
+          font-weight="800" 
+          letter-spacing="-1" 
+          fill="#FFFFFF">Time</text>
+
+    <!-- "2" Badge / Dynamic Numeral -->
+    <g transform="translate(122, 36)">
+      <!-- Glowing subtle pill badge behind '2' -->
+      <rect x="-4" y="2" width="34" height="46" rx="10" fill="url(#badgeGrad)" opacity="0.2" />
+      <text x="13" y="38" 
+            text-anchor="middle"
+            font-family="'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+            font-size="44" 
+            font-weight="900" 
+            fill="url(#textCyanGrad)">2</text>
+      <!-- Tiny micro-spark on the '2' -->
+      <circle cx="24" cy="6" r="2" fill="#FEF08A" filter="url(#hGlow)" />
+    </g>
+
+    <!-- "Wish" -->
+    <text x="166" y="80" 
+          font-family="'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+          font-size="52" 
+          font-weight="800" 
+          letter-spacing="-1" 
+          fill="url(#textWishGrad)">Wish</text>
+
+    <!-- AI Spark badge or Tagline -->
+    <g transform="translate(2, 108)">
+      <text x="0" y="0" 
+            font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+            font-size="12" 
+            font-weight="600" 
+            letter-spacing="3.5" 
+            fill="#94A3B8" 
+            text-transform="uppercase">Smart Celebrations &amp; Wishes</text>
+      
+      <!-- AI Powered Pill Indicator -->
+      <g transform="translate(365, -10)">
+        <rect x="0" y="0" width="84" height="18" rx="9" fill="#1E293B" stroke="url(#hMarkRing)" stroke-width="1" />
+        <text x="42" y="12" 
+              text-anchor="middle"
+              font-family="'Inter', sans-serif" 
+              font-size="9" 
+              font-weight="700" 
+              letter-spacing="1" 
+              fill="#38BDF8">AI POWERED</text>
+      </g>
+    </g>
+  </g>
+</svg>

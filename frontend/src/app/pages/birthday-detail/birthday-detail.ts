@@ -104,11 +104,11 @@ export class BirthdayDetail implements OnInit {
     this.birthdayService.markTimeCapsuleVideoAsViewed(bId, videoId).subscribe({
       next: () => {
         this.timeCapsuleVideos.update(videos => videos.filter(v => v.id !== videoId));
-        this.toastService.success('Vidéo marquée comme vue et supprimée.');
+        this.toastService.success(this.t9n.t('detail.capsule_video_viewed_success') || 'Vidéo marquée comme vue et supprimée.');
       },
       error: (err) => {
         console.error('Failed to mark as viewed', err);
-        this.toastService.error('Erreur lors de la suppression de la vidéo.');
+        this.toastService.error(this.t9n.t('detail.capsule_video_delete_error') || 'Erreur lors de la suppression de la vidéo.');
       }
     });
   }
@@ -137,8 +137,8 @@ export class BirthdayDetail implements OnInit {
     
     if (navigator.share) {
       navigator.share({
-        title: `Anniversaire de ${b.name}`,
-        text: `N'oubliez pas de souhaiter un joyeux anniversaire à ${b.name} le ${new Date(b.birthdate).toLocaleDateString()} !`,
+        title: this.t9n.t('detail.share_native_title', b.name) || `Anniversaire de ${b.name}`,
+        text: this.t9n.t('detail.share_native_text', b.name, new Date(b.birthdate).toLocaleDateString()) || `N'oubliez pas de souhaiter un joyeux anniversaire à ${b.name} le ${new Date(b.birthdate).toLocaleDateString()} !`,
         url: window.location.href
       }).then(() => {
         this.isShareModalOpen.set(false);
@@ -163,7 +163,7 @@ export class BirthdayDetail implements OnInit {
       this.isShareModalOpen.set(false);
     }).catch(err => {
       console.error('Could not copy text: ', err);
-      this.toastService.error('Erreur lors de la copie du lien.');
+      this.toastService.error(this.t9n.t('detail.share_copy_error') || 'Erreur lors de la copie du lien.');
     });
   }
 
@@ -196,7 +196,7 @@ export class BirthdayDetail implements OnInit {
   openCardModal() {
     const userPlan = this.authService.currentUser()?.plan || 'BASIC';
     if (userPlan !== 'PRO') {
-      this.toastService.info("La génération de cartes personnalisées IA nécessite le forfait PRO.");
+      this.toastService.info(this.t9n.t('detail.ai_card_plan_required') || "La génération de cartes personnalisées IA nécessite le forfait PRO.");
       this.uiService.isPricingModalOpen.set(true);
       return;
     }
@@ -206,25 +206,25 @@ export class BirthdayDetail implements OnInit {
   generateGifts() {
     const userPlan = this.authService.currentUser()?.plan || 'BASIC';
     if (userPlan !== 'PRO') {
-      this.toastService.info("La génération d'idées de cadeaux IA nécessite le forfait PRO.");
+      this.toastService.info(this.t9n.t('detail.ai_gift_plan_required') || "La génération d'idées de cadeaux IA nécessite le forfait PRO.");
       this.uiService.isPricingModalOpen.set(true);
       return;
     }
 
     const bId = this.birthday()?.id;
     if (!bId) {
-      this.toastService.error('Erreur : ID de l\'anniversaire introuvable.');
+      this.toastService.error(this.t9n.t('detail.birthday_id_not_found') || 'Erreur : ID de l\'anniversaire introuvable.');
       return;
     }
 
     this.isGeneratingGifts.set(true);
     this.aiError.set(false);
     const lang = this.t9n.currentLang();
-    this.toastService.info('Lancement de la génération...');
+    this.toastService.info(this.t9n.t('detail.ai_generating_start') || 'Lancement de la génération...');
 
     this.birthdayService.generateGiftSuggestions(bId, lang).subscribe({
       next: (response) => {
-        this.toastService.success('Cadeaux générés avec succès !');
+        this.toastService.success(this.t9n.t('detail.ai_gifts_success') || 'Cadeaux générés avec succès !');
         this.giftSuggestions.set(response.suggestions);
         this.giftSource.set(response.source);
         this.isGeneratingGifts.set(false);
@@ -232,13 +232,13 @@ export class BirthdayDetail implements OnInit {
       error: (err) => {
         console.error('Failed to generate gifts', err);
         if (err.status === 429) {
-          this.toastService.error(err.error.message || "Génération bloquée par le délai.");
+          this.toastService.error(err.error?.message || this.t9n.t('detail.ai_rate_limit_error') || "Génération bloquée par le délai.");
           this.authService.refreshSession().subscribe();
         } else if (err.status === 403) {
-          this.toastService.info("La génération d'idées de cadeaux nécessite le forfait PLUS ou PRO.");
+          this.toastService.info(this.t9n.t('detail.ai_gift_plan_forbidden') || "La génération d'idées de cadeaux nécessite le forfait PLUS ou PRO.");
           this.uiService.isPricingModalOpen.set(true);
         } else {
-          this.toastService.error('Erreur technique (voir console).');
+          this.toastService.error(this.t9n.t('detail.ai_technical_error') || 'Erreur technique (voir console).');
           this.aiError.set(true);
         }
         this.isGeneratingGifts.set(false);
@@ -267,11 +267,11 @@ export class BirthdayDetail implements OnInit {
     this.birthdayService.saveGift(bId, newGift).subscribe({
       next: (gift) => {
         this.savedGifts.update(g => [...g, gift]);
-        this.toastService.success(this.t9n.t('detail.share_success') || 'Cadeau ajouté à la liste !');
+        this.toastService.success(this.t9n.t('detail.gift_added_success') || 'Cadeau ajouté à la liste !');
       },
       error: (err) => {
         console.error('Failed to save gift', err);
-        this.toastService.error('Erreur lors de la sauvegarde du cadeau.');
+        this.toastService.error(this.t9n.t('detail.gift_save_error') || 'Erreur lors de la sauvegarde du cadeau.');
       }
     });
   }
@@ -283,11 +283,11 @@ export class BirthdayDetail implements OnInit {
     this.birthdayService.saveGift(bId, giftData).subscribe({
       next: (gift) => {
         this.savedGifts.update(g => [...g, gift]);
-        this.toastService.success('Cadeau ajouté manuellement !');
+        this.toastService.success(this.t9n.t('detail.gift_manual_added_success') || 'Cadeau ajouté manuellement !');
       },
       error: (err) => {
         console.error('Failed to save manual gift', err);
-        this.toastService.error('Erreur lors de l\'ajout du cadeau.');
+        this.toastService.error(this.t9n.t('detail.gift_manual_add_error') || 'Erreur lors de l\'ajout du cadeau.');
       }
     });
   }
@@ -299,11 +299,11 @@ export class BirthdayDetail implements OnInit {
     this.birthdayService.updateGift(bId, giftId, giftData).subscribe({
       next: (updatedGift) => {
         this.savedGifts.update(g => g.map(gift => gift.id === giftId ? updatedGift : gift));
-        this.toastService.success('Cadeau modifié avec succès !');
+        this.toastService.success(this.t9n.t('detail.gift_update_success') || 'Cadeau modifié avec succès !');
       },
       error: (err) => {
         console.error('Failed to update gift', err);
-        this.toastService.error('Erreur lors de la modification du cadeau.');
+        this.toastService.error(this.t9n.t('detail.gift_update_error') || 'Erreur lors de la modification du cadeau.');
       }
     });
   }
@@ -315,11 +315,11 @@ export class BirthdayDetail implements OnInit {
     this.birthdayService.deleteGift(bId, giftId).subscribe({
       next: () => {
         this.savedGifts.update(g => g.filter(gift => gift.id !== giftId));
-        this.toastService.success('Cadeau supprimé de la liste.');
+        this.toastService.success(this.t9n.t('detail.gift_delete_success') || 'Cadeau supprimé de la liste.');
       },
       error: (err) => {
         console.error('Failed to delete gift', err);
-        this.toastService.error('Erreur lors de la suppression.');
+        this.toastService.error(this.t9n.t('detail.gift_delete_error') || 'Erreur lors de la suppression.');
       }
     });
   }
@@ -331,11 +331,11 @@ export class BirthdayDetail implements OnInit {
     this.birthdayService.generateShareToken(b.id).subscribe({
       next: (res) => {
         this.birthday.update(current => current ? { ...current, shareToken: res.token } : current);
-        this.toastService.success('Lien de partage généré !');
+        this.toastService.success(this.t9n.t('detail.share_token_generated') || 'Lien de partage généré !');
       },
       error: (err) => {
         console.error('Failed to generate share link', err);
-        this.toastService.error('Erreur lors de la génération du lien.');
+        this.toastService.error(this.t9n.t('detail.share_token_error') || 'Erreur lors de la génération du lien.');
       }
     });
   }
@@ -346,10 +346,10 @@ export class BirthdayDetail implements OnInit {
     
     const url = `${window.location.origin}/shared/${token}`;
     navigator.clipboard.writeText(url).then(() => {
-      this.toastService.success('Lien de partage copié dans le presse-papier !');
+      this.toastService.success(this.t9n.t('detail.share_link_copied') || 'Lien de partage copié dans le presse-papier !');
     }).catch(err => {
       console.error('Could not copy text: ', err);
-      this.toastService.error('Erreur lors de la copie du lien.');
+      this.toastService.error(this.t9n.t('detail.share_link_copy_error') || 'Erreur lors de la copie du lien.');
     });
   }
 
@@ -384,13 +384,13 @@ export class BirthdayDetail implements OnInit {
     if (!bId) return;
     this.birthdayService.deleteMemory(bId, memoryId).subscribe({
       next: () => {
-        this.toastService.success('Souvenir supprimé');
+        this.toastService.success(this.t9n.t('detail.memory_deleted_success') || 'Souvenir supprimé');
         this.birthday.update(b => {
           if (!b) return b;
           return { ...b, memories: (b.memories || []).filter((m: any) => m.id !== memoryId) };
         });
       },
-      error: () => this.toastService.error('Erreur lors de la suppression')
+      error: () => this.toastService.error(this.t9n.t('detail.memory_delete_error') || 'Erreur lors de la suppression')
     });
   }
 
@@ -399,13 +399,13 @@ export class BirthdayDetail implements OnInit {
     if (!bId) return;
     this.birthdayService.deleteSignature(bId, signatureId).subscribe({
       next: () => {
-        this.toastService.success('Signature supprimée');
+        this.toastService.success(this.t9n.t('detail.signature_deleted_success') || 'Signature supprimée');
         this.birthday.update(b => {
           if (!b) return b;
           return { ...b, signatures: (b.signatures || []).filter((s: any) => s.id !== signatureId) };
         });
       },
-      error: () => this.toastService.error('Erreur lors de la suppression')
+      error: () => this.toastService.error(this.t9n.t('detail.signature_delete_error') || 'Erreur lors de la suppression')
     });
   }
 

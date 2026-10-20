@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import confetti from 'canvas-confetti';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-virtual-envelope',
@@ -11,6 +12,7 @@ import confetti from 'canvas-confetti';
 })
 export class VirtualEnvelope {
   @Output() opened = new EventEmitter<void>();
+  t9n = inject(TranslationService);
   isOpening = false;
   isFullyOpened = false;
 

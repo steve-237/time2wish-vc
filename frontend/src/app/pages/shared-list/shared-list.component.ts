@@ -7,11 +7,12 @@ import { ToastService } from '../../services/toast.service';
 import { SharedBirthday, Gift } from '../../models/birthday.model';
 import { FormsModule } from '@angular/forms';
 import { VirtualEnvelope } from '../../components/virtual-envelope/virtual-envelope';
+import { FundraiserWidgetComponent } from '../../components/fundraiser-widget/fundraiser-widget.component';
 
 @Component({
   selector: 'app-shared-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, VirtualEnvelope],
+  imports: [CommonModule, FormsModule, VirtualEnvelope, FundraiserWidgetComponent],
   templateUrl: './shared-list.component.html',
   styleUrl: './shared-list.component.scss'
 })
@@ -55,6 +56,22 @@ export class SharedListComponent implements OnInit {
   private currentY = 0;
   private isDragging = false;
 
+  // Cagnotte
+  expandedGiftId = signal<number | null>(null);
+
+  toggleCagnotte(giftId: number) {
+    this.expandedGiftId.update(current => current === giftId ? null : giftId);
+  }
+
+  getGiftPrice(gift: Gift): number | undefined {
+    if (!gift || !gift.priceRange) return undefined;
+    const match = gift.priceRange.match(/(\d+(?:[.,]\d+)?)/g);
+    if (!match || match.length === 0) return undefined;
+    const numbers = match.map(n => parseFloat(n.replace(',', '.')));
+    const maxVal = Math.max(...numbers);
+    return isNaN(maxVal) || maxVal <= 0 ? undefined : maxVal;
+  }
+
 
   // Memory Lane
   memoryName = signal<string>('');
@@ -83,7 +100,7 @@ export class SharedListComponent implements OnInit {
       this.token.set(tokenParam);
       this.loadSharedList(tokenParam);
     } else {
-      this.error.set("Lien de partage invalide.");
+      this.error.set(this.t9n.t('shared.error_invalid_link') || "Lien de partage invalide.");
       this.isLoading.set(false);
     }
   }
@@ -99,7 +116,7 @@ export class SharedListComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load shared list', err);
-        this.error.set("Ce lien de partage est invalide ou a expiré.");
+        this.error.set(this.t9n.t('shared.error_link_expired') || "Ce lien de partage est invalide ou a expiré.");
         this.isLoading.set(false);
       }
     });
@@ -139,12 +156,12 @@ export class SharedListComponent implements OnInit {
             gifts: b.gifts.map(g => g.id === gift.id ? updatedGift : g)
           };
         });
-        this.toastService.success(`Merci ${name} ! Le cadeau est réservé.`);
+        this.toastService.success(this.t9n.t('shared.toast_gift_reserved', name) || `Merci ${name} ! Le cadeau est réservé.`);
         this.closeReserveModal();
       },
       error: (err) => {
         console.error('Failed to reserve gift', err);
-        this.toastService.error("Erreur lors de la réservation du cadeau.");
+        this.toastService.error(this.t9n.t('shared.toast_gift_reserve_error') || "Erreur lors de la réservation du cadeau.");
       }
     });
   }
@@ -167,7 +184,7 @@ export class SharedListComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to vote', err);
-        this.toastService.error("Erreur lors du vote.");
+        this.toastService.error(this.t9n.t('shared.toast_vote_error') || "Erreur lors du vote.");
       }
     });
   }
@@ -179,7 +196,7 @@ export class SharedListComponent implements OnInit {
       this.tinderMode.set(true);
       this.resetCardPosition();
     } else {
-      this.toastService.success("Vous avez déjà voté pour tous les cadeaux !");
+      this.toastService.success(this.t9n.t('shared.toast_all_voted') || "Vous avez déjà voté pour tous les cadeaux !");
     }
   }
 
@@ -291,12 +308,12 @@ export class SharedListComponent implements OnInit {
             partyTasks: (b.partyTasks || []).map(t => t.id === taskId ? updatedTask : t)
           };
         });
-        this.toastService.success(`Merci ${name} ! Tâche assignée.`);
+        this.toastService.success(this.t9n.t('shared.toast_task_assigned', name) || `Merci ${name} ! Tâche assignée.`);
         this.closeTaskModal();
       },
       error: (err) => {
         console.error('Failed to assign task', err);
-        this.toastService.error("Erreur lors de l'assignation de la tâche.");
+        this.toastService.error(this.t9n.t('shared.toast_task_assign_error') || "Erreur lors de l'assignation de la tâche.");
       }
     });
   }
@@ -311,14 +328,14 @@ export class SharedListComponent implements OnInit {
             partyTasks: (b.partyTasks || []).map(t => t.id === taskId ? updatedTask : t)
           };
         });
-        this.toastService.success("Tâche désassignée avec succès.");
+        this.toastService.success(this.t9n.t('shared.toast_task_unassigned') || "Tâche désassignée avec succès.");
       },
       error: (err) => {
         console.error('Failed to unassign task', err);
         if (err.status === 403) {
-          this.toastService.error("Vous ne pouvez désassigner que vos propres tâches.");
+          this.toastService.error(this.t9n.t('shared.toast_task_unassign_forbidden') || "Vous ne pouvez désassigner que vos propres tâches.");
         } else {
-          this.toastService.error("Erreur lors de la désassignation de la tâche.");
+          this.toastService.error(this.t9n.t('shared.toast_task_unassign_error') || "Erreur lors de la désassignation de la tâche.");
         }
       }
     });
@@ -329,7 +346,7 @@ export class SharedListComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        this.toastService.error("Le fichier est trop volumineux (Max 5MB).");
+        this.toastService.error(this.t9n.t('shared.toast_file_too_large_5mb') || "Le fichier est trop volumineux (Max 5MB).");
         return;
       }
       this.memoryFile.set(file);
@@ -345,7 +362,7 @@ export class SharedListComponent implements OnInit {
     const file = this.memoryFile();
 
     if (!name || (!msg && !file)) {
-      this.toastService.error("Veuillez saisir votre nom et un message ou une photo.");
+      this.toastService.error(this.t9n.t('shared.toast_fill_name_msg_or_photo') || "Veuillez saisir votre nom et un message ou une photo.");
       return;
     }
 
@@ -356,7 +373,7 @@ export class SharedListComponent implements OnInit {
         next: (res) => this.finalizeMemorySubmit(name, msg, res.url, file.type),
         error: (err) => {
           console.error(err);
-          this.toastService.error("Erreur lors de l'envoi du fichier.");
+          this.toastService.error(this.t9n.t('shared.toast_file_upload_error') || "Erreur lors de l'envoi du fichier.");
           this.isMemorySubmitting.set(false);
         }
       });
@@ -372,7 +389,7 @@ export class SharedListComponent implements OnInit {
           if (!b) return b;
           return { ...b, memories: [newMemory, ...(b.memories || [])] };
         });
-        this.toastService.success("Votre souvenir a été ajouté !");
+        this.toastService.success(this.t9n.t('shared.toast_memory_added') || "Votre souvenir a été ajouté !");
         this.memoryName.set('');
         this.memoryMessage.set('');
         this.memoryFile.set(null);
@@ -381,7 +398,7 @@ export class SharedListComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        this.toastService.error("Erreur lors de l'ajout du souvenir.");
+        this.toastService.error(this.t9n.t('shared.toast_memory_error') || "Erreur lors de l'ajout du souvenir.");
         this.isMemorySubmitting.set(false);
       }
     });
@@ -392,7 +409,7 @@ export class SharedListComponent implements OnInit {
     const name = this.signatureName().trim();
     const msg = this.signatureMessage().trim();
     if (!name || !msg) {
-      this.toastService.error("Veuillez saisir votre nom et un message.");
+      this.toastService.error(this.t9n.t('shared.toast_fill_name_and_msg') || "Veuillez saisir votre nom et un message.");
       return;
     }
 
@@ -402,13 +419,13 @@ export class SharedListComponent implements OnInit {
           if (!b) return b;
           return { ...b, signatures: [...(b.signatures || []), newSignature] };
         });
-        this.toastService.success("Votre signature a été ajoutée à la carte !");
+        this.toastService.success(this.t9n.t('shared.toast_signature_added') || "Votre signature a été ajoutée à la carte !");
         this.signatureName.set('');
         this.signatureMessage.set('');
       },
       error: (err) => {
         console.error(err);
-        this.toastService.error("Erreur lors de l'ajout de la signature.");
+        this.toastService.error(this.t9n.t('shared.toast_signature_error') || "Erreur lors de l'ajout de la signature.");
       }
     });
   }
@@ -418,7 +435,7 @@ export class SharedListComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       if (file.size > 20 * 1024 * 1024) { // 20 MB limit
-        this.toastService.error("La vidéo est trop volumineuse (Max 20MB).");
+        this.toastService.error(this.t9n.t('shared.toast_video_too_large_20mb') || "La vidéo est trop volumineuse (Max 20MB).");
         return;
       }
       this.timeCapsuleFile.set(file);
@@ -430,7 +447,7 @@ export class SharedListComponent implements OnInit {
     const file = this.timeCapsuleFile();
 
     if (!name || !file) {
-      this.toastService.error("Veuillez saisir votre nom et sélectionner une vidéo.");
+      this.toastService.error(this.t9n.t('shared.toast_fill_name_and_video') || "Veuillez saisir votre nom et sélectionner une vidéo.");
       return;
     }
 
@@ -438,14 +455,14 @@ export class SharedListComponent implements OnInit {
 
     this.birthdayService.uploadTimeCapsuleVideo(this.token(), name, file).subscribe({
       next: () => {
-        this.toastService.success("Vidéo ajoutée à la capsule temporelle !");
+        this.toastService.success(this.t9n.t('shared.toast_capsule_video_added') || "Vidéo ajoutée à la capsule temporelle !");
         this.timeCapsuleGuestName.set('');
         this.timeCapsuleFile.set(null);
         this.isTimeCapsuleSubmitting.set(false);
       },
       error: (err) => {
         console.error(err);
-        this.toastService.error("Erreur lors de l'envoi de la vidéo.");
+        this.toastService.error(this.t9n.t('shared.toast_capsule_video_error') || "Erreur lors de l'envoi de la vidéo.");
         this.isTimeCapsuleSubmitting.set(false);
       }
     });

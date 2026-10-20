@@ -85,7 +85,7 @@ export class PaymentSuccessComponent implements OnInit {
     // Recharger la session pour récupérer le nouveau plan
     this.authService.refreshSession().subscribe({
       next: () => {
-        this.toastService.success('Votre abonnement est actif.');
+        this.toastService.success(this.t9n.t('payment.subscription_active') || 'Votre abonnement est actif.');
       }
     });
   }

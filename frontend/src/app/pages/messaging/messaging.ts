@@ -104,7 +104,7 @@ import { ToastService } from '../../services/toast.service';
               <div class="title-info">
                 <h2>{{ activeConversation()!.name }}</h2>
                 @if (activeConversation()!.type === 'GROUP') {
-                  <span class="members-count">{{ activeConversation()!.members.length }} membres</span>
+                  <span class="members-count">{{ activeConversation()!.members.length }} {{ t9n.t('messaging.members_count') || 'membres' }}</span>
                 }
               </div>
             </div>
@@ -162,7 +162,7 @@ import { ToastService } from '../../services/toast.service';
                 <img [src]="getOtherMember(activeConversation()!)?.avatarUrl || 'assets/default-avatar.png'" alt="Avatar" class="avatar large">
               }
               <h3>{{ activeConversation()!.name }}</h3>
-              <p>{{ activeConversation()!.type === 'GROUP' ? 'Groupe' : 'Contact privé' }}</p>
+              <p>{{ activeConversation()!.type === 'GROUP' ? (t9n.t('messaging.type_group') || 'Groupe') : (t9n.t('messaging.type_private') || 'Contact privé') }}</p>
             </div>
 
             <div class="members-list">
@@ -179,8 +179,8 @@ import { ToastService } from '../../services/toast.service';
                 <div class="member-item">
                   <img [src]="member.avatarUrl || 'assets/default-avatar.png'" alt="Avatar" class="avatar small">
                   <div class="member-info">
-                    <span class="name">{{ member.fullName }} {{ member.userId === currentUserId() ? '(Vous)' : '' }}</span>
-                    <span class="role">{{ member.role === 'ADMIN' ? 'Administrateur' : 'Membre' }}</span>
+                    <span class="name">{{ member.fullName }} {{ member.userId === currentUserId() ? (t9n.t('messaging.you') || '(Vous)') : '' }}</span>
+                    <span class="role">{{ member.role === 'ADMIN' ? (t9n.t('messaging.role_admin') || 'Administrateur') : (t9n.t('messaging.role_member') || 'Membre') }}</span>
                   </div>
                   @if (isAdmin() && member.userId !== currentUserId()) {
                     <button class="btn-icon danger" (click)="removeMember(member.userId)">
@@ -208,19 +208,19 @@ import { ToastService } from '../../services/toast.service';
           
           <div class="modal-body">
             <div class="tabs">
-              <button [class.active]="!isCreatingGroup" (click)="isCreatingGroup = false">Privé</button>
-              <button [class.active]="isCreatingGroup" (click)="isCreatingGroup = true">Groupe</button>
+              <button [class.active]="!isCreatingGroup" (click)="isCreatingGroup = false">{{ t9n.t('messaging.tab_private') || 'Privé' }}</button>
+              <button [class.active]="isCreatingGroup" (click)="isCreatingGroup = true">{{ t9n.t('messaging.tab_group') || 'Groupe' }}</button>
             </div>
 
             @if (isCreatingGroup) {
               <div class="form-group">
-                <label>Nom du groupe</label>
-                <input type="text" [(ngModel)]="newGroupName" placeholder="Entrez un nom pour le groupe">
+                <label>{{ t9n.t('messaging.group_name_label') || 'Nom du groupe' }}</label>
+                <input type="text" [(ngModel)]="newGroupName" [placeholder]="t9n.t('messaging.group_name_placeholder') || 'Entrez un nom pour le groupe'">
               </div>
             }
 
             <div class="contacts-selection">
-              <h4>Sélectionnez des contacts</h4>
+              <h4>{{ t9n.t('messaging.select_contacts') || 'Sélectionnez des contacts' }}</h4>
               @for (contact of contactService.contacts(); track contact.userId) {
                 <label class="contact-checkbox">
                   <input type="checkbox" 
@@ -233,15 +233,15 @@ import { ToastService } from '../../services/toast.service';
                 </label>
               }
               @if (contactService.contacts().length === 0) {
-                <p class="text-muted">Vous n'avez pas encore de contacts. <a routerLink="/dashboard/contacts">Ajouter des contacts</a>.</p>
+                <p class="text-muted">{{ t9n.t('messaging.no_contacts') || "Vous n'avez pas encore de contacts." }} <a routerLink="/dashboard/contacts">{{ t9n.t('messaging.add_contacts_link') || 'Ajouter des contacts' }}</a>.</p>
               }
             </div>
           </div>
           
           <footer class="modal-footer">
-            <button class="btn-secondary" (click)="isNewConversationModalOpen = false">Annuler</button>
+            <button class="btn-secondary" (click)="isNewConversationModalOpen = false">{{ t9n.t('common.cancel') || 'Annuler' }}</button>
             <button class="btn-PRO" (click)="createConversation()" [disabled]="selectedContactIds.length === 0 || (isCreatingGroup && !newGroupName.trim())">
-              Créer
+              {{ t9n.t('common.create') || 'Créer' }}
             </button>
           </footer>
         </div>
@@ -265,11 +265,11 @@ import { ToastService } from '../../services/toast.service';
                 <div class="contact-add-item">
                   <img [src]="contact.avatarUrl || 'assets/default-avatar.png'" class="avatar small">
                   <span>{{ contact.fullName }}</span>
-                  <button class="btn-secondary" (click)="addMember(contact.userId)">Ajouter</button>
+                  <button class="btn-secondary" (click)="addMember(contact.userId)">{{ t9n.t('common.add') || 'Ajouter' }}</button>
                 </div>
               }
               @if (getAvailableContactsToAdd().length === 0) {
-                <p class="text-muted">Aucun contact disponible à ajouter.</p>
+                <p class="text-muted">{{ t9n.t('messaging.no_available_contacts') || 'Aucun contact disponible à ajouter.' }}</p>
               }
             </div>
           </div>
@@ -427,11 +427,11 @@ export class MessagingPage implements OnInit, OnDestroy {
       
       const user = this.authService.currentUser();
       if (user?.plan === 'BASIC') {
-        this.toastService.error("L'abonnement Basic ne permet pas de créer des groupes.");
+        this.toastService.error(this.t9n.t('messaging.error_basic_no_group') || "L'abonnement Basic ne permet pas de créer des groupes.");
         return;
       }
       if (user?.plan === 'PLUS' && this.selectedContactIds.length > 4) {
-        this.toastService.error("L'abonnement Plus permet d'ajouter maximum 4 membres à un groupe.");
+        this.toastService.error(this.t9n.t('messaging.error_plus_max_members') || "L'abonnement Plus permet d'ajouter maximum 4 membres à un groupe.");
         return;
       }
 
@@ -441,7 +441,7 @@ export class MessagingPage implements OnInit, OnDestroy {
           this.resetNewConvForm();
           this.selectConversation(conv);
         },
-        error: (err) => this.toastService.error(err.error?.message || 'Erreur')
+        error: (err) => this.toastService.error(err.error?.message || this.t9n.t('common.error') || 'Erreur')
       });
     } else {
       if (this.selectedContactIds.length === 0) return;
@@ -451,7 +451,7 @@ export class MessagingPage implements OnInit, OnDestroy {
           this.resetNewConvForm();
           this.selectConversation(conv);
         },
-        error: (err) => this.toastService.error(err.error?.message || 'Erreur')
+        error: (err) => this.toastService.error(err.error?.message || this.t9n.t('common.error') || 'Erreur')
       });
     }
   }
@@ -475,7 +475,7 @@ export class MessagingPage implements OnInit, OnDestroy {
     this.messagingService.addMember(conv.id, userId).subscribe({
       next: () => {
         this.isAddMemberModalOpen = false;
-        this.toastService.success('Membre ajouté');
+        this.toastService.success(this.t9n.t('messaging.member_added_success') || 'Membre ajouté');
         this.messagingService.loadConversations().subscribe(() => {
           const updated = this.messagingService.conversations().find(c => c.id === conv.id);
           if (updated) {
@@ -483,20 +483,20 @@ export class MessagingPage implements OnInit, OnDestroy {
           }
         });
       },
-      error: (err) => this.toastService.error(err.error?.message || 'Erreur')
+      error: (err) => this.toastService.error(err.error?.message || this.t9n.t('common.error') || 'Erreur')
     });
   }
 
   removeMember(userId: number) {
     const conv = this.activeConversation();
     if (!conv) return;
-    if (confirm('Voulez-vous vraiment retirer ce membre ?')) {
+    if (confirm(this.t9n.t('messaging.confirm_remove_member') || 'Voulez-vous vraiment retirer ce membre ?')) {
       this.messagingService.removeMember(conv.id, userId).subscribe({
         next: () => {
-          this.toastService.success('Membre retiré');
+          this.toastService.success(this.t9n.t('messaging.member_removed_success') || 'Membre retiré');
           this.messagingService.loadConversations().subscribe();
         },
-        error: (err) => this.toastService.error('Erreur')
+        error: (err) => this.toastService.error(this.t9n.t('common.error') || 'Erreur')
       });
     }
   }
