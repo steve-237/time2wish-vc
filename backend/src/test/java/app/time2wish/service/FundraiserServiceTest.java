@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -98,7 +99,35 @@ class FundraiserServiceTest {
 
         fundraiserService.addPledge(1L, user, request);
 
-        verify(pledgeRepository, times(1)).save(any(Pledge.class));
+        ArgumentCaptor<Pledge> captor = ArgumentCaptor.forClass(Pledge.class);
+        verify(pledgeRepository, times(1)).save(captor.capture());
+        assertThat(captor.getValue().getGuestName()).isEqualTo("Alice");
+    }
+
+    @Test
+    @DisplayName("Priorité du nom d'invité saisi sur le nom de l'utilisateur connecté dans toDto")
+    void testAddPledge_PreservesEnteredGuestNameOverUserFullName() {
+        when(fundraiserRepository.findById(1L)).thenReturn(Optional.of(fundraiser));
+
+        Pledge savedPledge = Pledge.builder()
+                .id(1L)
+                .fundraiser(fundraiser)
+                .user(user) // User is "Jean Dupont"
+                .guestName("Sophie Martin") // Entered guest name
+                .amount(new BigDecimal("20.0"))
+                .build();
+
+        when(pledgeRepository.findByFundraiserIdOrderByCreatedAtDesc(1L)).thenReturn(List.of(savedPledge));
+
+        PledgeRequest request = new PledgeRequest();
+        request.setAmount(new BigDecimal("20.0"));
+        request.setGuestName("Sophie Martin");
+
+        FundraiserDto dto = fundraiserService.addPledge(1L, user, request);
+
+        assertThat(dto.getPledges()).hasSize(1);
+        // It must display the entered name "Sophie Martin", NOT the user's name "Jean Dupont"
+        assertThat(dto.getPledges().get(0).getContributorName()).isEqualTo("Sophie Martin");
     }
 
     @Test

@@ -85,10 +85,14 @@ public class FundraiserService {
                     + ") ne peut pas dépasser la somme restante à collecter (" + remaining + " " + f.getCurrency() + ").");
         }
 
+        String resolvedGuestName = (req.getGuestName() != null && !req.getGuestName().trim().isEmpty())
+                ? req.getGuestName().trim()
+                : (user != null ? user.getFullName() : null);
+
         Pledge p = Pledge.builder()
                 .fundraiser(f)
                 .user(user)
-                .guestName(req.getGuestName())
+                .guestName(resolvedGuestName)
                 .amount(req.getAmount())
                 .message(req.getMessage())
                 .build();
@@ -153,13 +157,21 @@ public class FundraiserService {
         }
         boolean isCompleted = current.compareTo(f.getTargetAmount()) >= 0 || !Boolean.TRUE.equals(f.getActive());
 
-        List<PledgeDto> pledgeDtos = pledges.stream().map(p -> PledgeDto.builder()
-                .id(p.getId())
-                .contributorName(p.getUser() != null ? p.getUser().getFullName() : p.getGuestName())
-                .amount(p.getAmount())
-                .message(p.getMessage())
-                .createdAt(p.getCreatedAt())
-                .build()).collect(Collectors.toList());
+        List<PledgeDto> pledgeDtos = pledges.stream().map(p -> {
+            String displayName = (p.getGuestName() != null && !p.getGuestName().trim().isEmpty())
+                    ? p.getGuestName().trim()
+                    : (p.getUser() != null && p.getUser().getFullName() != null && !p.getUser().getFullName().trim().isEmpty())
+                        ? p.getUser().getFullName().trim()
+                        : null;
+
+            return PledgeDto.builder()
+                    .id(p.getId())
+                    .contributorName(displayName)
+                    .amount(p.getAmount())
+                    .message(p.getMessage())
+                    .createdAt(p.getCreatedAt())
+                    .build();
+        }).collect(Collectors.toList());
 
         return FundraiserDto.builder()
                 .id(f.getId())

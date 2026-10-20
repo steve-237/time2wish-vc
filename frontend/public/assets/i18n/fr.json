@@ -1183,7 +1183,9 @@
     "message_placeholder": "Un petit mot ?",
     "btn_pledge": "Promettre %d %s",
     "participants_title": "Participants (%d)",
-    "anonymous": "Anonyme"
+    "anonymous": "Anonyme",
+    "pledge_success": "Votre promesse de don a bien été enregistrée !",
+    "pledge_error": "Erreur lors de l'enregistrement de la promesse"
   },
   "not_found": {
     "title": "Page introuvable",

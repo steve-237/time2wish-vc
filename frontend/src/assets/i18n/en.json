@@ -1183,7 +1183,9 @@
     "message_placeholder": "A short message?",
     "btn_pledge": "Pledge %d %s",
     "participants_title": "Contributors (%d)",
-    "anonymous": "Anonymous"
+    "anonymous": "Anonymous",
+    "pledge_success": "Your pledge has been successfully recorded!",
+    "pledge_error": "Error recording the pledge"
   },
   "not_found": {
     "title": "Page Not Found",

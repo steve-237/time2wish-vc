@@ -596,20 +596,21 @@ export class FundraiserWidgetComponent implements OnInit {
 
     this.loading.set(true);
     this.fundraiserService.addPledge(f.id, {
-      guestName: this.guestName(),
+      guestName: this.guestName()?.trim() || undefined,
       amount: amount,
-      message: this.pledgeMessage()
+      message: this.pledgeMessage()?.trim() || undefined
     }).subscribe({
       next: (updated) => {
         this.fundraiser.set(updated);
         this.pledgeAmount.set(0);
         this.pledgeMessage.set('');
+        this.guestName.set('');
         this.loading.set(false);
-        this.toastService.success("Votre promesse de don a bien été enregistrée !");
+        this.toastService.success(this.t9n.t('fundraiser.pledge_success') || "Votre promesse de don a bien été enregistrée !");
       },
       error: (err) => {
         this.loading.set(false);
-        const msg = err.error?.message || err.message || "Erreur lors de l'enregistrement de la promesse";
+        const msg = err.error?.message || err.message || (this.t9n.t('fundraiser.pledge_error') || "Erreur lors de l'enregistrement de la promesse");
         this.toastService.error(msg);
       }
     });

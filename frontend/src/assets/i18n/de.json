@@ -1183,7 +1183,9 @@
     "message_placeholder": "Eine kleine Nachricht?",
     "btn_pledge": "%d %s zusichern",
     "participants_title": "Teilnehmer (%d)",
-    "anonymous": "Anonym"
+    "anonymous": "Anonym",
+    "pledge_success": "Ihr Spendenversprechen wurde erfolgreich registriert!",
+    "pledge_error": "Fehler beim Erfassen des Spendenversprechens"
   },
   "not_found": {
     "title": "Seite nicht gefunden",
