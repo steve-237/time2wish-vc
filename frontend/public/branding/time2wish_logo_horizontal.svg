@@ -34,7 +34,7 @@
   <!-- Left Emblem -->
   <g transform="translate(6, 0)">
     <!-- Outer Ring -->
-    <circle cx="60" cy="60" r="48" fill="url(#lockupBezel)" filter="url(#lockupGlow)" />
+    <circle cx="60" cy="60" r="48" fill="url(#lockupBezel)" />
     <!-- Inner Navy -->
     <circle cx="60" cy="60" r="41.5" fill="#081432" />
 

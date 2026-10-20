@@ -1,8 +1,8 @@
 {
   "name": "Time2Wish AI",
   "short_name": "Time2Wish",
-  "theme_color": "#2563eb",
-  "background_color": "#ffffff",
+  "theme_color": "#0066ff",
+  "background_color": "#081432",
   "display": "standalone",
   "scope": "/",
   "start_url": "/",

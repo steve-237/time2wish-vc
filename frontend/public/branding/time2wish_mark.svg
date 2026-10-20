@@ -37,7 +37,7 @@
   </defs>
 
   <!-- 1. Outer Gradient Ring / Medallion Rim -->
-  <circle cx="60" cy="60" r="50" fill="url(#bezelGradient)" filter="url(#softGlow)" />
+  <circle cx="60" cy="60" r="50" fill="url(#bezelGradient)" />
 
   <!-- 2. Inner Deep Midnight Navy Dial Face -->
   <circle cx="60" cy="60" r="43.5" fill="#081432" />

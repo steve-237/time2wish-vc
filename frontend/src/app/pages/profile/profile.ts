@@ -71,7 +71,7 @@ export class Profile implements OnInit {
   // App mode and Color theme are now managed by ThemeService
 
   themes = [
-    { id: 'theme-ocean', key: 'ocean', name: 'Océan', color1: '#2563eb', color2: '#7c3aed' },
+    { id: 'theme-ocean', key: 'ocean', name: 'Time2Wish (Logo)', color1: '#0066ff', color2: '#7c3aed' },
     { id: 'theme-emerald', key: 'emerald', name: 'Émeraude', color1: '#10b981', color2: '#06b6d4' },
     { id: 'theme-rose', key: 'rose', name: 'Rose', color1: '#f43f5e', color2: '#f97316' },
     { id: 'theme-amber', key: 'amber', name: 'Ambre', color1: '#eab308', color2: '#f97316' },
