@@ -53,7 +53,7 @@ import { TranslationService } from '../../../services/translation.service';
 
           <button type="submit" class="admin-btn-primary" [disabled]="!loginForm.form.valid || isLoading()">
             @if (isLoading()) {
-              <span class="spinner"></span> Connexion...
+              <span class="spinner"></span> {{ t9n.t('admin.login.connecting') || 'Connexion...' }}
             } @else {
               <span class="material-symbols-outlined">login</span> {{ t9n.t('admin.login.btn') }}
             }
@@ -63,7 +63,7 @@ import { TranslationService } from '../../../services/translation.service';
         <div class="admin-auth-footer">
           <a routerLink="/admin/register" class="admin-link">{{ t9n.t('admin.login.link_register') }}</a>
           <div class="separator"></div>
-          <a routerLink="/login" class="admin-link text-muted">Retour à l'application</a>
+          <a routerLink="/login" class="admin-link text-muted">{{ t9n.t('admin.login.back_to_app') || 'Retour à l\'application' }}</a>
         </div>
       </div>
     </div>
@@ -86,12 +86,12 @@ export class AdminLoginComponent {
       next: (res) => {
         const user = this.authService.currentUser();
         if (user && (user.roles?.includes('ROLE_ADMIN') || user.roles?.includes('ROLE_SUPERADMIN'))) {
-          this.toastService.success('Bienvenue sur le portail d\'administration');
+          this.toastService.success(this.t9n.t('admin.login.welcome_toast') || 'Bienvenue sur le portail d\'administration');
           this.router.navigate(['/admin/dashboard']);
         } else {
           // Normal user trying to log into admin portal
           this.authService.logout().subscribe();
-          this.toastService.error('Accès refusé. Vous n\'êtes pas administrateur.');
+          this.toastService.error(this.t9n.t('admin.login.access_denied') || 'Accès refusé. Vous n\'êtes pas administrateur.');
           this.isLoading.set(false);
         }
       },
@@ -99,14 +99,14 @@ export class AdminLoginComponent {
         this.isLoading.set(false);
         if (err.status === 401) {
           if (err.error?.message?.includes('pending')) {
-            this.toastService.error('Votre compte administrateur est en attente de validation.');
+            this.toastService.error(this.t9n.t('admin.login.pending_approval') || 'Votre compte administrateur est en attente de validation.');
           } else if (err.error?.message?.includes('blocked')) {
-            this.toastService.error('Ce compte a été bloqué.');
+            this.toastService.error(this.t9n.t('admin.login.account_blocked') || 'Ce compte a été bloqué.');
           } else {
-            this.toastService.error('Identifiants incorrects.');
+            this.toastService.error(this.t9n.t('admin.login.invalid_credentials') || 'Identifiants incorrects.');
           }
         } else {
-          this.toastService.error('Erreur de connexion serveur.');
+          this.toastService.error(this.t9n.t('admin.login.error_server_connection') || 'Erreur de connexion serveur.');
         }
       }
     });

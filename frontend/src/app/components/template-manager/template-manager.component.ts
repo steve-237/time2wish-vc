@@ -88,10 +88,10 @@ export class TemplateManagerComponent {
         next: () => this.resetForm(),
         error: (err) => {
           if (err.status === 403) {
-            this.toastService.info("Limite de modèles atteinte. Passez au forfait supérieur.");
+            this.toastService.info(this.t9n.t('template_manager.limit_reached') || 'Limite de modèles atteinte. Passez au forfait supérieur.');
             this.uiService.isPricingModalOpen.set(true);
           } else {
-            this.toastService.error("Erreur lors de la mise à jour.");
+            this.toastService.error(this.t9n.t('template_manager.error_update') || 'Erreur lors de la mise à jour.');
           }
         }
       });
@@ -100,10 +100,10 @@ export class TemplateManagerComponent {
         next: () => this.resetForm(),
         error: (err) => {
           if (err.status === 403) {
-            this.toastService.info("Limite de modèles atteinte. Passez au forfait supérieur.");
+            this.toastService.info(this.t9n.t('template_manager.limit_reached') || 'Limite de modèles atteinte. Passez au forfait supérieur.');
             this.uiService.isPricingModalOpen.set(true);
           } else {
-            this.toastService.error("Erreur lors de la création.");
+            this.toastService.error(this.t9n.t('template_manager.error_create') || 'Erreur lors de la création.');
           }
         }
       });

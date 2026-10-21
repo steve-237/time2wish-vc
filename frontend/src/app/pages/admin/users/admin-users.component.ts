@@ -20,7 +20,7 @@ import { environment } from '../../../../environments/environment';
         <div class="header-actions">
           <button class="btn btn-secondary export-btn" (click)="exportToCsv()">
             <span class="material-symbols-outlined">download</span>
-            Exporter CSV
+            {{ t9n.t('admin.users.export_csv') || 'Exporter CSV' }}
           </button>
         </div>
       </div>
@@ -33,7 +33,7 @@ import { environment } from '../../../../environments/environment';
               <th>{{ t9n.t('admin.users.col_user') || 'Utilisateur' }}</th>
               <th>{{ t9n.t('admin.users.col_role') }}</th>
               <th>{{ t9n.t('admin.users.col_plan') }}</th>
-              <th>Badges</th>
+              <th>{{ t9n.t('admin.users.col_badges') || 'Badges' }}</th>
               <th>{{ t9n.t('admin.users.col_status') }}</th>
               <th style="text-align: right;">{{ t9n.t('admin.users.col_actions') }}</th>
             </tr>
@@ -97,21 +97,21 @@ import { environment } from '../../../../environments/environment';
                     </button>
                   }
                   
-                  <button class="icon-action-btn btn-warning-soft" (click)="openBadgesModal(user)" title="Gérer les Badges">
+                  <button class="icon-action-btn btn-warning-soft" (click)="openBadgesModal(user)" [title]="t9n.t('admin.users.manage_badges') || 'Gérer les Badges'">
                     <span class="material-symbols-outlined">military_tech</span>
                   </button>
                   
                   @if (isSuperAdmin() && user.role !== 'ROLE_SUPERADMIN') {
-                    <button class="icon-action-btn btn-secondary-soft" (click)="requestAction(user, 'role', 'ROLE_ADMIN')" *ngIf="user.role === 'ROLE_USER'" title="Promouvoir Admin">
+                    <button class="icon-action-btn btn-secondary-soft" (click)="requestAction(user, 'role', 'ROLE_ADMIN')" *ngIf="user.role === 'ROLE_USER'" [title]="t9n.t('admin.users.promote_admin') || 'Promouvoir Admin'">
                       <span class="material-symbols-outlined">shield_person</span>
                     </button>
-                    <button class="icon-action-btn btn-secondary-soft" (click)="requestAction(user, 'role', 'ROLE_USER')" *ngIf="user.role === 'ROLE_ADMIN'" title="Rétrograder Utilisateur">
+                    <button class="icon-action-btn btn-secondary-soft" (click)="requestAction(user, 'role', 'ROLE_USER')" *ngIf="user.role === 'ROLE_ADMIN'" [title]="t9n.t('admin.users.demote_user') || 'Rétrograder Utilisateur'">
                       <span class="material-symbols-outlined">person</span>
                     </button>
                     <button class="icon-action-btn btn-danger-outline" (click)="requestAction(user, 'delete', '')" [title]="t9n.t('admin.users.btn_delete') || 'Supprimer'">
                       <span class="material-symbols-outlined">delete</span>
                     </button>
-                    <button class="icon-action-btn" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;" (click)="impersonate(user)" title="Se connecter en tant que cet utilisateur">
+                    <button class="icon-action-btn" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;" (click)="impersonate(user)" [title]="t9n.t('admin.users.impersonate') || 'Se connecter en tant que cet utilisateur'">
                       <span class="material-symbols-outlined">vpn_key</span>
                     </button>
                   }
@@ -119,7 +119,7 @@ import { environment } from '../../../../environments/environment';
               </tr>
             } @empty {
               <tr>
-                <td colspan="7" class="empty-state">Aucun utilisateur trouvé.</td>
+                <td colspan="7" class="empty-state">{{ t9n.t('admin.users.empty_users') || 'Aucun utilisateur trouvé.' }}</td>
               </tr>
             }
           </tbody>
@@ -132,7 +132,7 @@ import { environment } from '../../../../environments/environment';
     <div class="tm-modal-overlay">
       <div class="tm-modal-content confirm-modal-content">
         <div class="confirm-modal-header">
-          <h3>Confirmation</h3>
+          <h3>{{ t9n.t('admin.users.modal_confirm_title') || 'Confirmation' }}</h3>
           <button class="icon-btn" (click)="closeModal()">
             <span class="material-symbols-outlined">close</span>
           </button>
@@ -149,7 +149,7 @@ import { environment } from '../../../../environments/environment';
                   [class.btn-primary]="modalState().actionType !== 'delete' && modalState().actionValue !== 'BLOCKED'"
                   [class.btn-danger]="modalState().actionType === 'delete' || modalState().actionValue === 'BLOCKED'"
                   (click)="confirmAction()">
-            Confirmer
+            {{ t9n.t('admin.users.modal_btn_confirm') || 'Confirmer' }}
           </button>
         </div>
       </div>
@@ -161,13 +161,13 @@ import { environment } from '../../../../environments/environment';
     <div class="tm-modal-overlay">
       <div class="tm-modal-content confirm-modal-content">
         <div class="confirm-modal-header">
-          <h3>Badges de {{ selectedUserForBadges()?.fullName }}</h3>
+          <h3>{{ t9n.t('admin.users.modal_badges_title') || 'Badges de' }} {{ selectedUserForBadges()?.fullName }}</h3>
           <button class="icon-btn" (click)="isBadgesModalOpen.set(false)">
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
         <div class="confirm-modal-body">
-          <p>Sélectionnez les badges à attribuer :</p>
+          <p>{{ t9n.t('admin.users.modal_badges_select') || 'Sélectionnez les badges à attribuer :' }}</p>
           <div class="badges-selection">
             @for (b of availableBadges; track b.name) {
               <label class="badge-checkbox">
@@ -180,7 +180,7 @@ import { environment } from '../../../../environments/environment';
           </div>
         </div>
         <div class="confirm-modal-actions">
-          <button class="btn btn-secondary" (click)="isBadgesModalOpen.set(false)">Fermer</button>
+          <button class="btn btn-secondary" (click)="isBadgesModalOpen.set(false)">{{ t9n.t('common.close') || 'Fermer' }}</button>
         </div>
       </div>
     </div>
@@ -362,16 +362,16 @@ export class AdminUsersComponent implements OnInit {
 
     switch (state.actionType) {
       case 'status':
-        return `Voulez-vous passer cet utilisateur en statut ${state.actionValue} ?`;
+        return this.t9n.t('admin.users.confirm_status_change', state.actionValue) || `Voulez-vous passer cet utilisateur en statut ${state.actionValue} ?`;
       case 'role':
-        const roleName = state.actionValue === 'ROLE_ADMIN' ? 'Administrateur' : 'Utilisateur simple';
-        return `Voulez-vous donner le rôle ${roleName} à ce compte ?`;
+        const roleName = state.actionValue === 'ROLE_ADMIN' ? (this.t9n.t('admin.users.role_admin_name') || 'Administrateur') : (this.t9n.t('admin.users.role_user_name') || 'Utilisateur simple');
+        return this.t9n.t('admin.users.confirm_role_change', roleName) || `Voulez-vous donner le rôle ${roleName} à ce compte ?`;
       case 'plan':
-        return `Voulez-vous attribuer le forfait ${state.actionValue} à cet utilisateur ?`;
+        return this.t9n.t('admin.users.confirm_plan_change', state.actionValue) || `Voulez-vous attribuer le forfait ${state.actionValue} à cet utilisateur ?`;
       case 'delete':
-        return `ATTENTION : Voulez-vous supprimer DÉFINITIVEMENT ce compte et toutes ses données associées (anniversaires, etc.) ?`;
+        return this.t9n.t('admin.users.confirm_delete_account') || `ATTENTION : Voulez-vous supprimer DÉFINITIVEMENT ce compte et toutes ses données associées (anniversaires, etc.) ?`;
       default:
-        return 'Confirmer cette action ?';
+        return this.t9n.t('admin.users.confirm_default_action') || 'Confirmer cette action ?';
     }
   }
 
@@ -399,7 +399,7 @@ export class AdminUsersComponent implements OnInit {
             // Don't revert select, just close
             this.modalState.set({ isOpen: false, user: null, actionType: null, actionValue: '' });
           },
-          error: (err) => { this.toastService.error('Erreur lors de la modification du forfait'); this.closeModal(); }
+          error: (err) => { this.toastService.error(this.t9n.t('admin.users.error_plan_update') || 'Erreur lors de la modification du forfait'); this.closeModal(); }
         });
         break;
 
@@ -409,7 +409,7 @@ export class AdminUsersComponent implements OnInit {
             this.users.update(list => list.map(u => u.id === user.id ? { ...u, role: state.actionValue } : u));
             this.closeModal();
           },
-          error: (err) => { this.toastService.error('Erreur lors de la modification du rôle'); this.closeModal(); }
+          error: (err) => { this.toastService.error(this.t9n.t('admin.users.error_role_update') || 'Erreur lors de la modification du rôle'); this.closeModal(); }
         });
         break;
 
@@ -419,7 +419,7 @@ export class AdminUsersComponent implements OnInit {
             this.users.update(list => list.filter(u => u.id !== user.id));
             this.closeModal();
           },
-          error: (err) => { this.toastService.error('Erreur lors de la suppression'); this.closeModal(); }
+          error: (err) => { this.toastService.error(this.t9n.t('admin.users.error_delete') || 'Erreur lors de la suppression'); this.closeModal(); }
         });
         break;
     }
@@ -456,11 +456,11 @@ export class AdminUsersComponent implements OnInit {
       this.adminService.addBadge(user.id, badgeName).subscribe({
         next: () => {
           user.badges = [...(user.badges || []), badgeName];
-          this.toastService.success(`Badge ${badgeName} attribué`);
+          this.toastService.success(this.t9n.t('admin.users.toast_badge_granted', badgeName) || `Badge ${badgeName} attribué`);
         },
         error: () => {
           input.checked = false;
-          this.toastService.error('Erreur lors de l\'attribution du badge');
+          this.toastService.error(this.t9n.t('admin.users.toast_badge_grant_error') || 'Erreur lors de l\'attribution du badge');
         }
       });
     } else {
@@ -469,11 +469,11 @@ export class AdminUsersComponent implements OnInit {
           if (user.badges) {
             user.badges = user.badges.filter(b => b !== badgeName);
           }
-          this.toastService.success(`Badge ${badgeName} retiré`);
+          this.toastService.success(this.t9n.t('admin.users.toast_badge_removed', badgeName) || `Badge ${badgeName} retiré`);
         },
         error: () => {
           input.checked = true;
-          this.toastService.error('Erreur lors du retrait du badge');
+          this.toastService.error(this.t9n.t('admin.users.toast_badge_remove_error') || 'Erreur lors du retrait du badge');
         }
       });
     }
@@ -482,11 +482,20 @@ export class AdminUsersComponent implements OnInit {
   exportToCsv() {
     const data = this.users();
     if (!data || data.length === 0) {
-      this.toastService.error('Aucune donnée à exporter');
+      this.toastService.error(this.t9n.t('admin.users.toast_no_data_export') || 'Aucune donnée à exporter');
       return;
     }
 
-    const headers = ['ID', 'Nom', 'Email', 'Role', 'Plan', 'Status', 'Date Creation', 'Derniere Connexion'];
+    const headers = [
+      'ID',
+      this.t9n.t('admin.users.csv_name') || 'Nom',
+      this.t9n.t('admin.users.csv_email') || 'Email',
+      this.t9n.t('admin.users.csv_role') || 'Role',
+      this.t9n.t('admin.users.csv_plan') || 'Plan',
+      this.t9n.t('admin.users.csv_status') || 'Status',
+      this.t9n.t('admin.users.csv_created_at') || 'Date Creation',
+      this.t9n.t('admin.users.csv_last_login') || 'Derniere Connexion'
+    ];
     
     const csvContent = [
       headers.join(','),
@@ -510,21 +519,22 @@ export class AdminUsersComponent implements OnInit {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    this.toastService.success('Export CSV réussi');
+    this.toastService.success(this.t9n.t('admin.users.toast_export_success') || 'Export CSV réussi');
   }
 
   impersonate(user: AdminUserDto) {
-    if (!confirm(`Êtes-vous sûr de vouloir vous connecter en tant que ${user.fullName} ?`)) return;
+    const promptMsg = this.t9n.t('admin.users.confirm_impersonate', user.fullName) || `Êtes-vous sûr de vouloir vous connecter en tant que ${user.fullName} ?`;
+    if (!confirm(promptMsg)) return;
 
     this.http.post<any>(`${environment.apiUrl}/admin/users/${user.id}/impersonate`, {}).subscribe({
       next: (res: any) => {
         // Save old tokens to be able to restore maybe? Or just overwrite
         localStorage.setItem('t2w_token', res.token);
         localStorage.setItem('t2w_user', JSON.stringify(res));
-        this.toastService.success(`Connexion réussie en tant que ${user.fullName}`);
+        this.toastService.success(this.t9n.t('admin.users.toast_impersonate_success', user.fullName) || `Connexion réussie en tant que ${user.fullName}`);
         window.location.href = '/dashboard';
       },
-      error: () => this.toastService.error('Impossible d\'impersonifier cet utilisateur')
+      error: () => this.toastService.error(this.t9n.t('admin.users.toast_impersonate_error') || 'Impossible d\'impersonifier cet utilisateur')
     });
   }
 }

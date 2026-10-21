@@ -92,10 +92,10 @@
           <div class="glass-card" style="margin-bottom: 1rem; padding: 1rem; border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.1);">
             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem;">
               <span class="material-symbols-outlined" style="color: #f59e0b;">crowdsource</span>
-              <strong style="color: var(--text-color);">Nouveau : Les Cagnottes !</strong>
+              <strong style="color: var(--text-color);">{{ t9n.t('gifts.banner_crowdsource_title') || 'Nouveau : Les Cagnottes !' }}</strong>
             </div>
             <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
-              Cliquez sur le bouton "Cagnotte" sous un cadeau pour créer un pot commun et inviter vos amis à participer financièrement !
+              {{ t9n.t('gifts.banner_crowdsource_desc') || 'Cliquez sur le bouton "Cagnotte" sous un cadeau pour créer un pot commun et inviter vos amis à participer financièrement !' }}
             </p>
           </div>
 
@@ -120,17 +120,17 @@
                       @if (gift.url.includes('amazon.')) {
                         <a [href]="gift.url" target="_blank" class="gift-link amazon-link" title="{{ gift.url }}" style="background-color: #f97316; color: #fff; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; margin-top: 4px; text-decoration: none; width: fit-content;">
                           <span class="material-symbols-outlined" style="font-size: 16px;">shopping_cart</span>
-                          Acheter sur Amazon
+                          {{ t9n.t('gifts.buy_on_store', 'Amazon') || 'Acheter sur Amazon' }}
                         </a>
                       } @else if (gift.url.includes('fnac.')) {
                         <a [href]="gift.url" target="_blank" class="gift-link fnac-link" title="{{ gift.url }}" style="background-color: #eab308; color: #000; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; margin-top: 4px; text-decoration: none; width: fit-content;">
                           <span class="material-symbols-outlined" style="font-size: 16px;">shopping_bag</span>
-                          Acheter sur Fnac
+                          {{ t9n.t('gifts.buy_on_store', 'Fnac') || 'Acheter sur Fnac' }}
                         </a>
                       } @else if (gift.url.includes('etsy.')) {
                         <a [href]="gift.url" target="_blank" class="gift-link etsy-link" title="{{ gift.url }}" style="background-color: #f97316; color: #fff; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; margin-top: 4px; text-decoration: none; width: fit-content;">
                           <span class="material-symbols-outlined" style="font-size: 16px;">storefront</span>
-                          Acheter sur Etsy
+                          {{ t9n.t('gifts.buy_on_store', 'Etsy') || 'Acheter sur Etsy' }}
                         </a>
                       } @else {
                         <a [href]="gift.url" target="_blank" class="gift-link" title="{{ gift.url }}">
@@ -162,7 +162,7 @@
                 <!-- Cagnotte Button & Widget -->
                 <button class="btn-PRO" style="width: 100%; margin-top: 8px; padding: 6px 12px; font-size: 0.85rem; background: linear-gradient(135deg, #fcd34d, #f59e0b); color: #000;" (click)="expandedGiftId = expandedGiftId === gift.id ? null : gift.id!">
                   <span class="material-symbols-outlined" style="font-size: 18px;">crowdsource</span>
-                  Cagnotte
+                  {{ t9n.t('gifts.pot_btn') || 'Cagnotte' }}
                 </button>
                 @if (expandedGiftId === gift.id) {
                   <app-fundraiser-widget [giftId]="gift.id!" [estimatedPrice]="getGiftPrice(gift)"></app-fundraiser-widget>
@@ -179,10 +179,10 @@
             <div class="countdown-banner glass-card" style="margin-bottom: 1rem; padding: 1rem; border-left: 4px solid #fbbf24; background: rgba(251, 191, 36, 0.1); text-align: left;">
               <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
                 <span class="material-symbols-outlined" style="color: #fbbf24;">hourglass_bottom</span>
-                <span style="font-weight: 600; color: var(--text-color);">Essai terminé (1/mois)</span>
+                <span style="font-weight: 600; color: var(--text-color);">{{ t9n.t('gifts.trial_ended') || 'Essai terminé (1/mois)' }}</span>
               </div>
               <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">
-                Prochaine génération d'idées cadeaux IA disponible dans : <strong style="color: #fbbf24;">{{ aiGiftCountdown() }}</strong>
+                {{ t9n.t('gifts.next_gen_in') || 'Prochaine génération d\'idées cadeaux IA disponible dans :' }} <strong style="color: #fbbf24;">{{ aiGiftCountdown() }}</strong>
               </p>
             </div>
           } @else {
@@ -216,7 +216,7 @@
 
             <div class="ai-loading-status">
               <span class="ai-shimmer-title">{{ t9n.t('gifts.ai_analyzing') || "L'IA recherche les meilleures idées cadeaux..." }}</span>
-              <span class="ai-loading-subtitle">Analyse personnalisée des centres d'intérêt</span>
+              <span class="ai-loading-subtitle">{{ t9n.t('gifts.ai_analyzing_sub') || 'Analyse personnalisée des centres d\'intérêt' }}</span>
             </div>
 
             <div class="ai-particle p1">🎁</div>

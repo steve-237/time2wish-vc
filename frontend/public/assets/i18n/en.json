@@ -467,9 +467,12 @@
     "cat_funny": "Funny",
     "cat_formal": "Formal",
     "cat_custom": "Custom",
-    "limit_reached": "Template limit reached. Please upgrade your plan.",
+    "limit_reached": "Template limit reached. Upgrade your plan.",
     "err_update": "Error updating template.",
-    "err_create": "Error creating template."
+    "err_create": "Error creating template.",
+    "confirm_delete_msg": "Are you sure you want to delete this template?",
+    "error_update": "Error updating template.",
+    "error_create": "Error creating template."
   },
   "notifications": {
     "title": "Notifications",
@@ -530,13 +533,17 @@
       "btn": "Login",
       "link_register": "Request admin access",
       "connecting": "Connecting...",
-      "back_to_app": "Back to app",
+      "back_to_app": "Back to application",
       "welcome_toast": "Welcome to the administration portal",
       "error_not_admin": "Access denied. You are not an administrator.",
       "error_pending_approval": "Your administrator account is pending approval.",
       "error_account_blocked": "This account has been blocked.",
       "error_bad_credentials": "Incorrect credentials.",
-      "error_server_connection": "Server connection error."
+      "error_server_connection": "Server connection error.",
+      "access_denied": "Access denied. You are not an administrator.",
+      "pending_approval": "Your administrator account is pending approval.",
+      "account_blocked": "This account has been blocked.",
+      "invalid_credentials": "Invalid credentials."
     },
     "register": {
       "title": "Become an Administrator",
@@ -549,7 +556,7 @@
       "link_login": "I already have an account",
       "placeholder_name": "John Doe",
       "submitting": "Submitting request...",
-      "request_sent_success": "Request submitted successfully",
+      "request_sent_success": "Request sent successfully",
       "error_account_creation": "Error creating account"
     },
     "dashboard": {
@@ -624,7 +631,14 @@
       "toast_export_success": "CSV export successful",
       "confirm_impersonate": "Are you sure you want to sign in as %s?",
       "toast_impersonate_success": "Successfully signed in as %s",
-      "toast_impersonate_error": "Cannot impersonate this user"
+      "toast_impersonate_error": "Cannot impersonate this user",
+      "csv_name": "Name",
+      "csv_email": "Email",
+      "csv_role": "Role",
+      "csv_plan": "Plan",
+      "csv_status": "Status",
+      "csv_created_at": "Creation Date",
+      "csv_last_login": "Last Login"
     },
     "layout": {
       "panel_title": "Admin Panel",
@@ -781,7 +795,9 @@
       "toast_param_updated": "Parameter %s updated",
       "toast_update_error": "Update error",
       "toast_backup_success": "Backup downloaded successfully",
-      "toast_backup_error": "Error generating backup"
+      "toast_backup_error": "Error creating backup",
+      "toast_setting_updated": "Setting updated",
+      "toast_setting_error": "Update error"
     },
     "support": {
       "title": "Support & Tickets",
@@ -877,7 +893,7 @@
     "buy_fnac": "Buy on Fnac",
     "buy_etsy": "Buy on Etsy",
     "btn_fundraiser": "Fundraiser",
-    "trial_ended": "Trial completed (1/month)",
+    "trial_ended": "Trial ended (1/month)",
     "next_ai_available": "Next AI gift generation available in:",
     "share_copied": "Share link copied to clipboard!",
     "share_copy_error": "Error copying share link.",
@@ -888,7 +904,15 @@
     "new_gift": "New Gift",
     "empty_list": "Your list is empty.",
     "no_price": "Price not specified",
-    "reserved_by": "Reserved by"
+    "reserved_by": "Reserved by",
+    "banner_crowdsource_title": "New: Group Pots!",
+    "banner_crowdsource_desc": "Click the \"Pot\" button under a gift to create a shared pool and invite friends to contribute!",
+    "buy_on_store": "Buy on %s",
+    "pot_btn": "Pot",
+    "next_gen_in": "Next AI gift idea generation available in:",
+    "ai_analyzing_sub": "Personalized interest analysis",
+    "link_copied": "Share link copied to clipboard!",
+    "copy_error": "Error copying link."
   },
   "common": {
     "save": "Save",
@@ -936,7 +960,9 @@
       "Fri",
       "Sat",
       "Sun"
-    ]
+    ],
+    "ics_summary": "🎂 Birthday of %s",
+    "ics_description": "Don't forget to wish %s a happy birthday!"
   },
   "birthday": {
     "add": "Add"
@@ -1051,7 +1077,18 @@
     "toast_wait_link": "Please wait, the link is being created.",
     "toast_link_copied": "Link copied to clipboard",
     "toast_copy_error": "Error copying link.",
-    "toast_group_created": "Group chat created successfully"
+    "toast_group_created": "Group chat created successfully",
+    "details_saved": "Party details saved.",
+    "task_added": "Task added",
+    "error_add": "Error adding task",
+    "task_deleted": "Task deleted",
+    "error_delete": "Error deleting task",
+    "error_update": "Update error",
+    "generating_link": "Generating link...",
+    "wait_link": "Please wait, the link is being created.",
+    "link_copied": "Link copied to clipboard",
+    "copy_error": "Error copying link.",
+    "group_created": "Group successfully created"
   },
   "shared": {
     "loading": "Loading secret list...",
@@ -1186,7 +1223,13 @@
     "participants_title": "Contributors (%d)",
     "anonymous": "Anonymous",
     "pledge_success": "Your pledge has been successfully recorded!",
-    "pledge_error": "Error recording the pledge"
+    "pledge_error": "Error recording the pledge",
+    "collected": "Collected:",
+    "empty_pledges": "No contributions yet. Be the first!",
+    "error_target_too_low": "Target amount cannot be lower than pledges already recorded (%s)",
+    "target_updated": "Pot target updated!",
+    "error_target_update": "Error updating target amount",
+    "error_amount_exceeds": "Amount exceeds remaining sum (%s)"
   },
   "not_found": {
     "title": "Page Not Found",
@@ -1297,6 +1340,68 @@
     "cta_banner_title": "Ready to celebrate stress-free?",
     "cta_banner_subtitle": "Join Time2Wish for free today. No credit card required.",
     "cta_banner_btn": "Start Free Now",
-    "tagline": "The intelligent celebration and birthday assistant."
+    "tagline": "The intelligent celebration and birthday assistant.",
+    "perk1_title": "Zero missed dates",
+    "perk1_desc": "Scheduled alerts to anticipate your gifts and wishes.",
+    "perk2_title": "AI from the heart",
+    "perk2_desc": "Authentic, touching words generated based on your relationship.",
+    "perk3_title": "Group celebrations",
+    "perk3_desc": "Shared gift pots and surprises coordinated with loved ones.",
+    "mock_birthday_of": "Sophie's Birthday",
+    "mock_in_days": "In 3 days • Nov 14",
+    "mock_d_minus_3": "D-3",
+    "mock_ai_title": "AI Wish Generator",
+    "mock_tone_warm": "Warm",
+    "mock_tone_funny": "Funny",
+    "mock_tone_poetic": "Poetic",
+    "mock_copy_wish": "Copy wish",
+    "mock_send_whatsapp": "Send via WhatsApp",
+    "mock_pot_title": "🎁 Secret Pot \"Trip to Rome\"",
+    "mock_pot_sub": "6 friends have already contributed in secret",
+    "mock_sample_warm": "Happy birthday Sophie! May this new year bring you as much joy, laughter and success as you bring to everyone around you. Thank you for being in my life. 🎂✨",
+    "mock_sample_funny": "Happy birthday Sophie! Don't worry about having more candles, it just means your cake is getting more and more spectacular! Enjoy your day to the fullest! 🥳🎈",
+    "mock_sample_poetic": "Like stars lighting up the night, may this birthday brighten your path for the year ahead. May every moment be a melody of joy. Happy birthday Sophie. 🌟💫",
+    "pillar_subtitle": "Everything you need for every celebration",
+    "pillar_desc_lead": "Four pillars designed to simplify organization and multiply emotion.",
+    "pillar1_li1": "Email alerts and in-app notifications",
+    "pillar1_li2": "1-click Google Contacts synchronization",
+    "pillar1_li3": "Flexible views: Calendar, Grid, and List",
+    "pillar2_li1": "Custom templates tailored to relationships",
+    "pillar2_li2": "Animated greeting cards ready to share",
+    "pillar2_li3": "Targeted gift ideas suggestions",
+    "pillar3_li1": "Secure pots via card & Mobile Money",
+    "pillar3_li2": "Secret wishlists among friends",
+    "pillar3_li3": "Gift reservations to avoid duplicate presents",
+    "pillar4_li1": "Complete party planning checklists",
+    "pillar4_li2": "Time capsules to unlock on D-Day",
+    "pillar4_li3": "Integrated messaging and RSVP management",
+    "pricing_title": "Plans tailored to every need",
+    "pricing_desc": "Start for free and scale as you celebrate more loved ones.",
+    "plan_free": "Free",
+    "plan_free_period": "/ forever",
+    "plan_free_desc": "Ideal for getting started and trying Time2Wish.",
+    "plan_free_f1": "Up to 10 birthdays",
+    "plan_free_f2": "Reminders on D-Day",
+    "plan_free_f3": "1 AI wish per week",
+    "plan_free_f4": "Grid view",
+    "btn_start_free": "Start for free",
+    "plan_popular_badge": "Most popular",
+    "plan_plus_desc": "For active families and groups of friends.",
+    "plan_plus_f1": "Up to 50 birthdays",
+    "plan_plus_f2": "Reminders on D-1 and D-Day",
+    "plan_plus_f3": "Unlimited AI Wishes & Gifts",
+    "plan_plus_f4": "Full List & Calendar views",
+    "plan_plus_f5": "OLED & Dark mode themes",
+    "btn_choose_plus": "Choose the Plus plan",
+    "plan_pro_desc": "For large networks and event organizers.",
+    "plan_pro_f1": "Unlimited birthdays",
+    "plan_pro_f2": "Custom reminders up to D-14",
+    "plan_pro_f3": "Multiple pots with zero platform fees",
+    "plan_pro_f4": "iCalendar export & dedicated support",
+    "btn_choose_pro": "Choose the Pro plan",
+    "footer_nav": "Navigation",
+    "footer_legal": "Legal & Support",
+    "footer_admin": "Admin Portal",
+    "footer_copyright": "© 2026 Time2Wish. All rights reserved."
   }
 }

@@ -11,13 +11,13 @@ import { TranslationService } from '../../../services/translation.service';
   template: `
     <div class="payments-container">
       <div class="header-container">
-        <h2 class="page-title">Historique des Transactions</h2>
+        <h2 class="page-title">{{ t9n.t('admin.payments.title') || 'Historique des Transactions' }}</h2>
         <div class="header-actions">
           <select [(ngModel)]="statusFilter" class="filter-select">
-            <option value="ALL">Tous les statuts</option>
-            <option value="SUCCESS">Succès (SUCCESS)</option>
-            <option value="PENDING">En attente (PENDING)</option>
-            <option value="FAILED">Échoué (FAILED)</option>
+            <option value="ALL">{{ t9n.t('admin.payments.filter_all') || 'Tous les statuts' }}</option>
+            <option value="SUCCESS">{{ t9n.t('admin.payments.filter_success') || 'Succès (SUCCESS)' }}</option>
+            <option value="PENDING">{{ t9n.t('admin.payments.filter_pending') || 'En attente (PENDING)' }}</option>
+            <option value="FAILED">{{ t9n.t('admin.payments.filter_failed') || 'Échoué (FAILED)' }}</option>
           </select>
         </div>
       </div>
@@ -26,12 +26,12 @@ import { TranslationService } from '../../../services/translation.service';
         <table class="payments-table">
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Utilisateur</th>
-              <th>Fournisseur</th>
-              <th>Forfait</th>
-              <th>Montant</th>
-              <th>Statut</th>
+              <th>{{ t9n.t('admin.payments.col_date') || 'Date' }}</th>
+              <th>{{ t9n.t('admin.payments.col_user') || 'Utilisateur' }}</th>
+              <th>{{ t9n.t('admin.payments.col_provider') || 'Fournisseur' }}</th>
+              <th>{{ t9n.t('admin.payments.col_plan') || 'Forfait' }}</th>
+              <th>{{ t9n.t('admin.payments.col_amount') || 'Montant' }}</th>
+              <th>{{ t9n.t('admin.payments.col_status') || 'Statut' }}</th>
             </tr>
           </thead>
           <tbody>
@@ -65,7 +65,7 @@ import { TranslationService } from '../../../services/translation.service';
             @if (filteredPayments().length === 0) {
               <tr>
                 <td colspan="6" class="empty-state">
-                  Aucun paiement trouvé
+                  {{ t9n.t('admin.payments.empty') || 'Aucun paiement trouvé' }}
                 </td>
               </tr>
             }

@@ -74,7 +74,7 @@ import { TranslationService } from '../../../services/translation.service';
 
           <button type="submit" class="admin-btn-primary" [disabled]="!registerForm.form.valid || isLoading()">
             @if (isLoading()) {
-              <span class="spinner"></span> Envoi de la demande...
+              <span class="spinner"></span> {{ t9n.t('admin.register.submitting') || 'Envoi de la demande...' }}
             } @else {
               <span class="material-symbols-outlined">person_add</span> {{ t9n.t('admin.register.btn') }}
             }
@@ -110,12 +110,12 @@ export class AdminRegisterComponent {
       password: this.password
     }).subscribe({
       next: (res: any) => {
-        this.toastService.success(res.message || 'Demande envoyée avec succès');
+        this.toastService.success(res.message || this.t9n.t('admin.register.request_sent_success') || 'Demande envoyée avec succès');
         this.router.navigate(['/admin/login']);
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.toastService.error(err.error?.message || 'Erreur lors de la création du compte');
+        this.toastService.error(err.error?.message || this.t9n.t('admin.register.error_account_creation') || 'Erreur lors de la création du compte');
       }
     });
   }

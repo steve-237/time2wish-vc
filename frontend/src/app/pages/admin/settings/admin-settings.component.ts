@@ -101,11 +101,11 @@ export class AdminSettingsComponent implements OnInit, OnDestroy {
     this.adminService.updateSetting(key, value).subscribe({
       next: (updatedSetting) => {
         this.settings.update(arr => arr.map(s => s.key === key ? updatedSetting : s));
-        this.toast.success(`Paramètre ${this.formatKey(key)} mis à jour`);
+        this.toast.success(this.t9n.t('admin.settings.toast_param_updated', this.formatKey(key)) || `Paramètre ${this.formatKey(key)} mis à jour`);
       },
       error: (err) => {
         console.error('Error updating setting', err);
-        this.toast.error('Erreur de mise à jour');
+        this.toast.error(this.t9n.t('admin.settings.toast_update_error') || 'Erreur de mise à jour');
         this.loadSettings(); // revert
       }
     });
@@ -177,9 +177,9 @@ export class AdminSettingsComponent implements OnInit, OnDestroy {
         a.download = `time2wish_backup_${new Date().getTime()}.json`;
         a.click();
         window.URL.revokeObjectURL(url);
-        this.toast.success('Sauvegarde téléchargée avec succès');
+        this.toast.success(this.t9n.t('admin.settings.toast_backup_success') || 'Sauvegarde téléchargée avec succès');
       },
-      error: () => this.toast.error('Erreur lors de la sauvegarde')
+      error: () => this.toast.error(this.t9n.t('admin.settings.toast_backup_error') || 'Erreur lors de la sauvegarde')
     });
   }
 

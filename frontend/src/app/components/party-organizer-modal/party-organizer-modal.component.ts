@@ -84,7 +84,7 @@ export class PartyOrganizerModalComponent implements OnInit {
         this.partyLocation(),
         this.partyDescription()
       ).subscribe();
-      this.toastService.success('Détails de la fête sauvegardés.');
+      this.toastService.success(this.t9n.t('party.details_saved') || 'Détails de la fête sauvegardés.');
     }
   }
 
@@ -96,7 +96,7 @@ export class PartyOrganizerModalComponent implements OnInit {
     this.isAddingTask = true;
     this.birthdayService.addPartyTask(id, this.newTaskDescription).subscribe({
       next: (task) => {
-        this.toastService.success('Tâche ajoutée');
+        this.toastService.success(this.t9n.t('party.task_added') || 'Tâche ajoutée');
         this.newTaskDescription = '';
         this.isAddingTask = false;
         
@@ -105,7 +105,7 @@ export class PartyOrganizerModalComponent implements OnInit {
         this.birthday.partyTasks.push(task);
       },
       error: () => {
-        this.toastService.error("Erreur lors de l'ajout");
+        this.toastService.error(this.t9n.t('party.error_add') || 'Erreur lors de l\'ajout');
         this.isAddingTask = false;
       }
     });
@@ -117,12 +117,12 @@ export class PartyOrganizerModalComponent implements OnInit {
     
     this.birthdayService.deletePartyTask(bId, taskId).subscribe({
       next: () => {
-        this.toastService.success('Tâche supprimée');
+        this.toastService.success(this.t9n.t('party.task_deleted') || 'Tâche supprimée');
         if (this.birthday.partyTasks) {
           this.birthday.partyTasks = this.birthday.partyTasks.filter(t => t.id !== taskId);
         }
       },
-      error: () => this.toastService.error('Erreur lors de la suppression')
+      error: () => this.toastService.error(this.t9n.t('party.error_delete') || 'Erreur lors de la suppression')
     });
   }
 
@@ -134,27 +134,27 @@ export class PartyOrganizerModalComponent implements OnInit {
       next: (updatedTask: PartyTask) => {
         task.isCompleted = updatedTask.isCompleted;
       },
-      error: () => this.toastService.error('Erreur de mise à jour')
+      error: () => this.toastService.error(this.t9n.t('party.error_update') || 'Erreur de mise à jour')
     });
   }
 
   // --- Sharing Links ---
   getShareLink(): string {
-    if (!this.birthday.shareToken) return 'Génération du lien...';
+    if (!this.birthday.shareToken) return this.t9n.t('party.generating_link') || 'Génération du lien...';
     const baseUrl = window.location.origin;
     return `${baseUrl}/shared/${this.birthday.shareToken}`;
   }
 
   copyShareLink() {
     if (!this.birthday.shareToken) {
-      this.toastService.error('Veuillez patienter, le lien est en cours de création.');
+      this.toastService.error(this.t9n.t('party.wait_link') || 'Veuillez patienter, le lien est en cours de création.');
       return;
     }
     navigator.clipboard.writeText(this.getShareLink()).then(() => {
-      this.toastService.success('Lien copié dans le presse-papier');
+      this.toastService.success(this.t9n.t('party.link_copied') || 'Lien copié dans le presse-papier');
     }).catch(err => {
       console.error('Could not copy text: ', err);
-      this.toastService.error('Erreur lors de la copie du lien.');
+      this.toastService.error(this.t9n.t('party.copy_error') || 'Erreur lors de la copie du lien.');
     });
   }
 
@@ -174,7 +174,7 @@ export class PartyOrganizerModalComponent implements OnInit {
     
     this.messagingService.createBirthdayGroup(b.id, this.selectedContactIds).subscribe({
       next: (conv) => {
-        this.toastService.success('Groupe créé avec succès');
+        this.toastService.success(this.t9n.t('party.group_created') || 'Groupe créé avec succès');
         this.close.emit();
         this.router.navigate(['/dashboard/messaging'], { queryParams: { startChatWith: conv.id } });
       },

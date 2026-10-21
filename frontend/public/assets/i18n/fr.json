@@ -469,7 +469,10 @@
     "cat_custom": "Personnalisé",
     "limit_reached": "Limite de modèles atteinte. Passez au forfait supérieur.",
     "err_update": "Erreur lors de la mise à jour.",
-    "err_create": "Erreur lors de la création."
+    "err_create": "Erreur lors de la création.",
+    "confirm_delete_msg": "Êtes-vous sûr de vouloir supprimer ce modèle ?",
+    "error_update": "Erreur lors de la mise à jour.",
+    "error_create": "Erreur lors de la création."
   },
   "notifications": {
     "title": "Notifications",
@@ -536,7 +539,11 @@
       "error_pending_approval": "Votre compte administrateur est en attente de validation.",
       "error_account_blocked": "Ce compte a été bloqué.",
       "error_bad_credentials": "Identifiants incorrects.",
-      "error_server_connection": "Erreur de connexion serveur."
+      "error_server_connection": "Erreur de connexion serveur.",
+      "access_denied": "Accès refusé. Vous n'êtes pas administrateur.",
+      "pending_approval": "Votre compte administrateur est en attente de validation.",
+      "account_blocked": "Ce compte a été bloqué.",
+      "invalid_credentials": "Identifiants incorrects."
     },
     "register": {
       "title": "Devenir Administrateur",
@@ -624,7 +631,14 @@
       "toast_export_success": "Export CSV réussi",
       "confirm_impersonate": "Êtes-vous sûr de vouloir vous connecter en tant que %s ?",
       "toast_impersonate_success": "Connexion réussie en tant que %s",
-      "toast_impersonate_error": "Impossible d'impersonifier cet utilisateur"
+      "toast_impersonate_error": "Impossible d'impersonifier cet utilisateur",
+      "csv_name": "Nom",
+      "csv_email": "Email",
+      "csv_role": "Rôle",
+      "csv_plan": "Forfait",
+      "csv_status": "Statut",
+      "csv_created_at": "Date Création",
+      "csv_last_login": "Dernière Connexion"
     },
     "layout": {
       "panel_title": "Admin Panel",
@@ -781,7 +795,9 @@
       "toast_param_updated": "Paramètre %s mis à jour",
       "toast_update_error": "Erreur de mise à jour",
       "toast_backup_success": "Sauvegarde téléchargée avec succès",
-      "toast_backup_error": "Erreur lors de la sauvegarde"
+      "toast_backup_error": "Erreur lors de la sauvegarde",
+      "toast_setting_updated": "Paramètre mis à jour",
+      "toast_setting_error": "Erreur de mise à jour"
     },
     "support": {
       "title": "Support & Tickets",
@@ -888,7 +904,15 @@
     "new_gift": "Nouveau Cadeau",
     "empty_list": "Votre liste est vide.",
     "no_price": "Prix non précisé",
-    "reserved_by": "Réservé par"
+    "reserved_by": "Réservé par",
+    "banner_crowdsource_title": "Nouveau : Les Cagnottes !",
+    "banner_crowdsource_desc": "Cliquez sur le bouton \"Cagnotte\" sous un cadeau pour créer un pot commun et inviter vos amis à participer financièrement !",
+    "buy_on_store": "Acheter sur %s",
+    "pot_btn": "Cagnotte",
+    "next_gen_in": "Prochaine génération d'idées cadeaux IA disponible dans :",
+    "ai_analyzing_sub": "Analyse personnalisée des centres d'intérêt",
+    "link_copied": "Lien de partage copié dans le presse-papier !",
+    "copy_error": "Erreur lors de la copie du lien."
   },
   "common": {
     "save": "Enregistrer",
@@ -936,7 +960,9 @@
       "Ven",
       "Sam",
       "Dim"
-    ]
+    ],
+    "ics_summary": "🎂 Anniversaire de %s",
+    "ics_description": "N'oubliez pas de souhaiter un joyeux anniversaire à %s !"
   },
   "birthday": {
     "add": "Ajouter"
@@ -1051,7 +1077,18 @@
     "toast_wait_link": "Veuillez patienter, le lien est en cours de création.",
     "toast_link_copied": "Lien copié dans le presse-papier",
     "toast_copy_error": "Erreur lors de la copie du lien.",
-    "toast_group_created": "Groupe créé avec succès"
+    "toast_group_created": "Groupe créé avec succès",
+    "details_saved": "Détails de la fête sauvegardés.",
+    "task_added": "Tâche ajoutée",
+    "error_add": "Erreur lors de l'ajout",
+    "task_deleted": "Tâche supprimée",
+    "error_delete": "Erreur lors de la suppression",
+    "error_update": "Erreur de mise à jour",
+    "generating_link": "Génération du lien...",
+    "wait_link": "Veuillez patienter, le lien est en cours de création.",
+    "link_copied": "Lien copié dans le presse-papier",
+    "copy_error": "Erreur lors de la copie du lien.",
+    "group_created": "Groupe créé avec succès"
   },
   "shared": {
     "loading": "Chargement de la liste secrète...",
@@ -1186,7 +1223,13 @@
     "participants_title": "Participants (%d)",
     "anonymous": "Anonyme",
     "pledge_success": "Votre promesse de don a bien été enregistrée !",
-    "pledge_error": "Erreur lors de l'enregistrement de la promesse"
+    "pledge_error": "Erreur lors de l'enregistrement de la promesse",
+    "collected": "Collecté :",
+    "empty_pledges": "Aucune participation pour l'instant. Soyez le premier !",
+    "error_target_too_low": "Le montant cible ne peut pas être inférieur aux promesses déjà enregistrées (%s)",
+    "target_updated": "Objectif de la cagnotte mis à jour !",
+    "error_target_update": "Erreur lors de la modification de l'objectif",
+    "error_amount_exceeds": "Le montant dépasse la somme restante (%s)"
   },
   "not_found": {
     "title": "Page introuvable",
@@ -1297,6 +1340,68 @@
     "cta_banner_title": "Prêt à célébrer vos proches sans stress ?",
     "cta_banner_subtitle": "Rejoignez Time2Wish gratuitement dès aujourd'hui. Aucune carte bancaire requise.",
     "cta_banner_btn": "Démarrer gratuitement",
-    "tagline": "L'assistant intelligent des anniversaires et des célébrations."
+    "tagline": "L'assistant intelligent des anniversaires et des célébrations.",
+    "perk1_title": "Zéro oubli",
+    "perk1_desc": "Des alertes programmées pour anticiper vos achats et vos souhaits.",
+    "perk2_title": "L'IA au service du cœur",
+    "perk2_desc": "Des mots vrais et touchants générés selon vos sentiments et votre relation.",
+    "perk3_title": "Célébration collective",
+    "perk3_desc": "Cagnottes partagées et surprises coordonnées avec vos proches.",
+    "mock_birthday_of": "Anniversaire de Sophie",
+    "mock_in_days": "Dans 3 jours • 14 Novembre",
+    "mock_d_minus_3": "J-3",
+    "mock_ai_title": "Générateur de vœux IA",
+    "mock_tone_warm": "Chaleureux",
+    "mock_tone_funny": "Humoristique",
+    "mock_tone_poetic": "Poétique",
+    "mock_copy_wish": "Copier le vœu",
+    "mock_send_whatsapp": "Envoyer par WhatsApp",
+    "mock_pot_title": "🎁 Cagnotte secrète \"Voyage à Rome\"",
+    "mock_pot_sub": "6 amis ont déjà contribué en secret",
+    "mock_sample_warm": "Joyeux anniversaire Sophie ! Que cette nouvelle année t'apporte autant de joie, de rires et de succès que tu en répands autour de toi. Merci pour ta précieuse présence dans ma vie. 🎂✨",
+    "mock_sample_funny": "Joyeux anniversaire Sophie ! Ne t'inquiète pas pour les bougies qui augmentent, c'est juste que ton gâteau devient de plus en plus spectaculaire ! Profite à fond de ta journée ! 🥳🎈",
+    "mock_sample_poetic": "Comme les étoiles qui éclairent la nuit, que ce jour d'anniversaire illumine ton chemin pour l'année à venir. Que chaque instant soit une mélodie de bonheur. Bel anniversaire Sophie. 🌟💫",
+    "pillar_subtitle": "Tout ce dont vous avez besoin pour chaque fête",
+    "pillar_desc_lead": "Quatre piliers pensés pour simplifier l'organisation et démultiplier l'émotion.",
+    "pillar1_li1": "Alertes par email et notifications in-app",
+    "pillar1_li2": "Synchronisation Google Contacts en 1 clic",
+    "pillar1_li3": "Vues flexibles : Calendrier, Grille et Liste",
+    "pillar2_li1": "Modèles personnalisés selon la relation",
+    "pillar2_li2": "Cartes de vœux animées prêtes à partager",
+    "pillar2_li3": "Suggestions d'idées de cadeaux ciblées",
+    "pillar3_li1": "Cagnottes sécurisées par carte & Mobile Money",
+    "pillar3_li2": "Listes d'envies secrètes entre amis",
+    "pillar3_li3": "Réservation de cadeaux pour éviter les doublons",
+    "pillar4_li1": "Checklists d'organisation complètes",
+    "pillar4_li2": "Capsules temporelles à déverrouiller le Jour J",
+    "pillar4_li3": "Messagerie intégrée et gestion des RSVP",
+    "pricing_title": "Des formules adaptées à chaque besoin",
+    "pricing_desc": "Commencez gratuitement et évoluez selon le nombre de proches à célébrer.",
+    "plan_free": "Gratuit",
+    "plan_free_period": "/ toujours",
+    "plan_free_desc": "Idéal pour démarrer et tester Time2Wish.",
+    "plan_free_f1": "Jusqu'à 10 anniversaires",
+    "plan_free_f2": "Rappels le Jour J",
+    "plan_free_f3": "1 vœu IA par semaine",
+    "plan_free_f4": "Vue Grille",
+    "btn_start_free": "Commencer gratuitement",
+    "plan_popular_badge": "Le plus populaire",
+    "plan_plus_desc": "Pour les familles et groupes d'amis actifs.",
+    "plan_plus_f1": "Jusqu'à 50 anniversaires",
+    "plan_plus_f2": "Rappels à J-1 et Jour J",
+    "plan_plus_f3": "Vœux & Cadeaux IA illimités",
+    "plan_plus_f4": "Vues Liste & Calendrier complètes",
+    "plan_plus_f5": "Thème OLED & Mode sombre",
+    "btn_choose_plus": "Choisir le forfait Plus",
+    "plan_pro_desc": "Pour les grands réseaux et organisateurs d'événements.",
+    "plan_pro_f1": "Anniversaires illimités",
+    "plan_pro_f2": "Rappels personnalisés jusqu'à J-14",
+    "plan_pro_f3": "Cagnottes multiples sans frais",
+    "plan_pro_f4": "Export iCalendar & Support dédié",
+    "btn_choose_pro": "Choisir le forfait Pro",
+    "footer_nav": "Navigation",
+    "footer_legal": "Légal & Support",
+    "footer_admin": "Espace Administration",
+    "footer_copyright": "© 2026 Time2Wish. Tous droits réservés."
   }
 }

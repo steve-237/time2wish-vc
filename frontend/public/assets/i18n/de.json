@@ -467,9 +467,12 @@
     "cat_funny": "Lustig",
     "cat_formal": "Formell",
     "cat_custom": "Benutzerdefiniert",
-    "limit_reached": "Vorlagenlimit erreicht. Bitte upgraden Sie Ihren Plan.",
+    "limit_reached": "Vorlagenlimit erreicht. Bitte upgraden.",
     "err_update": "Fehler beim Aktualisieren der Vorlage.",
-    "err_create": "Fehler beim Erstellen der Vorlage."
+    "err_create": "Fehler beim Erstellen der Vorlage.",
+    "confirm_delete_msg": "Möchten Sie diese Vorlage wirklich löschen?",
+    "error_update": "Fehler beim Aktualisieren.",
+    "error_create": "Fehler beim Erstellen."
   },
   "notifications": {
     "title": "Benachrichtigungen",
@@ -529,14 +532,18 @@
       "password": "Passwort",
       "btn": "Anmelden",
       "link_register": "Admin-Zugang anfordern",
-      "connecting": "Verbindung wird hergestellt...",
-      "back_to_app": "Zurück zur App",
+      "connecting": "Verbinden...",
+      "back_to_app": "Zurück zur Anwendung",
       "welcome_toast": "Willkommen im Administrationsportal",
       "error_not_admin": "Zugriff verweigert. Sie sind kein Administrator.",
       "error_pending_approval": "Ihr Administratorkonto wartet auf Genehmigung.",
       "error_account_blocked": "Dieses Konto wurde gesperrt.",
       "error_bad_credentials": "Ungültige Anmeldeinformationen.",
-      "error_server_connection": "Server-Verbindungsfehler."
+      "error_server_connection": "Serververbindungsfehler.",
+      "access_denied": "Zugriff verweigert. Sie sind kein Administrator.",
+      "pending_approval": "Ihr Administratorkonto wartet auf Bestätigung.",
+      "account_blocked": "Dieses Konto wurde gesperrt.",
+      "invalid_credentials": "Ungültige Anmeldedaten."
     },
     "register": {
       "title": "Administrator werden",
@@ -550,7 +557,7 @@
       "placeholder_name": "Max Mustermann",
       "submitting": "Anfrage wird gesendet...",
       "request_sent_success": "Anfrage erfolgreich gesendet",
-      "error_account_creation": "Fehler beim Erstellen des Kontos"
+      "error_account_creation": "Fehler bei der Kontoerstellung"
     },
     "dashboard": {
       "title": "Überblick",
@@ -624,7 +631,14 @@
       "toast_export_success": "CSV-Export erfolgreich",
       "confirm_impersonate": "Möchten Sie sich wirklich als %s anmelden?",
       "toast_impersonate_success": "Erfolgreich als %s angemeldet",
-      "toast_impersonate_error": "Dieser Benutzer kann nicht imitiert werden"
+      "toast_impersonate_error": "Dieser Benutzer kann nicht imitiert werden",
+      "csv_name": "Name",
+      "csv_email": "E-Mail",
+      "csv_role": "Rolle",
+      "csv_plan": "Tarif",
+      "csv_status": "Status",
+      "csv_created_at": "Erstellungsdatum",
+      "csv_last_login": "Letzte Anmeldung"
     },
     "layout": {
       "panel_title": "Admin Panel",
@@ -780,8 +794,10 @@
       "btn_download_backup": "Backup herunterladen",
       "toast_param_updated": "Parameter %s aktualisiert",
       "toast_update_error": "Fehler beim Aktualisieren",
-      "toast_backup_success": "Backup erfolgreich heruntergeladen",
-      "toast_backup_error": "Fehler bei der Sicherung"
+      "toast_backup_success": "Sicherung erfolgreich heruntergeladen",
+      "toast_backup_error": "Fehler bei der Sicherung",
+      "toast_setting_updated": "Einstellung aktualisiert",
+      "toast_setting_error": "Fehler beim Aktualisieren"
     },
     "support": {
       "title": "Support & Tickets",
@@ -877,7 +893,7 @@
     "buy_fnac": "Auf Fnac kaufen",
     "buy_etsy": "Auf Etsy kaufen",
     "btn_fundraiser": "Gemeinschaftskasse",
-    "trial_ended": "Testzeitraum beendet (1/Monat)",
+    "trial_ended": "Testphase beendet (1/Monat)",
     "next_ai_available": "Nächste KI-Geschenkideen verfügbar in:",
     "share_copied": "Freigabelink in die Zwischenablage kopiert!",
     "share_copy_error": "Fehler beim Kopieren des Links.",
@@ -888,7 +904,15 @@
     "new_gift": "Neues Geschenk",
     "empty_list": "Ihre Liste ist leer.",
     "no_price": "Preis nicht angegeben",
-    "reserved_by": "Reserviert von"
+    "reserved_by": "Reserviert von",
+    "banner_crowdsource_title": "Neu: Sammelkassen!",
+    "banner_crowdsource_desc": "Klicke auf den Button „Sammelkasse“ unter einem Geschenk, um gemeinsam mit Freunden zusammenzulegen!",
+    "buy_on_store": "Auf %s kaufen",
+    "pot_btn": "Sammelkasse",
+    "next_gen_in": "Nächste KI-Geschenkideen-Generierung verfügbar in:",
+    "ai_analyzing_sub": "Personalisierte Interessenanalyse",
+    "link_copied": "Freigabelink in die Zwischenablage kopiert!",
+    "copy_error": "Fehler beim Kopieren des Links."
   },
   "common": {
     "save": "Speichern",
@@ -936,7 +960,9 @@
       "Fr",
       "Sa",
       "So"
-    ]
+    ],
+    "ics_summary": "🎂 Geburtstag von %s",
+    "ics_description": "Vergiss nicht, %s zum Geburtstag zu gratulieren!"
   },
   "birthday": {
     "add": "Hinzufügen"
@@ -1051,7 +1077,18 @@
     "toast_wait_link": "Bitte warten, der Link wird erstellt.",
     "toast_link_copied": "Link in die Zwischenablage kopiert",
     "toast_copy_error": "Fehler beim Kopieren des Links.",
-    "toast_group_created": "Gruppen-Chat erfolgreich erstellt"
+    "toast_group_created": "Gruppen-Chat erfolgreich erstellt",
+    "details_saved": "Party-Details gespeichert.",
+    "task_added": "Aufgabe hinzugefügt",
+    "error_add": "Fehler beim Hinzufügen",
+    "task_deleted": "Aufgabe gelöscht",
+    "error_delete": "Fehler beim Löschen",
+    "error_update": "Fehler beim Aktualisieren",
+    "generating_link": "Link wird generiert...",
+    "wait_link": "Bitte warten, der Link wird erstellt.",
+    "link_copied": "Link in die Zwischenablage kopiert",
+    "copy_error": "Fehler beim Kopieren des Links.",
+    "group_created": "Gruppe erfolgreich erstellt"
   },
   "shared": {
     "loading": "Geheime Liste wird geladen...",
@@ -1186,7 +1223,13 @@
     "participants_title": "Teilnehmer (%d)",
     "anonymous": "Anonym",
     "pledge_success": "Ihr Spendenversprechen wurde erfolgreich registriert!",
-    "pledge_error": "Fehler beim Erfassen des Spendenversprechens"
+    "pledge_error": "Fehler beim Erfassen des Spendenversprechens",
+    "collected": "Gesammelt:",
+    "empty_pledges": "Noch keine Beiträge. Seien Sie der Erste!",
+    "error_target_too_low": "Der Zielbetrag darf nicht niedriger sein als bereits zugesagte Beträge (%s)",
+    "target_updated": "Sammelkassenziel aktualisiert!",
+    "error_target_update": "Fehler beim Ändern des Zielbetrags",
+    "error_amount_exceeds": "Der Betrag übersteigt die verbleibende Summe (%s)"
   },
   "not_found": {
     "title": "Seite nicht gefunden",
@@ -1297,6 +1340,68 @@
     "cta_banner_title": "Bereit für stressfreies Feiern?",
     "cta_banner_subtitle": "Starten Sie heute kostenlos mit Time2Wish. Keine Kreditkarte erforderlich.",
     "cta_banner_btn": "Jetzt kostenlos starten",
-    "tagline": "Der intelligente Geburtstags- und Feierassistent."
+    "tagline": "Der intelligente Geburtstags- und Feierassistent.",
+    "perk1_title": "Kein Vergessen",
+    "perk1_desc": "Geplante Erinnerungen, um Geschenke und Wünsche zu planen.",
+    "perk2_title": "KI mit Herz",
+    "perk2_desc": "Echte, berührende Worte, abgestimmt auf eure Beziehung.",
+    "perk3_title": "Gemeinsames Feiern",
+    "perk3_desc": "Gemeinsame Kassen und Überraschungen mit deinen Liebsten.",
+    "mock_birthday_of": "Sophies Geburtstag",
+    "mock_in_days": "In 3 Tagen • 14. November",
+    "mock_d_minus_3": "T-3",
+    "mock_ai_title": "KI-Wunschgenerator",
+    "mock_tone_warm": "Herzlich",
+    "mock_tone_funny": "Lustig",
+    "mock_tone_poetic": "Poetisch",
+    "mock_copy_wish": "Wunsch kopieren",
+    "mock_send_whatsapp": "Per WhatsApp senden",
+    "mock_pot_title": "🎁 Geheime Sammelkasse „Reise nach Rom“",
+    "mock_pot_sub": "6 Freunde haben bereits heimlich beigetragen",
+    "mock_sample_warm": "Alles Gute zum Geburtstag, Sophie! Möge dieses neue Jahr dir so viel Freude, Lachen und Erfolg bringen, wie du anderen schenkst. Danke, dass es dich gibt! 🎂✨",
+    "mock_sample_funny": "Herzlichen Glückwunsch, Sophie! Mach dir keine Sorgen über die vielen Kerzen, dein Kuchen wird dadurch nur noch spektakulärer! Genieße deinen Tag in vollen Zügen! 🥳🎈",
+    "mock_sample_poetic": "Wie Sterne, die die Nacht erhellen, möge dieser Geburtstag deinen Weg für das kommende Jahr erleuchten. Möge jeder Augenblick eine Melodie des Glücks sein. Alles Liebe, Sophie. 🌟💫",
+    "pillar_subtitle": "Alles, was Sie für jede Feier brauchen",
+    "pillar_desc_lead": "Vier Säulen, entwickelt um die Organisation zu erleichtern und Emotionen zu vervielfachen.",
+    "pillar1_li1": "E-Mail-Benachrichtigungen und In-App-Hinweise",
+    "pillar1_li2": "1-Klick-Synchronisierung mit Google Kontakten",
+    "pillar1_li3": "Flexible Ansichten: Kalender, Raster und Liste",
+    "pillar2_li1": "Personalisierte Vorlagen je nach Beziehung",
+    "pillar2_li2": "Animierte Grußkarten zum Teilen bereit",
+    "pillar2_li3": "Gezielte Geschenkideen-Vorschläge",
+    "pillar3_li1": "Sichere Sammelkassen per Karte & Mobile Money",
+    "pillar3_li2": "Geheime Wunschlisten unter Freunden",
+    "pillar3_li3": "Geschenkreservierung zur Vermeidung von Doppelkäufen",
+    "pillar4_li1": "Vollständige Organisations-Checklisten",
+    "pillar4_li2": "Zeitkapseln zum Freischalten am Tag X",
+    "pillar4_li3": "Integrierte Nachrichten und RSVP-Verwaltung",
+    "pricing_title": "Tarife für jeden Bedarf",
+    "pricing_desc": "Kostenlos starten und flexibel erweitern.",
+    "plan_free": "Kostenlos",
+    "plan_free_period": "/ für immer",
+    "plan_free_desc": "Ideal für den Einstieg in Time2Wish.",
+    "plan_free_f1": "Bis zu 10 Geburtstage",
+    "plan_free_f2": "Erinnerungen am Tag X",
+    "plan_free_f3": "1 KI-Wunsch pro Woche",
+    "plan_free_f4": "Rasteransicht",
+    "btn_start_free": "Kostenlos starten",
+    "plan_popular_badge": "Am beliebtesten",
+    "plan_plus_desc": "Für aktive Familien und Freundeskreise.",
+    "plan_plus_f1": "Bis zu 50 Geburtstage",
+    "plan_plus_f2": "Erinnerungen an T-1 und Tag X",
+    "plan_plus_f3": "Unbegrenzte KI-Wünsche & Geschenke",
+    "plan_plus_f4": "Vollständige Listen- & Kalenderansicht",
+    "plan_plus_f5": "OLED-Design & Dunkelmodus",
+    "btn_choose_plus": "Plus-Tarif wählen",
+    "plan_pro_desc": "Für große Netzwerke und Event-Organisatoren.",
+    "plan_pro_f1": "Unbegrenzte Geburtstage",
+    "plan_pro_f2": "Benutzerdefinierte Erinnerungen bis T-14",
+    "plan_pro_f3": "Mehrere Sammelkassen ohne Gebühren",
+    "plan_pro_f4": "iCalendar-Export & dedizierter Support",
+    "btn_choose_pro": "Pro-Tarif wählen",
+    "footer_nav": "Navigation",
+    "footer_legal": "Rechtliches & Support",
+    "footer_admin": "Admin-Bereich",
+    "footer_copyright": "© 2026 Time2Wish. Alle Rechte vorbehalten."
   }
 }

@@ -162,22 +162,22 @@
               <div class="perk-item">
                 <span class="material-symbols-outlined perk-icon">schedule</span>
                 <div>
-                  <strong>Zéro oubli</strong>
-                  <span>Des alertes programmées pour anticiper vos achats et vos souhaits.</span>
+                  <strong>{{ t9n.t('landing.perk1_title') || 'Zéro oubli' }}</strong>
+                  <span>{{ t9n.t('landing.perk1_desc') || 'Des alertes programmées pour anticiper vos achats et vos souhaits.' }}</span>
                 </div>
               </div>
               <div class="perk-item">
                 <span class="material-symbols-outlined perk-icon">psychology</span>
                 <div>
-                  <strong>L'IA au service du cœur</strong>
-                  <span>Des mots vrais et touchants générés selon vos sentiments et votre relation.</span>
+                  <strong>{{ t9n.t('landing.perk2_title') || "L'IA au service du cœur" }}</strong>
+                  <span>{{ t9n.t('landing.perk2_desc') || 'Des mots vrais et touchants générés selon vos sentiments et votre relation.' }}</span>
                 </div>
               </div>
               <div class="perk-item">
                 <span class="material-symbols-outlined perk-icon">diversity_3</span>
                 <div>
-                  <strong>Célébration collective</strong>
-                  <span>Cagnottes partagées et surprises coordonnées avec vos proches.</span>
+                  <strong>{{ t9n.t('landing.perk3_title') || 'Célébration collective' }}</strong>
+                  <span>{{ t9n.t('landing.perk3_desc') || 'Cagnottes partagées et surprises coordonnées avec vos proches.' }}</span>
                 </div>
               </div>
             </div>
@@ -193,11 +193,11 @@
                 <div class="mock-user">
                   <div class="mock-avatar">🎂</div>
                   <div>
-                    <div class="mock-name">Anniversaire de Sophie</div>
-                    <div class="mock-date">Dans 3 jours &bull; 14 Novembre</div>
+                    <div class="mock-name">{{ t9n.t('landing.mock_birthday_of') || 'Anniversaire de Sophie' }}</div>
+                    <div class="mock-date">{{ t9n.t('landing.mock_in_days') || 'Dans 3 jours • 14 Novembre' }}</div>
                   </div>
                 </div>
-                <span class="mock-badge">J-3</span>
+                <span class="mock-badge">{{ t9n.t('landing.mock_d_minus_3') || 'J-3' }}</span>
               </div>
 
               <!-- AI Generator Preview -->
@@ -205,27 +205,27 @@
                 <div class="mock-ai-title flex-between">
                   <span class="flex-center gap-xs">
                     <span class="material-symbols-outlined text-cyan" style="font-size: 16px;">auto_awesome</span>
-                    <strong>Générateur de vœux IA</strong>
+                    <strong>{{ t9n.t('landing.mock_ai_title') || 'Générateur de vœux IA' }}</strong>
                   </span>
                   <div class="mock-tone-tabs">
-                    <button (click)="activeAiTone.set('warm')" [class.active]="activeAiTone() === 'warm'">Chaleureux</button>
-                    <button (click)="activeAiTone.set('funny')" [class.active]="activeAiTone() === 'funny'">Humoristique</button>
-                    <button (click)="activeAiTone.set('poetic')" [class.active]="activeAiTone() === 'poetic'">Poétique</button>
+                    <button (click)="activeAiTone.set('warm')" [class.active]="activeAiTone() === 'warm'">{{ t9n.t('landing.mock_tone_warm') || 'Chaleureux' }}</button>
+                    <button (click)="activeAiTone.set('funny')" [class.active]="activeAiTone() === 'funny'">{{ t9n.t('landing.mock_tone_funny') || 'Humoristique' }}</button>
+                    <button (click)="activeAiTone.set('poetic')" [class.active]="activeAiTone() === 'poetic'">{{ t9n.t('landing.mock_tone_poetic') || 'Poétique' }}</button>
                   </div>
                 </div>
                 
                 <p class="mock-ai-text">
-                  "{{ aiWishSamples[activeAiTone()] }}"
+                  "{{ t9n.t('landing.mock_sample_' + activeAiTone()) || aiWishSamples[activeAiTone()] }}"
                 </p>
 
                 <div class="mock-ai-actions">
                   <button class="mock-copy-btn">
                     <span class="material-symbols-outlined" style="font-size: 14px;">content_copy</span>
-                    <span>Copier le vœu</span>
+                    <span>{{ t9n.t('landing.mock_copy_wish') || 'Copier le vœu' }}</span>
                   </button>
                   <button class="mock-share-btn">
                     <span class="material-symbols-outlined" style="font-size: 14px;">share</span>
-                    <span>Envoyer par WhatsApp</span>
+                    <span>{{ t9n.t('landing.mock_send_whatsapp') || 'Envoyer par WhatsApp' }}</span>
                   </button>
                 </div>
               </div>
@@ -233,13 +233,13 @@
               <!-- Shared Pot Mini Mock -->
               <div class="mock-pot-box">
                 <div class="flex-between">
-                  <span class="mock-pot-title">🎁 Cagnotte secrète "Voyage à Rome"</span>
+                  <span class="mock-pot-title">{{ t9n.t('landing.mock_pot_title') || '🎁 Cagnotte secrète "Voyage à Rome"' }}</span>
                   <strong class="mock-pot-amount">380 € / 500 €</strong>
                 </div>
                 <div class="mock-progress-bar">
                   <div class="mock-progress-fill" style="width: 76%;"></div>
                 </div>
-                <span class="mock-pot-sub">6 amis ont déjà contribué en secret</span>
+                <span class="mock-pot-sub">{{ t9n.t('landing.mock_pot_sub') || '6 amis ont déjà contribué en secret' }}</span>
               </div>
 
             </div>
@@ -257,8 +257,8 @@
       
       <div class="section-header-center">
         <span class="section-tag">{{ t9n.t('landing.nav_features') || 'Fonctionnalités clés' }}</span>
-        <h2 class="section-title">Tout ce dont vous avez besoin pour chaque fête</h2>
-        <p class="section-desc">Quatre piliers pensés pour simplifier l'organisation et démultiplier l'émotion.</p>
+        <h2 class="section-title">{{ t9n.t('landing.pillar_subtitle') || 'Tout ce dont vous avez besoin pour chaque fête' }}</h2>
+        <p class="section-desc">{{ t9n.t('landing.pillar_desc_lead') || "Quatre piliers pensés pour simplifier l'organisation et démultiplier l'émotion." }}</p>
       </div>
 
       <div class="pillars-grid">
@@ -273,9 +273,9 @@
             {{ t9n.t('landing.pillar1_desc') || 'Alertes personnalisées avant le Jour J (J-7, J-1, Jour J) et synchronisation instantanée avec votre agenda Google et vos contacts.' }}
           </p>
           <ul class="pillar-list">
-            <li><span class="material-symbols-outlined">check_small</span> Alertes par email et notifications in-app</li>
-            <li><span class="material-symbols-outlined">check_small</span> Synchronisation Google Contacts en 1 clic</li>
-            <li><span class="material-symbols-outlined">check_small</span> Vues flexibles : Calendrier, Grille et Liste</li>
+            <li><span class="material-symbols-outlined">check_small</span> {{ t9n.t('landing.pillar1_li1') || 'Alertes par email et notifications in-app' }}</li>
+            <li><span class="material-symbols-outlined">check_small</span> {{ t9n.t('landing.pillar1_li2') || 'Synchronisation Google Contacts en 1 clic' }}</li>
+            <li><span class="material-symbols-outlined">check_small</span> {{ t9n.t('landing.pillar1_li3') || 'Vues flexibles : Calendrier, Grille et Liste' }}</li>
           </ul>
         </div>
 
@@ -289,9 +289,9 @@
             {{ t9n.t('landing.pillar2_desc') || 'Générez des messages uniques adaptés à la relation (ami, amour, famille, collègue) et au ton désiré (humoristique, touchant, poétique).' }}
           </p>
           <ul class="pillar-list">
-            <li><span class="material-symbols-outlined">check_small</span> Modèles personnalisés selon la relation</li>
-            <li><span class="material-symbols-outlined">check_small</span> Cartes de vœux animées prêtes à partager</li>
-            <li><span class="material-symbols-outlined">check_small</span> Suggestions d'idées de cadeaux ciblées</li>
+            <li><span class="material-symbols-outlined">check_small</span> {{ t9n.t('landing.pillar2_li1') || 'Modèles personnalisés selon la relation' }}</li>
+            <li><span class="material-symbols-outlined">check_small</span> {{ t9n.t('landing.pillar2_li2') || 'Cartes de vœux animées prêtes à partager' }}</li>
+            <li><span class="material-symbols-outlined">check_small</span> {{ t9n.t('landing.pillar2_li3') || "Suggestions d'idées de cadeaux ciblées" }}</li>
           </ul>
         </div>
 
@@ -305,9 +305,9 @@
             {{ t9n.t('landing.pillar3_desc') || 'Créez une cagnotte collective entre proches sans frais cachés et partagez des listes de cadeaux secrètes pour éviter les doublons.' }}
           </p>
           <ul class="pillar-list">
-            <li><span class="material-symbols-outlined">check_small</span> Cagnottes sécurisées par carte & Mobile Money</li>
-            <li><span class="material-symbols-outlined">check_small</span> Listes d'envies secrètes entre amis</li>
-            <li><span class="material-symbols-outlined">check_small</span> Réservation de cadeaux pour éviter les doublons</li>
+            <li><span class="material-symbols-outlined">check_small</span> {{ t9n.t('landing.pillar3_li1') || 'Cagnottes sécurisées par carte & Mobile Money' }}</li>
+            <li><span class="material-symbols-outlined">check_small</span> {{ t9n.t('landing.pillar3_li2') || "Listes d'envies secrètes entre amis" }}</li>
+            <li><span class="material-symbols-outlined">check_small</span> {{ t9n.t('landing.pillar3_li3') || 'Réservation de cadeaux pour éviter les doublons' }}</li>
           </ul>
         </div>
 
@@ -321,9 +321,9 @@
             {{ t9n.t('landing.pillar4_desc') || 'Checklists d\'organisation, gestion des invités et capsules temporelles virtuelles à sceller et déverrouiller le grand jour.' }}
           </p>
           <ul class="pillar-list">
-            <li><span class="material-symbols-outlined">check_small</span> Checklists d'organisation complètes</li>
-            <li><span class="material-symbols-outlined">check_small</span> Capsules temporelles à déverrouiller le Jour J</li>
-            <li><span class="material-symbols-outlined">check_small</span> Messagerie intégrée et gestion des RSVP</li>
+            <li><span class="material-symbols-outlined">check_small</span> {{ t9n.t('landing.pillar4_li1') || "Checklists d'organisation complètes" }}</li>
+            <li><span class="material-symbols-outlined">check_small</span> {{ t9n.t('landing.pillar4_li2') || 'Capsules temporelles à déverrouiller le Jour J' }}</li>
+            <li><span class="material-symbols-outlined">check_small</span> {{ t9n.t('landing.pillar4_li3') || 'Messagerie intégrée et gestion des RSVP' }}</li>
           </ul>
         </div>
 
@@ -379,49 +379,49 @@
       
       <div class="section-header-center">
         <span class="section-tag">{{ t9n.t('landing.nav_pricing') || 'Tarifs clairs' }}</span>
-        <h2 class="section-title">Des formules adaptées à chaque besoin</h2>
-        <p class="section-desc">Commencez gratuitement et évoluez selon le nombre de proches à célébrer.</p>
+        <h2 class="section-title">{{ t9n.t('landing.pricing_title') || 'Des formules adaptées à chaque besoin' }}</h2>
+        <p class="section-desc">{{ t9n.t('landing.pricing_desc') || 'Commencez gratuitement et évoluez selon le nombre de proches à célébrer.' }}</p>
       </div>
 
       <div class="pricing-grid">
         
         <!-- Gratuit / Basic -->
         <div class="pricing-card">
-          <div class="pricing-tier-name">Gratuit</div>
+          <div class="pricing-tier-name">{{ t9n.t('landing.plan_free') || 'Gratuit' }}</div>
           <div class="pricing-price">
             <span class="amount">0 €</span>
-            <span class="period">/ toujours</span>
+            <span class="period">{{ t9n.t('landing.plan_free_period') || '/ toujours' }}</span>
           </div>
-          <p class="pricing-desc">Idéal pour démarrer et tester Time2Wish.</p>
+          <p class="pricing-desc">{{ t9n.t('landing.plan_free_desc') || 'Idéal pour démarrer et tester Time2Wish.' }}</p>
           <ul class="pricing-features">
-            <li><span class="material-symbols-outlined">check</span> Jusqu'à 10 anniversaires</li>
-            <li><span class="material-symbols-outlined">check</span> Rappels le Jour J</li>
-            <li><span class="material-symbols-outlined">check</span> 1 vœu IA par semaine</li>
-            <li><span class="material-symbols-outlined">check</span> Vue Grille</li>
+            <li><span class="material-symbols-outlined">check</span> {{ t9n.t('landing.plan_free_f1') || "Jusqu'à 10 anniversaires" }}</li>
+            <li><span class="material-symbols-outlined">check</span> {{ t9n.t('landing.plan_free_f2') || 'Rappels le Jour J' }}</li>
+            <li><span class="material-symbols-outlined">check</span> {{ t9n.t('landing.plan_free_f3') || '1 vœu IA par semaine' }}</li>
+            <li><span class="material-symbols-outlined">check</span> {{ t9n.t('landing.plan_free_f4') || 'Vue Grille' }}</li>
           </ul>
           <a [routerLink]="['/login']" [queryParams]="{ tab: 'register' }" class="pricing-btn secondary">
-            Commencer gratuitement
+            {{ t9n.t('landing.btn_start_free') || 'Commencer gratuitement' }}
           </a>
         </div>
 
         <!-- Plus (Populaire) -->
         <div class="pricing-card popular">
-          <div class="popular-badge">Le plus populaire</div>
+          <div class="popular-badge">{{ t9n.t('landing.plan_popular_badge') || 'Le plus populaire' }}</div>
           <div class="pricing-tier-name">Plus</div>
           <div class="pricing-price">
             <span class="amount">3,99 €</span>
             <span class="period">/ mois</span>
           </div>
-          <p class="pricing-desc">Pour les familles et groupes d'amis actifs.</p>
+          <p class="pricing-desc">{{ t9n.t('landing.plan_plus_desc') || "Pour les familles et groupes d'amis actifs." }}</p>
           <ul class="pricing-features">
-            <li><span class="material-symbols-outlined">check</span> Jusqu'à 50 anniversaires</li>
-            <li><span class="material-symbols-outlined">check</span> Rappels à J-1 et Jour J</li>
-            <li><span class="material-symbols-outlined">check</span> Vœux & Cadeaux IA illimités</li>
-            <li><span class="material-symbols-outlined">check</span> Vues Liste & Calendrier complètes</li>
-            <li><span class="material-symbols-outlined">check</span> Thème OLED & Mode sombre</li>
+            <li><span class="material-symbols-outlined">check</span> {{ t9n.t('landing.plan_plus_f1') || "Jusqu'à 50 anniversaires" }}</li>
+            <li><span class="material-symbols-outlined">check</span> {{ t9n.t('landing.plan_plus_f2') || 'Rappels à J-1 et Jour J' }}</li>
+            <li><span class="material-symbols-outlined">check</span> {{ t9n.t('landing.plan_plus_f3') || 'Vœux & Cadeaux IA illimités' }}</li>
+            <li><span class="material-symbols-outlined">check</span> {{ t9n.t('landing.plan_plus_f4') || 'Vues Liste & Calendrier complètes' }}</li>
+            <li><span class="material-symbols-outlined">check</span> {{ t9n.t('landing.plan_plus_f5') || 'Thème OLED & Mode sombre' }}</li>
           </ul>
           <a [routerLink]="['/login']" [queryParams]="{ tab: 'register' }" class="pricing-btn primary">
-            Choisir le forfait Plus
+            {{ t9n.t('landing.btn_choose_plus') || 'Choisir le forfait Plus' }}
           </a>
         </div>
 
@@ -432,15 +432,15 @@
             <span class="amount">7,99 €</span>
             <span class="period">/ mois</span>
           </div>
-          <p class="pricing-desc">Pour les grands réseaux et organisateurs d'événements.</p>
+          <p class="pricing-desc">{{ t9n.t('landing.plan_pro_desc') || "Pour les grands réseaux et organisateurs d'événements." }}</p>
           <ul class="pricing-features">
-            <li><span class="material-symbols-outlined">check</span> Anniversaires illimités</li>
-            <li><span class="material-symbols-outlined">check</span> Rappels personnalisés jusqu'à J-14</li>
-            <li><span class="material-symbols-outlined">check</span> Cagnottes multiples sans frais</li>
-            <li><span class="material-symbols-outlined">check</span> Export iCalendar & Support dédié</li>
+            <li><span class="material-symbols-outlined">check</span> {{ t9n.t('landing.plan_pro_f1') || 'Anniversaires illimités' }}</li>
+            <li><span class="material-symbols-outlined">check</span> {{ t9n.t('landing.plan_pro_f2') || "Rappels personnalisés jusqu'à J-14" }}</li>
+            <li><span class="material-symbols-outlined">check</span> {{ t9n.t('landing.plan_pro_f3') || 'Cagnottes multiples sans frais' }}</li>
+            <li><span class="material-symbols-outlined">check</span> {{ t9n.t('landing.plan_pro_f4') || 'Export iCalendar & Support dédié' }}</li>
           </ul>
           <a [routerLink]="['/login']" [queryParams]="{ tab: 'register' }" class="pricing-btn secondary">
-            Choisir le forfait Pro
+            {{ t9n.t('landing.btn_choose_pro') || 'Choisir le forfait Pro' }}
           </a>
         </div>
 
@@ -487,7 +487,7 @@
         </div>
 
         <div class="footer-nav-col">
-          <strong>Navigation</strong>
+          <strong>{{ t9n.t('landing.footer_nav') || 'Navigation' }}</strong>
           <a (click)="scrollToSection('what-is')">{{ t9n.t('landing.what_is_title') || "Qu'est-ce que Time2Wish ?" }}</a>
           <a (click)="scrollToSection('features')">{{ t9n.t('landing.nav_features') || 'Fonctionnalités' }}</a>
           <a (click)="scrollToSection('how')">{{ t9n.t('landing.nav_how') || 'Comment ça marche' }}</a>
@@ -495,16 +495,16 @@
         </div>
 
         <div class="footer-nav-col">
-          <strong>Légal & Support</strong>
+          <strong>{{ t9n.t('landing.footer_legal') || 'Légal & Support' }}</strong>
           <a routerLink="/privacy">{{ t9n.t('footer.privacy') || 'Confidentialité' }}</a>
           <a routerLink="/terms">{{ t9n.t('footer.terms') || 'Conditions d\'utilisation' }}</a>
           <a routerLink="/support">{{ t9n.t('footer.support') || 'Support' }}</a>
-          <a routerLink="/admin/login">Espace Administration</a>
+          <a routerLink="/admin/login">{{ t9n.t('landing.footer_admin') || 'Espace Administration' }}</a>
         </div>
       </div>
 
       <div class="footer-bottom">
-        <p>© 2026 Time2Wish. Tous droits réservés.</p>
+        <p>{{ t9n.t('landing.footer_copyright') || '© 2026 Time2Wish. Tous droits réservés.' }}</p>
         <p class="footer-tagline-sub">{{ t9n.t('footer.tagline') || 'Ne manquez plus jamais un anniversaire. 💖' }}</p>
       </div>
     </div>

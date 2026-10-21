@@ -33,14 +33,14 @@ import { StatsService } from '../../../services/stats.service';
           <div class="stat-icon">💰</div>
           <div class="stat-info">
             <span class="stat-value">{{ stats()?.totalRevenue || 0 | currency:'EUR' }}</span>
-            <span class="stat-label">Revenus (Total)</span>
+            <span class="stat-label">{{ t9n.t('admin.dashboard.stat_revenue_total') || 'Revenus (Total)' }}</span>
           </div>
         </div>
       </div>
 
       <div class="charts-grid" *ngIf="stats()">
         <div class="chart-card">
-          <h3 class="chart-title">Inscriptions (6 derniers mois)</h3>
+          <h3 class="chart-title">{{ t9n.t('admin.dashboard.chart_registrations_title') || 'Inscriptions (6 derniers mois)' }}</h3>
           <div class="chart-wrapper">
             <canvas baseChart 
               [data]="barChartData" 
@@ -50,7 +50,7 @@ import { StatsService } from '../../../services/stats.service';
           </div>
         </div>
         <div class="chart-card">
-          <h3 class="chart-title">Évolution des Revenus (MRR)</h3>
+          <h3 class="chart-title">{{ t9n.t('admin.dashboard.chart_revenue_title') || 'Évolution des Revenus (MRR)' }}</h3>
           <div class="chart-wrapper">
             <canvas baseChart 
               [data]="revenueChartData" 
@@ -60,7 +60,7 @@ import { StatsService } from '../../../services/stats.service';
           </div>
         </div>
         <div class="chart-card">
-          <h3 class="chart-title">Répartition des Forfaits</h3>
+          <h3 class="chart-title">{{ t9n.t('admin.dashboard.chart_plans_title') || 'Répartition des Forfaits' }}</h3>
           <div class="chart-wrapper pie-wrapper">
             <canvas baseChart 
               [data]="pieChartData" 
@@ -70,7 +70,7 @@ import { StatsService } from '../../../services/stats.service';
           </div>
         </div>
         <div class="chart-card">
-          <h3 class="chart-title">Utilisation de l'IA (30 jours)</h3>
+          <h3 class="chart-title">{{ t9n.t('admin.dashboard.chart_ai_title') || 'Utilisation de l\'IA (30 jours)' }}</h3>
           <div class="chart-wrapper">
             <canvas baseChart 
               [data]="aiChartData" 
@@ -82,7 +82,7 @@ import { StatsService } from '../../../services/stats.service';
       </div>
 
       <div class="recent-users-section" *ngIf="stats()?.recentUsers?.length">
-        <h3 class="section-title">Inscriptions Récentes</h3>
+        <h3 class="section-title">{{ t9n.t('admin.dashboard.recent_registrations_title') || 'Inscriptions Récentes' }}</h3>
         <div class="recent-list">
           @for (user of stats()?.recentUsers; track user.id) {
             <div class="recent-item">

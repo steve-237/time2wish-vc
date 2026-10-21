@@ -109,10 +109,10 @@ export class GiftListModalComponent {
     if (!this.birthday.shareToken) return;
     const url = `${window.location.origin}/shared/${this.birthday.shareToken}`;
     navigator.clipboard.writeText(url).then(() => {
-      this.toastService.success('Lien de partage copié dans le presse-papier !');
+      this.toastService.success(this.t9n.t('gifts.link_copied') || 'Lien de partage copié dans le presse-papier !');
     }).catch(err => {
       console.error('Could not copy text: ', err);
-      this.toastService.error('Erreur lors de la copie du lien.');
+      this.toastService.error(this.t9n.t('gifts.copy_error') || 'Erreur lors de la copie du lien.');
     });
   }
 

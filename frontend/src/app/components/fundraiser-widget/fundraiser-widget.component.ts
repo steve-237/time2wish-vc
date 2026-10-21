@@ -50,7 +50,7 @@ import { ToastService } from '../../services/toast.service';
 
           <div class="progress-stats">
             <div class="stat-group">
-              <span class="stat-label">Collecté :</span>
+              <span class="stat-label">{{ t9n.t('fundraiser.collected') || 'Collecté :' }}</span>
               <span class="current">{{ fundraiser()?.currentAmount || 0 }} {{ fundraiser()?.currency }}</span>
             </div>
             @if (!isFullyFunded()) {
@@ -148,7 +148,7 @@ import { ToastService } from '../../services/toast.service';
               }
             </div>
           } @empty {
-            <p class="empty-pledges">Aucune participation pour l'instant. Soyez le premier !</p>
+            <p class="empty-pledges">{{ t9n.t('fundraiser.empty_pledges') || 'Aucune participation pour l\'instant. Soyez le premier !' }}</p>
           }
         </div>
       }
@@ -563,7 +563,7 @@ export class FundraiserWidgetComponent implements OnInit {
     if (!f || !newTarget || newTarget <= 0) return;
 
     if (newTarget < (Number(f.currentAmount) || 0)) {
-      this.toastService.error(`Le montant cible ne peut pas être inférieur aux promesses déjà enregistrées (${f.currentAmount} ${f.currency})`);
+      this.toastService.error(this.t9n.t('fundraiser.error_target_too_low', `${f.currentAmount} ${f.currency}`) || `Le montant cible ne peut pas être inférieur aux promesses déjà enregistrées (${f.currentAmount} ${f.currency})`);
       return;
     }
 
@@ -573,11 +573,11 @@ export class FundraiserWidgetComponent implements OnInit {
         this.fundraiser.set(updated);
         this.isEditingTarget.set(false);
         this.loading.set(false);
-        this.toastService.success("Objectif de la cagnotte mis à jour !");
+        this.toastService.success(this.t9n.t('fundraiser.target_updated') || 'Objectif de la cagnotte mis à jour !');
       },
       error: (err) => {
         this.loading.set(false);
-        const msg = err.error?.message || err.message || "Erreur lors de la modification de l'objectif";
+        const msg = err.error?.message || err.message || (this.t9n.t('fundraiser.error_target_update') || 'Erreur lors de la modification de l\'objectif');
         this.toastService.error(msg);
       }
     });
@@ -590,7 +590,7 @@ export class FundraiserWidgetComponent implements OnInit {
 
     const rem = this.remainingAmount();
     if (amount > rem) {
-      this.toastService.error(`Le montant dépasse la somme restante (${rem} ${f.currency})`);
+      this.toastService.error(this.t9n.t('fundraiser.error_amount_exceeds', `${rem} ${f.currency}`) || `Le montant dépasse la somme restante (${rem} ${f.currency})`);
       return;
     }
 
