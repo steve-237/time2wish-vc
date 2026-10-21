@@ -40,7 +40,7 @@
   <circle cx="60" cy="60" r="50" fill="url(#bezelGradient)" />
 
   <!-- 2. Inner Deep Midnight Navy Dial Face -->
-  <circle cx="60" cy="60" r="43.5" fill="#081432" />
+  <circle cx="60" cy="60" r="43.5" fill="#0F172A" />
 
   <!-- 3. Four Cardinal Hour Markers (White Rounded Pills) -->
   <g fill="#FFFFFF">

@@ -36,7 +36,7 @@
     <!-- Outer Ring -->
     <circle cx="60" cy="60" r="48" fill="url(#lockupBezel)" />
     <!-- Inner Navy -->
-    <circle cx="60" cy="60" r="41.5" fill="#081432" />
+    <circle cx="60" cy="60" r="41.5" fill="#0F172A" />
 
     <!-- 4 Ticks -->
     <g fill="#FFFFFF">

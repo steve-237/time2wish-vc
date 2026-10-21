@@ -46,5 +46,9 @@ backend/uploads/
 .agents/
 .skills/
 scratch/
+**/scratch/
+classpath.txt
+hs_err_pid*
+replay_pid*
 
 dist-mobile/

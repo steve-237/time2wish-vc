@@ -36,3 +36,10 @@ build/
 application-secrets.yml
 
 .env
+
+# Scratch, logs and crash dumps
+scratch/
+classpath.txt
+hs_err_pid*
+replay_pid*
+*.log

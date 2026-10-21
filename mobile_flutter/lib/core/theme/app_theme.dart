@@ -3,15 +3,15 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
   // Deep space background gradient
-  static const Color backgroundDark = Color(0xFF081432);
-  static const Color backgroundCard = Color(0xFF0D1E46);
-  static const Color surfaceDark = Color(0xFF112452);
+  static const Color backgroundDark = Color(0xFF0F172A);
+  static const Color backgroundCard = Color(0xFF1E293B);
+  static const Color surfaceDark = Color(0xFF334155);
 
   // Vibrant Accents
-  static const Color primaryCyan = Color(0xFF0066FF);
-  static const Color primaryBlue = Color(0xFF0066FF);
-  static const Color accentPurple = Color(0xFF7C3AED);
-  static const Color accentPink = Color(0xFF7C3AED);
+  static const Color primaryCyan = Color(0xFF0EA5E9);
+  static const Color primaryBlue = Color(0xFF0EA5E9);
+  static const Color accentPurple = Color(0xFF8B5CF6);
+  static const Color accentPink = Color(0xFF8B5CF6);
   static const Color wishCoinsAmber = Color(0xFFFFB800);
   static const Color successGreen = Color(0xFF10B981);
 
@@ -27,13 +27,13 @@ class AppColors {
 
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF0066FF), Color(0xFF0066FF)],
+    colors: [Color(0xFF0EA5E9), Color(0xFF0EA5E9)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient accentGradient = LinearGradient(
-    colors: [Color(0xFF7C3AED), Color(0xFF7C3AED)],
+    colors: [Color(0xFF8B5CF6), Color(0xFF8B5CF6)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -48,10 +48,10 @@ class AppColors {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      Color(0xFF081432),
+      Color(0xFF0F172A),
       Color(0xFF0F172A),
       Color(0xFF1E1B4B),
-      Color(0xFF081432),
+      Color(0xFF0F172A),
     ],
   );
 }

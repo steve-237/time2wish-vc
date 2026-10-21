@@ -6,20 +6,20 @@
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* Color Palette - HSL based */
-  --primary-hsl: 216, 100%, 50%; /* #0066FF - Solid Brand Blue */
-  --accent-hsl: 262, 83%, 58%;  /* #7C3AED - Solid Brand Violet */
+  --primary-hsl: 199, 89%, 48%; /* #0EA5E9 - Luminous Sky Blue / Cyan (Bright & Fresh) */
+  --accent-hsl: 258, 90%, 66%;  /* #8B5CF6 - Luminous Soft Violet */
 
   /* Light Theme Variables */
-  --bg-app: #f4f7fc;
+  --bg-app: #f8fafc;
   --bg-card: #ffffff;
   --bg-dropdown: #ffffff;
   --border-card: #e2e8f0;
-  --text-main: #081432;
+  --text-main: #0f172a;
   --text-muted: #64748b;
   --header-bg: #ffffff;
 
   /* Status Colors */
-  --color-today: #ff4d00;
+  --color-today: #f97316;
   --color-soon: #f59e0b;
   --color-upcoming: #16a34a;
   --color-normal: #64748b;
@@ -35,17 +35,17 @@
   --glass-blur: 0px;
 
   /* Solid Colors from Logo (No Gradients, No Outer Glow) */
-  --color-logo-blue: #0066ff;
-  --color-logo-violet: #7c3aed;
-  --color-logo-navy: #081432;
+  --color-logo-blue: #0ea5e9;
+  --color-logo-violet: #8b5cf6;
+  --color-logo-navy: #0f172a;
   --color-logo-gold: #ffb800;
-  --color-logo-flame: #ff4d00;
+  --color-logo-flame: #f97316;
 }
 
 /* Color Themes */
 body.theme-ocean {
-  --primary-hsl: 216, 100%, 50%; /* #0066FF Solid Blue */
-  --accent-hsl: 262, 83%, 58%;   /* #7C3AED Solid Violet */
+  --primary-hsl: 199, 89%, 48%; /* #0EA5E9 Luminous Cyan */
+  --accent-hsl: 258, 90%, 66%;  /* #8B5CF6 Soft Bright Violet */
 }
 
 body.theme-emerald {
@@ -95,26 +95,28 @@ body.theme-blanc {
 
 /* Dark Theme Variables */
 body.dark-theme {
-  --bg-app: #0f172a;
-  --bg-card: rgba(30, 41, 59, 0.7);
+  --bg-app: #0f172a;         /* Soft Dark Slate-900 (Airy & Modern) */
+  --bg-card: #1e293b;        /* Clean Slate-800 Card */
   --bg-dropdown: #1e293b;
-  --border-card: rgba(255, 255, 255, 0.06);
+  --border-card: #334155;    /* Soft Slate-700 Border */
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
-  --header-bg: rgba(15, 23, 42, 0.75);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --header-bg: #0f172a;
+  --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  --glass-blur: 0px;
 }
 
 /* OLED Theme Variables */
 body.oled-theme {
   --bg-app: #000000;
-  --bg-card: rgba(15, 15, 15, 0.7);
-  --bg-dropdown: #111111;
-  --border-card: rgba(255, 255, 255, 0.08);
+  --bg-card: #121212;
+  --bg-dropdown: #181818;
+  --border-card: #27272a;
   --text-main: #ffffff;
   --text-muted: #a1a1aa;
-  --header-bg: rgba(0, 0, 0, 0.75);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --header-bg: #000000;
+  --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --glass-blur: 0px;
 }
 
 /* Reset and Base Styles */
