@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { TranslationService, Language } from '../../services/translation.service';
 import { AuthService } from '../../services/auth.service';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-landing',
@@ -14,6 +15,7 @@ import { AuthService } from '../../services/auth.service';
 export class LandingComponent implements OnInit {
   readonly t9n = inject(TranslationService);
   readonly authService = inject(AuthService);
+  readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -42,6 +44,11 @@ export class LandingComponent implements OnInit {
     if (this.authService.isAuthenticated() && (currentUrl === '/' || currentUrl === '')) {
       this.router.navigate(['/dashboard']);
     }
+  }
+
+  toggleTheme(): void {
+    const isDark = this.themeService.appMode() === 'dark' || this.themeService.appMode() === 'oled';
+    this.themeService.setAppMode(isDark ? 'light' : 'dark');
   }
 
   getActiveFlagUrl(): string {

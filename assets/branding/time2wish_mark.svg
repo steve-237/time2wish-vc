@@ -1,33 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
   <!-- Top Crown / Watch Button -->
-  <rect x="57" y="2.5" width="6" height="5" rx="1.5" fill="#0EA5E9" />
+  <rect x="57" y="3" width="6" height="4.5" rx="1.5" fill="#0EA5E9" />
 
-  <!-- Outer Ring (Solid Electric Cyan - No Gradient, No Outer Glow) -->
-  <circle cx="60" cy="60" r="51" fill="#0EA5E9" />
+  <!-- Outer Ring (Solid Electric Cyan - 100% Transparent Inside and Outside) -->
+  <circle cx="60" cy="60" r="48" fill="none" stroke="#0EA5E9" stroke-width="4.5" />
 
-  <!-- Inner Pure White Dial Face (Harmonized with Application Background & Cards) -->
-  <circle cx="60" cy="60" r="45" fill="#FFFFFF" />
-
-  <!-- 4 Cardinal Hour Markers in Subtle Slate -->
-  <g fill="#CBD5E1">
-    <!-- 12 o'clock -->
-    <rect x="58.7" y="19" width="2.6" height="6.5" rx="1.3" />
-    <!-- 3 o'clock -->
-    <rect x="94.5" y="58.7" width="6.5" height="2.6" rx="1.3" />
-    <!-- 6 o'clock -->
-    <rect x="58.7" y="94.5" width="2.6" height="6.5" rx="1.3" />
-    <!-- 9 o'clock -->
-    <rect x="19" y="58.7" width="6.5" height="2.6" rx="1.3" />
+  <!-- 4 Cardinal Hour Markers (Cyan Ciel) -->
+  <g fill="#0EA5E9">
+    <rect x="58.8" y="18.5" width="2.4" height="6" rx="1.2" />
+    <rect x="95.5" y="58.8" width="6" height="2.4" rx="1.2" />
+    <rect x="58.8" y="95.5" width="2.4" height="6" rx="1.2" />
+    <rect x="18.5" y="58.8" width="6" height="2.4" rx="1.2" />
   </g>
 
-  <!-- Candle Body & 2 O'Clock Hand (Styled in App Primary Cyan #0EA5E9) -->
+  <!-- Candle Structure & 2 O'Clock Hand (Cyan Ciel & Violet - No Solid Background) -->
   <g id="candleStructure">
     <!-- Candle Base Column (towards 6h) -->
-    <path d="M 56 60
-             L 56 83
-             C 56 85.2, 57.8 87, 60 87
-             C 62.2 87, 64 85.2, 64 83
-             L 64 60
+    <path d="M 56.2 60
+             L 56.2 82
+             C 56.2 84.1, 57.9 85.8, 60 85.8
+             C 62.1 85.8, 63.8 84.1, 63.8 82
+             L 63.8 60
              Z" 
           fill="#0EA5E9" />
 
@@ -39,14 +32,14 @@
              Z" 
           fill="#0EA5E9" />
 
-    <!-- Center Hub Outer Circle -->
-    <circle cx="60" cy="60" r="7.5" fill="#0EA5E9" />
+    <!-- Center Hub Outer Circle (Cyan) -->
+    <circle cx="60" cy="60" r="7" fill="#0EA5E9" />
 
-    <!-- Center Hub Core Circle -->
-    <circle cx="60" cy="60" r="4" fill="#0284C7" />
+    <!-- Center Hub Core Circle (Violet) -->
+    <circle cx="60" cy="60" r="3.8" fill="#8B5CF6" />
 
-    <!-- Center White Pivot Dot -->
-    <circle cx="60" cy="60" r="1.6" fill="#FFFFFF" />
+    <!-- Center Pivot Dot (White) -->
+    <circle cx="60" cy="60" r="1.5" fill="#FFFFFF" />
   </g>
 
   <!-- Teardrop Candle Flame (Solid Coral #F97316 & Sun Gold #FBBF24) -->
@@ -66,7 +59,7 @@
            C 63.5 45, 62.5 41, 60 36.5 Z" 
         fill="#FBBF24" />
 
-  <!-- Celestial AI Wish Spark at 2 O'Clock (Point of Arrival) -->
+  <!-- Celestial AI Wish Spark at 2 O'Clock -->
   <g transform="translate(86.5, 41)">
     <!-- 4-Pointed Star in Solar Gold -->
     <path d="M 0 -13

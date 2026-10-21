@@ -70,7 +70,7 @@
           </div>
 
           <div class="tasks-list">
-            @for (task of birthday?.partyTasks; track task.id) {
+            @for (task of birthday.partyTasks; track task.id) {
               <div class="task-item" [class.isCompleted]="task.isCompleted">
                 <input type="checkbox" [checked]="task.isCompleted" (change)="toggleTaskCompletion(task)">
                 <span class="task-desc">{{ task.description }}</span>
@@ -79,7 +79,7 @@
                 </button>
               </div>
             }
-            @if (!birthday?.partyTasks?.length) {
+            @if (!birthday.partyTasks?.length) {
               <p class="empty-state">{{ t9n.t('party.no_tasks') || 'Aucune tâche partagée pour le moment.' }}</p>
             }
           </div>

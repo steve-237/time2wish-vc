@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AdminService, AdminUserDto } from '../../../services/admin.service';
@@ -12,7 +12,7 @@ import { environment } from '../../../../environments/environment';
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [CommonModule, DatePipe, FormsModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="users-container">
       <div class="header-container">

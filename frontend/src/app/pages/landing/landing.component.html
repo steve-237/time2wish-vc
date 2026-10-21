@@ -43,6 +43,13 @@
           }
         </div>
 
+        <!-- Theme Toggle (Dark / Light) -->
+        <button class="theme-toggle-btn" (click)="toggleTheme()" [title]="themeService.appMode() === 'dark' || themeService.appMode() === 'oled' ? (t9n.t('theme.light_mode') || 'Mode Clair') : (t9n.t('theme.dark_mode') || 'Mode Sombre')">
+          <span class="material-symbols-outlined">
+            {{ themeService.appMode() === 'dark' || themeService.appMode() === 'oled' ? 'light_mode' : 'dark_mode' }}
+          </span>
+        </button>
+
         <!-- Se connecter -->
         <a routerLink="/login" class="btn-outline-login">
           {{ t9n.t('landing.btn_login') || 'Se connecter' }}
@@ -70,6 +77,10 @@
         <a (click)="scrollToSection('how')" class="mobile-drawer-link">{{ t9n.t('landing.nav_how') || 'Comment ça marche' }}</a>
         <a (click)="scrollToSection('pricing')" class="mobile-drawer-link">{{ t9n.t('landing.nav_pricing') || 'Forfaits' }}</a>
         <div class="mobile-drawer-divider"></div>
+        <button class="mobile-drawer-btn secondary theme-mobile-btn" (click)="toggleTheme()">
+          <span class="material-symbols-outlined" style="font-size: 1.15rem; margin-right: 6px;">{{ themeService.appMode() === 'dark' || themeService.appMode() === 'oled' ? 'light_mode' : 'dark_mode' }}</span>
+          <span>{{ themeService.appMode() === 'dark' || themeService.appMode() === 'oled' ? (t9n.t('theme.light_mode') || 'Mode Clair') : (t9n.t('theme.dark_mode') || 'Mode Sombre') }}</span>
+        </button>
         <a routerLink="/login" class="mobile-drawer-btn secondary" (click)="isMobileMenuOpen.set(false)">{{ t9n.t('landing.btn_login') || 'Se connecter' }}</a>
         <a [routerLink]="['/login']" [queryParams]="{ tab: 'register' }" class="mobile-drawer-btn primary" (click)="isMobileMenuOpen.set(false)">{{ t9n.t('landing.btn_get_started') || 'Créer mon compte gratuit' }}</a>
       </div>
