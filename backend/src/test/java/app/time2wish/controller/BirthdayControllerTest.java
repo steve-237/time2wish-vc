@@ -118,6 +118,48 @@ class BirthdayControllerTest {
     }
 
     @Test
+    @DisplayName("GET /api/birthdays → évite le problème N+1 (aucun appel aux sous-tables tasks/memories/signatures)")
+    void getAllBirthdays_shouldNotTriggerSubqueries_avoidingNPlusOne() throws Exception {
+        when(birthdayService.getActiveBirthdays(any(User.class))).thenReturn(List.of(mockBirthday));
+
+        mockMvc.perform(get("/api/birthdays")
+                        .with(user(mockUserDetails)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].partyTasks").isArray())
+                .andExpect(jsonPath("$[0].partyTasks").isEmpty())
+                .andExpect(jsonPath("$[0].memories").isArray())
+                .andExpect(jsonPath("$[0].memories").isEmpty());
+
+        org.mockito.Mockito.verifyNoInteractions(partyTaskRepository);
+        org.mockito.Mockito.verifyNoInteractions(memoryItemRepository);
+        org.mockito.Mockito.verifyNoInteractions(eCardSignatureRepository);
+    }
+
+    @Test
+    @DisplayName("GET /api/birthdays/{id} → charge les détails complets (tasks, memories, signatures)")
+    void getBirthdayById_shouldReturnFullDetails() throws Exception {
+        when(birthdayService.getBirthday(eq(10L), any(User.class))).thenReturn(Optional.of(mockBirthday));
+
+        app.time2wish.model.PartyTask task = app.time2wish.model.PartyTask.builder()
+                .id(1L)
+                .birthday(mockBirthday)
+                .description("Acheter le gâteau")
+                .isCompleted(false)
+                .build();
+        when(partyTaskRepository.findByBirthday(mockBirthday)).thenReturn(List.of(task));
+        when(memoryItemRepository.findByBirthdayOrderByCreatedAtDesc(mockBirthday)).thenReturn(List.of());
+        when(eCardSignatureRepository.findByBirthdayOrderByCreatedAtAsc(mockBirthday)).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/birthdays/10")
+                        .with(user(mockUserDetails)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(10))
+                .andExpect(jsonPath("$.partyTasks[0].description").value("Acheter le gâteau"));
+
+        org.mockito.Mockito.verify(partyTaskRepository).findByBirthday(mockBirthday);
+    }
+
+    @Test
     @DisplayName("GET /api/birthdays → 401 sans authentification")
     void getAllBirthdays_shouldReturn401_whenUnauthenticated() throws Exception {
         mockMvc.perform(get("/api/birthdays"))
@@ -153,6 +195,24 @@ class BirthdayControllerTest {
                         .content(payload))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Alice"));
+    }
+
+    @Test
+    @DisplayName("POST /api/birthdays → 403 quand la limite de 10 est atteinte pour BASIC")
+    void createBirthday_shouldReturn403_whenBasicPlanLimitReached() throws Exception {
+        mockUser.setPlan(app.time2wish.model.PlanType.BASIC);
+        List<Birthday> tenBirthdays = java.util.Collections.nCopies(10, mockBirthday);
+        when(birthdayService.getActiveBirthdays(any(User.class))).thenReturn(tenBirthdays);
+
+        String payload = "{\"name\": \"Bob\", \"birthdate\": \"1990-06-15\", \"category\": \"Friend\"}";
+
+        mockMvc.perform(post("/api/birthdays")
+                        .with(user(mockUserDetails))
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(payload))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("Plan limit reached (10 max for BASIC)"));
     }
 
     // ─── DELETE /api/birthdays/{id} ─────────────────────────────────────────

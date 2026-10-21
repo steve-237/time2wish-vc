@@ -34,33 +34,73 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/birthdays")
 public class BirthdayController {
 
-    @Autowired
-    private BirthdayService birthdayService;
+    private final BirthdayService birthdayService;
+    private final IAService iaService;
+    private final UserRepository userRepository;
+    private final BirthdayReminderScheduler reminderScheduler;
+    private final PartyTaskRepository partyTaskRepository;
+    private final MemoryItemRepository memoryItemRepository;
+    private final ECardSignatureRepository eCardSignatureRepository;
 
-    @Autowired
-    private IAService IAService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private BirthdayReminderScheduler reminderScheduler;
-
-    @Autowired
-    private PartyTaskRepository partyTaskRepository;
-
-    @Autowired
-    private MemoryItemRepository memoryItemRepository;
-
-    @Autowired
-    private ECardSignatureRepository eCardSignatureRepository;
+    public BirthdayController(
+            BirthdayService birthdayService,
+            IAService iaService,
+            UserRepository userRepository,
+            BirthdayReminderScheduler reminderScheduler,
+            PartyTaskRepository partyTaskRepository,
+            MemoryItemRepository memoryItemRepository,
+            ECardSignatureRepository eCardSignatureRepository) {
+        this.birthdayService = birthdayService;
+        this.iaService = iaService;
+        this.userRepository = userRepository;
+        this.reminderScheduler = reminderScheduler;
+        this.partyTaskRepository = partyTaskRepository;
+        this.memoryItemRepository = memoryItemRepository;
+        this.eCardSignatureRepository = eCardSignatureRepository;
+    }
 
     private User getAuthenticatedUser(UserDetailsImpl userDetails) {
         return userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new RuntimeException("Error: Authenticated user not found in DB"));
     }
 
-    private BirthdayResponse mapToResponse(Birthday b) {
+    /**
+     * Summary response for dashboard cards - avoids N+1 queries by leaving
+     * heavy collections (tasks, memories, signatures) empty.
+     */
+    private BirthdayResponse mapToSummaryResponse(Birthday b) {
+        return BirthdayResponse.builder()
+                .id(b.getId())
+                .name(b.getName())
+                .birthdate(b.getBirthdate())
+                .category(b.getCategory())
+                .photoUrl(b.getPhotoUrl())
+                .notes(b.getNotes())
+                .reminderDays(b.getReminderDays())
+                .showAge(b.getShowAge())
+                .email(b.getEmail())
+                .whatsapp(b.getWhatsapp())
+                .gender(b.getGender())
+                .isDeleted(b.getIsDeleted())
+                .createdAt(b.getCreatedAt())
+                .interests(b.getInterests())
+                .isFavorite(b.getIsFavorite())
+                .partyDate(b.getPartyDate())
+                .partyTime(b.getPartyTime())
+                .partyLocation(b.getPartyLocation())
+                .partyDescription(b.getPartyDescription())
+                .shareToken(b.getShareToken())
+                .partyTasks(java.util.Collections.emptyList())
+                .memories(java.util.Collections.emptyList())
+                .signatures(java.util.Collections.emptyList())
+                .build();
+    }
+
+    /**
+     * Detailed response for single birthday view - queries associated tasks,
+     * guestbook memories, and digital card signatures.
+     */
+    private BirthdayResponse mapToDetailResponse(Birthday b) {
         java.util.List<app.time2wish.dto.PartyTaskDto> tasks = partyTaskRepository.findByBirthday(b).stream()
                 .map(t -> app.time2wish.dto.PartyTaskDto.builder()
                         .id(t.getId())
@@ -133,7 +173,7 @@ public class BirthdayController {
         User user = getAuthenticatedUser(userDetails);
         List<BirthdayResponse> responseList = birthdayService.getActiveBirthdays(user)
                 .stream()
-                .map(this::mapToResponse)
+                .map(this::mapToSummaryResponse)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responseList);
     }
@@ -142,7 +182,7 @@ public class BirthdayController {
     public ResponseEntity<?> getBirthdayById(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         User user = getAuthenticatedUser(userDetails);
         return birthdayService.getBirthday(id, user)
-                .map(this::mapToResponse)
+                .map(this::mapToDetailResponse)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -183,7 +223,7 @@ public class BirthdayController {
                 .build();
 
         Birthday saved = birthdayService.addBirthday(birthday, user);
-        return ResponseEntity.status(201).body(mapToResponse(saved));
+        return ResponseEntity.status(201).body(mapToSummaryResponse(saved));
     }
 
     @PutMapping("/{id}")
@@ -217,7 +257,7 @@ public class BirthdayController {
 
         try {
             Birthday updated = birthdayService.updateBirthday(id, birthdayDetails, user);
-            return ResponseEntity.ok(mapToResponse(updated));
+            return ResponseEntity.ok(mapToDetailResponse(updated));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
@@ -359,7 +399,7 @@ public class BirthdayController {
                 age = Period.between(birthday.getBirthdate(), LocalDate.now()).getYears();
             }
             
-            app.time2wish.dto.GiftSuggestionResponse response = IAService.generateGiftSuggestions(
+            app.time2wish.dto.GiftSuggestionResponse response = iaService.generateGiftSuggestions(
                     birthday.getName(), age, birthday.getGender(), birthday.getCategory(), birthday.getInterests(), lang
             );
             return ResponseEntity.ok(response);

@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -31,14 +32,15 @@ class IAServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         org.mockito.Mockito.lenient().when(settingService.getBooleanSetting(anyString())).thenReturn(true);
-        // Inject the mocked RestTemplate into the service since it's instantiated directly
+        // Inject the mocked RestTemplate into both fastRestTemplate and restTemplate
         ReflectionTestUtils.setField(IAService, "restTemplate", restTemplate);
+        ReflectionTestUtils.setField(IAService, "fastRestTemplate", restTemplate);
     }
 
     @Test
     void testGenerateWish_Success() {
         String mockResponse = "Happy Birthday, test user!";
-        when(restTemplate.getForObject(anyString(), eq(String.class))).thenReturn(mockResponse);
+        when(restTemplate.postForObject(anyString(), any(), eq(String.class))).thenReturn(mockResponse);
 
         String result = IAService.generateWish("Steve", 30, "Friend", "Likes coding", "funny", "en", null);
 
@@ -48,6 +50,7 @@ class IAServiceTest {
 
     @Test
     void testGenerateWish_FallbackOnError() {
+        when(restTemplate.postForObject(anyString(), any(), eq(String.class))).thenThrow(new RuntimeException("API error"));
         when(restTemplate.getForObject(anyString(), eq(String.class))).thenThrow(new RuntimeException("API error"));
 
         String result = IAService.generateWish("Steve", 30, "Friend", "Likes coding", "funny", "en", null);
@@ -70,7 +73,7 @@ class IAServiceTest {
                 "  }\n" +
                 "]\n" +
                 "```";
-        when(restTemplate.getForObject(anyString(), eq(String.class))).thenReturn(mockJsonResponse);
+        when(restTemplate.postForObject(anyString(), any(), eq(String.class))).thenReturn(mockJsonResponse);
 
         GiftSuggestionResponse response = IAService.generateGiftSuggestions("Steve", 30, "Male", "Friend", List.of("coding"), "en");
 
@@ -82,6 +85,7 @@ class IAServiceTest {
 
     @Test
     void testGenerateGiftSuggestions_FallbackOnError() {
+        when(restTemplate.postForObject(anyString(), any(), eq(String.class))).thenThrow(new RuntimeException("API error"));
         when(restTemplate.getForObject(anyString(), eq(String.class))).thenThrow(new RuntimeException("API error"));
 
         GiftSuggestionResponse response = IAService.generateGiftSuggestions("Steve", 30, "Male", "Friend", List.of("coding"), "en");

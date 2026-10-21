@@ -184,6 +184,8 @@ import { AnnouncementService } from '../../services/announcement.service';
       <div class="footer-content flex-center">
         <p>© 2026 Time2Wish. {{ t9n.t('footer.tagline') }}</p>
         <div class="footer-links flex-center gap-md">
+          <a routerLink="/welcome" class="footer-link">Accueil</a>
+          <span class="separator">•</span>
           <a routerLink="/privacy" class="footer-link">{{ t9n.t('footer.privacy') }}</a>
           <span class="separator">•</span>
           <a routerLink="/terms" class="footer-link">{{ t9n.t('footer.terms') }}</a>

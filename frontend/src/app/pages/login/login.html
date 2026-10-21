@@ -1,6 +1,14 @@
 <div class="login-wrapper">
   <div class="login-card glass-card">
     
+    <!-- Back to Home / Discovery Link -->
+    <div class="login-back-home" style="display: flex; justify-content: flex-start; margin-bottom: 16px;">
+      <a routerLink="/welcome" class="back-home-link" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 600; color: #0284c7; text-decoration: none; padding: 6px 12px; border-radius: 8px; background: rgba(14, 165, 233, 0.08); transition: all 0.2s ease;">
+        <span class="material-symbols-outlined" style="font-size: 1.1rem;">arrow_back</span>
+        <span>{{ t9n.t('login.back_to_home') || 'Découvrir Time2Wish (Accueil)' }}</span>
+      </a>
+    </div>
+
     <!-- Branding -->
     <div class="login-branding">
       <div class="branding-logo-wrapper">

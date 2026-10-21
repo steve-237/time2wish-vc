@@ -12,8 +12,11 @@ import java.util.Optional;
 @Service
 public class BirthdayService {
 
-    @Autowired
-    private BirthdayRepository birthdayRepository;
+    private final BirthdayRepository birthdayRepository;
+
+    public BirthdayService(BirthdayRepository birthdayRepository) {
+        this.birthdayRepository = birthdayRepository;
+    }
 
     public List<Birthday> getActiveBirthdays(User user) {
         return birthdayRepository.findByUserAndIsDeletedFalse(user);
@@ -27,8 +30,8 @@ public class BirthdayService {
     public Birthday addBirthday(Birthday birthday, User user) {
         long currentCount = birthdayRepository.findByUserAndIsDeletedFalse(user).size();
         
-        if (user.getPlan() == app.time2wish.model.PlanType.BASIC && currentCount >= 3) {
-            throw new RuntimeException("LIMIT_REACHED: Vous avez atteint la limite de votre forfait BASIC (3 anniversaires). Veuillez passer au forfait supérieur.");
+        if (user.getPlan() == app.time2wish.model.PlanType.BASIC && currentCount >= 10) {
+            throw new RuntimeException("LIMIT_REACHED: Vous avez atteint la limite de votre forfait BASIC (10 anniversaires). Veuillez passer au forfait supérieur.");
         }
         if (user.getPlan() == app.time2wish.model.PlanType.PLUS && currentCount >= 50) {
             throw new RuntimeException("LIMIT_REACHED: Vous avez atteint la limite de votre forfait PLUS (50 anniversaires). Veuillez passer au forfait supérieur.");

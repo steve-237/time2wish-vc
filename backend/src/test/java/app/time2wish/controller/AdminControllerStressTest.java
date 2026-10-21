@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@org.junit.jupiter.api.Disabled("Benchmark de stress manuel - ne pas exécuter dans la suite de tests automatisée pour préserver la base")
 public class AdminControllerStressTest {
 
     @Autowired

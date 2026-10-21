@@ -73,7 +73,8 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        org.mockito.Mockito.lenient().when(settingService.getBooleanSetting(any())).thenReturn(true);
+        org.mockito.Mockito.lenient().when(settingService.getBooleanSetting(app.time2wish.service.SettingService.ALLOW_REGISTRATION)).thenReturn(true);
+        org.mockito.Mockito.lenient().when(settingService.getBooleanSetting(app.time2wish.service.SettingService.MAINTENANCE_MODE)).thenReturn(false);
         mockUser = new User();
         mockUser.setId(1L);
         mockUser.setEmail("test@time2wish.com");

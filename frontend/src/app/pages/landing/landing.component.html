@@ -1,0 +1,502 @@
+<div class="landing-page">
+  
+  <!-- 1. PUBLIC NAVIGATION HEADER -->
+  <header class="landing-header">
+    <div class="landing-nav-container">
+      
+      <!-- Brand Logo -->
+      <a routerLink="/welcome" class="landing-brand-logo">
+        <img src="branding/time2wish_mark.svg" alt="Time2Wish Logo" class="brand-img" width="38" height="38">
+        <span class="brand-title">
+          Time<span class="text-cyan">2</span><span class="text-violet">Wish</span>
+        </span>
+      </a>
+
+      <!-- Desktop Navigation Links -->
+      <nav class="landing-nav-links">
+        <a (click)="scrollToSection('what-is')" class="nav-link">{{ t9n.t('landing.what_is_title') || "Qu'est-ce que Time2Wish ?" }}</a>
+        <a (click)="scrollToSection('features')" class="nav-link">{{ t9n.t('landing.nav_features') || 'Fonctionnalités' }}</a>
+        <a (click)="scrollToSection('how')" class="nav-link">{{ t9n.t('landing.nav_how') || 'Comment ça marche' }}</a>
+        <a (click)="scrollToSection('pricing')" class="nav-link">{{ t9n.t('landing.nav_pricing') || 'Forfaits' }}</a>
+      </nav>
+
+      <!-- Right Actions (Language & Login CTAs) -->
+      <div class="landing-nav-actions">
+        
+        <!-- Language Selector -->
+        <div class="lang-dropdown-wrapper">
+          <button class="lang-btn" (click)="isLangMenuOpen.set(!isLangMenuOpen())" [title]="t9n.t('nav.language') || 'Langue'">
+            <img [src]="getActiveFlagUrl()" alt="flag" class="flag-icon">
+            <span class="material-symbols-outlined chevron" [style.transform]="isLangMenuOpen() ? 'rotate(180deg)' : 'rotate(0)'">expand_more</span>
+          </button>
+
+          @if (isLangMenuOpen()) {
+            <div class="lang-dropdown-menu">
+              @for (lang of languages; track lang.code) {
+                <button class="lang-dropdown-item" (click)="setLanguage(lang.code)" [class.active]="t9n.currentLang() === lang.code">
+                  <img [src]="lang.flagUrl" alt="flag" class="flag-icon">
+                  <span>{{ lang.label }}</span>
+                </button>
+              }
+            </div>
+            <div class="lang-backdrop" (click)="isLangMenuOpen.set(false)"></div>
+          }
+        </div>
+
+        <!-- Se connecter -->
+        <a routerLink="/login" class="btn-outline-login">
+          {{ t9n.t('landing.btn_login') || 'Se connecter' }}
+        </a>
+
+        <!-- Commencer Gratuitement -->
+        <a [routerLink]="['/login']" [queryParams]="{ tab: 'register' }" class="btn-primary-cta">
+          {{ t9n.t('landing.btn_get_started') || 'Créer mon compte' }}
+        </a>
+
+        <!-- Mobile Hamburger Toggle -->
+        <button class="mobile-menu-toggle" (click)="isMobileMenuOpen.set(!isMobileMenuOpen())">
+          <span class="material-symbols-outlined">{{ isMobileMenuOpen() ? 'close' : 'menu' }}</span>
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- Mobile Drawer Menu -->
+    @if (isMobileMenuOpen()) {
+      <div class="mobile-drawer">
+        <a (click)="scrollToSection('what-is')" class="mobile-drawer-link">{{ t9n.t('landing.what_is_title') || "Qu'est-ce que Time2Wish ?" }}</a>
+        <a (click)="scrollToSection('features')" class="mobile-drawer-link">{{ t9n.t('landing.nav_features') || 'Fonctionnalités' }}</a>
+        <a (click)="scrollToSection('how')" class="mobile-drawer-link">{{ t9n.t('landing.nav_how') || 'Comment ça marche' }}</a>
+        <a (click)="scrollToSection('pricing')" class="mobile-drawer-link">{{ t9n.t('landing.nav_pricing') || 'Forfaits' }}</a>
+        <div class="mobile-drawer-divider"></div>
+        <a routerLink="/login" class="mobile-drawer-btn secondary" (click)="isMobileMenuOpen.set(false)">{{ t9n.t('landing.btn_login') || 'Se connecter' }}</a>
+        <a [routerLink]="['/login']" [queryParams]="{ tab: 'register' }" class="mobile-drawer-btn primary" (click)="isMobileMenuOpen.set(false)">{{ t9n.t('landing.btn_get_started') || 'Créer mon compte gratuit' }}</a>
+      </div>
+    }
+  </header>
+
+  <!-- 2. HERO SECTION -->
+  <section class="hero-section">
+    <div class="hero-content">
+      
+      <!-- Top Pill Badge -->
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span>{{ t9n.t('landing.badge') || "L'assistant intelligent pour vos anniversaires & célébrations" }}</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="hero-title">
+        {{ t9n.t('landing.hero_title_1') || 'Ne manquez plus jamais un anniversaire.' }}<br>
+        <span class="highlight-cyan">{{ t9n.t('landing.hero_title_2') || 'Célébrez ceux qui comptent.' }}</span>
+      </h1>
+
+      <!-- Explanatory Subtitle -->
+      <p class="hero-subtitle">
+        {{ t9n.t('landing.hero_subtitle') || 'Time2Wish combine rappels intelligents, générateur de vœux IA personnalisés, cagnottes collectives et organisation de surprises pour faire de chaque célébration un moment inoubliable.' }}
+      </p>
+
+      <!-- Action Buttons -->
+      <div class="hero-ctas">
+        <a [routerLink]="['/login']" [queryParams]="{ tab: 'register' }" class="cta-main-btn">
+          <span class="material-symbols-outlined">rocket_launch</span>
+          <span>{{ t9n.t('landing.btn_get_started') || 'Créer mon compte gratuit' }}</span>
+        </a>
+        <button (click)="scrollToSection('what-is')" class="cta-secondary-btn">
+          <span class="material-symbols-outlined">info</span>
+          <span>{{ t9n.t('landing.btn_discover') || 'Découvrir Time2Wish' }}</span>
+        </button>
+      </div>
+
+      <!-- Proof Badges -->
+      <div class="hero-proof-chips">
+        <div class="proof-chip">
+          <span class="proof-icon check">check</span>
+          <span>{{ t9n.t('landing.stats_security') || '100% Sécurisé & RGPD' }}</span>
+        </div>
+        <div class="proof-chip">
+          <span class="proof-icon heart">favorite</span>
+          <span>{{ t9n.t('landing.stats_users') || '+10 000 Vœux Générés' }}</span>
+        </div>
+        <div class="proof-chip">
+          <span class="proof-icon bell">notifications_active</span>
+          <span>{{ t9n.t('landing.stats_reminders') || '0 Anniversaire Oublié' }}</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 3. SECTION "QU'EST-CE QUE TIME2WISH ?" -->
+  <section id="what-is" class="section what-is-section">
+    <div class="section-container">
+      
+      <div class="what-is-card">
+        <div class="what-is-grid">
+          
+          <div class="what-is-text">
+            <span class="section-tag">{{ t9n.t('landing.nav_features') || 'Présentation' }}</span>
+            <h2 class="section-title">
+              {{ t9n.t('landing.what_is_title') || "Qu'est-ce que Time2Wish ?" }}
+            </h2>
+            <p class="section-lead">
+              {{ t9n.t('landing.what_is_subtitle') || "Une solution complète née d'un constat simple : nous avons tous déjà oublié une date importante ou manqué d'inspiration pour souhaiter un anniversaire." }}
+            </p>
+            <p class="section-body">
+              {{ t9n.t('landing.what_is_desc') || "Time2Wish est votre compagnon tout-en-un pour garder le fil de vos dates clés, rédiger des messages sincères et sur-mesure grâce à l'intelligence artificielle, financer des cadeaux groupés et planifier des surprises mémorables en toute sérénité." }}
+            </p>
+
+            <div class="what-is-perks">
+              <div class="perk-item">
+                <span class="material-symbols-outlined perk-icon">schedule</span>
+                <div>
+                  <strong>Zéro oubli</strong>
+                  <span>Des alertes programmées pour anticiper vos achats et vos souhaits.</span>
+                </div>
+              </div>
+              <div class="perk-item">
+                <span class="material-symbols-outlined perk-icon">psychology</span>
+                <div>
+                  <strong>L'IA au service du cœur</strong>
+                  <span>Des mots vrais et touchants générés selon vos sentiments et votre relation.</span>
+                </div>
+              </div>
+              <div class="perk-item">
+                <span class="material-symbols-outlined perk-icon">diversity_3</span>
+                <div>
+                  <strong>Célébration collective</strong>
+                  <span>Cagnottes partagées et surprises coordonnées avec vos proches.</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Interactive Mockup Visual -->
+          <div class="what-is-visual">
+            <div class="interactive-preview-card">
+              
+              <!-- Mock Header -->
+              <div class="mock-card-header">
+                <div class="mock-user">
+                  <div class="mock-avatar">🎂</div>
+                  <div>
+                    <div class="mock-name">Anniversaire de Sophie</div>
+                    <div class="mock-date">Dans 3 jours &bull; 14 Novembre</div>
+                  </div>
+                </div>
+                <span class="mock-badge">J-3</span>
+              </div>
+
+              <!-- AI Generator Preview -->
+              <div class="mock-ai-box">
+                <div class="mock-ai-title flex-between">
+                  <span class="flex-center gap-xs">
+                    <span class="material-symbols-outlined text-cyan" style="font-size: 16px;">auto_awesome</span>
+                    <strong>Générateur de vœux IA</strong>
+                  </span>
+                  <div class="mock-tone-tabs">
+                    <button (click)="activeAiTone.set('warm')" [class.active]="activeAiTone() === 'warm'">Chaleureux</button>
+                    <button (click)="activeAiTone.set('funny')" [class.active]="activeAiTone() === 'funny'">Humoristique</button>
+                    <button (click)="activeAiTone.set('poetic')" [class.active]="activeAiTone() === 'poetic'">Poétique</button>
+                  </div>
+                </div>
+                
+                <p class="mock-ai-text">
+                  "{{ aiWishSamples[activeAiTone()] }}"
+                </p>
+
+                <div class="mock-ai-actions">
+                  <button class="mock-copy-btn">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">content_copy</span>
+                    <span>Copier le vœu</span>
+                  </button>
+                  <button class="mock-share-btn">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">share</span>
+                    <span>Envoyer par WhatsApp</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Shared Pot Mini Mock -->
+              <div class="mock-pot-box">
+                <div class="flex-between">
+                  <span class="mock-pot-title">🎁 Cagnotte secrète "Voyage à Rome"</span>
+                  <strong class="mock-pot-amount">380 € / 500 €</strong>
+                </div>
+                <div class="mock-progress-bar">
+                  <div class="mock-progress-fill" style="width: 76%;"></div>
+                </div>
+                <span class="mock-pot-sub">6 amis ont déjà contribué en secret</span>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4. SECTION 4 PILIERS DE L'APPLICATION -->
+  <section id="features" class="section features-section">
+    <div class="section-container">
+      
+      <div class="section-header-center">
+        <span class="section-tag">{{ t9n.t('landing.nav_features') || 'Fonctionnalités clés' }}</span>
+        <h2 class="section-title">Tout ce dont vous avez besoin pour chaque fête</h2>
+        <p class="section-desc">Quatre piliers pensés pour simplifier l'organisation et démultiplier l'émotion.</p>
+      </div>
+
+      <div class="pillars-grid">
+        
+        <!-- Pilier 1: Rappels Intelligents -->
+        <div class="pillar-card">
+          <div class="pillar-icon-box cyan">
+            <span class="material-symbols-outlined">event_available</span>
+          </div>
+          <h3 class="pillar-title">{{ t9n.t('landing.pillar1_title') || 'Rappels Intelligents & Calendrier' }}</h3>
+          <p class="pillar-desc">
+            {{ t9n.t('landing.pillar1_desc') || 'Alertes personnalisées avant le Jour J (J-7, J-1, Jour J) et synchronisation instantanée avec votre agenda Google et vos contacts.' }}
+          </p>
+          <ul class="pillar-list">
+            <li><span class="material-symbols-outlined">check_small</span> Alertes par email et notifications in-app</li>
+            <li><span class="material-symbols-outlined">check_small</span> Synchronisation Google Contacts en 1 clic</li>
+            <li><span class="material-symbols-outlined">check_small</span> Vues flexibles : Calendrier, Grille et Liste</li>
+          </ul>
+        </div>
+
+        <!-- Pilier 2: Vœux Personnalisés IA -->
+        <div class="pillar-card">
+          <div class="pillar-icon-box violet">
+            <span class="material-symbols-outlined">auto_awesome</span>
+          </div>
+          <h3 class="pillar-title">{{ t9n.t('landing.pillar2_title') || 'Vœux Personnalisés par IA' }}</h3>
+          <p class="pillar-desc">
+            {{ t9n.t('landing.pillar2_desc') || 'Générez des messages uniques adaptés à la relation (ami, amour, famille, collègue) et au ton désiré (humoristique, touchant, poétique).' }}
+          </p>
+          <ul class="pillar-list">
+            <li><span class="material-symbols-outlined">check_small</span> Modèles personnalisés selon la relation</li>
+            <li><span class="material-symbols-outlined">check_small</span> Cartes de vœux animées prêtes à partager</li>
+            <li><span class="material-symbols-outlined">check_small</span> Suggestions d'idées de cadeaux ciblées</li>
+          </ul>
+        </div>
+
+        <!-- Pilier 3: Cagnottes & Cadeaux Partagés -->
+        <div class="pillar-card">
+          <div class="pillar-icon-box amber">
+            <span class="material-symbols-outlined">redeem</span>
+          </div>
+          <h3 class="pillar-title">{{ t9n.t('landing.pillar3_title') || 'Cagnottes & Listes Partagées' }}</h3>
+          <p class="pillar-desc">
+            {{ t9n.t('landing.pillar3_desc') || 'Créez une cagnotte collective entre proches sans frais cachés et partagez des listes de cadeaux secrètes pour éviter les doublons.' }}
+          </p>
+          <ul class="pillar-list">
+            <li><span class="material-symbols-outlined">check_small</span> Cagnottes sécurisées par carte & Mobile Money</li>
+            <li><span class="material-symbols-outlined">check_small</span> Listes d'envies secrètes entre amis</li>
+            <li><span class="material-symbols-outlined">check_small</span> Réservation de cadeaux pour éviter les doublons</li>
+          </ul>
+        </div>
+
+        <!-- Pilier 4: Organisation de Fêtes -->
+        <div class="pillar-card">
+          <div class="pillar-icon-box coral">
+            <span class="material-symbols-outlined">celebration</span>
+          </div>
+          <h3 class="pillar-title">{{ t9n.t('landing.pillar4_title') || 'Organisation de Fêtes & Capsules' }}</h3>
+          <p class="pillar-desc">
+            {{ t9n.t('landing.pillar4_desc') || 'Checklists d\'organisation, gestion des invités et capsules temporelles virtuelles à sceller et déverrouiller le grand jour.' }}
+          </p>
+          <ul class="pillar-list">
+            <li><span class="material-symbols-outlined">check_small</span> Checklists d'organisation complètes</li>
+            <li><span class="material-symbols-outlined">check_small</span> Capsules temporelles à déverrouiller le Jour J</li>
+            <li><span class="material-symbols-outlined">check_small</span> Messagerie intégrée et gestion des RSVP</li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 5. SECTION COMMENT ÇA MARCHE -->
+  <section id="how" class="section how-section">
+    <div class="section-container">
+      
+      <div class="section-header-center">
+        <span class="section-tag">{{ t9n.t('landing.nav_how') || 'Simplicité' }}</span>
+        <h2 class="section-title">{{ t9n.t('landing.how_title') || 'Comment ça marche ?' }}</h2>
+        <p class="section-desc">{{ t9n.t('landing.how_subtitle') || '3 étapes simples pour ne plus jamais être pris au dépourvu.' }}</p>
+      </div>
+
+      <div class="steps-grid">
+        
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h4 class="step-title">{{ t9n.t('landing.step1_title') || '1. Ajoutez vos proches' }}</h4>
+          <p class="step-desc">
+            {{ t9n.t('landing.step1_desc') || 'Renseignez les dates importantes ou importez vos contacts Google en un clic.' }}
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h4 class="step-title">{{ t9n.t('landing.step2_title') || '2. Recevez vos alertes' }}</h4>
+          <p class="step-desc">
+            {{ t9n.t('landing.step2_desc') || 'Soyez prévenu à l\'avance pour avoir le temps de choisir un cadeau ou d\'écrire un mot.' }}
+          </p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h4 class="step-title">{{ t9n.t('landing.step3_title') || '3. Célébrez en beauté' }}</h4>
+          <p class="step-desc">
+            {{ t9n.t('landing.step3_desc') || 'Envoyez votre vœu IA ou offrez un cadeau commun via la cagnotte intégrée.' }}
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 6. SECTION FORFAITS (PRICING OVERVIEW) -->
+  <section id="pricing" class="section pricing-section">
+    <div class="section-container">
+      
+      <div class="section-header-center">
+        <span class="section-tag">{{ t9n.t('landing.nav_pricing') || 'Tarifs clairs' }}</span>
+        <h2 class="section-title">Des formules adaptées à chaque besoin</h2>
+        <p class="section-desc">Commencez gratuitement et évoluez selon le nombre de proches à célébrer.</p>
+      </div>
+
+      <div class="pricing-grid">
+        
+        <!-- Gratuit / Basic -->
+        <div class="pricing-card">
+          <div class="pricing-tier-name">Gratuit</div>
+          <div class="pricing-price">
+            <span class="amount">0 €</span>
+            <span class="period">/ toujours</span>
+          </div>
+          <p class="pricing-desc">Idéal pour démarrer et tester Time2Wish.</p>
+          <ul class="pricing-features">
+            <li><span class="material-symbols-outlined">check</span> Jusqu'à 10 anniversaires</li>
+            <li><span class="material-symbols-outlined">check</span> Rappels le Jour J</li>
+            <li><span class="material-symbols-outlined">check</span> 1 vœu IA par semaine</li>
+            <li><span class="material-symbols-outlined">check</span> Vue Grille</li>
+          </ul>
+          <a [routerLink]="['/login']" [queryParams]="{ tab: 'register' }" class="pricing-btn secondary">
+            Commencer gratuitement
+          </a>
+        </div>
+
+        <!-- Plus (Populaire) -->
+        <div class="pricing-card popular">
+          <div class="popular-badge">Le plus populaire</div>
+          <div class="pricing-tier-name">Plus</div>
+          <div class="pricing-price">
+            <span class="amount">3,99 €</span>
+            <span class="period">/ mois</span>
+          </div>
+          <p class="pricing-desc">Pour les familles et groupes d'amis actifs.</p>
+          <ul class="pricing-features">
+            <li><span class="material-symbols-outlined">check</span> Jusqu'à 50 anniversaires</li>
+            <li><span class="material-symbols-outlined">check</span> Rappels à J-1 et Jour J</li>
+            <li><span class="material-symbols-outlined">check</span> Vœux & Cadeaux IA illimités</li>
+            <li><span class="material-symbols-outlined">check</span> Vues Liste & Calendrier complètes</li>
+            <li><span class="material-symbols-outlined">check</span> Thème OLED & Mode sombre</li>
+          </ul>
+          <a [routerLink]="['/login']" [queryParams]="{ tab: 'register' }" class="pricing-btn primary">
+            Choisir le forfait Plus
+          </a>
+        </div>
+
+        <!-- Pro -->
+        <div class="pricing-card">
+          <div class="pricing-tier-name">Pro</div>
+          <div class="pricing-price">
+            <span class="amount">7,99 €</span>
+            <span class="period">/ mois</span>
+          </div>
+          <p class="pricing-desc">Pour les grands réseaux et organisateurs d'événements.</p>
+          <ul class="pricing-features">
+            <li><span class="material-symbols-outlined">check</span> Anniversaires illimités</li>
+            <li><span class="material-symbols-outlined">check</span> Rappels personnalisés jusqu'à J-14</li>
+            <li><span class="material-symbols-outlined">check</span> Cagnottes multiples sans frais</li>
+            <li><span class="material-symbols-outlined">check</span> Export iCalendar & Support dédié</li>
+          </ul>
+          <a [routerLink]="['/login']" [queryParams]="{ tab: 'register' }" class="pricing-btn secondary">
+            Choisir le forfait Pro
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 7. FINAL CTA BANNER -->
+  <section class="section cta-banner-section">
+    <div class="section-container">
+      <div class="cta-banner-card">
+        <h2 class="cta-banner-title">
+          {{ t9n.t('landing.cta_banner_title') || 'Prêt à célébrer vos proches sans stress ?' }}
+        </h2>
+        <p class="cta-banner-subtitle">
+          {{ t9n.t('landing.cta_banner_subtitle') || 'Rejoignez Time2Wish gratuitement dès aujourd\'hui. Aucune carte bancaire requise.' }}
+        </p>
+        <div class="cta-banner-buttons">
+          <a [routerLink]="['/login']" [queryParams]="{ tab: 'register' }" class="btn-banner-main">
+            <span class="material-symbols-outlined">rocket_launch</span>
+            <span>{{ t9n.t('landing.cta_banner_btn') || 'Démarrer gratuitement' }}</span>
+          </a>
+          <a routerLink="/login" class="btn-banner-outline">
+            {{ t9n.t('landing.btn_login') || 'J\'ai déjà un compte' }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. PUBLIC FOOTER -->
+  <footer class="landing-footer">
+    <div class="footer-container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="brand-logo-lockup">
+            <img src="branding/time2wish_mark.svg" alt="Time2Wish" width="30" height="30">
+            <span class="font-extrabold text-main">Time<span class="text-cyan">2</span><span class="text-violet">Wish</span></span>
+          </div>
+          <p class="footer-desc">
+            {{ t9n.t('landing.tagline') || 'L\'assistant intelligent des anniversaires et des célébrations.' }}
+          </p>
+        </div>
+
+        <div class="footer-nav-col">
+          <strong>Navigation</strong>
+          <a (click)="scrollToSection('what-is')">{{ t9n.t('landing.what_is_title') || "Qu'est-ce que Time2Wish ?" }}</a>
+          <a (click)="scrollToSection('features')">{{ t9n.t('landing.nav_features') || 'Fonctionnalités' }}</a>
+          <a (click)="scrollToSection('how')">{{ t9n.t('landing.nav_how') || 'Comment ça marche' }}</a>
+          <a (click)="scrollToSection('pricing')">{{ t9n.t('landing.nav_pricing') || 'Forfaits' }}</a>
+        </div>
+
+        <div class="footer-nav-col">
+          <strong>Légal & Support</strong>
+          <a routerLink="/privacy">{{ t9n.t('footer.privacy') || 'Confidentialité' }}</a>
+          <a routerLink="/terms">{{ t9n.t('footer.terms') || 'Conditions d\'utilisation' }}</a>
+          <a routerLink="/support">{{ t9n.t('footer.support') || 'Support' }}</a>
+          <a routerLink="/admin/login">Espace Administration</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 Time2Wish. Tous droits réservés.</p>
+        <p class="footer-tagline-sub">{{ t9n.t('footer.tagline') || 'Ne manquez plus jamais un anniversaire. 💖' }}</p>
+      </div>
+    </div>
+  </footer>
+
+</div>

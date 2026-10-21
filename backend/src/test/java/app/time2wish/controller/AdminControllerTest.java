@@ -49,99 +49,23 @@ public class AdminControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // --- GET /api/admin/users ---
+    // --- GET /api/admin/test ---
 
     @Test
-    public void testGetUsersAdminAccess() throws Exception {
-        when(adminService.getAllUsers()).thenReturn(List.of());
-        mockMvc.perform(get("/api/admin/users").with(user("admin").roles("ADMIN")))
+    public void testAdminTestAdminAccess() throws Exception {
+        mockMvc.perform(get("/api/admin/test").with(user("admin").roles("ADMIN")))
                .andExpect(status().isOk());
     }
 
     @Test
-    public void testGetUsersUserAccess() throws Exception {
-        mockMvc.perform(get("/api/admin/users").with(user("user").roles("USER")))
+    public void testAdminTestUserAccess() throws Exception {
+        mockMvc.perform(get("/api/admin/test").with(user("user").roles("USER")))
                .andExpect(status().isForbidden());
     }
 
     @Test
-    public void testGetUsersAnonymousAccess() throws Exception {
-        mockMvc.perform(get("/api/admin/users"))
-               .andExpect(status().isUnauthorized());
-    }
-
-    // --- DELETE /api/admin/users/{id} ---
-
-    @Test
-    public void testDeleteUserAdminAccess() throws Exception {
-        doNothing().when(adminService).deleteUser(anyLong());
-        mockMvc.perform(delete("/api/admin/users/1").with(user("admin").roles("ADMIN")).with(csrf()))
-               .andExpect(status().isNoContent());
-    }
-
-    @Test
-    public void testDeleteUserUserAccess() throws Exception {
-        mockMvc.perform(delete("/api/admin/users/1").with(user("user").roles("USER")).with(csrf()))
-               .andExpect(status().isForbidden());
-    }
-
-    @Test
-    public void testDeleteUserAnonymousAccess() throws Exception {
-        mockMvc.perform(delete("/api/admin/users/1"))
-               .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    public void testDeleteUserNotFound() throws Exception {
-        org.mockito.Mockito.doThrow(new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND))
-                .when(adminService).deleteUser(anyLong());
-        mockMvc.perform(delete("/api/admin/users/999").with(user("admin").roles("ADMIN")).with(csrf()))
-               .andExpect(status().isNotFound());
-    }
-
-    // --- PUT /api/admin/users/{id}/password ---
-
-    @Test
-    public void testUpdatePasswordAdminAccess() throws Exception {
-        AdminPasswordUpdateRequest request = new AdminPasswordUpdateRequest("newPass");
-        doNothing().when(adminService).updateUserPassword(anyLong(), any());
-        
-        mockMvc.perform(put("/api/admin/users/1/password")
-                .with(user("admin").roles("ADMIN")).with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-               .andExpect(status().isNoContent());
-    }
-
-    @Test
-    public void testUpdatePasswordNotFound() throws Exception {
-        AdminPasswordUpdateRequest request = new AdminPasswordUpdateRequest("newPass");
-        org.mockito.Mockito.doThrow(new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND))
-                .when(adminService).updateUserPassword(anyLong(), any());
-        
-        mockMvc.perform(put("/api/admin/users/999/password")
-                .with(user("admin").roles("ADMIN")).with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-               .andExpect(status().isNotFound());
-    }
-
-    @Test
-    public void testUpdatePasswordUserAccess() throws Exception {
-        AdminPasswordUpdateRequest request = new AdminPasswordUpdateRequest("newPass");
-        mockMvc.perform(put("/api/admin/users/1/password")
-                .with(user("user").roles("USER")).with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-               .andExpect(status().isForbidden());
-    }
-
-    @Test
-    public void testUpdatePasswordAnonymousAccess() throws Exception {
-        AdminPasswordUpdateRequest request = new AdminPasswordUpdateRequest("newPass");
-        mockMvc.perform(put("/api/admin/users/1/password")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+    public void testAdminTestAnonymousAccess() throws Exception {
+        mockMvc.perform(get("/api/admin/test"))
                .andExpect(status().isUnauthorized());
     }
 

@@ -86,6 +86,54 @@ class BirthdayServiceTest {
         verify(birthdayRepository).save(newBirthday);
     }
 
+    @Test
+    @DisplayName("addBirthday() devrait autoriser jusqu'à 10 anniversaires pour le forfait BASIC")
+    void addBirthday_shouldAllowUpTo10ForBasicPlan() {
+        user.setPlan(app.time2wish.model.PlanType.BASIC);
+        List<Birthday> nineBirthdays = java.util.Collections.nCopies(9, birthday);
+        when(birthdayRepository.findByUserAndIsDeletedFalse(user)).thenReturn(nineBirthdays);
+        when(birthdayRepository.save(any(Birthday.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Birthday saved = birthdayService.addBirthday(birthday, user);
+        assertThat(saved).isNotNull();
+    }
+
+    @Test
+    @DisplayName("addBirthday() devrait lever une exception au-delà de 10 anniversaires pour BASIC")
+    void addBirthday_shouldThrowWhenExceeding10ForBasicPlan() {
+        user.setPlan(app.time2wish.model.PlanType.BASIC);
+        List<Birthday> tenBirthdays = java.util.Collections.nCopies(10, birthday);
+        when(birthdayRepository.findByUserAndIsDeletedFalse(user)).thenReturn(tenBirthdays);
+
+        assertThatThrownBy(() -> birthdayService.addBirthday(birthday, user))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("limite de votre forfait BASIC (10 anniversaires)");
+    }
+
+    @Test
+    @DisplayName("addBirthday() devrait lever une exception au-delà de 50 anniversaires pour PLUS")
+    void addBirthday_shouldThrowWhenExceeding50ForPlusPlan() {
+        user.setPlan(app.time2wish.model.PlanType.PLUS);
+        List<Birthday> fiftyBirthdays = java.util.Collections.nCopies(50, birthday);
+        when(birthdayRepository.findByUserAndIsDeletedFalse(user)).thenReturn(fiftyBirthdays);
+
+        assertThatThrownBy(() -> birthdayService.addBirthday(birthday, user))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("limite de votre forfait PLUS (50 anniversaires)");
+    }
+
+    @Test
+    @DisplayName("addBirthday() devrait autoriser des anniversaires illimités pour PRO")
+    void addBirthday_shouldAllowUnlimitedForProPlan() {
+        user.setPlan(app.time2wish.model.PlanType.PRO);
+        List<Birthday> manyBirthdays = java.util.Collections.nCopies(100, birthday);
+        when(birthdayRepository.findByUserAndIsDeletedFalse(user)).thenReturn(manyBirthdays);
+        when(birthdayRepository.save(any(Birthday.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Birthday saved = birthdayService.addBirthday(birthday, user);
+        assertThat(saved).isNotNull();
+    }
+
     // ─── updateBirthday ─────────────────────────────────────────────────────
 
     @Test

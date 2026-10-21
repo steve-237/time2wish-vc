@@ -54,6 +54,7 @@ export class Login implements OnInit {
   ngOnInit() {
     // Check for timeout reason
     this.route.queryParams.subscribe(params => {
+      if (params['tab'] === 'register') { this.isLoginTab.set(false); }
       if (params['reason'] === 'timeout') {
         const msg = this.t9n.t('auth.timeout_message') || 'Vous avez été déconnecté pour cause d\'inactivité (10 minutes).';
         this.timeoutMessage.set(msg);
