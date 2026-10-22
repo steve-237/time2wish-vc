@@ -1,14 +1,19 @@
-import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import '@angular/compiler';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { createEnvironmentInjector, EnvironmentInjector, runInInjectionContext } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { of, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let httpMock: HttpTestingController;
+  let mockHttp: any;
+  let injector: EnvironmentInjector;
 
   const mockAuthResponse = {
     token: 'fake-jwt-token',
+    refreshToken: 'fake-refresh-uuid',
     id: 1,
     email: 'test@example.com',
     fullName: 'Test User',
@@ -16,111 +21,143 @@ describe('AuthService', () => {
     plan: 'BASIC'
   };
 
-  beforeEach(() => {
-    // Clear localStorage before each test
-    localStorage.clear();
+  function createService(): AuthService {
+    mockHttp = {
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn()
+    };
 
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [AuthService]
-    });
-    service = TestBed.inject(AuthService);
-    httpMock = TestBed.inject(HttpTestingController);
+    injector = createEnvironmentInjector([
+      { provide: HttpClient, useValue: mockHttp }
+    ]);
+
+    return runInInjectionContext(injector, () => new AuthService());
+  }
+
+  beforeEach(() => {
+    localStorage.clear();
+    service = createService();
   });
 
   afterEach(() => {
-    httpMock.verify();
     localStorage.clear();
+    vi.clearAllMocks();
   });
 
-  it('should be created', () => {
+  it('should be created and start unauthenticated if localStorage is empty', () => {
     expect(service).toBeTruthy();
-  });
-
-  it('should start with no user authenticated if localStorage is empty', () => {
     expect(service.isAuthenticated()).toBe(false);
     expect(service.currentUser()).toBeNull();
     expect(service.accessToken()).toBeNull();
   });
 
+  it('should restore session from localStorage if present at creation', () => {
+    localStorage.setItem('t2w_access_token', 'saved-access-token');
+    localStorage.setItem('t2w_refresh_token', 'saved-refresh-token');
+    localStorage.setItem('t2w_user_profile', JSON.stringify(mockAuthResponse));
+
+    const restoredService = createService();
+    expect(restoredService.isAuthenticated()).toBe(true);
+    expect(restoredService.accessToken()).toBe('saved-access-token');
+    expect(restoredService.getStoredRefreshToken()).toBe('saved-refresh-token');
+    expect(restoredService.currentUser()?.email).toBe('test@example.com');
+  });
+
   describe('login', () => {
     it('should authenticate user and save session on successful login', () => {
+      mockHttp.post.mockReturnValue(of(mockAuthResponse));
+
       service.login('test@example.com', 'password123').subscribe((success) => {
         expect(success).toBe(true);
         expect(service.isAuthenticated()).toBe(true);
         expect(service.currentUser()?.email).toBe('test@example.com');
         expect(service.accessToken()).toBe('fake-jwt-token');
-        
-        // Verify localStorage
+
         expect(localStorage.getItem('t2w_access_token')).toBe('fake-jwt-token');
+        expect(localStorage.getItem('t2w_refresh_token')).toBe('fake-refresh-uuid');
         expect(localStorage.getItem('t2w_user_profile')).toContain('Test User');
       });
 
-      const req = httpMock.expectOne(`${environment.apiUrl}/auth/login`);
-      expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual({ email: 'test@example.com', password: 'password123' });
-      req.flush(mockAuthResponse);
+      expect(mockHttp.post).toHaveBeenCalledWith(
+        `${environment.apiUrl}/auth/login`,
+        { email: 'test@example.com', password: 'password123' },
+        { withCredentials: true }
+      );
     });
 
     it('should return false on failed login', () => {
+      mockHttp.post.mockReturnValue(throwError(() => new Error('Unauthorized')));
+
       service.login('wrong@example.com', 'wrongpass').subscribe((success) => {
         expect(success).toBe(false);
         expect(service.isAuthenticated()).toBe(false);
       });
-
-      const req = httpMock.expectOne(`${environment.apiUrl}/auth/login`);
-      req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
-    });
-  });
-
-  describe('logout', () => {
-    it('should clear session on logout', () => {
-      // First setup a fake session
-      localStorage.setItem('t2w_access_token', 'token');
-      localStorage.setItem('t2w_user_profile', JSON.stringify(mockAuthResponse));
-      
-      // We must recreate the service so it picks up the localStorage during init signals
-      TestBed.resetTestingModule();
-      TestBed.configureTestingModule({
-        imports: [HttpClientTestingModule],
-        providers: [AuthService]
-      });
-      const newService = TestBed.inject(AuthService);
-      const newHttpMock = TestBed.inject(HttpTestingController);
-
-      expect(newService.isAuthenticated()).toBe(true);
-
-      newService.logout().subscribe((success) => {
-        expect(success).toBe(true);
-        expect(newService.isAuthenticated()).toBe(false);
-        expect(localStorage.getItem('t2w_access_token')).toBeNull();
-      });
-
-      const req = newHttpMock.expectOne(`${environment.apiUrl}/auth/logout`);
-      expect(req.request.method).toBe('POST');
-      req.flush({});
     });
   });
 
   describe('refreshSession', () => {
-    it('should recover session if token is in localStorage and refresh API succeeds', () => {
-      localStorage.setItem('t2w_access_token', 'old-token');
+    it('should call refresh endpoint with stored refresh token if present', () => {
+      localStorage.setItem('t2w_access_token', 'old-access-token');
+      localStorage.setItem('t2w_refresh_token', 'saved-refresh-uuid');
       localStorage.setItem('t2w_user_profile', JSON.stringify({ id: 1, email: 'test@test.com', fullName: 'Test', roles: [] }));
 
-      // Re-init
-      TestBed.resetTestingModule();
-      TestBed.configureTestingModule({ imports: [HttpClientTestingModule], providers: [AuthService] });
-      const newService = TestBed.inject(AuthService);
-      const newHttpMock = TestBed.inject(HttpTestingController);
+      const currentService = createService();
+      mockHttp.post.mockReturnValue(of(mockAuthResponse));
 
-      newService.refreshSession().subscribe((success) => {
+      currentService.refreshSession().subscribe((success) => {
         expect(success).toBe(true);
-        expect(newService.accessToken()).toBe('fake-jwt-token'); // updated from API
+        expect(currentService.accessToken()).toBe('fake-jwt-token');
+        expect(localStorage.getItem('t2w_access_token')).toBe('fake-jwt-token');
+        expect(localStorage.getItem('t2w_refresh_token')).toBe('fake-refresh-uuid');
       });
 
-      const req = newHttpMock.expectOne(`${environment.apiUrl}/auth/refresh`);
-      expect(req.request.method).toBe('POST');
-      req.flush(mockAuthResponse);
+      expect(mockHttp.post).toHaveBeenCalledWith(
+        `${environment.apiUrl}/auth/refresh`,
+        { refreshToken: 'saved-refresh-uuid' },
+        { withCredentials: true }
+      );
+    });
+
+    it('should clear session if refresh endpoint fails', () => {
+      localStorage.setItem('t2w_access_token', 'old-access-token');
+      localStorage.setItem('t2w_refresh_token', 'invalid-refresh-uuid');
+      localStorage.setItem('t2w_user_profile', JSON.stringify({ id: 1, email: 'test@test.com', fullName: 'Test', roles: [] }));
+
+      const currentService = createService();
+      mockHttp.post.mockReturnValue(throwError(() => new Error('Invalid token')));
+
+      currentService.refreshSession().subscribe((success) => {
+        expect(success).toBe(false);
+        expect(currentService.isAuthenticated()).toBe(false);
+        expect(localStorage.getItem('t2w_access_token')).toBeNull();
+        expect(localStorage.getItem('t2w_refresh_token')).toBeNull();
+      });
+    });
+  });
+
+  describe('logout', () => {
+    it('should clear session and call logout endpoint', () => {
+      localStorage.setItem('t2w_access_token', 'token');
+      localStorage.setItem('t2w_refresh_token', 'refresh-token');
+      localStorage.setItem('t2w_user_profile', JSON.stringify(mockAuthResponse));
+
+      const currentService = createService();
+      mockHttp.post.mockReturnValue(of({}));
+
+      currentService.logout().subscribe((success) => {
+        expect(success).toBe(true);
+        expect(currentService.isAuthenticated()).toBe(false);
+        expect(localStorage.getItem('t2w_access_token')).toBeNull();
+        expect(localStorage.getItem('t2w_refresh_token')).toBeNull();
+        expect(localStorage.getItem('t2w_user_profile')).toBeNull();
+      });
+
+      expect(mockHttp.post).toHaveBeenCalledWith(
+        `${environment.apiUrl}/auth/logout`,
+        {},
+        { withCredentials: true }
+      );
     });
   });
 });

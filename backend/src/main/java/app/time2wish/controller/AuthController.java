@@ -31,6 +31,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -90,6 +91,7 @@ public class AuthController {
 
         return ResponseEntity.ok(JwtResponse.builder()
                 .token(jwt)
+                .refreshToken(refreshToken.getToken().toString())
                 .id(user.getId())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
@@ -135,17 +137,20 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(@CookieValue(name = "t2w_refresh", required = false) String requestRefreshToken) {
-        System.out.println("======> /api/auth/refresh CALLED <======");
-        System.out.println("t2w_refresh Cookie Value: " + requestRefreshToken);
+    public ResponseEntity<?> refreshToken(
+            @CookieValue(name = "t2w_refresh", required = false) String requestRefreshToken,
+            @RequestBody(required = false) Map<String, String> requestBody) {
+        String tokenStr = requestRefreshToken;
+        if ((tokenStr == null || tokenStr.trim().isEmpty()) && requestBody != null) {
+            tokenStr = requestBody.get("refreshToken");
+        }
 
-        if (requestRefreshToken == null || requestRefreshToken.isEmpty()) {
-            System.out.println("Refresh token missing, returning 400");
+        if (tokenStr == null || tokenStr.trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Refresh Token is missing"));
         }
 
         try {
-            UUID tokenUuid = UUID.fromString(requestRefreshToken);
+            UUID tokenUuid = UUID.fromString(tokenStr.trim());
             Optional<RefreshToken> tokenOpt = refreshTokenService.findByToken(tokenUuid);
             if (tokenOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Refresh token is not in database"));
@@ -157,6 +162,7 @@ public class AuthController {
 
             return ResponseEntity.ok(JwtResponse.builder()
                     .token(token)
+                    .refreshToken(refreshToken.getToken().toString())
                     .id(user.getId())
                     .email(user.getEmail())
                     .fullName(user.getFullName())
@@ -252,6 +258,7 @@ public class AuthController {
 
                 return ResponseEntity.ok(JwtResponse.builder()
                         .token(jwt)
+                        .refreshToken(refreshToken.getToken().toString())
                         .id(user.getId())
                         .email(user.getEmail())
                         .fullName(user.getFullName())

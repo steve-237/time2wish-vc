@@ -143,4 +143,56 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.token").value("mocked-jwt"))
                 .andExpect(jsonPath("$.email").value("test@time2wish.com"));
     }
+
+    @Test
+    @DisplayName("POST /api/auth/refresh → 200 avec cookie valide")
+    void refreshToken_shouldReturn200_whenValidCookieProvided() throws Exception {
+        UUID tokenUuid = UUID.randomUUID();
+        RefreshToken mockToken = new RefreshToken();
+        mockToken.setToken(tokenUuid);
+        mockToken.setUser(mockUser);
+        mockToken.setExpiryDate(Instant.now().plusMillis(100000));
+
+        when(refreshTokenService.findByToken(tokenUuid)).thenReturn(Optional.of(mockToken));
+        when(refreshTokenService.verifyExpiration(mockToken)).thenReturn(mockToken);
+        when(jwtUtils.generateJwtToken("test@time2wish.com")).thenReturn("new-refreshed-jwt");
+
+        mockMvc.perform(post("/api/auth/refresh")
+                        .with(csrf())
+                        .cookie(new jakarta.servlet.http.Cookie("t2w_refresh", tokenUuid.toString())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("new-refreshed-jwt"))
+                .andExpect(jsonPath("$.email").value("test@time2wish.com"));
+    }
+
+    @Test
+    @DisplayName("POST /api/auth/refresh → 200 avec body JSON valide (fallback sans cookie)")
+    void refreshToken_shouldReturn200_whenValidBodyProvided() throws Exception {
+        UUID tokenUuid = UUID.randomUUID();
+        RefreshToken mockToken = new RefreshToken();
+        mockToken.setToken(tokenUuid);
+        mockToken.setUser(mockUser);
+        mockToken.setExpiryDate(Instant.now().plusMillis(100000));
+
+        when(refreshTokenService.findByToken(tokenUuid)).thenReturn(Optional.of(mockToken));
+        when(refreshTokenService.verifyExpiration(mockToken)).thenReturn(mockToken);
+        when(jwtUtils.generateJwtToken("test@time2wish.com")).thenReturn("new-refreshed-jwt");
+
+        String payload = "{\"refreshToken\": \"" + tokenUuid.toString() + "\"}";
+
+        mockMvc.perform(post("/api/auth/refresh")
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(payload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("new-refreshed-jwt"));
+    }
+
+    @Test
+    @DisplayName("POST /api/auth/refresh → 400 si refresh token absent")
+    void refreshToken_shouldReturn400_whenTokenMissing() throws Exception {
+        mockMvc.perform(post("/api/auth/refresh")
+                        .with(csrf()))
+                .andExpect(status().isBadRequest());
+    }
 }

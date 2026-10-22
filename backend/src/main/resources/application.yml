@@ -42,6 +42,7 @@ server:
 app:
   jwt:
     secret: ${JWT_SECRET:mySuperSecretKeyForDevelopmentOnlyPleaseChangeInProductionTime2Wish}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
   email:
     output-dir: scratch/emails
     from-address: ${EMAIL_FROM:${SMTP_USER:}}
@@ -94,4 +95,5 @@ spring:
 app:
   jwt:
     secret: ${JWT_SECRET}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
 

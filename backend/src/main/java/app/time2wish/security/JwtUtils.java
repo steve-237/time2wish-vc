@@ -18,8 +18,9 @@ public class JwtUtils {
     @Value("${app.jwt.secret}")
     private String jwtSecret;
     
-    // 15 minutes in ms
-    private final int jwtExpirationMs = 900000;
+    // 24 hours in ms by default (configurable via app.jwt.expiration-ms)
+    @Value("${app.jwt.expiration-ms:86400000}")
+    private int jwtExpirationMs;
 
     private SecretKey key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));

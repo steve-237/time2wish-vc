@@ -1,7 +1,7 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
-import { catchError } from 'rxjs/operators';
+import { catchError, switchMap } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
@@ -11,22 +11,46 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = authService.accessToken();
 
   // If token exists, append Bearer Authorization header
+  let authReq = req;
   if (token) {
-    req = req.clone({
+    authReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
       }
     });
   }
 
-  return next(req).pipe(
+  return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !req.url.includes('/auth/login')) {
-        // Token is invalid or expired
-        authService.logout().subscribe(() => {
-          router.navigate(['/login']);
-        });
+      const isAuthEndpoint = req.url.includes('/auth/login') ||
+                             req.url.includes('/auth/refresh') ||
+                             req.url.includes('/auth/register');
+
+      if (error.status === 401 && !isAuthEndpoint) {
+        return authService.refreshSession().pipe(
+          switchMap(success => {
+            if (success && authService.accessToken()) {
+              const retryReq = req.clone({
+                setHeaders: {
+                  Authorization: `Bearer ${authService.accessToken()}`
+                }
+              });
+              return next(retryReq);
+            }
+            authService.logout().subscribe(() => {
+              router.navigate(['/login']);
+            });
+            return throwError(() => error);
+          }),
+          catchError(refreshError => {
+            authService.logout().subscribe(() => {
+              router.navigate(['/login']);
+            });
+            return throwError(() => refreshError);
+          })
+        );
       }
+
       return throwError(() => error);
     })
   );

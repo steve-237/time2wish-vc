@@ -11,6 +11,7 @@ import lombok.Setter;
 @Builder
 public class JwtResponse {
     private String token;
+    private String refreshToken;
     private Long id;
     private String email;
     private String fullName;

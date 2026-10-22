@@ -7,6 +7,7 @@ import { environment } from '../../environments/environment';
 
 interface AuthResponse {
   token: string;
+  refreshToken?: string;
   id: number;
   email: string;
   fullName: string;
@@ -28,6 +29,7 @@ export class AuthService {
   private readonly API_URL = environment.apiUrl + '/auth';
   private readonly STORAGE_USER_KEY = 't2w_user_profile';
   private readonly STORAGE_TOKEN_KEY = 't2w_access_token';
+  private readonly STORAGE_REFRESH_TOKEN_KEY = 't2w_refresh_token';
 
   // Signals
   readonly accessToken = signal<string | null>(this.getStoredToken());
@@ -50,6 +52,10 @@ export class AuthService {
 
   private getStoredToken(): string | null {
     return localStorage.getItem(this.STORAGE_TOKEN_KEY);
+  }
+
+  getStoredRefreshToken(): string | null {
+    return localStorage.getItem(this.STORAGE_REFRESH_TOKEN_KEY);
   }
 
   login(email: string, password: string): Observable<boolean> {
@@ -83,7 +89,7 @@ export class AuthService {
   }
 
   reloadUserProfile(): Observable<User | null> {
-    const token = this.getStoredToken();
+    const token = this.accessToken() || this.getStoredToken();
     if (!token) return of(null);
 
     return this.http.get<AuthResponse>(`${environment.apiUrl}/users/me`, {
@@ -98,29 +104,28 @@ export class AuthService {
   refreshSession(): Observable<boolean> {
     const storedToken = this.getStoredToken();
     const storedUser = this.getStoredProfile();
+    const storedRefreshToken = this.getStoredRefreshToken();
 
     if (storedToken && storedUser) {
       this.accessToken.set(storedToken);
       this.currentUser.set(storedUser);
-
-      // Fetch fresh profile from backend using Authorization Bearer token (100% cross-origin reliable)
-      return this.reloadUserProfile().pipe(
-        map(() => true),
-        catchError(() => of(true))
-      );
     }
 
-    // No stored credentials at all — try cookie-only refresh as last resort
-    return this.http.post<AuthResponse>(`${this.API_URL}/refresh`, {}, { withCredentials: true }).pipe(
+    const payload = storedRefreshToken ? { refreshToken: storedRefreshToken } : {};
+
+    return this.http.post<AuthResponse>(`${this.API_URL}/refresh`, payload, { withCredentials: true }).pipe(
       tap(res => {
         this.saveSession(res);
         this.isLoaded.set(true);
       }),
       map(() => true),
       catchError(() => {
-        this.clearSession();
+        // Only clear session if token refresh failed and we are no longer valid
+        if (storedToken || storedRefreshToken) {
+          this.clearSession();
+        }
         this.isLoaded.set(true);
-        return of(true);
+        return of(false);
       })
     );
   }
@@ -155,6 +160,9 @@ export class AuthService {
     this.accessToken.set(res.token);
     this.currentUser.set(user);
     localStorage.setItem(this.STORAGE_TOKEN_KEY, res.token);
+    if (res.refreshToken) {
+      localStorage.setItem(this.STORAGE_REFRESH_TOKEN_KEY, res.refreshToken);
+    }
     localStorage.setItem(this.STORAGE_USER_KEY, JSON.stringify(user));
   }
 
@@ -162,6 +170,7 @@ export class AuthService {
     this.accessToken.set(null);
     this.currentUser.set(null);
     localStorage.removeItem(this.STORAGE_TOKEN_KEY);
+    localStorage.removeItem(this.STORAGE_REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.STORAGE_USER_KEY);
   }
 }
