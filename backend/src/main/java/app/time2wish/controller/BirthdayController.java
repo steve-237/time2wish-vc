@@ -371,10 +371,18 @@ public class BirthdayController {
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         User user = getAuthenticatedUser(userDetails);
         
+        Birthday birthday = birthdayService.getBirthday(id, user).orElse(null);
+        if (birthday == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        boolean deductCoins = false;
+        int coinsToDeduct = 0;
+
         if (user.getPlan() == app.time2wish.model.PlanType.BASIC) {
             if (user.getCoins() >= 20) {
-                user.setCoins(user.getCoins() - 20);
-                userRepository.save(user);
+                deductCoins = true;
+                coinsToDeduct = 20;
             } else {
                 return ResponseEntity.status(403).body(new MessageResponse("La génération d'idées de cadeaux nécessite le forfait PREMIUM/PLUS, ou 20 WishCoins."));
             }
@@ -382,28 +390,34 @@ public class BirthdayController {
             java.time.LocalDateTime lastGen = user.getLastAiGiftGeneration();
             if (lastGen != null && lastGen.plusDays(30).isAfter(java.time.LocalDateTime.now())) {
                 if (user.getCoins() >= 20) {
-                    user.setCoins(user.getCoins() - 20);
+                    deductCoins = true;
+                    coinsToDeduct = 20;
                 } else {
                     java.time.Duration duration = java.time.Duration.between(java.time.LocalDateTime.now(), lastGen.plusDays(30));
                     long days = duration.toDays();
                     return ResponseEntity.status(429).body(new MessageResponse(String.format("Prochaine génération gratuite dans %dj. (Ou utilisez 20 WishCoins)", days)));
                 }
             }
-            user.setLastAiGiftGeneration(java.time.LocalDateTime.now());
-            userRepository.save(user);
         }
-        
-        return birthdayService.getBirthday(id, user).map(birthday -> {
-            Integer age = null;
-            if (birthday.getBirthdate() != null) {
-                age = Period.between(birthday.getBirthdate(), LocalDate.now()).getYears();
-            }
-            
-            app.time2wish.dto.GiftSuggestionResponse response = iaService.generateGiftSuggestions(
-                    birthday.getName(), age, birthday.getGender(), birthday.getCategory(), birthday.getInterests(), lang
-            );
-            return ResponseEntity.ok(response);
-        }).orElse(ResponseEntity.notFound().build());
+
+        Integer age = null;
+        if (birthday.getBirthdate() != null) {
+            age = Period.between(birthday.getBirthdate(), LocalDate.now()).getYears();
+        }
+
+        app.time2wish.dto.GiftSuggestionResponse response = iaService.generateGiftSuggestions(
+                birthday.getName(), age, birthday.getGender(), birthday.getCategory(), birthday.getInterests(), lang
+        );
+
+        if (deductCoins) {
+            user.setCoins(user.getCoins() - coinsToDeduct);
+        }
+        if (user.getPlan() == app.time2wish.model.PlanType.PLUS) {
+            user.setLastAiGiftGeneration(java.time.LocalDateTime.now());
+        }
+        userRepository.save(user);
+
+        return ResponseEntity.ok(response);
     }
 
     /**

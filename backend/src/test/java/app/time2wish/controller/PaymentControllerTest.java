@@ -4,6 +4,7 @@ import app.time2wish.model.PaymentProvider;
 import app.time2wish.model.PlanType;
 import app.time2wish.model.User;
 import app.time2wish.repository.PaymentTransactionRepository;
+import app.time2wish.repository.PromoCodeRepository;
 import app.time2wish.repository.UserRepository;
 import app.time2wish.security.UserDetailsImpl;
 import app.time2wish.security.UserDetailsServiceImpl;
@@ -44,6 +45,9 @@ class PaymentControllerTest {
 
     @MockitoBean
     private PaymentTransactionRepository paymentTransactionRepository;
+
+    @MockitoBean
+    private PromoCodeRepository promoCodeRepository;
 
     @MockitoBean
     private PaymentGateway paymentGateway;
@@ -115,5 +119,19 @@ class PaymentControllerTest {
                         .content(payload))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
+    }
+
+    @Test
+    @DisplayName("POST /api/payments/mock-webhook → 403 quand un utilisateur tente de modifier un autre compte")
+    void mockWebhook_shouldReturn403_whenTamperingOtherUser() throws Exception {
+        String payload = "{\"userId\": 999, \"provider\": \"STRIPE\", \"plan\": \"PRO\"}";
+
+        mockMvc.perform(post("/api/payments/mock-webhook")
+                        .with(user(mockUserDetails)) // ID is 1
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(payload))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("Forbidden: Cannot simulate payment for another user"));
     }
 }

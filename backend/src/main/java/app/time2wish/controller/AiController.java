@@ -51,12 +51,21 @@ public class AiController {
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         
         User user = getAuthenticatedUser(userDetails);
+
+        // Retrieve birthday and check owner first!
+        Birthday birthday = birthdayService.getBirthday(request.getBirthdayId(), user)
+                .orElse(null);
         
+        if (birthday == null) {
+            return ResponseEntity.status(404).body(new MessageResponse("Error: Birthday not found"));
+        }
+
+        boolean deductCoins = false;
         if (user.getPlan() == app.time2wish.model.PlanType.BASIC) {
             java.time.LocalDateTime lastGen = user.getLastAiWishGeneration();
             if (lastGen != null && lastGen.plusDays(7).isAfter(java.time.LocalDateTime.now())) {
                 if (user.getCoins() >= 10) {
-                    user.setCoins(user.getCoins() - 10);
+                    deductCoins = true;
                 } else {
                     java.time.Duration duration = java.time.Duration.between(java.time.LocalDateTime.now(), lastGen.plusDays(7));
                     long days = duration.toDays();
@@ -64,16 +73,6 @@ public class AiController {
                     return ResponseEntity.status(429).body(new MessageResponse(String.format("Prochaine génération gratuite dans %dj %dh. (Ou utilisez 10 WishCoins)", days, hours)));
                 }
             }
-            user.setLastAiWishGeneration(java.time.LocalDateTime.now());
-            userRepository.save(user);
-        }
-        
-        // Retrieve birthday and check owner
-        Birthday birthday = birthdayService.getBirthday(request.getBirthdayId(), user)
-                .orElse(null);
-        
-        if (birthday == null) {
-            return ResponseEntity.status(404).body(new MessageResponse("Error: Birthday not found"));
         }
 
         // Calculate age
@@ -98,6 +97,14 @@ public class AiController {
                 request.getExtraInstructions()
         );
 
+        if (user.getPlan() == app.time2wish.model.PlanType.BASIC) {
+            if (deductCoins) {
+                user.setCoins(user.getCoins() - 10);
+            }
+            user.setLastAiWishGeneration(java.time.LocalDateTime.now());
+            userRepository.save(user);
+        }
+
         return ResponseEntity.ok(new AiResponse(wish));
     }
 
@@ -109,10 +116,10 @@ public class AiController {
         // Ensure user is authenticated
         User user = getAuthenticatedUser(userDetails);
         
+        boolean deductCoins = false;
         if (user.getPlan() != app.time2wish.model.PlanType.PRO) {
             if (user.getCoins() >= 50) {
-                user.setCoins(user.getCoins() - 50);
-                userRepository.save(user);
+                deductCoins = true;
             } else {
                 return ResponseEntity.status(403).body(new MessageResponse("La génération d'images nécessite le forfait PREMIUM, ou 50 WishCoins."));
             }
@@ -124,13 +131,19 @@ public class AiController {
             return ResponseEntity.status(503).body(new MessageResponse("L'API de génération d'images n'est pas configurée pour le moment."));
         }
 
+        // Only deduct coins on successful image generation!
+        if (deductCoins) {
+            user.setCoins(user.getCoins() - 50);
+            userRepository.save(user);
+        }
+
         // Log AI usage for image generation
         app.time2wish.model.AILog log = app.time2wish.model.AILog.builder()
                 .user(user)
                 .featureType("IMAGE")
                 .prompt(request.getPrompt())
                 .generatedContent("[IMAGE BYTES DELIVERED]")
-                .tokensCost(5) // maybe images cost more tokens
+                .tokensCost(5)
                 .build();
         aiLogRepository.save(log);
 

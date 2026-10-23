@@ -1,13 +1,15 @@
 import '@angular/compiler';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { TestBed } from '@angular/core/testing';
+import { createEnvironmentInjector, EnvironmentInjector, runInInjectionContext, ɵChangeDetectionScheduler, ɵEffectScheduler } from '@angular/core';
 import { BirthdayService } from './birthday.service';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { ToastService } from './toast.service';
 import { TranslationService } from './translation.service';
+import { UiService } from './ui.service';
 import { of } from 'rxjs';
 import { Birthday, BirthdayCategory } from '../models/birthday.model';
+import { environment } from '../../environments/environment';
 
 const mockHttp = {
   get: vi.fn(),
@@ -31,6 +33,7 @@ const mockTranslationService = {
 
 describe('BirthdayService', () => {
   let service: BirthdayService;
+  let injector: EnvironmentInjector;
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -42,18 +45,17 @@ describe('BirthdayService', () => {
     mockHttp.get.mockReturnValue(of([]));
     mockAuthService.isAuthenticated.mockReturnValue(true);
 
-    TestBed.configureTestingModule({
-      providers: [
-        BirthdayService,
-        { provide: HttpClient, useValue: mockHttp },
-        { provide: AuthService, useValue: mockAuthService },
-        { provide: ToastService, useValue: mockToastService },
-        { provide: TranslationService, useValue: mockTranslationService }
-      ]
-    });
+    injector = createEnvironmentInjector([
+      { provide: ɵChangeDetectionScheduler, useValue: { notify: () => {}, runningTick: false } },
+      { provide: ɵEffectScheduler, useValue: { schedule: vi.fn(), add: vi.fn(), flush: vi.fn() } },
+      { provide: HttpClient, useValue: mockHttp },
+      { provide: AuthService, useValue: mockAuthService },
+      { provide: ToastService, useValue: mockToastService },
+      { provide: TranslationService, useValue: mockTranslationService },
+      { provide: UiService, useValue: { isPricingModalOpen: () => false } }
+    ]);
 
-    // We can inject effect directly to prevent actual execution, but TestBed doesn't run effect outside InjectionContext
-    service = TestBed.inject(BirthdayService);
+    service = runInInjectionContext(injector, () => new BirthdayService());
   });
 
   afterEach(() => {
@@ -168,7 +170,7 @@ describe('BirthdayService', () => {
 
       service.loadFromStorage();
 
-      expect(mockHttp.get).toHaveBeenCalledWith('http://localhost:8081/api/birthdays');
+      expect(mockHttp.get).toHaveBeenCalledWith(`${environment.apiUrl}/birthdays`);
       expect(service.birthdays()).toEqual(list);
     });
 
@@ -188,7 +190,7 @@ describe('BirthdayService', () => {
       service.birthdays.set([]);
       service.addBirthday('Eve', '2000-12-25', 'Family').subscribe();
 
-      expect(mockHttp.post).toHaveBeenCalledWith('http://localhost:8081/api/birthdays', expect.objectContaining({
+      expect(mockHttp.post).toHaveBeenCalledWith(`${environment.apiUrl}/birthdays`, expect.objectContaining({
         name: 'Eve',
         birthdate: '2000-12-25',
         category: 'Family',
@@ -213,7 +215,7 @@ describe('BirthdayService', () => {
       service.birthdays.set([original]);
       service.updateBirthday(5, 'New Name', '1990-01-01', 'Friend').subscribe();
 
-      expect(mockHttp.put).toHaveBeenCalledWith('http://localhost:8081/api/birthdays/5', {
+      expect(mockHttp.put).toHaveBeenCalledWith(`${environment.apiUrl}/birthdays/5`, {
         name: 'New Name',
         birthdate: '1990-01-01',
         category: 'Friend',
@@ -242,7 +244,7 @@ describe('BirthdayService', () => {
       service.birthdays.set([b]);
       service.deleteBirthday(5);
 
-      expect(mockHttp.delete).toHaveBeenCalledWith('http://localhost:8081/api/birthdays/5');
+      expect(mockHttp.delete).toHaveBeenCalledWith(`${environment.apiUrl}/birthdays/5`);
       expect(service.birthdays()).toHaveLength(0);
     });
 
@@ -254,7 +256,7 @@ describe('BirthdayService', () => {
         expect(res).toEqual(response);
       });
 
-      expect(mockHttp.post).toHaveBeenCalledWith('http://localhost:8081/api/birthdays/test-reminders', {});
+      expect(mockHttp.post).toHaveBeenCalledWith(`${environment.apiUrl}/birthdays/test-reminders`, {});
     });
   });
 });

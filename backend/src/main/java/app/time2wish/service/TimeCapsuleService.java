@@ -43,14 +43,27 @@ public class TimeCapsuleService {
             throw new RuntimeException("File is empty");
         }
 
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("video/")) {
+            throw new IllegalArgumentException("Only video files are allowed");
+        }
+
         try {
-            Path uploadPath = Paths.get(uploadDir);
+            Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-            String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            Path filePath = uploadPath.resolve(filename);
+            String originalFilename = file.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String filename = UUID.randomUUID().toString() + extension;
+            Path filePath = uploadPath.resolve(filename).normalize().toAbsolutePath();
+            if (!filePath.startsWith(uploadPath)) {
+                throw new IllegalArgumentException("Invalid file destination");
+            }
             Files.copy(file.getInputStream(), filePath);
 
             TimeCapsuleVideo video = TimeCapsuleVideo.builder()

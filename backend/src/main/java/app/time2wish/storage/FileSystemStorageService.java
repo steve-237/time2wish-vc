@@ -28,7 +28,7 @@ public class FileSystemStorageService implements StorageService {
 		if(properties.getLocation().trim().isEmpty()){
 			throw new StorageException("File upload location can not be Empty.");
 		}
-		this.rootLocation = Paths.get(properties.getLocation());
+		this.rootLocation = Paths.get(properties.getLocation()).toAbsolutePath().normalize();
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class FileSystemStorageService implements StorageService {
 
 			Path destinationFile = this.rootLocation.resolve(Paths.get(filename)).normalize().toAbsolutePath();
 			
-			if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
+			if (!destinationFile.getParent().equals(this.rootLocation)) {
 				throw new StorageException("Cannot store file outside current directory.");
 			}
 			try (InputStream inputStream = file.getInputStream()) {
@@ -74,7 +74,11 @@ public class FileSystemStorageService implements StorageService {
 
 	@Override
 	public Path load(String filename) {
-		return rootLocation.resolve(filename);
+		Path resolved = rootLocation.resolve(filename).normalize().toAbsolutePath();
+		if (!resolved.startsWith(this.rootLocation)) {
+			throw new StorageException("Cannot access file outside storage directory: " + filename);
+		}
+		return resolved;
 	}
 
 	@Override

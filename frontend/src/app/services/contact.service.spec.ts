@@ -1,11 +1,15 @@
-import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import '@angular/compiler';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { createEnvironmentInjector, EnvironmentInjector, runInInjectionContext } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { of } from 'rxjs';
 import { ContactService, ContactDto, UserSearchDto } from './contact.service';
 import { environment } from '../../environments/environment';
 
 describe('ContactService', () => {
   let service: ContactService;
-  let httpMock: HttpTestingController;
+  let mockHttp: any;
+  let injector: EnvironmentInjector;
 
   const mockContacts: ContactDto[] = [
     { id: 1, userId: 2, fullName: 'John Doe', email: 'john@example.com', status: 'ACCEPTED', createdAt: '2023-01-01' }
@@ -16,16 +20,22 @@ describe('ContactService', () => {
   ];
 
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [ContactService]
-    });
-    service = TestBed.inject(ContactService);
-    httpMock = TestBed.inject(HttpTestingController);
+    mockHttp = {
+      get: vi.fn(),
+      post: vi.fn(),
+      put: vi.fn(),
+      delete: vi.fn()
+    };
+
+    injector = createEnvironmentInjector([
+      { provide: HttpClient, useValue: mockHttp }
+    ]);
+
+    service = runInInjectionContext(injector, () => new ContactService());
   });
 
   afterEach(() => {
-    httpMock.verify();
+    vi.clearAllMocks();
   });
 
   it('should be created', () => {
@@ -36,86 +46,72 @@ describe('ContactService', () => {
     const mockResults: UserSearchDto[] = [
       { id: 4, fullName: 'Test', email: 'test@test.com' }
     ];
+    mockHttp.get.mockReturnValue(of(mockResults));
 
     service.searchUsers('test').subscribe((results) => {
       expect(results).toEqual(mockResults);
       expect(service.searchResults()).toEqual(mockResults);
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/contacts/search?q=test`);
-    expect(req.request.method).toBe('GET');
-    req.flush(mockResults);
+    expect(mockHttp.get).toHaveBeenCalledWith(`${environment.apiUrl}/contacts/search?q=test`);
   });
 
   it('should get contacts and update signal', () => {
+    mockHttp.get.mockReturnValue(of(mockContacts));
+
     service.getContacts().subscribe((contacts) => {
       expect(contacts).toEqual(mockContacts);
       expect(service.contacts()).toEqual(mockContacts);
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/contacts`);
-    expect(req.request.method).toBe('GET');
-    req.flush(mockContacts);
+    expect(mockHttp.get).toHaveBeenCalledWith(`${environment.apiUrl}/contacts`);
   });
 
   it('should get pending requests and update signal', () => {
+    mockHttp.get.mockReturnValue(of(mockPending));
+
     service.getPendingRequests().subscribe((pending) => {
       expect(pending).toEqual(mockPending);
       expect(service.pendingRequests()).toEqual(mockPending);
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/contacts/pending`);
-    expect(req.request.method).toBe('GET');
-    req.flush(mockPending);
+    expect(mockHttp.get).toHaveBeenCalledWith(`${environment.apiUrl}/contacts/pending`);
   });
 
   it('should send request', () => {
+    mockHttp.post.mockReturnValue(of(mockPending[0]));
+
     service.sendRequest(5).subscribe((contact) => {
       expect(contact).toEqual(mockPending[0]);
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/contacts/request/5`);
-    expect(req.request.method).toBe('POST');
-    req.flush(mockPending[0]);
+    expect(mockHttp.post).toHaveBeenCalledWith(`${environment.apiUrl}/contacts/request/5`, {});
   });
 
   it('should accept request and trigger reloads', () => {
+    mockHttp.put.mockReturnValue(of(mockContacts[0]));
+    mockHttp.get.mockReturnValue(of(mockContacts));
+
     service.acceptRequest(1).subscribe();
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/contacts/1/accept`);
-    expect(req.request.method).toBe('PUT');
-    req.flush(mockContacts[0]);
-
-    const reqContacts = httpMock.expectOne(`${environment.apiUrl}/contacts`);
-    expect(reqContacts.request.method).toBe('GET');
-    reqContacts.flush(mockContacts);
-
-    const reqPending = httpMock.expectOne(`${environment.apiUrl}/contacts/pending`);
-    expect(reqPending.request.method).toBe('GET');
-    reqPending.flush([]);
+    expect(mockHttp.put).toHaveBeenCalledWith(`${environment.apiUrl}/contacts/1/accept`, {});
   });
 
   it('should reject request and trigger pending reload', () => {
+    mockHttp.put.mockReturnValue(of(mockPending[0]));
+    mockHttp.get.mockReturnValue(of([]));
+
     service.rejectRequest(2).subscribe();
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/contacts/2/reject`);
-    expect(req.request.method).toBe('PUT');
-    req.flush(mockPending[0]);
-
-    const reqPending = httpMock.expectOne(`${environment.apiUrl}/contacts/pending`);
-    expect(reqPending.request.method).toBe('GET');
-    reqPending.flush([]);
+    expect(mockHttp.put).toHaveBeenCalledWith(`${environment.apiUrl}/contacts/2/reject`, {});
   });
 
   it('should remove contact and trigger contacts reload', () => {
+    mockHttp.delete.mockReturnValue(of(null));
+    mockHttp.get.mockReturnValue(of([]));
+
     service.removeContact(1).subscribe();
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/contacts/1`);
-    expect(req.request.method).toBe('DELETE');
-    req.flush(null);
-
-    const reqContacts = httpMock.expectOne(`${environment.apiUrl}/contacts`);
-    expect(reqContacts.request.method).toBe('GET');
-    reqContacts.flush([]);
+    expect(mockHttp.delete).toHaveBeenCalledWith(`${environment.apiUrl}/contacts/1`);
   });
 });

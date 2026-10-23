@@ -6,6 +6,8 @@ import app.time2wish.model.User;
 import app.time2wish.model.PaymentTransaction;
 import app.time2wish.repository.UserRepository;
 import app.time2wish.repository.PaymentTransactionRepository;
+import app.time2wish.repository.PromoCodeRepository;
+import app.time2wish.security.UserDetailsImpl;
 import app.time2wish.service.payment.PaymentGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,9 @@ public class PaymentController {
 
     @Autowired
     private PaymentTransactionRepository paymentTransactionRepository;
+
+    @Autowired
+    private PromoCodeRepository promoCodeRepository;
 
     @Autowired
     private List<PaymentGateway> gateways;
@@ -65,12 +70,27 @@ public class PaymentController {
         return ResponseEntity.ok(Map.of("url", url));
     }
 
-    // MOCK Webhook to simulate a successful payment
+    // MOCK Webhook to simulate a successful payment in dev/test
     @PostMapping("/mock-webhook")
-    public ResponseEntity<?> mockWebhook(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<?> mockWebhook(
+            @RequestBody Map<String, Object> payload,
+            Authentication authentication) {
+        if (payload == null || !payload.containsKey("userId") || !payload.containsKey("provider") || !payload.containsKey("plan")) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Missing required fields"));
+        }
+
         Long userId = Long.valueOf(payload.get("userId").toString());
         PaymentProvider provider = PaymentProvider.valueOf(payload.get("provider").toString());
         PlanType plan = PlanType.valueOf(payload.get("plan").toString());
+
+        // Authorization check: User can only execute mock webhook for their own account unless they are ADMIN
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl callerDetails) {
+            boolean isAdmin = callerDetails.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_SUPERADMIN"));
+            if (!isAdmin && !callerDetails.getId().equals(userId)) {
+                return ResponseEntity.status(403).body(Map.of("message", "Forbidden: Cannot simulate payment for another user"));
+            }
+        }
 
         Optional<User> optUser = userRepository.findById(userId);
         if (optUser.isEmpty()) return ResponseEntity.notFound().build();
@@ -83,7 +103,16 @@ public class PaymentController {
         user.setSubscriptionExpiresAt(LocalDateTime.now().plusMonths(1));
         userRepository.save(user);
 
-        // 2. Record Transaction
+        // 2. Increment promo code usage if provided
+        if (payload.containsKey("promoCode") && payload.get("promoCode") != null) {
+            String promoStr = payload.get("promoCode").toString().trim().toUpperCase();
+            promoCodeRepository.findByCode(promoStr).ifPresent(p -> {
+                p.setCurrentUses(p.getCurrentUses() + 1);
+                promoCodeRepository.save(p);
+            });
+        }
+
+        // 3. Record Transaction
         Double amount = plan == PlanType.PRO ? 9.99 : (plan == PlanType.PLUS ? 4.99 : 0.0);
         PaymentTransaction tx = PaymentTransaction.builder()
                 .user(user)
