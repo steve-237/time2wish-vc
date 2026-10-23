@@ -4,6 +4,8 @@ import '../../../core/services/contact_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/glowing_badge.dart';
+import '../../../core/widgets/animated_list_item.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class ContactsScreen extends StatefulWidget {
   const ContactsScreen({super.key});
@@ -249,7 +251,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
         .toList();
 
     if (service.isLoading) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.primaryBlue));
+      return const Center(child: SpinKitThreeBounce(color: AppColors.primaryCyan, size: 28));
     }
 
     if (filtered.isEmpty) {
@@ -274,9 +276,11 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
         final contact = filtered[index];
         final initial = contact.fullName.isNotEmpty ? contact.fullName[0].toUpperCase() : '?';
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: GlassCard(
+        return AnimatedListItem(
+          index: index,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: GlassCard(
             child: Row(
               children: [
                 Container(
@@ -312,6 +316,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
               ],
             ),
           ),
+          ),
         );
       },
     );
@@ -338,18 +343,20 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
         final request = service.pendingRequests[index];
         final initial = request.fullName.isNotEmpty ? request.fullName[0].toUpperCase() : '?';
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: GlassCard(
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(colors: [AppColors.accentPurple, AppColors.accentPink]),
-                  ),
+        return AnimatedListItem(
+          index: index,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: GlassCard(
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: AppColors.accentGradient,
+                    ),
                   child: Center(
                     child: Text(initial, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
                   ),
@@ -387,6 +394,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                 ),
               ],
             ),
+          ),
           ),
         );
       },

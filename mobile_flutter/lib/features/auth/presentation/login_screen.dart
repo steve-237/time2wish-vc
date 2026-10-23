@@ -16,8 +16,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen>
     with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'demo@time2wish.app');
-  final _passwordController = TextEditingController(text: 'password123');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   String? _errorMessage;
   bool _obscurePassword = true;
 
@@ -330,6 +330,22 @@ class _LoginScreenState extends State<LoginScreen>
                                           color: Colors.white,
                                         ),
                                       ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Center(
+                              child: TextButton.icon(
+                                onPressed: () {
+                                  setState(() {
+                                    _emailController.text = 'demo@time2wish.app';
+                                    _passwordController.text = 'password123';
+                                  });
+                                },
+                                icon: const Icon(Icons.bolt_rounded, color: AppColors.wishCoinsAmber, size: 18),
+                                label: const Text(
+                                  'Remplir le compte d\u00e9mo',
+                                  style: TextStyle(color: AppColors.textMutedDark, fontSize: 13),
+                                ),
                               ),
                             ),
                           ],

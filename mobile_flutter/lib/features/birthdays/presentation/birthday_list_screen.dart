@@ -7,6 +7,8 @@ import '../../../core/models/birthday_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/glowing_badge.dart';
+import '../../../core/widgets/animated_list_item.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class BirthdayListScreen extends StatefulWidget {
   const BirthdayListScreen({super.key});
@@ -83,7 +85,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
       ),
       body: RefreshIndicator(
         color: AppColors.primaryCyan,
-        backgroundColor: const Color(0xFF1E1B4B),
+        backgroundColor: AppColors.backgroundDialogDark,
         onRefresh: () => birthdayService.fetchBirthdays(),
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
@@ -242,7 +244,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
               const SliverToBoxAdapter(
                 child: Padding(
                   padding: EdgeInsets.all(40),
-                  child: Center(child: CircularProgressIndicator(color: AppColors.primaryCyan)),
+                  child: Center(child: SpinKitThreeBounce(color: AppColors.primaryCyan, size: 28)),
                 ),
               ),
 
@@ -268,7 +270,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         ),
                         const SizedBox(height: 18),
                         Text(
-                          _searchQuery.isNotEmpty ? 'Aucun résultat trouvé' : 'Aucun anniversaire enregisté',
+                          _searchQuery.isNotEmpty ? 'Aucun résultat trouvé' : 'Aucun anniversaire enregistré',
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18),
                         ),
                         const SizedBox(height: 8),
@@ -291,7 +293,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
                     final birthday = filtered[index];
-                    return _buildBirthdayCard(context, birthday, birthdayService);
+                    return AnimatedListItem(index: index, child: _buildBirthdayCard(context, birthday, birthdayService));
                   },
                   childCount: filtered.length,
                 ),

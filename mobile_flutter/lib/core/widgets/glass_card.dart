@@ -125,9 +125,8 @@ class _GlassCardState extends State<GlassCard> with SingleTickerProviderStateMix
 
     Widget result = containerWidget;
 
-    if (widget.onTap != null) {
+    if (widget.onTap != null && widget.animateOnPress) {
       result = GestureDetector(
-        onTap: widget.onTap,
         onTapDown: _handleTapDown,
         onTapUp: _handleTapUp,
         onTapCancel: _handleTapCancel,
@@ -150,3 +149,4 @@ class _GlassCardState extends State<GlassCard> with SingleTickerProviderStateMix
     return result;
   }
 }
+

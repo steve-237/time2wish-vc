@@ -12,7 +12,7 @@ import '../../../core/services/birthday_service.dart';
 class BirthdayFormScreen extends StatefulWidget {
   final int? birthdayId;
 
-  const BirthdayFormScreen({Key? key, this.birthdayId}) : super(key: key);
+  const BirthdayFormScreen({super.key, this.birthdayId});
 
   @override
   State<BirthdayFormScreen> createState() => _BirthdayFormScreenState();
@@ -182,7 +182,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
+          SnackBar(content: Text('Impossible d\'enregistrer l\'anniversaire: ${e.toString().split('\n').first}'), backgroundColor: AppColors.accentPink),
         );
       }
     } finally {
@@ -311,7 +311,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: DropdownButtonFormField<String>(
-                              value: _category,
+                              initialValue: _category,
                               dropdownColor: AppColors.backgroundDialogDark,
                               style: const TextStyle(color: Colors.white),
                               decoration: _inputDecoration('Catégorie').copyWith(
@@ -497,7 +497,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                     color: _isFavorite ? AppColors.wishCoinsAmber : AppColors.textMutedDark,
                                   ),
                                   value: _isFavorite,
-                                  activeColor: AppColors.wishCoinsAmber,
+                                  activeThumbColor: AppColors.wishCoinsAmber,
                                   contentPadding: EdgeInsets.zero,
                                   onChanged: (value) {
                                     setState(() {

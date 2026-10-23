@@ -12,16 +12,78 @@ import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/glowing_badge.dart';
 import 'ai_wish_dialog.dart';
 
-class BirthdayDetailScreen extends StatelessWidget {
+class BirthdayDetailScreen extends StatefulWidget {
   final int birthdayId;
 
   const BirthdayDetailScreen({super.key, required this.birthdayId});
+
+  @override
+  State<BirthdayDetailScreen> createState() => _BirthdayDetailScreenState();
+}
+
+class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animController;
+  late List<Animation<double>> _fadeAnims;
+  late List<Animation<Offset>> _slideAnims;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+
+    // 5 staggered sections
+    _fadeAnims = List.generate(5, (i) {
+      final start = (i * 0.15).clamp(0.0, 1.0);
+      final end = (start + 0.4).clamp(0.0, 1.0);
+      return CurvedAnimation(
+        parent: _animController,
+        curve: Interval(start, end, curve: Curves.easeOut),
+      );
+    });
+
+    _slideAnims = List.generate(5, (i) {
+      final start = (i * 0.15).clamp(0.0, 1.0);
+      final end = (start + 0.4).clamp(0.0, 1.0);
+      return Tween<Offset>(
+        begin: const Offset(0, 24),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: _animController,
+        curve: Interval(start, end, curve: Curves.easeOutCubic),
+      ));
+    });
+
+    _animController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
+  Widget _staggeredChild(int index, Widget child) {
+    return AnimatedBuilder(
+      animation: _animController,
+      builder: (context, _) => Opacity(
+        opacity: _fadeAnims[index].value,
+        child: Transform.translate(
+          offset: _slideAnims[index].value,
+          child: child,
+        ),
+      ),
+    );
+  }
 
   void _showDeleteConfirmation(BuildContext context, BirthdayModel birthday) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1B4B),
+        backgroundColor: AppColors.backgroundDialogDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Supprimer l\'anniversaire', style: TextStyle(color: Colors.white)),
         content: Text(
@@ -46,7 +108,7 @@ class BirthdayDetailScreen extends StatelessWidget {
                 context.pop();
               }
             },
-            child: const Text('Supprimer', style: TextStyle(color: Colors.white)),
+            child: const Text('Supprimer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -56,7 +118,7 @@ class BirthdayDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final birthdayService = Provider.of<BirthdayService>(context);
-    final birthday = birthdayService.getBirthdayById(birthdayId);
+    final birthday = birthdayService.getBirthdayById(widget.birthdayId);
 
     if (birthday == null) {
       return Scaffold(
@@ -103,7 +165,7 @@ class BirthdayDetailScreen extends StatelessWidget {
             color: Colors.white.withValues(alpha: 0.1),
           ),
           child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
             onPressed: () => context.pop(),
           ),
         ),
@@ -129,151 +191,163 @@ class BirthdayDetailScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Hero Avatar Header
-                Center(
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 96,
-                        height: 96,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: AppColors.primaryGradient,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primaryCyan.withValues(alpha: 0.35),
-                              blurRadius: 20,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Text(
-                            initial,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold,
+                // 0. Hero Avatar Header
+                _staggeredChild(
+                  0,
+                  Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 96,
+                          height: 96,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: AppColors.primaryGradient,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primaryCyan.withValues(alpha: 0.35),
+                                blurRadius: 20,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              initial,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 40,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        birthday.name,
-                        style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 26),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          GlowingBadge(
-                            label: birthday.category,
-                            color: AppColors.primaryCyan,
-                            isSelected: true,
-                          ),
-                          if (birthday.gender != null) ...[
-                            const SizedBox(width: 8),
+                        const SizedBox(height: 16),
+                        Text(
+                          birthday.name,
+                          style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 26),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
                             GlowingBadge(
-                              label: birthday.gender!,
-                              color: AppColors.accentPurple,
+                              label: birthday.category,
+                              color: AppColors.primaryCyan,
+                              isSelected: true,
                             ),
+                            if (birthday.gender != null) ...[
+                              const SizedBox(width: 8),
+                              GlowingBadge(
+                                label: birthday.gender!,
+                                color: AppColors.accentPurple,
+                              ),
+                            ],
                           ],
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 24),
 
-                // Countdown Stat Banner
-                GlassCard(
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildStatColumn(
-                        'Jours restants',
-                        birthday.isToday ? '🎂 Aujourd\'hui' : '${birthday.daysRemaining}j',
-                        AppColors.primaryCyan,
-                      ),
-                      Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.1)),
-                      _buildStatColumn(
-                        'Prochain âge',
-                        '${birthday.nextAge} ans',
-                        AppColors.accentPurple,
-                      ),
-                      Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.1)),
-                      _buildStatColumn(
-                        'Rappel',
-                        'J-${birthday.reminderDays}',
-                        AppColors.wishCoinsAmber,
-                      ),
-                    ],
+                // 1. Countdown Stat Banner
+                _staggeredChild(
+                  1,
+                  GlassCard(
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildStatColumn(
+                          'Jours restants',
+                          birthday.isToday ? '🎂 Aujourd\'hui' : '${birthday.daysRemaining}j',
+                          AppColors.primaryCyan,
+                        ),
+                        Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.1)),
+                        _buildStatColumn(
+                          'Prochain âge',
+                          '${birthday.nextAge} ans',
+                          AppColors.accentPurple,
+                        ),
+                        Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.1)),
+                        _buildStatColumn(
+                          'Rappel',
+                          'J-${birthday.reminderDays}',
+                          AppColors.wishCoinsAmber,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 20),
 
-                // Birthdate Details Card
-                GlassCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.cake, color: AppColors.primaryCyan, size: 20),
-                          SizedBox(width: 10),
-                          Text('Date de naissance', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        DateFormat('dd MMMM yyyy', 'fr_FR').format(birthday.birthdate),
-                        style: const TextStyle(color: AppColors.textLight, fontSize: 15, fontWeight: FontWeight.w500),
-                      ),
-                      if (birthday.notes != null && birthday.notes!.isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        const Text('Notes & Remarques', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
-                        const SizedBox(height: 4),
-                        Text(birthday.notes!, style: const TextStyle(color: Colors.white, fontSize: 14)),
-                      ],
-                    ],
-                  ),
-                ),
-
-                if (birthday.interests.isNotEmpty) ...[
-                  const SizedBox(height: 20),
+                // 2. Birthdate Details Card
+                _staggeredChild(
+                  2,
                   GlassCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Row(
                           children: [
-                            Icon(Icons.interests, color: AppColors.accentPurple, size: 20),
+                            Icon(Icons.cake, color: AppColors.primaryCyan, size: 20),
                             SizedBox(width: 10),
-                            Text('Centres d\'intérêt', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                            Text('Date de naissance', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: birthday.interests.map((tag) {
-                            return GlowingBadge(label: tag, color: AppColors.accentPurple);
-                          }).toList(),
+                        Text(
+                          DateFormat('dd MMMM yyyy', 'fr_FR').format(birthday.birthdate),
+                          style: const TextStyle(color: AppColors.textLight, fontSize: 15, fontWeight: FontWeight.w500),
                         ),
+                        if (birthday.notes != null && birthday.notes!.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          const Text('Notes & Remarques', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                          const SizedBox(height: 4),
+                          Text(birthday.notes!, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                        ],
                       ],
+                    ),
+                  ),
+                ),
+
+                if (birthday.interests.isNotEmpty) ...[
+                  const SizedBox(height: 20),
+                  _staggeredChild(
+                    3,
+                    GlassCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(Icons.interests, color: AppColors.accentPurple, size: 20),
+                              SizedBox(width: 10),
+                              Text('Centres d\'intérêt', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: birthday.interests.map((tag) {
+                              return GlowingBadge(label: tag, color: AppColors.accentPurple);
+                            }).toList(),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
 
                 const SizedBox(height: 20),
-                _buildGiftsSection(context, birthday),
+                _staggeredChild(3, _buildGiftsSection(context, birthday)),
 
                 const SizedBox(height: 24),
-                _buildActionButtons(context, birthday),
+                _staggeredChild(4, _buildActionButtons(context, birthday)),
                 const SizedBox(height: 40),
               ],
             ),
@@ -315,7 +389,7 @@ class BirthdayDetailScreen extends StatelessWidget {
                 showDialog(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    backgroundColor: const Color(0xFF1E1B4B),
+                    backgroundColor: AppColors.backgroundDialogDark,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     title: const Text('Ajouter une idée cadeau', style: TextStyle(color: Colors.white)),
                     content: Column(
@@ -324,18 +398,27 @@ class BirthdayDetailScreen extends StatelessWidget {
                         TextField(
                           controller: nameCtrl,
                           style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(labelText: 'Nom du cadeau', labelStyle: TextStyle(color: AppColors.textMutedDark)),
+                          decoration: const InputDecoration(
+                            labelText: 'Nom du cadeau',
+                            labelStyle: TextStyle(color: AppColors.textMutedDark),
+                          ),
                         ),
                         const SizedBox(height: 12),
                         TextField(
                           controller: priceCtrl,
                           style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(labelText: 'Budget (ex: 50€)', labelStyle: TextStyle(color: AppColors.textMutedDark)),
+                          decoration: const InputDecoration(
+                            labelText: 'Budget (ex: 50€)',
+                            labelStyle: TextStyle(color: AppColors.textMutedDark),
+                          ),
                         ),
                       ],
                     ),
                     actions: [
-                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark))),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark)),
+                      ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryCyan),
                         onPressed: () {
@@ -441,7 +524,7 @@ class BirthdayDetailScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: AppColors.accentPurple.withValues(alpha: 0.35),
+                color: AppColors.accentPink.withValues(alpha: 0.35),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),

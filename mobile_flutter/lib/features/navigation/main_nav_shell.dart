@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/services/messaging_service.dart';
 import '../birthdays/presentation/birthday_list_screen.dart';
 import '../contacts/presentation/contacts_screen.dart';
 import '../messaging/presentation/conversations_screen.dart';
@@ -25,6 +27,8 @@ class _MainNavShellState extends State<MainNavShell> {
 
   @override
   Widget build(BuildContext context) {
+    final unreadMessages = context.watch<MessagingService>().totalUnread;
+
     return Scaffold(
       extendBody: true,
       body: Container(
@@ -75,10 +79,10 @@ class _MainNavShellState extends State<MainNavShell> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildNavItem(0, Icons.cake_outlined, Icons.cake, 'Accueil'),
-                  _buildNavItem(1, Icons.group_outlined, Icons.group, 'Contacts'),
-                  _buildNavItem(2, Icons.chat_bubble_outline, Icons.chat_bubble, 'Messages'),
-                  _buildNavItem(3, Icons.person_outline, Icons.person, 'Profil'),
+                  _buildNavItem(0, Icons.cake_outlined, Icons.cake, 'Accueil', 0),
+                  _buildNavItem(1, Icons.group_outlined, Icons.group, 'Contacts', 0),
+                  _buildNavItem(2, Icons.chat_bubble_outline, Icons.chat_bubble, 'Messages', unreadMessages),
+                  _buildNavItem(3, Icons.person_outline, Icons.person, 'Profil', 0),
                 ],
               ),
             ),
@@ -88,7 +92,7 @@ class _MainNavShellState extends State<MainNavShell> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label) {
+  Widget _buildNavItem(int index, IconData icon, IconData activeIcon, String label, int badgeCount) {
     final bool isSelected = _currentIndex == index;
 
     return GestureDetector(
@@ -116,11 +120,46 @@ class _MainNavShellState extends State<MainNavShell> {
               )
             : const BoxDecoration(),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              isSelected ? activeIcon : icon,
-              color: isSelected ? AppColors.primaryCyan : AppColors.textMutedDark,
-              size: 22,
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  isSelected ? activeIcon : icon,
+                  color: isSelected ? AppColors.primaryCyan : AppColors.textMutedDark,
+                  size: 22,
+                ),
+                if (badgeCount > 0)
+                  Positioned(
+                    top: -4,
+                    right: -6,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        gradient: AppColors.accentGradient,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.accentPink.withValues(alpha: 0.5),
+                            blurRadius: 6,
+                          ),
+                        ],
+                      ),
+                      constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+                      child: Center(
+                        child: Text(
+                          badgeCount > 99 ? '99+' : '$badgeCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             if (isSelected) ...[
               const SizedBox(width: 8),

@@ -7,6 +7,8 @@ import '../../../core/models/conversation_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/glowing_badge.dart';
+import '../../../core/widgets/animated_list_item.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 class ConversationsScreen extends StatefulWidget {
   const ConversationsScreen({super.key});
 
@@ -69,7 +71,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
           // Conversation List
           Expanded(
             child: messagingService.isLoading
-                ? const Center(child: CircularProgressIndicator(color: AppColors.primaryBlue))
+                ? const Center(child: SpinKitThreeBounce(color: AppColors.primaryCyan, size: 28))
                 : messagingService.conversations.isEmpty
                     ? const Center(
                         child: Column(
@@ -78,6 +80,8 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                             Icon(Icons.chat_bubble_outline, size: 64, color: AppColors.textMutedDark),
                             SizedBox(height: 12),
                             Text('Aucune discussion', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                            SizedBox(height: 4),
+                            Text('Démarrez une discussion avec vos contacts', style: TextStyle(color: AppColors.textMutedDark, fontSize: 13)),
                           ],
                         ),
                       )
@@ -88,7 +92,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                           itemCount: messagingService.conversations.length,
                           itemBuilder: (context, index) {
                             final conv = messagingService.conversations[index];
-                            return _buildConversationItem(context, conv);
+                            return AnimatedListItem(index: index, child: _buildConversationItem(context, conv));
                           },
                         ),
                       ),

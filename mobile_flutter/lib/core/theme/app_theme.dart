@@ -11,7 +11,7 @@ class AppColors {
   static const Color primaryCyan = Color(0xFF0EA5E9);
   static const Color primaryBlue = Color(0xFF0EA5E9);
   static const Color accentPurple = Color(0xFF8B5CF6);
-  static const Color accentPink = Color(0xFF8B5CF6);
+  static const Color accentPink = Color(0xFFF43F5E);
   static const Color wishCoinsAmber = Color(0xFFFFB800);
   static const Color successGreen = Color(0xFF10B981);
 
@@ -27,19 +27,19 @@ class AppColors {
 
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF0EA5E9), Color(0xFF0EA5E9)],
+    colors: [Color(0xFF0EA5E9), Color(0xFF8B5CF6)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient accentGradient = LinearGradient(
-    colors: [Color(0xFF8B5CF6), Color(0xFF8B5CF6)],
+    colors: [Color(0xFF8B5CF6), Color(0xFFF43F5E)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient goldGradient = LinearGradient(
-    colors: [Color(0xFFFFB800), Color(0xFFFFB800)],
+    colors: [Color(0xFFFFB800), Color(0xFFFF8A00)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -103,7 +103,7 @@ class AppTheme {
         ),
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: const Color(0xFF1E1B4B),
+        backgroundColor: AppColors.backgroundDialogDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         titleTextStyle: GoogleFonts.outfit(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
         contentTextStyle: const TextStyle(color: AppColors.textMutedDark, fontSize: 14),
