@@ -14,7 +14,7 @@
 
       <!-- Desktop Navigation Links -->
       <nav class="landing-nav-links">
-        <a (click)="scrollToSection('what-is')" class="nav-link">{{ t9n.t('landing.what_is_title') || "Qu'est-ce que Time2Wish ?" }}</a>
+        <a (click)="scrollToSection('what-is')" class="nav-link">{{ t9n.t('landing.nav_about') || t9n.t('landing.what_is_title') || 'À propos' }}</a>
         <a (click)="scrollToSection('features')" class="nav-link">{{ t9n.t('landing.nav_features') || 'Fonctionnalités' }}</a>
         <a (click)="scrollToSection('how')" class="nav-link">{{ t9n.t('landing.nav_how') || 'Comment ça marche' }}</a>
         <a (click)="scrollToSection('pricing')" class="nav-link">{{ t9n.t('landing.nav_pricing') || 'Forfaits' }}</a>
@@ -72,10 +72,10 @@
     <!-- Mobile Drawer Menu -->
     @if (isMobileMenuOpen()) {
       <div class="mobile-drawer">
-        <a (click)="scrollToSection('what-is')" class="mobile-drawer-link">{{ t9n.t('landing.what_is_title') || "Qu'est-ce que Time2Wish ?" }}</a>
-        <a (click)="scrollToSection('features')" class="mobile-drawer-link">{{ t9n.t('landing.nav_features') || 'Fonctionnalités' }}</a>
-        <a (click)="scrollToSection('how')" class="mobile-drawer-link">{{ t9n.t('landing.nav_how') || 'Comment ça marche' }}</a>
-        <a (click)="scrollToSection('pricing')" class="mobile-drawer-link">{{ t9n.t('landing.nav_pricing') || 'Forfaits' }}</a>
+        <a (click)="scrollToSection('what-is'); isMobileMenuOpen.set(false)" class="mobile-drawer-link">{{ t9n.t('landing.nav_about') || t9n.t('landing.what_is_title') || "Qu'est-ce que Time2Wish ?" }}</a>
+        <a (click)="scrollToSection('features'); isMobileMenuOpen.set(false)" class="mobile-drawer-link">{{ t9n.t('landing.nav_features') || 'Fonctionnalités' }}</a>
+        <a (click)="scrollToSection('how'); isMobileMenuOpen.set(false)" class="mobile-drawer-link">{{ t9n.t('landing.nav_how') || 'Comment ça marche' }}</a>
+        <a (click)="scrollToSection('pricing'); isMobileMenuOpen.set(false)" class="mobile-drawer-link">{{ t9n.t('landing.nav_pricing') || 'Forfaits' }}</a>
         <div class="mobile-drawer-divider"></div>
         <button class="mobile-drawer-btn secondary theme-mobile-btn" (click)="toggleTheme()">
           <span class="material-symbols-outlined" style="font-size: 1.15rem; margin-right: 6px;">{{ themeService.appMode() === 'dark' || themeService.appMode() === 'oled' ? 'light_mode' : 'dark_mode' }}</span>
@@ -202,7 +202,7 @@
 
               <!-- AI Generator Preview -->
               <div class="mock-ai-box">
-                <div class="mock-ai-title flex-between">
+                <div class="mock-ai-title">
                   <span class="flex-center gap-xs">
                     <span class="material-symbols-outlined text-cyan" style="font-size: 16px;">auto_awesome</span>
                     <strong>{{ t9n.t('landing.mock_ai_title') || 'Générateur de vœux IA' }}</strong>
