@@ -41,7 +41,7 @@ class _AiWishDialogState extends State<AiWishDialog> {
   final Map<String, Map<String, dynamic>> _tones = {
     'AMICAL': {'label': 'Amical 😊', 'icon': Icons.sentiment_satisfied_alt, 'color': AppColors.primaryCyan},
     'HUMORISTIQUE': {'label': 'Drôle 😂', 'icon': Icons.mood, 'color': AppColors.wishCoinsAmber},
-    'FORMEL': {'label': 'Formel 👔', 'icon': Icons.business_center, 'color': Colors.blueAccent},
+    'FORMEL': {'label': 'Formel 👔', 'icon': Icons.business_center, 'color': AppColors.primaryCyan},
     'ROMANTIQUE': {'label': 'Romantique ❤️', 'icon': Icons.favorite, 'color': AppColors.accentPink},
     'POETIQUE': {'label': 'Poétique ✨', 'icon': Icons.auto_awesome, 'color': AppColors.accentPurple},
   };
@@ -99,7 +99,7 @@ class _AiWishDialogState extends State<AiWishDialog> {
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
       decoration: const BoxDecoration(
-        color: Color(0xFF0F172A),
+        color: AppColors.backgroundDialogDark,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         border: Border(top: BorderSide(color: Colors.white10, width: 1)),
       ),

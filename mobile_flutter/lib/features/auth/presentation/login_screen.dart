@@ -147,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen>
                           width: 86,
                           height: 86,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Center(
+                          errorBuilder: (_, _, _) => const Center(
                             child: Text('🎂', style: TextStyle(fontSize: 40)),
                           ),
                         ),
@@ -366,8 +366,8 @@ class _LoginScreenState extends State<LoginScreen>
                           'Pas encore de compte ? ',
                           style: TextStyle(color: AppColors.textMutedDark),
                         ),
-                        GestureDetector(
-                          onTap: () => context.go('/register'),
+                        TextButton(
+                          onPressed: () => context.go('/register'),
                           child: const Text(
                             'S\'inscrire',
                             style: TextStyle(

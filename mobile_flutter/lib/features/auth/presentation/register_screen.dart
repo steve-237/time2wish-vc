@@ -165,7 +165,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                               width: 80,
                               height: 80,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => const Center(
+                              errorBuilder: (_, _, _) => const Center(
                                 child: Text('🎉', style: TextStyle(fontSize: 36)),
                               ),
                             ),
@@ -328,8 +328,8 @@ class _RegisterScreenState extends State<RegisterScreen>
                           'Déjà un compte ? ',
                           style: TextStyle(color: AppColors.textMutedDark),
                         ),
-                        GestureDetector(
-                          onTap: () => context.go('/login'),
+                        TextButton(
+                          onPressed: () => context.go('/login'),
                           child: const Text(
                             'Se connecter',
                             style: TextStyle(

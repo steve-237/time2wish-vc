@@ -128,8 +128,8 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                       colors: conv.isBirthday
                           ? [AppColors.wishCoinsAmber, AppColors.accentPink]
                           : conv.isGroup
-                              ? [AppColors.accentPurple, AppColors.primaryBlue]
-                              : [AppColors.primaryBlue, AppColors.cyanLight],
+                              ? [AppColors.accentPurple, AppColors.primaryCyan]
+                              : [AppColors.primaryCyan, AppColors.cyanLight],
                     ),
                   ),
                   child: Center(

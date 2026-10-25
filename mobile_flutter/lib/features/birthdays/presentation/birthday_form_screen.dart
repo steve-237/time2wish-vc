@@ -102,7 +102,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: AppColors.primaryBlue,
+              primary: AppColors.primaryCyan,
               onPrimary: Colors.white,
               surface: AppColors.backgroundDeep,
               onSurface: Colors.white,
@@ -206,7 +206,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.primaryBlue, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.primaryCyan, width: 1.5),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     );
@@ -239,7 +239,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
         ),
         child: _isInitializing
             ? const Center(
-                child: SpinKitThreeBounce(color: AppColors.primaryBlue, size: 30),
+                child: SpinKitThreeBounce(color: AppColors.primaryCyan, size: 30),
               )
             : SafeArea(
                 child: SingleChildScrollView(
@@ -286,7 +286,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                   const SizedBox(height: 8),
                                   Row(
                                     children: [
-                                      const Icon(Icons.calendar_today, color: AppColors.primaryBlue),
+                                      const Icon(Icons.calendar_today, color: AppColors.primaryCyan),
                                       const SizedBox(width: 12),
                                       Text(
                                         _birthdate != null
@@ -360,7 +360,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                     backgroundColor: WidgetStateProperty.resolveWith<Color>(
                                       (Set<WidgetState> states) {
                                         if (states.contains(WidgetState.selected)) {
-                                          return AppColors.primaryBlue.withValues(alpha: 0.3);
+                                          return AppColors.primaryCyan.withValues(alpha: 0.3);
                                         }
                                         return Colors.transparent;
                                       },
@@ -448,7 +448,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                                   _addInterest();
                                                   context.pop();
                                                 },
-                                                child: const Text('Ajouter', style: TextStyle(color: AppColors.primaryBlue)),
+                                                child: const Text('Ajouter', style: TextStyle(color: AppColors.primaryCyan)),
                                               ),
                                             ],
                                           ),
@@ -473,7 +473,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     const Text('Rappel avant (jours)', style: TextStyle(color: Colors.white)),
-                                    Text(_reminderDays.toString(), style: const TextStyle(color: AppColors.primaryBlue, fontWeight: FontWeight.bold, fontSize: 16)),
+                                    Text(_reminderDays.toString(), style: const TextStyle(color: AppColors.primaryCyan, fontWeight: FontWeight.bold, fontSize: 16)),
                                   ],
                                 ),
                                 Slider(
@@ -481,7 +481,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                   min: 1,
                                   max: 30,
                                   divisions: 29,
-                                  activeColor: AppColors.primaryBlue,
+                                  activeColor: AppColors.primaryCyan,
                                   inactiveColor: Colors.white.withValues(alpha: 0.1),
                                   onChanged: (value) {
                                     setState(() {

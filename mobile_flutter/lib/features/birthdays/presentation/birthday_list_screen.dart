@@ -366,8 +366,8 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         ),
                       ),
                       IconButton(
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
+                        padding: const EdgeInsets.all(8),
+                        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                         icon: Icon(
                           birthday.isFavorite ? Icons.star : Icons.star_border,
                           color: birthday.isFavorite ? AppColors.wishCoinsAmber : AppColors.textMutedDark,

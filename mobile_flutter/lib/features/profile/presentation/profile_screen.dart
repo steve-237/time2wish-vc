@@ -50,7 +50,15 @@ class ProfileScreen extends StatelessWidget {
     final user = authService.currentUser;
 
     if (user == null) {
-      return const Center(child: Text('User not found'));
+      return const Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: Text(
+            'Utilisateur non trouvé',
+            style: TextStyle(color: AppColors.textMutedDark, fontSize: 16),
+          ),
+        ),
+      );
     }
 
     final String initial = user.fullName.isNotEmpty ? user.fullName[0].toUpperCase() : '?';
@@ -224,7 +232,15 @@ class ProfileScreen extends StatelessWidget {
                     title: const Text('Mode sombre Glassmorphic', style: TextStyle(color: Colors.white)),
                     trailing: Switch(
                       value: true,
-                      onChanged: (_) {},
+                      onChanged: (_) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Le thème sombre Glassmorphic est actif par défaut ✨'),
+                            backgroundColor: AppColors.primaryCyan,
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
                       activeTrackColor: AppColors.primaryCyan,
                     ),
                   ),

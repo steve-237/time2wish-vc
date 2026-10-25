@@ -18,7 +18,7 @@ class AiService {
         'birthdayId': birthdayId,
         'tone': tone,
         'lang': lang,
-        if (extraInstructions != null) 'extraInstructions': extraInstructions,
+        'extraInstructions': ?extraInstructions,
       });
 
       if (response.statusCode == 200 && response.data != null) {

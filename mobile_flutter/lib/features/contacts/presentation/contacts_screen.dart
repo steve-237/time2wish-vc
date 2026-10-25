@@ -140,7 +140,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text('Demande de contact envoyée avec succès !'),
-                                      backgroundColor: AppColors.primaryBlue,
+                                      backgroundColor: AppColors.primaryCyan,
                                     ),
                                   );
                                 }
@@ -169,7 +169,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddContactDialog(context),
-        backgroundColor: AppColors.primaryBlue,
+        backgroundColor: AppColors.primaryCyan,
         child: const Icon(Icons.person_add, color: Colors.white),
       ),
       body: Column(
@@ -221,7 +221,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
           // Tab Bar
           TabBar(
             controller: _tabController,
-            indicatorColor: AppColors.primaryBlue,
+            indicatorColor: AppColors.primaryCyan,
             labelColor: AppColors.cyanLight,
             unselectedLabelColor: AppColors.textMutedDark,
             tabs: [
@@ -288,7 +288,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                   height: 44,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(colors: [AppColors.primaryBlue, AppColors.accentPurple]),
+                    gradient: LinearGradient(colors: [AppColors.primaryCyan, AppColors.accentPurple]),
                   ),
                   child: Center(
                     child: Text(initial, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),

@@ -9,7 +9,7 @@ class AppColors {
 
   // Vibrant Accents
   static const Color primaryCyan = Color(0xFF0EA5E9);
-  static const Color primaryBlue = Color(0xFF0EA5E9);
+
   static const Color accentPurple = Color(0xFF8B5CF6);
   static const Color accentPink = Color(0xFFF43F5E);
   static const Color wishCoinsAmber = Color(0xFFFFB800);
