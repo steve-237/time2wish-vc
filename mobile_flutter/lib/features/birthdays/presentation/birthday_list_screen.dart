@@ -22,6 +22,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedCategory = 'TOUS';
+  String _sortBy = 'DATE';
 
   final List<String> _categories = ['TOUS', 'FAVORIS', 'AMIS', 'FAMILLE', 'TRAVAIL'];
 
@@ -40,7 +41,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
   }
 
   List<BirthdayModel> _getFilteredBirthdays(List<BirthdayModel> birthdays) {
-    return birthdays.where((b) {
+    var result = birthdays.where((b) {
       final matchesSearch = _searchQuery.isEmpty ||
           b.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           b.category.toLowerCase().contains(_searchQuery.toLowerCase());
@@ -51,6 +52,112 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
       if (_selectedCategory != 'TOUS') return b.category.toUpperCase() == _selectedCategory;
       return true;
     }).toList();
+
+    if (_sortBy == 'NOM') {
+      result.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    } else if (_sortBy == 'FAVORIS') {
+      result.sort((a, b) {
+        if (a.isFavorite && !b.isFavorite) return -1;
+        if (!a.isFavorite && b.isFavorite) return 1;
+        return a.daysRemaining.compareTo(b.daysRemaining);
+      });
+    } else {
+      result.sort((a, b) => a.daysRemaining.compareTo(b.daysRemaining));
+    }
+    return result;
+  }
+
+  void _showWishCoinsModal(BuildContext context, int coins) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.backgroundDialogDark,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.wishCoinsAmber.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.monetization_on, color: AppColors.wishCoinsAmber, size: 24),
+            ),
+            const SizedBox(width: 12),
+            const Text('WishCoins', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  gradient: AppColors.goldGradient,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.wishCoinsAmber.withValues(alpha: 0.4),
+                      blurRadius: 16,
+                    ),
+                  ],
+                ),
+                child: Text(
+                  '$coins WishCoins 🪙',
+                  style: const TextStyle(color: Colors.black87, fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Comment utiliser vos WishCoins ?',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
+            ),
+            const SizedBox(height: 10),
+            _buildCoinPerk('🤖 Vœux IA personnalisés', '5 WishCoins par vœu'),
+            const SizedBox(height: 6),
+            _buildCoinPerk('🎁 Tirage au sort de cadeaux', 'Bientôt disponible'),
+            const SizedBox(height: 6),
+            _buildCoinPerk('🎂 Souhaiter à temps', '+10 WishCoins bonus'),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryCyan,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Super !', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCoinPerk(String title, String subtitle) {
+    return Row(
+      children: [
+        const Icon(Icons.check_circle_outline, color: AppColors.successGreen, size: 16),
+        const SizedBox(width: 8),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              text: '$title : ',
+              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+              children: [
+                TextSpan(
+                  text: subtitle,
+                  style: const TextStyle(color: AppColors.textMutedDark, fontWeight: FontWeight.normal),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -153,34 +260,37 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         ],
                       ),
                     ),
-                    // WishCoins Pill
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: AppColors.wishCoinsAmber.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.wishCoinsAmber.withValues(alpha: 0.4)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.wishCoinsAmber.withValues(alpha: 0.2),
-                            blurRadius: 10,
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.monetization_on, color: AppColors.wishCoinsAmber, size: 20),
-                          const SizedBox(width: 6),
-                          Text(
-                            '${user?.coins ?? 100}',
-                            style: const TextStyle(
-                              color: AppColors.wishCoinsAmber,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
+                    // WishCoins Pill (Interactive)
+                    GestureDetector(
+                      onTap: () => _showWishCoinsModal(context, user?.coins ?? 100),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: AppColors.wishCoinsAmber.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppColors.wishCoinsAmber.withValues(alpha: 0.4)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.wishCoinsAmber.withValues(alpha: 0.2),
+                              blurRadius: 10,
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.monetization_on, color: AppColors.wishCoinsAmber, size: 20),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${user?.coins ?? 100}',
+                              style: const TextStyle(
+                                color: AppColors.wishCoinsAmber,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -268,15 +378,58 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_searchQuery.isNotEmpty)
+                            IconButton(
                               icon: const Icon(Icons.clear, color: AppColors.textMutedDark, size: 18),
                               onPressed: () {
                                 _searchController.clear();
                                 setState(() => _searchQuery = '');
                               },
-                            )
-                          : null,
+                            ),
+                          PopupMenuButton<String>(
+                            icon: const Icon(Icons.sort_rounded, color: AppColors.primaryCyan, size: 20),
+                            color: AppColors.backgroundDialogDark,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            tooltip: 'Trier par',
+                            onSelected: (val) => setState(() => _sortBy = val),
+                            itemBuilder: (ctx) => [
+                              PopupMenuItem(
+                                value: 'DATE',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.calendar_today, size: 16, color: _sortBy == 'DATE' ? AppColors.primaryCyan : Colors.white70),
+                                    const SizedBox(width: 8),
+                                    Text('Date la plus proche', style: TextStyle(color: _sortBy == 'DATE' ? AppColors.primaryCyan : Colors.white)),
+                                  ],
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value: 'NOM',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.sort_by_alpha, size: 16, color: _sortBy == 'NOM' ? AppColors.primaryCyan : Colors.white70),
+                                    const SizedBox(width: 8),
+                                    Text('Nom (A-Z)', style: TextStyle(color: _sortBy == 'NOM' ? AppColors.primaryCyan : Colors.white)),
+                                  ],
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value: 'FAVORIS',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.star, size: 16, color: _sortBy == 'FAVORIS' ? AppColors.wishCoinsAmber : Colors.white70),
+                                    const SizedBox(width: 8),
+                                    Text('Favoris en premier', style: TextStyle(color: _sortBy == 'FAVORIS' ? AppColors.wishCoinsAmber : Colors.white)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

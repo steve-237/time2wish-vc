@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -362,6 +363,49 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                   ),
                 ],
 
+                if (birthday.partyLocation != null || birthday.partyDescription != null) ...[
+                  const SizedBox(height: 20),
+                  _staggeredChild(
+                    3,
+                    GlassCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(Icons.celebration_rounded, color: AppColors.accentPink, size: 20),
+                              SizedBox(width: 10),
+                              Text('Fête & Célébration 🎉', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          if (birthday.partyLocation != null && birthday.partyLocation!.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                const Icon(Icons.location_on_outlined, color: AppColors.primaryCyan, size: 18),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    birthday.partyLocation!,
+                                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                          if (birthday.partyDescription != null && birthday.partyDescription!.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              birthday.partyDescription!,
+                              style: const TextStyle(color: AppColors.textMutedDark, fontSize: 13),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+
                 const SizedBox(height: 20),
                 _staggeredChild(3, _buildGiftsSection(context, birthday)),
 
@@ -570,6 +614,30 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                 ),
               ],
             ),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Quick Wish Copy Button
+        OutlinedButton.icon(
+          onPressed: () {
+            DeviceService.triggerLightHaptic();
+            final message = 'Joyeux Anniversaire ${birthday.name} ! 🎂🎉 Que cette nouvelle année t\'apporte bonheur, santé et réussite ! ✨';
+            Clipboard.setData(ClipboardData(text: message));
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Message copié dans le presse-papier ! Prêt à être envoyé 💌'),
+                backgroundColor: AppColors.successGreen,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          },
+          icon: const Icon(Icons.copy_rounded, color: Colors.white, size: 18),
+          label: const Text('Copier un message rapide 💌', style: TextStyle(color: Colors.white)),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size(double.infinity, 50),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           ),
         ),
         const SizedBox(height: 14),
