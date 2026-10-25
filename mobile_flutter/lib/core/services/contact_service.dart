@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import '../models/contact_model.dart';
 import 'api_service.dart';
 import 'local_storage_service.dart';
+import 'sync_service.dart';
 
 class ContactService extends ChangeNotifier {
   final ApiService _apiService;
+  final SyncService? _syncService;
   final LocalStorageService _storageService = LocalStorageService();
   List<ContactModel> _contacts = [];
   List<ContactModel> _pendingRequests = [];
   bool _isLoading = false;
 
-  ContactService(this._apiService) {
+  ContactService(this._apiService, [this._syncService]) {
     _initLocalStorage();
   }
 
@@ -31,6 +33,10 @@ class ContactService extends ChangeNotifier {
   Future<void> fetchContacts() async {
     _isLoading = true;
     notifyListeners();
+
+    if (_syncService != null && _syncService.hasPending) {
+      await _syncService.syncAll();
+    }
 
     try {
       final response = await _apiService.dio.get('/contacts');
@@ -86,7 +92,13 @@ class ContactService extends ChangeNotifier {
 
     try {
       await _apiService.dio.put('/contacts/$contactId/accept');
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[ContactService] Offline accept queued: $e');
+      await _syncService?.enqueue(
+        endpoint: '/contacts/$contactId/accept',
+        method: 'PUT',
+      );
+    }
     return true;
   }
 
@@ -96,7 +108,13 @@ class ContactService extends ChangeNotifier {
 
     try {
       await _apiService.dio.put('/contacts/$contactId/reject');
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[ContactService] Offline reject queued: $e');
+      await _syncService?.enqueue(
+        endpoint: '/contacts/$contactId/reject',
+        method: 'PUT',
+      );
+    }
     return true;
   }
 
@@ -114,7 +132,14 @@ class ContactService extends ChangeNotifier {
 
     try {
       await _apiService.dio.post('/contacts/request/by-email', data: {'email': email});
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[ContactService] Offline request by email queued: $e');
+      await _syncService?.enqueue(
+        endpoint: '/contacts/request/by-email',
+        method: 'POST',
+        data: {'email': email},
+      );
+    }
     return true;
   }
 

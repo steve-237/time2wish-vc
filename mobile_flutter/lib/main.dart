@@ -48,9 +48,9 @@ class _Time2WishAppState extends State<Time2WishApp> {
     _syncService = SyncService(_apiService);
     _authService = AuthService(_apiService);
     _birthdayService = BirthdayService(_apiService, _syncService);
-    _contactService = ContactService(_apiService);
+    _contactService = ContactService(_apiService, _syncService);
     _messagingService = MessagingService(_apiService);
-    _giftService = GiftService(_apiService);
+    _giftService = GiftService(_apiService, _syncService);
 
     _router = GoRouter(
       initialLocation: '/login',

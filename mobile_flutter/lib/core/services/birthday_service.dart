@@ -3,6 +3,7 @@ import '../models/birthday_model.dart';
 import 'api_service.dart';
 import 'local_storage_service.dart';
 import 'sync_service.dart';
+import 'notification_service.dart';
 
 class BirthdayService extends ChangeNotifier {
   final ApiService _apiService;
@@ -40,6 +41,9 @@ class BirthdayService extends ChangeNotifier {
     if (_birthdays.isEmpty) {
       _birthdays = _getDemoBirthdays();
       await _storageService.saveBirthdays(_birthdays);
+    }
+    for (final b in _birthdays) {
+      await NotificationService.scheduleBirthdayReminder(b);
     }
     notifyListeners();
   }
@@ -105,6 +109,7 @@ class BirthdayService extends ChangeNotifier {
 
     _birthdays.add(created);
     await _storageService.saveBirthdays(_birthdays);
+    await NotificationService.scheduleBirthdayReminder(created);
     notifyListeners();
 
     try {
@@ -130,6 +135,7 @@ class BirthdayService extends ChangeNotifier {
       final updated = birthday.copyWith(id: id);
       _birthdays[index] = updated;
       await _storageService.saveBirthdays(_birthdays);
+      await NotificationService.scheduleBirthdayReminder(updated);
       notifyListeners();
 
       try {
@@ -154,6 +160,7 @@ class BirthdayService extends ChangeNotifier {
   Future<bool> deleteBirthday(int id) async {
     _birthdays.removeWhere((b) => b.id == id);
     await _storageService.saveBirthdays(_birthdays);
+    await NotificationService.cancelBirthdayReminder(id);
     notifyListeners();
 
     try {

@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import '../models/gift_model.dart';
 import 'api_service.dart';
 import 'local_storage_service.dart';
+import 'sync_service.dart';
 
 class GiftService extends ChangeNotifier {
   final ApiService _apiService;
+  final SyncService? _syncService;
   final LocalStorageService _storageService = LocalStorageService();
   Map<int, List<GiftModel>> _giftsCache = {};
   bool _isLoading = false;
 
-  GiftService(this._apiService) {
+  GiftService(this._apiService, [this._syncService]) {
     _initLocalStorage();
   }
 
@@ -27,6 +29,10 @@ class GiftService extends ChangeNotifier {
   Future<void> fetchGifts(int birthdayId) async {
     _isLoading = true;
     notifyListeners();
+
+    if (_syncService != null && _syncService.hasPending) {
+      await _syncService.syncAll();
+    }
 
     try {
       final response = await _apiService.dio.get('/birthdays/$birthdayId/gifts');
@@ -70,7 +76,12 @@ class GiftService extends ChangeNotifier {
     try {
       await _apiService.dio.post('/birthdays/$birthdayId/gifts', data: newGift.toJson());
     } catch (e) {
-      debugPrint('[GiftService] Offline add gift saved locally');
+      debugPrint('[GiftService] Offline add gift saved locally and queued: $e');
+      await _syncService?.enqueue(
+        endpoint: '/birthdays/$birthdayId/gifts',
+        method: 'POST',
+        data: newGift.toJson(),
+      );
     }
     return newGift;
   }
@@ -81,7 +92,7 @@ class GiftService extends ChangeNotifier {
     if (index != -1) {
       final current = list[index];
       final isCurrentlyReserved = current.isReserved;
-      list[index] = GiftModel(
+      final updatedGift = GiftModel(
         id: current.id,
         birthdayId: current.birthdayId,
         name: current.name,
@@ -94,9 +105,20 @@ class GiftService extends ChangeNotifier {
         upvotes: current.upvotes,
         downvotes: current.downvotes,
       );
+      list[index] = updatedGift;
       _giftsCache[birthdayId] = list;
       await _storageService.saveGifts(_giftsCache);
       notifyListeners();
+
+      try {
+        await _apiService.dio.put('/birthdays/$birthdayId/gifts/$giftId/reserve');
+      } catch (e) {
+        debugPrint('[GiftService] Offline toggle reserve queued: $e');
+        await _syncService?.enqueue(
+          endpoint: '/birthdays/$birthdayId/gifts/$giftId/reserve',
+          method: 'PUT',
+        );
+      }
     }
   }
 
@@ -128,7 +150,6 @@ class GiftService extends ChangeNotifier {
         description: 'Suivi activité et rythme cardiaque',
         priceRange: '120€ - 180€',
         isReserved: false,
-        upvotes: 2,
       ),
     ];
   }
