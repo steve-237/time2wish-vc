@@ -390,7 +390,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         onTap: () => context.push('/birthday/${birthday.id}'),
         child: Row(
           children: [
-            // Avatar with Gradient Ring
+            // Avatar with Gradient Ring or Photo
             Container(
               width: 52,
               height: 52,
@@ -404,16 +404,35 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   ),
                 ],
               ),
-              child: Center(
-                child: Text(
-                  initial,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22,
-                  ),
-                ),
-              ),
+              child: birthday.photoUrl != null && birthday.photoUrl!.isNotEmpty
+                  ? ClipOval(
+                      child: Image.network(
+                        birthday.photoUrl!,
+                        width: 52,
+                        height: 52,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => Center(
+                          child: Text(
+                            initial,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : Center(
+                      child: Text(
+                        initial,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                        ),
+                      ),
+                    ),
             ),
             const SizedBox(width: 14),
 

@@ -32,6 +32,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
   bool _isFavorite = false;
   String? _partyLocation;
   String? _partyDescription;
+  String? _photoUrl;
 
   bool _isLoading = false;
   bool _isInitializing = true;
@@ -54,7 +55,6 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
   Future<void> _initData() async {
     if (widget.birthdayId != null) {
       final birthdayService = Provider.of<BirthdayService>(context, listen: false);
-      // Wait a bit to ensure birthdays are loaded or fetch if needed
       final birthday = birthdayService.getBirthdayById(widget.birthdayId!);
       
       if (birthday != null) {
@@ -69,6 +69,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
           _isFavorite = birthday.isFavorite;
           _partyLocation = birthday.partyLocation;
           _partyDescription = birthday.partyDescription;
+          _photoUrl = birthday.photoUrl;
           
           _nameController.text = _name;
           _notesController.text = _notes;
@@ -104,7 +105,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
             colorScheme: const ColorScheme.dark(
               primary: AppColors.primaryCyan,
               onPrimary: Colors.white,
-              surface: AppColors.backgroundDeep,
+              surface: AppColors.backgroundDialogDark,
               onSurface: Colors.white,
             ),
           ),
@@ -133,6 +134,239 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
     setState(() {
       _interests.remove(interest);
     });
+  }
+
+  void _showPhotoPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.backgroundDialogDark,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Photo de profil',
+                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: AppColors.textMutedDark),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryCyan.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.link_rounded, color: AppColors.primaryCyan),
+                ),
+                title: const Text('Entrer l\'URL d\'une photo', style: TextStyle(color: Colors.white)),
+                subtitle: const Text('Lien direct web (https://...)', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _showUrlInputDialog(context);
+                },
+              ),
+              const SizedBox(height: 8),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.accentPurple.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.face_rounded, color: AppColors.accentPurple),
+                ),
+                title: const Text('Avatars préconçus & portraits', style: TextStyle(color: Colors.white)),
+                subtitle: const Text('Choisir parmi une sélection de portraits', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _showAvatarPresetSelector(context);
+                },
+              ),
+              const SizedBox(height: 8),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.wishCoinsAmber.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.auto_awesome_rounded, color: AppColors.wishCoinsAmber),
+                ),
+                title: const Text('Générer un avatar monogramme', style: TextStyle(color: Colors.white)),
+                subtitle: const Text('Créé automatiquement avec les initiales', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  final nameForAvatar = _nameController.text.trim().isNotEmpty
+                      ? _nameController.text.trim()
+                      : 'Time2Wish';
+                  final encoded = Uri.encodeComponent(nameForAvatar);
+                  setState(() {
+                    _photoUrl = 'https://ui-avatars.com/api/?name=$encoded&background=0EA5E9&color=fff&size=256&bold=true';
+                  });
+                },
+              ),
+              if (_photoUrl != null && _photoUrl!.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.accentPink.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.delete_outline_rounded, color: AppColors.accentPink),
+                  ),
+                  title: const Text('Supprimer la photo', style: TextStyle(color: AppColors.accentPink)),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    setState(() {
+                      _photoUrl = null;
+                    });
+                  },
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showAvatarPresetSelector(BuildContext context) {
+    final presets = [
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=256&h=256&fit=crop',
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=256&h=256&fit=crop',
+      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=256&h=256&fit=crop',
+      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=256&h=256&fit=crop',
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=256&h=256&fit=crop',
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=256&h=256&fit=crop',
+      'https://api.dicebear.com/7.x/bottts/png?seed=Birthday1',
+      'https://api.dicebear.com/7.x/bottts/png?seed=Birthday2',
+      'https://api.dicebear.com/7.x/fun-emoji/png?seed=Party1',
+      'https://api.dicebear.com/7.x/fun-emoji/png?seed=Party2',
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.backgroundDialogDark,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Choisir un avatar',
+                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 160,
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 5,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemCount: presets.length,
+                  itemBuilder: (context, index) {
+                    final url = presets[index];
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _photoUrl = url;
+                        });
+                        Navigator.pop(ctx);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: _photoUrl == url ? AppColors.primaryCyan : Colors.white24,
+                            width: _photoUrl == url ? 3 : 1,
+                          ),
+                        ),
+                        child: ClipOval(
+                          child: Image.network(
+                            url,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) => const Icon(Icons.person, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showUrlInputDialog(BuildContext context) {
+    final urlController = TextEditingController(text: _photoUrl ?? '');
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.backgroundDialogDark,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('URL de l\'image', style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: urlController,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: 'https://...',
+            hintStyle: const TextStyle(color: AppColors.textMutedDark),
+            filled: true,
+            fillColor: Colors.white.withValues(alpha: 0.05),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryCyan,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {
+              final text = urlController.text.trim();
+              if (text.isNotEmpty) {
+                setState(() {
+                  _photoUrl = text;
+                });
+              }
+              Navigator.pop(ctx);
+            },
+            child: const Text('Valider', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _submitForm() async {
@@ -168,6 +402,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
         isFavorite: _isFavorite,
         partyLocation: _partyLocation,
         partyDescription: _partyDescription,
+        photoUrl: _photoUrl,
       );
 
       if (widget.birthdayId == null) {
@@ -249,6 +484,99 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // Photo Avatar Picker Header
+                        Center(
+                          child: GestureDetector(
+                            onTap: () => _showPhotoPicker(context),
+                            child: Stack(
+                              alignment: Alignment.bottomRight,
+                              children: [
+                                Container(
+                                  width: 92,
+                                  height: 92,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: AppColors.primaryGradient,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.primaryCyan.withValues(alpha: 0.35),
+                                        blurRadius: 18,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: _photoUrl != null && _photoUrl!.isNotEmpty
+                                      ? ClipOval(
+                                          child: Image.network(
+                                            _photoUrl!,
+                                            width: 92,
+                                            height: 92,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, _, _) => Center(
+                                              child: Text(
+                                                _nameController.text.isNotEmpty
+                                                    ? _nameController.text[0].toUpperCase()
+                                                    : '🎂',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 36,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                      : Center(
+                                          child: Text(
+                                            _nameController.text.isNotEmpty
+                                                ? _nameController.text[0].toUpperCase()
+                                                : '🎂',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 36,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryCyan,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: AppColors.backgroundDark, width: 2),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.primaryCyan.withValues(alpha: 0.5),
+                                        blurRadius: 8,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    _photoUrl != null && _photoUrl!.isNotEmpty
+                                        ? Icons.edit_rounded
+                                        : Icons.add_a_photo_rounded,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: () => _showPhotoPicker(context),
+                            icon: const Icon(Icons.photo_camera_rounded, size: 16, color: AppColors.primaryCyan),
+                            label: Text(
+                              _photoUrl != null && _photoUrl!.isNotEmpty ? 'Modifier la photo' : 'Ajouter une photo',
+                              style: const TextStyle(color: AppColors.primaryCyan, fontSize: 13, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+
                         // Name
                         GlassCard(
                           child: Padding(
@@ -262,6 +590,12 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                   return 'Ce champ est requis';
                                 }
                                 return null;
+                              },
+                              onChanged: (val) {
+                                // Re-render initial in avatar if no photo set
+                                if (_photoUrl == null) {
+                                  setState(() {});
+                                }
                               },
                               onSaved: (value) => _name = value!.trim(),
                             ),
