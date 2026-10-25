@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/api_service.dart';
+import 'core/services/sync_service.dart';
 import 'core/services/auth_service.dart';
 import 'core/services/birthday_service.dart';
 import 'core/services/contact_service.dart';
@@ -32,6 +33,7 @@ class Time2WishApp extends StatefulWidget {
 
 class _Time2WishAppState extends State<Time2WishApp> {
   late final ApiService _apiService;
+  late final SyncService _syncService;
   late final AuthService _authService;
   late final BirthdayService _birthdayService;
   late final ContactService _contactService;
@@ -43,8 +45,9 @@ class _Time2WishAppState extends State<Time2WishApp> {
   void initState() {
     super.initState();
     _apiService = ApiService();
+    _syncService = SyncService(_apiService);
     _authService = AuthService(_apiService);
-    _birthdayService = BirthdayService(_apiService);
+    _birthdayService = BirthdayService(_apiService, _syncService);
     _contactService = ContactService(_apiService);
     _messagingService = MessagingService(_apiService);
     _giftService = GiftService(_apiService);
@@ -111,6 +114,7 @@ class _Time2WishAppState extends State<Time2WishApp> {
   void dispose() {
     _router.dispose();
     _authService.dispose();
+    _syncService.dispose();
     _birthdayService.dispose();
     _contactService.dispose();
     _messagingService.dispose();
@@ -123,6 +127,7 @@ class _Time2WishAppState extends State<Time2WishApp> {
     return MultiProvider(
       providers: [
         Provider<ApiService>.value(value: _apiService),
+        ChangeNotifierProvider<SyncService>.value(value: _syncService),
         ChangeNotifierProvider<AuthService>.value(value: _authService),
         ChangeNotifierProvider<BirthdayService>.value(value: _birthdayService),
         ChangeNotifierProvider<ContactService>.value(value: _contactService),

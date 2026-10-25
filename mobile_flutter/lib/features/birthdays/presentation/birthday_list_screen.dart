@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/birthday_service.dart';
+import '../../../core/services/sync_service.dart';
 import '../../../core/models/birthday_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
@@ -56,6 +57,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     final birthdayService = Provider.of<BirthdayService>(context);
+    final syncService = Provider.of<SyncService>(context);
     final user = authService.currentUser;
     final filtered = _getFilteredBirthdays(birthdayService.upcoming);
 
@@ -86,7 +88,12 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
       body: RefreshIndicator(
         color: AppColors.primaryCyan,
         backgroundColor: AppColors.backgroundDialogDark,
-        onRefresh: () => birthdayService.fetchBirthdays(),
+        onRefresh: () async {
+          if (syncService.hasPending) {
+            await syncService.syncAll();
+          }
+          await birthdayService.fetchBirthdays();
+        },
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
@@ -180,6 +187,69 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                 ),
               ),
             ),
+
+            // Offline Sync Pending Banner
+            if (syncService.hasPending)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+                  child: GlassCard(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.wishCoinsAmber.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: syncService.isSyncing
+                              ? const SpinKitRing(color: AppColors.wishCoinsAmber, size: 18, lineWidth: 2)
+                              : const Icon(Icons.cloud_sync, color: AppColors.wishCoinsAmber, size: 18),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                syncService.isSyncing
+                                    ? 'Synchronisation en cours...'
+                                    : '${syncService.pendingCount} action(s) hors-ligne en attente',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                syncService.lastSyncError != null
+                                    ? 'En attente de connexion Internet'
+                                    : 'Sauvegardé localement • Prêt à synchroniser',
+                                style: const TextStyle(color: AppColors.textMutedDark, fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (!syncService.isSyncing)
+                          TextButton(
+                            onPressed: () => syncService.syncAll(),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              backgroundColor: AppColors.primaryCyan.withValues(alpha: 0.2),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            child: const Text(
+                              'Sync',
+                              style: TextStyle(color: AppColors.primaryCyan, fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
 
             // Glass Search Bar
             SliverToBoxAdapter(
