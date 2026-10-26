@@ -1,3 +1,4 @@
+import '../../../core/widgets/avatar_image.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -214,12 +215,12 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                           ),
                           child: birthday.photoUrl != null && birthday.photoUrl!.isNotEmpty
                               ? ClipOval(
-                                  child: Image.network(
-                                    birthday.photoUrl!,
+                                  child: AvatarImage(
+                                    photoUrl: birthday.photoUrl!,
                                     width: 96,
                                     height: 96,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (_, _, _) => Center(
+                                    fallback: Center(
                                       child: Text(
                                         initial,
                                         style: const TextStyle(

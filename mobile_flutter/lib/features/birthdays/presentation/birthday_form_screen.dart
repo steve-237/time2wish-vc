@@ -1,13 +1,19 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:dio/dio.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
+import '../../../core/widgets/avatar_image.dart';
 import '../../../core/models/birthday_model.dart';
 import '../../../core/services/birthday_service.dart';
+import '../../../core/services/api_service.dart';
 
 class BirthdayFormScreen extends StatefulWidget {
   final int? birthdayId;
@@ -136,6 +142,59 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
     });
   }
 
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final XFile? file = await picker.pickImage(
+        source: source,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+
+      if (file != null) {
+        final bytes = await file.readAsBytes();
+        final base64String = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+        setState(() {
+          _photoUrl = base64String;
+        });
+
+        // Try upload in background if online
+        _tryUploadToServer(bytes, file.name);
+      }
+    } catch (e) {
+      debugPrint('[BirthdayFormScreen] Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Impossible d\'accéder aux photos'),
+            backgroundColor: AppColors.accentPink,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _tryUploadToServer(Uint8List bytes, String filename) async {
+    try {
+      final apiService = Provider.of<ApiService>(context, listen: false);
+      final formData = FormData.fromMap({
+        'file': MultipartFile.fromBytes(bytes, filename: filename),
+      });
+      final res = await apiService.dio.post('/upload', data: formData);
+      if (res.statusCode == 200 && res.data != null && res.data['url'] != null) {
+        final serverUrl = res.data['url'] as String;
+        if (mounted && _photoUrl?.startsWith('data:image') == true) {
+          setState(() {
+            _photoUrl = serverUrl;
+          });
+        }
+      }
+    } catch (_) {
+      // Kept as base64 offline
+    }
+  }
+
   void _showPhotoPicker(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -164,6 +223,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                 ],
               ),
               const SizedBox(height: 16),
+              // Option 1: Gallery
               ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(10),
@@ -171,7 +231,43 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                     color: AppColors.primaryCyan.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.link_rounded, color: AppColors.primaryCyan),
+                  child: const Icon(Icons.photo_library_rounded, color: AppColors.primaryCyan),
+                ),
+                title: const Text('Galerie du téléphone 📱', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                subtitle: const Text('Choisir une photo de vos albums', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+              const SizedBox(height: 8),
+              // Option 2: Camera
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.accentPink.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.camera_alt_rounded, color: AppColors.accentPink),
+                ),
+                title: const Text('Prendre une photo 📸', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                subtitle: const Text('Ouvrir l\'appareil photo du téléphone', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              const SizedBox(height: 8),
+              // Option 3: URL
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.link_rounded, color: Colors.blueAccent),
                 ),
                 title: const Text('Entrer l\'URL d\'une photo', style: TextStyle(color: Colors.white)),
                 subtitle: const Text('Lien direct web (https://...)', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
@@ -181,6 +277,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                 },
               ),
               const SizedBox(height: 8),
+              // Option 4: Presets
               ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(10),
@@ -198,6 +295,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                 },
               ),
               const SizedBox(height: 8),
+              // Option 5: Monogram
               ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(10),
@@ -507,12 +605,12 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                   ),
                                   child: _photoUrl != null && _photoUrl!.isNotEmpty
                                       ? ClipOval(
-                                          child: Image.network(
-                                            _photoUrl!,
+                                          child: AvatarImage(
+                                            photoUrl: _photoUrl!,
                                             width: 92,
                                             height: 92,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (_, _, _) => Center(
+                                            fallback: Center(
                                               child: Text(
                                                 _nameController.text.isNotEmpty
                                                     ? _nameController.text[0].toUpperCase()
