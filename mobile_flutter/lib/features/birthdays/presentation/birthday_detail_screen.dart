@@ -13,6 +13,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/glowing_badge.dart';
 import 'ai_wish_dialog.dart';
+import 'ai_gift_sheet.dart';
 
 class BirthdayDetailScreen extends StatefulWidget {
   final int birthdayId;
@@ -445,9 +446,28 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
               '🎁 Idées Cadeaux & Cagnotte',
               style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            IconButton(
-              icon: const Icon(Icons.add_circle_outline, color: AppColors.primaryCyan),
-              onPressed: () {
+            Row(
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () {
+                    DeviceService.triggerMediumHaptic();
+                    AiGiftSheet.show(context, birthday);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.primaryCyan),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  icon: const Icon(Icons.auto_awesome, color: AppColors.primaryCyan, size: 16),
+                  label: const Text(
+                    'Idées IA ✨',
+                    style: TextStyle(color: AppColors.primaryCyan, fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline, color: AppColors.primaryCyan),
+                  onPressed: () {
                 final nameCtrl = TextEditingController();
                 final priceCtrl = TextEditingController();
                 showDialog(
@@ -497,6 +517,8 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                   ),
                 );
               },
+            ),
+              ],
             ),
           ],
         ),
