@@ -6,6 +6,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/services/settings_service.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
@@ -193,6 +194,100 @@ class _ProfileEditScreenState extends State<ProfileEditScreen>
                           ),
                         ],
                       ),
+                    ),
+                    const SizedBox(height: 18),
+                    Consumer<SettingsService>(
+                      builder: (context, settings, _) {
+                        return GlassCard(
+                          blurAmount: 24,
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 36,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: AppColors.accentPurple.withValues(alpha: 0.15),
+                                    ),
+                                    child: const Icon(Icons.palette_outlined, color: AppColors.accentPurple, size: 20),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    settings.tr('appearance'),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        settings.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                                        color: settings.isDarkMode ? AppColors.primaryCyan : AppColors.wishCoinsAmber,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        settings.isDarkMode ? settings.tr('dark_mode') : settings.tr('light_mode'),
+                                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                  Switch.adaptive(
+                                    value: settings.isDarkMode,
+                                    activeThumbColor: AppColors.primaryCyan,
+                                    onChanged: (_) => settings.toggleDarkMode(),
+                                  ),
+                                ],
+                              ),
+                              const Divider(color: Colors.white12, height: 24),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.language, color: AppColors.successGreen, size: 20),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        settings.tr('language'),
+                                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      ChoiceChip(
+                                        label: const Text('FR 🇫🇷', style: TextStyle(fontSize: 12)),
+                                        selected: settings.language == 'fr',
+                                        onSelected: (_) => settings.setLanguage('fr'),
+                                        selectedColor: AppColors.primaryCyan,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      ChoiceChip(
+                                        label: const Text('EN 🇬🇧', style: TextStyle(fontSize: 12)),
+                                        selected: settings.language == 'en',
+                                        onSelected: (_) => settings.setLanguage('en'),
+                                        selectedColor: AppColors.primaryCyan,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 28),
                     Row(
