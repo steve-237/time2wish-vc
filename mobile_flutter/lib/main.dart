@@ -10,6 +10,7 @@ import 'core/services/birthday_service.dart';
 import 'core/services/contact_service.dart';
 import 'core/services/messaging_service.dart';
 import 'core/services/gift_service.dart';
+import 'core/services/fundraiser_service.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/auth/presentation/register_screen.dart';
 import 'features/navigation/main_nav_shell.dart';
@@ -39,6 +40,7 @@ class _Time2WishAppState extends State<Time2WishApp> {
   late final ContactService _contactService;
   late final MessagingService _messagingService;
   late final GiftService _giftService;
+  late final FundraiserService _fundraiserService;
   late final GoRouter _router;
 
   @override
@@ -51,6 +53,7 @@ class _Time2WishAppState extends State<Time2WishApp> {
     _contactService = ContactService(_apiService, _syncService);
     _messagingService = MessagingService(_apiService);
     _giftService = GiftService(_apiService, _syncService);
+    _fundraiserService = FundraiserService(_apiService);
 
     _router = GoRouter(
       initialLocation: '/login',
@@ -119,6 +122,7 @@ class _Time2WishAppState extends State<Time2WishApp> {
     _contactService.dispose();
     _messagingService.dispose();
     _giftService.dispose();
+    _fundraiserService.dispose();
     super.dispose();
   }
 
@@ -133,6 +137,7 @@ class _Time2WishAppState extends State<Time2WishApp> {
         ChangeNotifierProvider<ContactService>.value(value: _contactService),
         ChangeNotifierProvider<MessagingService>.value(value: _messagingService),
         ChangeNotifierProvider<GiftService>.value(value: _giftService),
+        ChangeNotifierProvider<FundraiserService>.value(value: _fundraiserService),
       ],
       child: MaterialApp.router(
         title: 'Time2Wish Mobile',

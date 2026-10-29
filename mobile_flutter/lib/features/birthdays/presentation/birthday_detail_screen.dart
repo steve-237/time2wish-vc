@@ -14,6 +14,7 @@ import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/glowing_badge.dart';
 import 'ai_wish_dialog.dart';
 import 'ai_gift_sheet.dart';
+import 'fundraiser_sheet.dart';
 
 class BirthdayDetailScreen extends StatefulWidget {
   final int birthdayId;
@@ -572,6 +573,14 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                             ],
                           ],
                         ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.savings_outlined, color: AppColors.wishCoinsAmber, size: 20),
+                        tooltip: 'Cagnotte collective',
+                        onPressed: () {
+                          DeviceService.triggerMediumHaptic();
+                          FundraiserSheet.show(context, gift, birthday.name);
+                        },
                       ),
                       TextButton(
                         onPressed: () {
