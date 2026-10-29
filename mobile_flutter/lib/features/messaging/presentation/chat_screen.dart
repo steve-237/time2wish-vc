@@ -19,19 +19,31 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  MessagingService? _messagingService;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final messagingService = context.read<MessagingService>();
-      messagingService.fetchMessages(widget.conversationId);
-      messagingService.markAsRead(widget.conversationId);
+      if (mounted) {
+        final service = context.read<MessagingService>();
+        service.connect();
+        service.subscribeToConversation(widget.conversationId);
+        service.fetchMessages(widget.conversationId);
+        service.markAsRead(widget.conversationId);
+      }
     });
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _messagingService = context.read<MessagingService>();
+  }
+
+  @override
   void dispose() {
+    _messagingService?.unsubscribeFromConversation(widget.conversationId);
     _messageController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -119,15 +131,25 @@ class _ChatScreenState extends State<ChatScreen> {
                       Container(
                         width: 7,
                         height: 7,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppColors.successGreen,
+                          color: messagingService.isConnected
+                              ? AppColors.successGreen
+                              : Colors.orangeAccent,
                         ),
                       ),
                       const SizedBox(width: 5),
-                      const Text(
-                        'En direct • STOMP',
-                        style: TextStyle(color: AppColors.successGreen, fontSize: 11, fontWeight: FontWeight.w500),
+                      Text(
+                        messagingService.isConnected
+                            ? 'En direct • STOMP'
+                            : 'Hors ligne • Polling',
+                        style: TextStyle(
+                          color: messagingService.isConnected
+                              ? AppColors.successGreen
+                              : Colors.orangeAccent,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),

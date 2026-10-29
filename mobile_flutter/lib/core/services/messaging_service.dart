@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:stomp_dart_client/stomp_dart_client.dart';
 import '../models/conversation_model.dart';
 import 'api_service.dart';
 
@@ -8,13 +10,158 @@ class MessagingService extends ChangeNotifier {
   final Map<int, List<MessageModel>> _messagesCache = {};
   bool _isLoading = false;
 
+  StompClient? _stompClient;
+  bool _isConnected = false;
+  int? _activeConversationId;
+  StompUnsubscribe? _conversationUnsubscribe;
+
   MessagingService(this._apiService);
 
   List<ConversationModel> get conversations => _conversations;
   bool get isLoading => _isLoading;
+  bool get isConnected => _isConnected;
+  int? get activeConversationId => _activeConversationId;
 
   int get totalUnread {
     return _conversations.fold(0, (sum, conv) => sum + conv.unreadCount);
+  }
+
+  /// Initialize STOMP WebSocket client and connect to backend broker
+  Future<void> connect() async {
+    if (_isConnected || (_stompClient != null && _stompClient!.isActive)) {
+      return;
+    }
+
+    final token = await _apiService.getToken();
+    final wsUrl = _apiService.getWsUrl();
+    debugPrint('[MessagingService] Connecting to STOMP at $wsUrl');
+
+    _stompClient = StompClient(
+      config: StompConfig(
+        url: wsUrl,
+        onConnect: _onConnect,
+        onDisconnect: _onDisconnect,
+        onWebSocketError: (err) {
+          debugPrint('[MessagingService] WebSocket error: $err');
+        },
+        onStompError: (frame) {
+          debugPrint('[MessagingService] STOMP error: ${frame.body}');
+        },
+        stompConnectHeaders: {
+          if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+        },
+        webSocketConnectHeaders: {
+          if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+        },
+        reconnectDelay: const Duration(seconds: 5),
+      ),
+    );
+
+    _stompClient!.activate();
+  }
+
+  void _onConnect(StompFrame frame) {
+    _isConnected = true;
+    debugPrint('[MessagingService] Connected to STOMP broker');
+    notifyListeners();
+
+    if (_activeConversationId != null) {
+      _subscribeToTopic(_activeConversationId!);
+    }
+  }
+
+  void _onDisconnect(StompFrame frame) {
+    _isConnected = false;
+    debugPrint('[MessagingService] Disconnected from STOMP broker');
+    notifyListeners();
+  }
+
+  void disconnect() {
+    _conversationUnsubscribe?.call();
+    _conversationUnsubscribe = null;
+    _stompClient?.deactivate();
+    _stompClient = null;
+    _isConnected = false;
+    notifyListeners();
+  }
+
+  /// Subscribes to real-time conversation messages on /topic/conversation/{id}
+  void subscribeToConversation(int conversationId) {
+    _activeConversationId = conversationId;
+    if (_isConnected && _stompClient != null) {
+      _subscribeToTopic(conversationId);
+    }
+  }
+
+  void _subscribeToTopic(int conversationId) {
+    _conversationUnsubscribe?.call();
+    _conversationUnsubscribe = null;
+
+    try {
+      _conversationUnsubscribe = _stompClient?.subscribe(
+        destination: '/topic/conversation/$conversationId',
+        callback: (frame) {
+          if (frame.body != null && frame.body!.isNotEmpty) {
+            try {
+              final data = jsonDecode(frame.body!) as Map<String, dynamic>;
+              final message = MessageModel.fromJson(data);
+              _handleIncomingMessage(message);
+            } catch (e) {
+              debugPrint('[MessagingService] Failed to parse message frame: $e');
+            }
+          }
+        },
+      );
+      debugPrint('[MessagingService] Subscribed to /topic/conversation/$conversationId');
+    } catch (e) {
+      debugPrint('[MessagingService] Subscribe error: $e');
+    }
+  }
+
+  /// Unsubscribes from current conversation topic
+  void unsubscribeFromConversation(int conversationId) {
+    if (_activeConversationId == conversationId) {
+      _conversationUnsubscribe?.call();
+      _conversationUnsubscribe = null;
+      _activeConversationId = null;
+    }
+  }
+
+  void _handleIncomingMessage(MessageModel message) {
+    final convId = message.conversationId;
+    if (!_messagesCache.containsKey(convId)) {
+      _messagesCache[convId] = List<MessageModel>.from(getMessages(convId));
+    }
+
+    final list = _messagesCache[convId]!;
+    final existingIdx = list.indexWhere((m) => m.id == message.id);
+
+    if (existingIdx != -1) {
+      list[existingIdx] = message;
+    } else {
+      // Check if replacing an optimistic message (sent within the last 5s)
+      final optIdx = list.indexWhere((m) =>
+          m.content == message.content &&
+          m.senderName == message.senderName &&
+          DateTime.now().difference(m.createdAt).inSeconds < 5);
+
+      if (optIdx != -1) {
+        list[optIdx] = message;
+      } else {
+        list.add(message);
+      }
+    }
+
+    // Update conversation last message preview
+    final convIndex = _conversations.indexWhere((c) => c.id == convId);
+    if (convIndex != -1) {
+      _conversations[convIndex] = _conversations[convIndex].copyWith(
+        lastMessage: message.content,
+        lastMessageAt: message.createdAt,
+      );
+    }
+
+    notifyListeners();
   }
 
   Future<void> fetchConversations() async {
@@ -71,11 +218,11 @@ class MessagingService extends ChangeNotifier {
 
     // Update local state immediately for instant feedback
     if (!_messagesCache.containsKey(conversationId)) {
-      _messagesCache[conversationId] = [];
+      _messagesCache[conversationId] = List<MessageModel>.from(getMessages(conversationId));
     }
     _messagesCache[conversationId]!.add(newMessage);
 
-    // Update conversation last message
+    // Update conversation preview
     final index = _conversations.indexWhere((c) => c.id == conversationId);
     if (index != -1) {
       _conversations[index] = _conversations[index].copyWith(
@@ -85,12 +232,29 @@ class MessagingService extends ChangeNotifier {
     }
     notifyListeners();
 
+    // 1. Try real-time STOMP first
+    if (_isConnected && _stompClient != null) {
+      try {
+        _stompClient!.send(
+          destination: '/app/chat.sendMessage',
+          body: jsonEncode({
+            'conversationId': conversationId,
+            'content': content,
+          }),
+        );
+        return;
+      } catch (e) {
+        debugPrint('[MessagingService] STOMP send failed, trying HTTP POST fallback: $e');
+      }
+    }
+
+    // 2. HTTP POST fallback
     try {
       await _apiService.dio.post('/messaging/conversations/$conversationId/messages', data: {
         'content': content,
       });
     } catch (e) {
-      debugPrint('[MessagingService] API offline message send fallback');
+      debugPrint('[MessagingService] API offline message send fallback: $e');
     }
   }
 
@@ -103,6 +267,12 @@ class MessagingService extends ChangeNotifier {
         await _apiService.dio.put('/messaging/conversations/$conversationId/read');
       } catch (_) {}
     }
+  }
+
+  @override
+  void dispose() {
+    disconnect();
+    super.dispose();
   }
 
   List<ConversationModel> _getDemoConversations() {
