@@ -36,6 +36,9 @@ jobs:
       - name: Analyze Project
         run: flutter analyze
 
+      - name: Run Flutter Tests
+        run: flutter test
+
   build-web:
     name: Build Flutter Web Release
     needs: analyze
