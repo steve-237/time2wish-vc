@@ -62,6 +62,29 @@ import { AnnouncementService } from '../../services/announcement.service';
             <span>{{ authService.currentUser()?.coins || 0 }}</span>
           </button>
 
+          <!-- Quick Language Selector (Visible on Mobile & Desktop) -->
+          <div class="lang-dropdown-wrapper" style="position: relative;">
+            <button class="lang-btn flex-center" (click)="isLangMenuOpen.set(!isLangMenuOpen())" [title]="t9n.t('nav.language') || 'Langue'" style="gap: 4px; padding: 6px 10px; background: rgba(255, 255, 255, 0.08); border-radius: 18px; border: 1px solid var(--border-card); color: var(--text-main); font-weight: 600; font-size: 0.82rem; cursor: pointer; transition: all 0.2s ease;">
+              <img [src]="getActiveFlagUrl()" alt="flag" style="width: 18px; height: 13px; object-fit: cover; border-radius: 2px;">
+              <span>{{ t9n.currentLang().toUpperCase() }}</span>
+              <span class="material-symbols-outlined" style="font-size: 16px; color: var(--text-muted); transition: transform 0.2s;" [style.transform]="isLangMenuOpen() ? 'rotate(180deg)' : 'rotate(0)'">expand_more</span>
+            </button>
+
+            @if (isLangMenuOpen()) {
+              <div class="lang-dropdown-menu" style="position: absolute; right: 0; top: calc(100% + 8px); background: var(--bg-dropdown); border: 1px solid var(--border-card); border-radius: 14px; padding: 6px; display: flex; flex-direction: column; gap: 4px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.3); min-width: 120px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+                @for (lang of languages; track lang.code) {
+                  <button (click)="setLanguage(lang.code)" class="dropdown-item-hover" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: none; background: none; width: 100%; text-align: left; cursor: pointer; color: var(--text-main); border-radius: 8px; font-size: 0.85rem; font-weight: 500;" [style.color]="t9n.currentLang() === lang.code ? 'var(--primary-color)' : 'var(--text-main)'">
+                    <img [src]="lang.flagUrl" alt="flag" style="width: 18px; height: 13px; object-fit: cover; border-radius: 2px;">
+                    <span>{{ lang.label }}</span>
+                    @if (t9n.currentLang() === lang.code) {
+                      <span class="material-symbols-outlined" style="font-size: 16px; margin-left: auto; color: var(--primary-color);">check</span>
+                    }
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
           <!-- Profile Dropdown Menu Container -->
           <div class="profile-menu-container" style="position: relative;">
             <button class="profile-toggle-btn flex-center" (click)="isProfileMenuOpen.set(!isProfileMenuOpen())" style="background: none; border: none; cursor: pointer; padding: 4px; border-radius: 30px; gap: 4px; transition: background 0.2s;">

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/birthday_service.dart';
+import '../../../core/services/settings_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/glowing_badge.dart';
@@ -10,21 +11,25 @@ import '../../../core/widgets/glowing_badge.dart';
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  void _showLogoutDialog(BuildContext context, AuthService authService) {
+  void _showLogoutDialog(BuildContext context, AuthService authService, SettingsService settings) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.backgroundDialogDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Déconnexion', style: TextStyle(color: Colors.white)),
-        content: const Text(
-          'Voulez-vous vraiment vous déconnecter ?',
-          style: TextStyle(color: AppColors.textMutedDark),
+        title: Text(settings.tr('logout'), style: const TextStyle(color: Colors.white)),
+        content: Text(
+          settings.language == 'en'
+              ? 'Are you sure you want to log out?'
+              : settings.language == 'de'
+                  ? 'Möchten Sie sich wirklich abmelden?'
+                  : 'Voulez-vous vraiment vous déconnecter ?',
+          style: const TextStyle(color: AppColors.textMutedDark),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark)),
+            child: Text(settings.tr('cancel'), style: const TextStyle(color: AppColors.textMutedDark)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -36,7 +41,7 @@ class ProfileScreen extends StatelessWidget {
               authService.logout();
               context.go('/login');
             },
-            child: const Text('Se déconnecter', style: TextStyle(color: Colors.white)),
+            child: Text(settings.tr('logout'), style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -47,7 +52,9 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = context.watch<AuthService>();
     final birthdayService = context.watch<BirthdayService>();
+    final settings = context.watch<SettingsService>();
     final user = authService.currentUser;
+    final isDark = settings.isDarkMode;
 
     if (user == null) {
       return const Scaffold(
@@ -68,7 +75,7 @@ class ProfileScreen extends StatelessWidget {
       body: SafeArea(
         child: ListView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 110),
           children: [
             // Profile Header Card
             GlassCard(
@@ -77,15 +84,15 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   TweenAnimationBuilder<double>(
                     tween: Tween<double>(begin: 0, end: 1),
-                    duration: const Duration(milliseconds: 1200),
+                    duration: const Duration(milliseconds: 1000),
                     curve: Curves.easeOutCubic,
                     builder: (context, animVal, child) => Transform.scale(
                       scale: 0.8 + (0.2 * animVal),
                       child: Opacity(
                         opacity: animVal,
                         child: Container(
-                          width: 92,
-                          height: 92,
+                          width: 88,
+                          height: 88,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: SweepGradient(
@@ -101,9 +108,9 @@ class ProfileScreen extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(3),
                             child: Container(
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AppColors.backgroundDark,
+                                color: isDark ? AppColors.backgroundDark : Colors.white,
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(3),
@@ -114,7 +121,7 @@ class ProfileScreen extends StatelessWidget {
                                     boxShadow: [
                                       BoxShadow(
                                         color: AppColors.primaryCyan.withValues(alpha: 0.35),
-                                        blurRadius: 20,
+                                        blurRadius: 18,
                                         offset: const Offset(0, 4),
                                       ),
                                     ],
@@ -124,7 +131,7 @@ class ProfileScreen extends StatelessWidget {
                                       initial,
                                       style: const TextStyle(
                                         color: Colors.white,
-                                        fontSize: 36,
+                                        fontSize: 34,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -137,15 +144,22 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
                   Text(
                     user.fullName,
-                    style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 22),
+                    style: TextStyle(
+                      color: isDark ? Colors.white : AppColors.textMainLight,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     user.email,
-                    style: const TextStyle(color: AppColors.textMutedDark, fontSize: 13),
+                    style: TextStyle(
+                      color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                      fontSize: 13,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   GlowingBadge(
@@ -158,7 +172,7 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 18),
 
             // Statistics Row Cards
             Row(
@@ -171,16 +185,20 @@ class ProfileScreen extends StatelessWidget {
                     iconColor: AppColors.accentPink,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: _StatCard(
-                    title: 'Ce mois',
+                    title: settings.language == 'en'
+                        ? 'This Month'
+                        : settings.language == 'de'
+                            ? 'Diesen Monat'
+                            : 'Ce mois',
                     value: '${birthdayService.upcomingThisMonth}',
                     icon: Icons.calendar_month,
                     iconColor: AppColors.primaryCyan,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: _StatCard(
                     title: 'WishCoins',
@@ -192,35 +210,168 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
 
-            // Menu Section
-            const Text(
-              'Paramètres du compte',
-              style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+            // --- SECTION 1: LANGUE & AFFICHAGE (PROMINENT LANGUAGE SELECTOR) ---
+            Text(
+              settings.tr('language'),
+              style: TextStyle(
+                color: isDark ? Colors.white : AppColors.textMainLight,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
+
+            GlassCard(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.language_rounded, color: AppColors.primaryCyan, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        settings.tr('select_language'),
+                        style: TextStyle(
+                          color: isDark ? Colors.white : AppColors.textMainLight,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // 3 Interactive Language Selector Pills
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _LanguageOptionCard(
+                          code: 'fr',
+                          label: 'Français',
+                          flag: '🇫🇷',
+                          isSelected: settings.language == 'fr',
+                          onTap: () => settings.setLanguage('fr'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _LanguageOptionCard(
+                          code: 'en',
+                          label: 'English',
+                          flag: '🇬🇧',
+                          isSelected: settings.language == 'en',
+                          onTap: () => settings.setLanguage('en'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _LanguageOptionCard(
+                          code: 'de',
+                          label: 'Deutsch',
+                          flag: '🇩🇪',
+                          isSelected: settings.language == 'de',
+                          onTap: () => settings.setLanguage('de'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // --- SECTION 2: APPARENCE & THÈME (DARK / LIGHT THEME TOGGLE) ---
+            Text(
+              settings.tr('appearance'),
+              style: TextStyle(
+                color: isDark ? Colors.white : AppColors.textMainLight,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            GlassCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
+                leading: Icon(
+                  isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                  color: isDark ? AppColors.wishCoinsAmber : Colors.orangeAccent,
+                ),
+                title: Text(
+                  isDark ? settings.tr('dark_mode') : settings.tr('light_mode'),
+                  style: TextStyle(
+                    color: isDark ? Colors.white : AppColors.textMainLight,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                trailing: Switch(
+                  value: isDark,
+                  onChanged: (_) => settings.toggleDarkMode(),
+                  activeTrackColor: AppColors.primaryCyan,
+                  activeColor: Colors.white,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // --- SECTION 3: COMPTE & PARAMÈTRES ---
+            Text(
+              settings.tr('settings'),
+              style: TextStyle(
+                color: isDark ? Colors.white : AppColors.textMainLight,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
 
             GlassCard(
               padding: EdgeInsets.zero,
               child: Column(
                 children: [
                   ListTile(
-                    leading: const Icon(Icons.edit, color: AppColors.primaryCyan),
-                    title: const Text('Modifier le profil', style: TextStyle(color: Colors.white)),
+                    leading: const Icon(Icons.edit_rounded, color: AppColors.primaryCyan),
+                    title: Text(
+                      settings.language == 'en'
+                          ? 'Edit Profile'
+                          : settings.language == 'de'
+                              ? 'Profil bearbeiten'
+                              : 'Modifier le profil',
+                      style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                    ),
                     trailing: const Icon(Icons.chevron_right, color: AppColors.textMutedDark),
                     onTap: () => context.push('/profile/edit'),
                   ),
                   Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
                   ListTile(
                     leading: const Icon(Icons.notifications_outlined, color: AppColors.accentPurple),
-                    title: const Text('Notifications locales', style: TextStyle(color: Colors.white)),
-                    subtitle: const Text('Actives (J-7, J-3, Jour J)', style: TextStyle(color: AppColors.textMutedDark, fontSize: 11)),
+                    title: Text(
+                      settings.language == 'en'
+                          ? 'Notifications & Reminders'
+                          : settings.language == 'de'
+                              ? 'Benachrichtigungen'
+                              : 'Notifications locales',
+                      style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                    ),
+                    subtitle: Text(
+                      settings.language == 'en'
+                          ? 'Active (D-7, D-3, D-Day)'
+                          : settings.language == 'de'
+                              ? 'Aktiv (T-7, T-3, Tag X)'
+                              : 'Actives (J-7, J-3, Jour J)',
+                      style: const TextStyle(color: AppColors.textMutedDark, fontSize: 11),
+                    ),
                     trailing: const Icon(Icons.chevron_right, color: AppColors.textMutedDark),
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Rappels locaux actifs 🔔'),
+                          content: Text('Rappels locaux programmés (J-7, J-3, Jour J) 🔔'),
                           backgroundColor: AppColors.primaryCyan,
                         ),
                       );
@@ -228,38 +379,29 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
                   ListTile(
-                    leading: const Icon(Icons.dark_mode_outlined, color: AppColors.wishCoinsAmber),
-                    title: const Text('Mode sombre Glassmorphic', style: TextStyle(color: Colors.white)),
-                    trailing: Switch(
-                      value: true,
-                      onChanged: (_) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Le thème sombre Glassmorphic est actif par défaut ✨'),
-                            backgroundColor: AppColors.primaryCyan,
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                      activeTrackColor: AppColors.primaryCyan,
+                    leading: const Icon(Icons.info_outline, color: Colors.white70),
+                    title: Text(
+                      settings.language == 'en'
+                          ? 'App Version'
+                          : settings.language == 'de'
+                              ? 'App-Version'
+                              : 'Version de l\'application',
+                      style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                    ),
+                    trailing: const Text(
+                      'v1.9.2 (Offline & WebSockets)',
+                      style: TextStyle(
+                        color: AppColors.successGreen,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 20),
-
-            GlassCard(
-              padding: EdgeInsets.zero,
-              child: ListTile(
-                leading: const Icon(Icons.info_outline, color: Colors.white70),
-                title: const Text('Version de l\'application', style: TextStyle(color: Colors.white)),
-                trailing: const Text('1.8.0 (Offline-First)', style: TextStyle(color: AppColors.successGreen, fontWeight: FontWeight.bold, fontSize: 12)),
-              ),
-            ),
-
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
 
             // Logout Button
             ElevatedButton.icon(
@@ -267,16 +409,84 @@ class ProfileScreen extends StatelessWidget {
                 backgroundColor: AppColors.accentPink.withValues(alpha: 0.15),
                 foregroundColor: AppColors.accentPink,
                 elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                   side: BorderSide(color: AppColors.accentPink.withValues(alpha: 0.4)),
                 ),
               ),
               icon: const Icon(Icons.logout),
-              label: const Text('Se déconnecter', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              onPressed: () => _showLogoutDialog(context, authService),
+              label: Text(
+                settings.tr('logout'),
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+              onPressed: () => _showLogoutDialog(context, authService, settings),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguageOptionCard extends StatelessWidget {
+  final String code;
+  final String label;
+  final String flag;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _LanguageOptionCard({
+    required this.code,
+    required this.label,
+    required this.flag,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.primaryCyan.withValues(alpha: 0.22)
+              : Colors.white.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? AppColors.primaryCyan : Colors.white.withValues(alpha: 0.1),
+            width: isSelected ? 1.8 : 1.0,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.primaryCyan.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(flag, style: const TextStyle(fontSize: 22)),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : AppColors.textMutedDark,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontSize: 12,
+              ),
+            ),
+            if (isSelected) ...[
+              const SizedBox(height: 2),
+              const Icon(Icons.check_circle, color: AppColors.primaryCyan, size: 14),
+            ],
           ],
         ),
       ),
@@ -299,52 +509,37 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final numValue = int.tryParse(value);
-    
+    final settings = context.watch<SettingsService>();
+    final isDark = settings.isDarkMode;
+
     return GlassCard(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
       child: Column(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: iconColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(14),
+              shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: iconColor, size: 22),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
-          const SizedBox(height: 10),
-          numValue != null
-              ? TweenAnimationBuilder<int>(
-                  tween: IntTween(begin: 0, end: numValue),
-                  duration: const Duration(milliseconds: 800),
-                  curve: Curves.easeOutCubic,
-                  builder: (context, val, _) => Text(
-                    '$val',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                )
-              : Text(
-                  value,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : AppColors.textMainLight,
+            ),
+          ),
+          const SizedBox(height: 2),
           Text(
             title,
             style: const TextStyle(
-              color: AppColors.textMutedDark,
               fontSize: 11,
+              color: AppColors.textMutedDark,
             ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),

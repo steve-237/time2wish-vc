@@ -12,7 +12,6 @@ void main() {
     setUp(() async {
       SharedPreferences.setMockInitialValues({});
       settingsService = SettingsService();
-      // Allow async SharedPreferences load
       await Future.delayed(const Duration(milliseconds: 20));
     });
 
@@ -38,27 +37,35 @@ void main() {
       expect(settingsService.isDarkMode, isTrue);
     });
 
-    test('setLanguage switches between fr and en and ignores invalid locales', () async {
+    test('setLanguage switches between fr, en, and de and ignores invalid locales', () async {
       await settingsService.setLanguage('en');
       expect(settingsService.language, equals('en'));
 
+      await settingsService.setLanguage('de');
+      expect(settingsService.language, equals('de'));
+
       await settingsService.setLanguage('es'); // unsupported
-      expect(settingsService.language, equals('en'));
+      expect(settingsService.language, equals('de'));
 
       await settingsService.setLanguage('fr');
       expect(settingsService.language, equals('fr'));
     });
 
-    test('tr() provides accurate translations in both French and English', () async {
+    test('tr() provides accurate translations in French, English, and German', () async {
       await settingsService.setLanguage('fr');
       expect(settingsService.tr('dashboard'), equals('Tableau de bord'));
+      expect(settingsService.tr('birthdays'), equals('Anniversaires'));
       expect(settingsService.tr('appearance'), equals('Apparence & Thème'));
-      expect(settingsService.tr('fundraiser'), contains('Cagnotte Collective'));
 
       await settingsService.setLanguage('en');
       expect(settingsService.tr('dashboard'), equals('Dashboard'));
+      expect(settingsService.tr('birthdays'), equals('Birthdays'));
       expect(settingsService.tr('appearance'), equals('Appearance & Theme'));
-      expect(settingsService.tr('fundraiser'), contains('Group Fundraiser'));
+
+      await settingsService.setLanguage('de');
+      expect(settingsService.tr('dashboard'), equals('Dashboard'));
+      expect(settingsService.tr('birthdays'), equals('Geburtstage'));
+      expect(settingsService.tr('appearance'), equals('Erscheinungsbild & Thema'));
     });
 
     test('tr() falls back to key if translation is missing', () {

@@ -1,11 +1,11 @@
 {
-    "name": "time2wish_mobile",
-    "short_name": "time2wish_mobile",
+    "name": "Time2Wish",
+    "short_name": "Time2Wish",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0B132B",
+    "theme_color": "#38BDF8",
+    "description": "Time2Wish - Ne manquez plus jamais un anniversaire",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

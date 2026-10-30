@@ -265,19 +265,25 @@ class _ProfileEditScreenState extends State<ProfileEditScreen>
                                       ),
                                     ],
                                   ),
-                                  Row(
+                                  Wrap(
+                                    spacing: 6,
                                     children: [
                                       ChoiceChip(
-                                        label: const Text('FR 🇫🇷', style: TextStyle(fontSize: 12)),
+                                        label: const Text('FR 🇫🇷', style: TextStyle(fontSize: 11)),
                                         selected: settings.language == 'fr',
                                         onSelected: (_) => settings.setLanguage('fr'),
                                         selectedColor: AppColors.primaryCyan,
                                       ),
-                                      const SizedBox(width: 6),
                                       ChoiceChip(
-                                        label: const Text('EN 🇬🇧', style: TextStyle(fontSize: 12)),
+                                        label: const Text('EN 🇬🇧', style: TextStyle(fontSize: 11)),
                                         selected: settings.language == 'en',
                                         onSelected: (_) => settings.setLanguage('en'),
+                                        selectedColor: AppColors.primaryCyan,
+                                      ),
+                                      ChoiceChip(
+                                        label: const Text('DE 🇩🇪', style: TextStyle(fontSize: 11)),
+                                        selected: settings.language == 'de',
+                                        onSelected: (_) => settings.setLanguage('de'),
                                         selectedColor: AppColors.primaryCyan,
                                       ),
                                     ],
