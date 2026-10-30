@@ -1,9 +1,9 @@
-name: Weekly Sunday Release
+name: Weekly Sunday Web & Mobile Release
 
 on:
   schedule:
-    # Runs every Sunday at 12:00 UTC (13:00 Paris / Romance Standard Time CET)
-    - cron: '0 12 * * 0'
+    # Chaque dimanche à 19h00 (Heure de Paris / CET UTC+1 -> 18:00 UTC)
+    - cron: '0 18 * * 0'
   workflow_dispatch:
 
 permissions:
@@ -12,11 +12,8 @@ permissions:
 
 jobs:
   release:
-    name: Build & Publish Sunday Release
+    name: Build & Publish Weekly Release (Web & Mobile)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./mobile_flutter
 
     steps:
       - name: Checkout Repository with Full Git History
@@ -24,66 +21,112 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 17
+      # ---------------------------------------------------------
+      # 1. SETUP ENVIRONMENTS
+      # ---------------------------------------------------------
+      - name: Set up Node.js 20 (Angular Web)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Set up JDK 17 (Android Build)
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
 
-      - name: Set up Flutter
+      - name: Set up Flutter (Flutter Web & Mobile)
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Code Quality & Unit Tests
+      # ---------------------------------------------------------
+      # 2. BUILD WEB APPLICATION (ANGULAR FRONTEND)
+      # ---------------------------------------------------------
+      - name: Build Web Application (Angular)
         run: |
+          cd frontend
+          npm ci
+          npm run build
+
+      # ---------------------------------------------------------
+      # 3. BUILD FLUTTER WEB & ANDROID APK
+      # ---------------------------------------------------------
+      - name: Install Flutter Dependencies & Run Tests
+        run: |
+          cd mobile_flutter
+          flutter pub get
           flutter analyze
           flutter test
 
-      - name: Build Web Bundle
-        run: flutter build web --release
+      - name: Build Flutter Web Bundle
+        run: |
+          cd mobile_flutter
+          flutter build web --release
 
       - name: Build Android APK
-        run: flutter build apk --debug
+        run: |
+          cd mobile_flutter
+          flutter build apk --debug
 
-      - name: Prepare Artifacts & Calculate Checksums
+      # ---------------------------------------------------------
+      # 4. PREPARE RELEASE ARTIFACTS
+      # ---------------------------------------------------------
+      - name: Package Artifacts
         id: prep
         run: |
-          mkdir -p ../release-assets
-          cp build/app/outputs/flutter-apk/app-debug.apk ../release-assets/Time2Wish-Android.apk
-          cd build/web && zip -r ../../../release-assets/Time2Wish-Web.zip . && cd ../..
-          
+          mkdir -p release-assets
+
+          # Package Main Angular Web App
+          cd frontend/dist/frontend/browser
+          zip -r ../../../release-assets/Time2Wish-Web.zip .
+          zip -r ../../../release-assets/Time2Wish-Web-Angular.zip .
+          cd ../../..
+
+          # Package Flutter Web App
+          cd mobile_flutter/build/web
+          zip -r ../../../release-assets/Time2Wish-Web-Flutter.zip .
+          cd ../../..
+
+          # Package Android APK
+          cp mobile_flutter/build/app/outputs/flutter-apk/app-debug.apk release-assets/Time2Wish-Android.apk
+
           # Date & Tag calculation
           DATE_STR=$(date +'%Y.%m.%d')
           TAG_NAME="v${DATE_STR}-weekly"
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           echo "release_title=Time2Wish Weekly Release - $DATE_STR" >> $GITHUB_OUTPUT
 
+      # ---------------------------------------------------------
+      # 5. GENERATE CHANGELOG & RELEASE NOTES
+      # ---------------------------------------------------------
       - name: Generate Changelog & Release Notes
         id: changelog
         run: |
-          cd ..
           PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
           echo "### 🌟 Time2Wish Weekly Release ($(date +'%d/%m/%Y'))" > RELEASE_NOTES.md
           echo "" >> RELEASE_NOTES.md
-          echo "Automatic Sunday release compiled with Flutter, including latest mobile and backend enhancements." >> RELEASE_NOTES.md
+          echo "Release automatique hebdomadaire du dimanche à 19h00 (Web & Mobile)." >> RELEASE_NOTES.md
           echo "" >> RELEASE_NOTES.md
-          echo "#### 📦 Packaged Assets:" >> RELEASE_NOTES.md
-          echo "- **Android APK**: \`Time2Wish-Android.apk\`" >> RELEASE_NOTES.md
-          echo "- **Web Application**: \`Time2Wish-Web.zip\`" >> RELEASE_NOTES.md
+          echo "#### 📦 Fichiers et Assets disponibles :" >> RELEASE_NOTES.md
+          echo "- **Application Web Principale (Angular)** : \`Time2Wish-Web.zip\` (ou \`Time2Wish-Web-Angular.zip\`)" >> RELEASE_NOTES.md
+          echo "- **Application Web (Flutter)** : \`Time2Wish-Web-Flutter.zip\`" >> RELEASE_NOTES.md
+          echo "- **Application Mobile Android (APK)** : \`Time2Wish-Android.apk\`" >> RELEASE_NOTES.md
           echo "" >> RELEASE_NOTES.md
-          echo "#### 📝 Recent Commits:" >> RELEASE_NOTES.md
+          echo "#### 📝 Derniers commits :" >> RELEASE_NOTES.md
           if [ -n "$PREV_TAG" ]; then
             git log ${PREV_TAG}..HEAD --oneline --no-merges | sed 's/^/- /' >> RELEASE_NOTES.md
           else
             git log -n 15 --oneline --no-merges | sed 's/^/- /' >> RELEASE_NOTES.md
           fi
 
+      # ---------------------------------------------------------
+      # 6. PUBLISH GITHUB RELEASE
+      # ---------------------------------------------------------
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -93,7 +136,9 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            release-assets/Time2Wish-Android.apk
             release-assets/Time2Wish-Web.zip
+            release-assets/Time2Wish-Web-Angular.zip
+            release-assets/Time2Wish-Web-Flutter.zip
+            release-assets/Time2Wish-Android.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
