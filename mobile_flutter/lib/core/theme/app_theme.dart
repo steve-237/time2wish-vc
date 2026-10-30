@@ -18,6 +18,9 @@ class AppColors {
   // Text Colors
   static const Color textLight = Color(0xFFF8FAFC);
   static const Color textMutedDark = Color(0xFF94A3B8);
+  static const Color textMainLight = Color(0xFF0F172A);
+  static const Color textMutedLight = Color(0xFF64748B);
+  static const Color backgroundLight = Color(0xFFF8FAFC);
   static const Color borderLight = Color(0x1AFFFFFF);
 
   // Additional accent colors (replaces hardcoded hex values scattered across screens)
