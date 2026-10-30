@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/models/birthday_model.dart';
+import '../../../core/models/gift_model.dart';
 import '../../../core/services/birthday_service.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/services/gift_service.dart';
