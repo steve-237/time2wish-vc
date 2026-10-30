@@ -11,6 +11,7 @@ import 'package:dio/dio.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/avatar_image.dart';
+import '../../../core/services/settings_service.dart';
 import '../../../core/models/birthday_model.dart';
 import '../../../core/services/birthday_service.dart';
 import '../../../core/services/api_service.dart';
@@ -547,6 +548,8 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<SettingsService>(context);
+    final localeStr = settings.language == 'en' ? 'en_US' : (settings.language == 'de' ? 'de_DE' : 'fr_FR');
     final isEditing = widget.birthdayId != null;
 
     return Scaffold(
@@ -722,7 +725,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                       const SizedBox(width: 12),
                                       Text(
                                         _birthdate != null
-                                            ? DateFormat('dd MMMM yyyy', 'fr_FR').format(_birthdate!)
+                                            ? DateFormat('dd MMMM yyyy', localeStr).format(_birthdate!)
                                             : 'Sélectionner une date',
                                         style: TextStyle(
                                           color: _birthdate != null ? Colors.white : AppColors.textMutedDark,

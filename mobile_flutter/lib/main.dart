@@ -22,7 +22,14 @@ import 'features/profile/presentation/profile_edit_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('fr_FR', null);
+  await Future.wait([
+    initializeDateFormatting('fr_FR', null),
+    initializeDateFormatting('fr', null),
+    initializeDateFormatting('en_US', null),
+    initializeDateFormatting('en', null),
+    initializeDateFormatting('de_DE', null),
+    initializeDateFormatting('de', null),
+  ]);
   runApp(const Time2WishApp());
 }
 

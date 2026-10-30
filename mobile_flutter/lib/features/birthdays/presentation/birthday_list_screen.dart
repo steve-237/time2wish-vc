@@ -1050,39 +1050,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                             return _buildMockupBirthdayItem(context, b, birthdayService, settings);
                           },
                         ),
-
-                      const SizedBox(height: 16),
-
-                      // Bottom Card Button: "+ Ajouter un anniversaire"
-                      GestureDetector(
-                        onTap: () => context.push('/birthday/new'),
-                        child: Container(
-                          height: 44,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1E283D),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.12),
-                              width: 1,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.add_rounded, color: Color(0xFF38BDF8), size: 18),
-                              const SizedBox(width: 8),
-                              Text(
-                                settings.tr('add_birthday'),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -1183,8 +1150,12 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   const SizedBox(height: 2),
                   Text(
                     birthday.isToday
-                        ? '🎂 Aujourd\'hui !'
-                        : 'Dans ${birthday.daysRemaining} jours 🎂',
+                        ? '🎂 ${settings.tr('today')}'
+                        : (settings.language == 'en'
+                            ? (birthday.daysRemaining <= 1 ? 'In 1 day 🎂' : 'In ${birthday.daysRemaining} days 🎂')
+                            : (settings.language == 'de'
+                                ? (birthday.daysRemaining <= 1 ? 'In 1 Tag 🎂' : 'In ${birthday.daysRemaining} Tagen 🎂')
+                                : (birthday.daysRemaining <= 1 ? 'Dans 1 jour 🎂' : 'Dans ${birthday.daysRemaining} jours 🎂'))),
                     style: TextStyle(
                       color: birthday.isToday
                           ? const Color(0xFFF43F5E)

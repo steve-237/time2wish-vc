@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../core/services/settings_service.dart';
 import '../../../core/models/birthday_model.dart';
 import '../../../core/models/gift_model.dart';
 import '../../../core/services/birthday_service.dart';
@@ -128,6 +129,8 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
   @override
   Widget build(BuildContext context) {
     final birthdayService = Provider.of<BirthdayService>(context);
+    final settings = Provider.of<SettingsService>(context);
+    final localeStr = settings.language == 'en' ? 'en_US' : (settings.language == 'de' ? 'de_DE' : 'fr_FR');
     final birthday = birthdayService.getBirthdayById(widget.birthdayId);
 
     if (birthday == null) {
@@ -329,7 +332,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          DateFormat('dd MMMM yyyy', 'fr_FR').format(birthday.birthdate),
+                          DateFormat('dd MMMM yyyy', localeStr).format(birthday.birthdate),
                           style: const TextStyle(color: AppColors.textLight, fontSize: 15, fontWeight: FontWeight.w500),
                         ),
                         if (birthday.notes != null && birthday.notes!.isNotEmpty) ...[
