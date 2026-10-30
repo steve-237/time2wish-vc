@@ -1,0 +1,99 @@
+name: Weekly Sunday Release
+
+on:
+  schedule:
+    # Runs every Sunday at 12:00 UTC (13:00 Paris / Romance Standard Time CET)
+    - cron: '0 12 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    name: Build & Publish Sunday Release
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./mobile_flutter
+
+    steps:
+      - name: Checkout Repository with Full Git History
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Code Quality & Unit Tests
+        run: |
+          flutter analyze
+          flutter test
+
+      - name: Build Web Bundle
+        run: flutter build web --release
+
+      - name: Build Android APK
+        run: flutter build apk --debug
+
+      - name: Prepare Artifacts & Calculate Checksums
+        id: prep
+        run: |
+          mkdir -p ../release-assets
+          cp build/app/outputs/flutter-apk/app-debug.apk ../release-assets/Time2Wish-Android.apk
+          cd build/web && zip -r ../../../release-assets/Time2Wish-Web.zip . && cd ../..
+          
+          # Date & Tag calculation
+          DATE_STR=$(date +'%Y.%m.%d')
+          TAG_NAME="v${DATE_STR}-weekly"
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "release_title=Time2Wish Weekly Release - $DATE_STR" >> $GITHUB_OUTPUT
+
+      - name: Generate Changelog & Release Notes
+        id: changelog
+        run: |
+          cd ..
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "### 🌟 Time2Wish Weekly Release ($(date +'%d/%m/%Y'))" > RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "Automatic Sunday release compiled with Flutter, including latest mobile and backend enhancements." >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "#### 📦 Packaged Assets:" >> RELEASE_NOTES.md
+          echo "- **Android APK**: \`Time2Wish-Android.apk\`" >> RELEASE_NOTES.md
+          echo "- **Web Application**: \`Time2Wish-Web.zip\`" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "#### 📝 Recent Commits:" >> RELEASE_NOTES.md
+          if [ -n "$PREV_TAG" ]; then
+            git log ${PREV_TAG}..HEAD --oneline --no-merges | sed 's/^/- /' >> RELEASE_NOTES.md
+          else
+            git log -n 15 --oneline --no-merges | sed 's/^/- /' >> RELEASE_NOTES.md
+          fi
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.prep.outputs.tag_name }}
+          name: ${{ steps.prep.outputs.release_title }}
+          body_path: RELEASE_NOTES.md
+          draft: false
+          prerelease: false
+          files: |
+            release-assets/Time2Wish-Android.apk
+            release-assets/Time2Wish-Web.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
