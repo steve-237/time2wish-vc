@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -13,7 +12,6 @@ import '../../../core/services/settings_service.dart';
 import '../../../core/models/birthday_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
-import '../../../core/widgets/glowing_badge.dart';
 import '../../../core/widgets/avatar_image.dart';
 import '../../../core/widgets/animated_list_item.dart';
 

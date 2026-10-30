@@ -229,9 +229,9 @@ class _MainNavShellState extends State<MainNavShell> {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              AnimatedContainer(
+              AnimatedScale(
                 duration: const Duration(milliseconds: 200),
-                transform: Matrix4.identity()..scale(isSelected ? 1.15 : 1.0),
+                scale: isSelected ? 1.15 : 1.0,
                 child: Icon(
                   isSelected ? activeIcon : icon,
                   color: isSelected ? activeColor : inactiveColor,

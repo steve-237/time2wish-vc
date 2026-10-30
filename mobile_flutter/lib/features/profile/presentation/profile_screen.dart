@@ -313,7 +313,7 @@ class ProfileScreen extends StatelessWidget {
                   value: isDark,
                   onChanged: (_) => settings.toggleDarkMode(),
                   activeTrackColor: AppColors.primaryCyan,
-                  activeColor: Colors.white,
+                  activeThumbColor: Colors.white,
                 ),
               ),
             ),
