@@ -23,7 +23,7 @@ class GiftService extends ChangeNotifier {
   }
 
   List<GiftModel> getGiftsForBirthday(int birthdayId) {
-    return _giftsCache[birthdayId] ?? _getDemoGifts(birthdayId);
+    return _giftsCache[birthdayId] ?? [];
   }
 
   Future<void> fetchGifts(int birthdayId) async {
@@ -37,19 +37,17 @@ class GiftService extends ChangeNotifier {
     try {
       final response = await _apiService.dio.get('/birthdays/$birthdayId/gifts');
       if (response.statusCode == 200 && response.data != null) {
-        _giftsCache[birthdayId] = (response.data as List)
-            .map((json) => GiftModel.fromJson(json))
+        final list = (response.data as List)
+            .map((json) => GiftModel.fromJson(json as Map<String, dynamic>))
             .toList();
+        _giftsCache[birthdayId] = list;
         await _storageService.saveGifts(_giftsCache);
       }
     } catch (e) {
-      debugPrint('[GiftService] Offline mode gift fetch fallback: $e');
+      debugPrint('[GiftService] Offline/fallback gift fetch: $e');
       final loaded = await _storageService.loadGifts();
       if (loaded.containsKey(birthdayId)) {
         _giftsCache[birthdayId] = loaded[birthdayId]!;
-      } else if (!_giftsCache.containsKey(birthdayId)) {
-        _giftsCache[birthdayId] = _getDemoGifts(birthdayId);
-        await _storageService.saveGifts(_giftsCache);
       }
     } finally {
       _isLoading = false;
@@ -57,100 +55,129 @@ class GiftService extends ChangeNotifier {
     }
   }
 
-  Future<GiftModel?> addGift(int birthdayId, String name, String? description, String? priceRange) async {
-    final newGift = GiftModel(
+  Future<GiftModel?> addGift(
+    int birthdayId,
+    String name,
+    String? description,
+    String? priceRange, {
+    String? url,
+  }) async {
+    final provisionalGift = GiftModel(
       id: DateTime.now().millisecondsSinceEpoch,
       birthdayId: birthdayId,
       name: name,
       description: description,
       priceRange: priceRange,
+      url: url,
     );
 
     if (!_giftsCache.containsKey(birthdayId)) {
       _giftsCache[birthdayId] = [];
     }
-    _giftsCache[birthdayId]!.add(newGift);
+    _giftsCache[birthdayId]!.add(provisionalGift);
+    await _storageService.saveGifts(_giftsCache);
+    notifyListeners();
+
+    final payload = {
+      'name': name,
+      if (description != null && description.isNotEmpty) 'description': description,
+      if (priceRange != null && priceRange.isNotEmpty) 'priceRange': priceRange,
+      if (url != null && url.isNotEmpty) 'url': url,
+    };
+
+    try {
+      final response = await _apiService.dio.post(
+        '/birthdays/$birthdayId/gifts',
+        data: payload,
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        final serverGift = GiftModel.fromJson(response.data as Map<String, dynamic>);
+        final list = _giftsCache[birthdayId];
+        if (list != null) {
+          final idx = list.indexWhere((g) => g.id == provisionalGift.id);
+          if (idx != -1) {
+            list[idx] = serverGift;
+          }
+        }
+        await _storageService.saveGifts(_giftsCache);
+        notifyListeners();
+        return serverGift;
+      }
+    } catch (e) {
+      debugPrint('[GiftService] Offline add gift queued: $e');
+      await _syncService?.enqueue(
+        endpoint: '/birthdays/$birthdayId/gifts',
+        method: 'POST',
+        data: payload,
+      );
+    }
+    return provisionalGift;
+  }
+
+  Future<void> toggleReserveGift(int birthdayId, int giftId, String userName) async {
+    final list = _giftsCache[birthdayId];
+    if (list == null) return;
+    final index = list.indexWhere((g) => g.id == giftId);
+    if (index == -1) return;
+
+    final current = list[index];
+    final bool nextReserved = !current.isReserved;
+    final String? nextReservedByName = nextReserved ? (userName.isNotEmpty ? userName : 'Vous') : null;
+
+    final updatedGift = current.copyWith(
+      isReserved: nextReserved,
+      reservedByName: nextReservedByName,
+    );
+    list[index] = updatedGift;
+    _giftsCache[birthdayId] = list;
     await _storageService.saveGifts(_giftsCache);
     notifyListeners();
 
     try {
-      await _apiService.dio.post('/birthdays/$birthdayId/gifts', data: newGift.toJson());
+      final response = await _apiService.dio.put(
+        '/birthdays/$birthdayId/gifts/$giftId/reserve',
+        data: {'guestName': userName},
+      );
+      if (response.statusCode == 200 && response.data != null) {
+        final serverGift = GiftModel.fromJson(response.data as Map<String, dynamic>);
+        final currentList = _giftsCache[birthdayId];
+        if (currentList != null) {
+          final curIdx = currentList.indexWhere((g) => g.id == giftId);
+          if (curIdx != -1) {
+            currentList[curIdx] = serverGift;
+            _giftsCache[birthdayId] = currentList;
+            await _storageService.saveGifts(_giftsCache);
+            notifyListeners();
+          }
+        }
+      }
     } catch (e) {
-      debugPrint('[GiftService] Offline add gift saved locally and queued: $e');
+      debugPrint('[GiftService] Offline toggle reserve queued: $e');
       await _syncService?.enqueue(
-        endpoint: '/birthdays/$birthdayId/gifts',
-        method: 'POST',
-        data: newGift.toJson(),
+        endpoint: '/birthdays/$birthdayId/gifts/$giftId/reserve',
+        method: 'PUT',
+        data: {'guestName': userName},
       );
     }
-    return newGift;
   }
 
-  Future<void> toggleReserveGift(int birthdayId, int giftId, String userName) async {
-    final list = _giftsCache[birthdayId] ?? _getDemoGifts(birthdayId);
-    final index = list.indexWhere((g) => g.id == giftId);
-    if (index != -1) {
-      final current = list[index];
-      final isCurrentlyReserved = current.isReserved;
-      final updatedGift = GiftModel(
-        id: current.id,
-        birthdayId: current.birthdayId,
-        name: current.name,
-        description: current.description,
-        priceRange: current.priceRange,
-        url: current.url,
-        imageUrl: current.imageUrl,
-        isReserved: !isCurrentlyReserved,
-        reservedByName: !isCurrentlyReserved ? userName : null,
-        upvotes: current.upvotes,
-        downvotes: current.downvotes,
-      );
-      list[index] = updatedGift;
+  Future<void> deleteGift(int birthdayId, int giftId) async {
+    final list = _giftsCache[birthdayId];
+    if (list != null) {
+      list.removeWhere((g) => g.id == giftId);
       _giftsCache[birthdayId] = list;
       await _storageService.saveGifts(_giftsCache);
       notifyListeners();
-
-      try {
-        await _apiService.dio.put('/birthdays/$birthdayId/gifts/$giftId/reserve');
-      } catch (e) {
-        debugPrint('[GiftService] Offline toggle reserve queued: $e');
-        await _syncService?.enqueue(
-          endpoint: '/birthdays/$birthdayId/gifts/$giftId/reserve',
-          method: 'PUT',
-        );
-      }
     }
-  }
 
-  List<GiftModel> _getDemoGifts(int birthdayId) {
-    return [
-      GiftModel(
-        id: 1,
-        birthdayId: birthdayId,
-        name: 'Casque Réduction de Bruit 🎧',
-        description: 'Pour ses voyages et écouter de la musique au calme',
-        priceRange: '150€ - 200€',
-        isReserved: true,
-        reservedByName: 'Sophie',
-        upvotes: 5,
-      ),
-      GiftModel(
-        id: 2,
-        birthdayId: birthdayId,
-        name: 'Coffret Dégustation Chocolat d\'Exception 🍫',
-        description: 'Sélection artisanale grands crus',
-        priceRange: '35€ - 50€',
-        isReserved: false,
-        upvotes: 3,
-      ),
-      GiftModel(
-        id: 3,
-        birthdayId: birthdayId,
-        name: 'Smartwatch Sport & Santé ⌚',
-        description: 'Suivi activité et rythme cardiaque',
-        priceRange: '120€ - 180€',
-        isReserved: false,
-      ),
-    ];
+    try {
+      await _apiService.dio.delete('/birthdays/$birthdayId/gifts/$giftId');
+    } catch (e) {
+      debugPrint('[GiftService] Offline delete gift queued: $e');
+      await _syncService?.enqueue(
+        endpoint: '/birthdays/$birthdayId/gifts/$giftId',
+        method: 'DELETE',
+      );
+    }
   }
 }

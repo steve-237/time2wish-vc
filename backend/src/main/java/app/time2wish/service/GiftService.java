@@ -61,6 +61,7 @@ public class GiftService {
             throw new RuntimeException("Gift does not belong to this birthday");
         }
 
+        giftVoteRepository.deleteAll(giftVoteRepository.findByGift(gift));
         giftRepository.delete(gift);
     }
 
@@ -80,6 +81,34 @@ public class GiftService {
         gift.setPriceRange(dto.getPriceRange());
         gift.setUrl(dto.getUrl());
         gift.setImageUrl(dto.getImageUrl());
+
+        gift = giftRepository.save(gift);
+        return mapToDto(gift, null);
+    }
+
+    public GiftDto toggleReserveGift(Long birthdayId, Long giftId, User user, String reservedByName) {
+        Birthday birthday = birthdayRepository.findByIdAndUserAndIsDeletedFalse(birthdayId, user)
+                .orElseThrow(() -> new RuntimeException("Birthday not found"));
+
+        Gift gift = giftRepository.findById(giftId)
+                .orElseThrow(() -> new RuntimeException("Gift not found"));
+
+        if (!gift.getBirthday().getId().equals(birthday.getId())) {
+            throw new RuntimeException("Gift does not belong to this birthday");
+        }
+
+        boolean willBeReserved = !Boolean.TRUE.equals(gift.getIsReserved());
+        gift.setIsReserved(willBeReserved);
+        if (willBeReserved) {
+            String name = (reservedByName != null && !reservedByName.trim().isEmpty())
+                    ? reservedByName.trim()
+                    : ((user.getFullName() != null && !user.getFullName().trim().isEmpty())
+                            ? user.getFullName()
+                            : "Moi");
+            gift.setReservedByName(name);
+        } else {
+            gift.setReservedByName(null);
+        }
 
         gift = giftRepository.save(gift);
         return mapToDto(gift, null);

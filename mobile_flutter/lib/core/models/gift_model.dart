@@ -12,7 +12,7 @@ class GiftModel {
   final int downvotes;
   final DateTime? createdAt;
 
-  GiftModel({
+  const GiftModel({
     required this.id,
     required this.birthdayId,
     required this.name,
@@ -29,30 +29,87 @@ class GiftModel {
 
   factory GiftModel.fromJson(Map<String, dynamic> json) {
     return GiftModel(
-      id: json['id'] ?? 0,
-      birthdayId: json['birthdayId'] ?? 0,
-      name: json['name'] ?? '',
-      description: json['description'],
-      priceRange: json['priceRange'],
-      url: json['url'],
-      imageUrl: json['imageUrl'],
-      isReserved: json['isReserved'] ?? false,
-      reservedByName: json['reservedByName'],
-      upvotes: json['upvotes'] ?? 0,
-      downvotes: json['downvotes'] ?? 0,
+      id: json['id'] is int
+          ? json['id'] as int
+          : int.tryParse(json['id']?.toString() ?? '') ?? 0,
+      birthdayId: json['birthdayId'] is int
+          ? json['birthdayId'] as int
+          : int.tryParse(json['birthdayId']?.toString() ?? '') ?? 0,
+      name: json['name']?.toString() ?? '',
+      description: json['description']?.toString(),
+      priceRange: json['priceRange']?.toString(),
+      url: json['url']?.toString(),
+      imageUrl: json['imageUrl']?.toString(),
+      isReserved: json['isReserved'] == true,
+      reservedByName: json['reservedByName']?.toString(),
+      upvotes: json['upvotes'] is int
+          ? json['upvotes'] as int
+          : int.tryParse(json['upvotes']?.toString() ?? '') ?? 0,
+      downvotes: json['downvotes'] is int
+          ? json['downvotes'] as int
+          : int.tryParse(json['downvotes']?.toString() ?? '') ?? 0,
       createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
+          ? (json['createdAt'] is String
+              ? DateTime.tryParse(json['createdAt'] as String)
+              : null)
           : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
+      'birthdayId': birthdayId,
       'name': name,
       'description': description,
       'priceRange': priceRange,
       'url': url,
       'imageUrl': imageUrl,
+      'isReserved': isReserved,
+      'reservedByName': reservedByName,
+      'upvotes': upvotes,
+      'downvotes': downvotes,
+      'createdAt': createdAt?.toIso8601String(),
     };
+  }
+
+  Map<String, dynamic> toApiJson() {
+    return {
+      'name': name,
+      if (description != null) 'description': description,
+      if (priceRange != null) 'priceRange': priceRange,
+      if (url != null) 'url': url,
+      if (imageUrl != null) 'imageUrl': imageUrl,
+    };
+  }
+
+  GiftModel copyWith({
+    int? id,
+    int? birthdayId,
+    String? name,
+    String? description,
+    String? priceRange,
+    String? url,
+    String? imageUrl,
+    bool? isReserved,
+    String? reservedByName,
+    int? upvotes,
+    int? downvotes,
+    DateTime? createdAt,
+  }) {
+    return GiftModel(
+      id: id ?? this.id,
+      birthdayId: birthdayId ?? this.birthdayId,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      priceRange: priceRange ?? this.priceRange,
+      url: url ?? this.url,
+      imageUrl: imageUrl ?? this.imageUrl,
+      isReserved: isReserved ?? this.isReserved,
+      reservedByName: reservedByName ?? this.reservedByName,
+      upvotes: upvotes ?? this.upvotes,
+      downvotes: downvotes ?? this.downvotes,
+      createdAt: createdAt ?? this.createdAt,
+    );
   }
 }

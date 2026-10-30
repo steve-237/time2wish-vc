@@ -3,6 +3,7 @@ package app.time2wish.controller;
 import app.time2wish.dto.GiftCreateDto;
 import app.time2wish.dto.GiftDto;
 import app.time2wish.dto.MessageResponse;
+import app.time2wish.dto.ReserveGiftDto;
 import app.time2wish.dto.ShareTokenDto;
 import app.time2wish.model.User;
 import app.time2wish.service.GiftService;
@@ -52,6 +53,26 @@ public class GiftController {
             @Valid @RequestBody GiftCreateDto dto,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return ResponseEntity.ok(giftService.updateGift(birthdayId, giftId, getAuthenticatedUser(userDetails), dto));
+    }
+
+    @PutMapping("/{giftId}/reserve")
+    public ResponseEntity<GiftDto> toggleReserveGiftPut(
+            @PathVariable Long birthdayId,
+            @PathVariable Long giftId,
+            @RequestBody(required = false) ReserveGiftDto dto,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        String reserver = dto != null ? dto.getGuestName() : null;
+        return ResponseEntity.ok(giftService.toggleReserveGift(birthdayId, giftId, getAuthenticatedUser(userDetails), reserver));
+    }
+
+    @PostMapping("/{giftId}/reserve")
+    public ResponseEntity<GiftDto> toggleReserveGiftPost(
+            @PathVariable Long birthdayId,
+            @PathVariable Long giftId,
+            @RequestBody(required = false) ReserveGiftDto dto,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        String reserver = dto != null ? dto.getGuestName() : null;
+        return ResponseEntity.ok(giftService.toggleReserveGift(birthdayId, giftId, getAuthenticatedUser(userDetails), reserver));
     }
 
     @DeleteMapping("/{giftId}")

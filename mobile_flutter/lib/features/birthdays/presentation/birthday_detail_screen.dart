@@ -34,6 +34,12 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<GiftService>().fetchGifts(widget.birthdayId);
+      }
+    });
+
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -433,6 +439,43 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
     );
   }
 
+  void _showDeleteGiftDialog(BuildContext context, GiftService giftService, int birthdayId, GiftModel gift) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.backgroundDialogDark,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Supprimer l\'idée cadeau', style: TextStyle(color: Colors.white)),
+        content: Text(
+          'Voulez-vous supprimer "${gift.name}" de la liste ?',
+          style: const TextStyle(color: AppColors.textMutedDark),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.accentPink),
+            onPressed: () {
+              Navigator.pop(ctx);
+              DeviceService.triggerMediumHaptic();
+              giftService.deleteGift(birthdayId, gift.id);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Idée cadeau "${gift.name}" supprimée'),
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+            child: const Text('Supprimer', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildGiftsSection(BuildContext context, BirthdayModel birthday) {
     final giftService = Provider.of<GiftService>(context);
     final gifts = giftService.getGiftsForBirthday(birthday.id);
@@ -469,67 +512,148 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                 IconButton(
                   icon: const Icon(Icons.add_circle_outline, color: AppColors.primaryCyan),
                   onPressed: () {
-                final nameCtrl = TextEditingController();
-                final priceCtrl = TextEditingController();
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    backgroundColor: AppColors.backgroundDialogDark,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    title: const Text('Ajouter une idée cadeau', style: TextStyle(color: Colors.white)),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextField(
-                          controller: nameCtrl,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
-                            labelText: 'Nom du cadeau',
-                            labelStyle: TextStyle(color: AppColors.textMutedDark),
+                    final nameCtrl = TextEditingController();
+                    final descCtrl = TextEditingController();
+                    final priceCtrl = TextEditingController();
+                    final urlCtrl = TextEditingController();
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        backgroundColor: AppColors.backgroundDialogDark,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        title: const Text('Ajouter une idée cadeau', style: TextStyle(color: Colors.white)),
+                        content: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextField(
+                                controller: nameCtrl,
+                                style: const TextStyle(color: Colors.white),
+                                decoration: const InputDecoration(
+                                  labelText: 'Nom du cadeau *',
+                                  labelStyle: TextStyle(color: AppColors.textMutedDark),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: descCtrl,
+                                style: const TextStyle(color: Colors.white),
+                                decoration: const InputDecoration(
+                                  labelText: 'Description (facultatif)',
+                                  labelStyle: TextStyle(color: AppColors.textMutedDark),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: priceCtrl,
+                                style: const TextStyle(color: Colors.white),
+                                decoration: const InputDecoration(
+                                  labelText: 'Budget (ex: 50€)',
+                                  labelStyle: TextStyle(color: AppColors.textMutedDark),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: urlCtrl,
+                                style: const TextStyle(color: Colors.white),
+                                decoration: const InputDecoration(
+                                  labelText: 'Lien Web / Boutique (facultatif)',
+                                  labelStyle: TextStyle(color: AppColors.textMutedDark),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        TextField(
-                          controller: priceCtrl,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
-                            labelText: 'Budget (ex: 50€)',
-                            labelStyle: TextStyle(color: AppColors.textMutedDark),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark)),
                           ),
-                        ),
-                      ],
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark)),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryCyan),
+                            onPressed: () {
+                              if (nameCtrl.text.trim().isNotEmpty) {
+                                Navigator.pop(ctx);
+                                giftService.addGift(
+                                  birthday.id,
+                                  nameCtrl.text.trim(),
+                                  descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
+                                  priceCtrl.text.trim().isEmpty ? null : priceCtrl.text.trim(),
+                                  url: urlCtrl.text.trim().isEmpty ? null : urlCtrl.text.trim(),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('🎁 "${nameCtrl.text.trim()}" ajouté !'),
+                                    backgroundColor: AppColors.primaryCyan,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
+                            },
+                            child: const Text('Ajouter', style: TextStyle(color: Colors.white)),
+                          ),
+                        ],
                       ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryCyan),
-                        onPressed: () {
-                          if (nameCtrl.text.isNotEmpty) {
-                            Navigator.pop(ctx);
-                            giftService.addGift(birthday.id, nameCtrl.text.trim(), null, priceCtrl.text.trim());
-                          }
-                        },
-                        child: const Text('Ajouter', style: TextStyle(color: Colors.white)),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                    );
+                  },
+                ),
               ],
             ),
           ],
         ),
         const SizedBox(height: 10),
-        if (gifts.isEmpty)
+        if (giftService.isLoading && gifts.isEmpty)
           const GlassCard(
             child: Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(20.0),
               child: Center(
-                child: Text('Aucune idée cadeau ajoutée pour l\'instant.', style: TextStyle(color: AppColors.textMutedDark)),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryCyan),
+                    ),
+                    SizedBox(width: 12),
+                    Text('Chargement des idées cadeaux...', style: TextStyle(color: AppColors.textMutedDark, fontSize: 13)),
+                  ],
+                ),
+              ),
+            ),
+          )
+        else if (gifts.isEmpty)
+          GlassCard(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+              child: Column(
+                children: [
+                  const Icon(Icons.card_giftcard_outlined, color: AppColors.textMutedDark, size: 36),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Aucune idée cadeau pour l\'instant.',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Ajoutez une idée de cadeau ou laissez l\'IA vous proposer des suggestions personnalisées !',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColors.textMutedDark, fontSize: 12),
+                  ),
+                  const SizedBox(height: 14),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      DeviceService.triggerMediumHaptic();
+                      AiGiftSheet.show(context, birthday);
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.primaryCyan),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    icon: const Icon(Icons.auto_awesome, color: AppColors.primaryCyan, size: 16),
+                    label: const Text('Générer avec l\'IA ✨', style: TextStyle(color: AppColors.primaryCyan)),
+                  ),
+                ],
               ),
             ),
           )
@@ -537,65 +661,198 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
           Column(
             children: gifts.map((gift) {
               return Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
+                padding: const EdgeInsets.only(bottom: 10.0),
                 child: GlassCard(
-                  child: Row(
-                    children: [
-                      Icon(
-                        gift.isReserved ? Icons.check_circle : Icons.card_giftcard,
-                        color: gift.isReserved ? AppColors.successGreen : AppColors.wishCoinsAmber,
-                        size: 28,
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              gift.name,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                                decoration: gift.isReserved ? TextDecoration.lineThrough : null,
-                              ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Left Gift/Reserved status icon
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: gift.isReserved
+                                ? AppColors.successGreen.withValues(alpha: 0.18)
+                                : AppColors.wishCoinsAmber.withValues(alpha: 0.18),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              gift.isReserved ? Icons.check_circle_rounded : Icons.card_giftcard_rounded,
+                              color: gift.isReserved ? AppColors.successGreen : AppColors.wishCoinsAmber,
+                              size: 22,
                             ),
-                            if (gift.description != null) ...[
-                              const SizedBox(height: 2),
-                              Text(gift.description!, style: const TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
-                            ],
-                            if (gift.isReserved) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                'Réservé par ${gift.reservedByName ?? 'un ami'}',
-                                style: const TextStyle(color: AppColors.successGreen, fontSize: 11, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.savings_outlined, color: AppColors.wishCoinsAmber, size: 20),
-                        tooltip: 'Cagnotte collective',
-                        onPressed: () {
-                          DeviceService.triggerMediumHaptic();
-                          FundraiserSheet.show(context, gift, birthday.name);
-                        },
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          DeviceService.triggerLightHaptic();
-                          giftService.toggleReserveGift(birthday.id, gift.id, 'Vous');
-                        },
-                        child: Text(
-                          gift.isReserved ? 'Libérer' : 'Réserver',
-                          style: TextStyle(
-                            color: gift.isReserved ? AppColors.accentPink : AppColors.primaryCyan,
-                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 12),
+
+                        // Title & details
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      gift.name,
+                                      style: TextStyle(
+                                        color: gift.isReserved ? AppColors.textMutedDark : Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                        decoration: gift.isReserved ? TextDecoration.lineThrough : null,
+                                      ),
+                                    ),
+                                  ),
+                                  if (gift.priceRange != null && gift.priceRange!.trim().isNotEmpty) ...[
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.wishCoinsAmber.withValues(alpha: 0.18),
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(color: AppColors.wishCoinsAmber.withValues(alpha: 0.3)),
+                                      ),
+                                      child: Text(
+                                        gift.priceRange!,
+                                        style: const TextStyle(
+                                          color: AppColors.wishCoinsAmber,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              if (gift.description != null && gift.description!.trim().isNotEmpty) ...[
+                                const SizedBox(height: 3),
+                                Text(
+                                  gift.description!,
+                                  style: const TextStyle(color: AppColors.textMutedDark, fontSize: 11),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                              if (gift.isReserved) ...[
+                                const SizedBox(height: 5),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.successGreen.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.check, size: 12, color: AppColors.successGreen),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Réservé par ${gift.reservedByName ?? 'Vous'}',
+                                        style: const TextStyle(
+                                          color: AppColors.successGreen,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+
+                        // Action buttons: Cagnotte, Reserve/Release, Delete
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.savings_outlined, color: AppColors.wishCoinsAmber, size: 20),
+                              tooltip: 'Cagnotte collective',
+                              padding: const EdgeInsets.all(6),
+                              constraints: const BoxConstraints(),
+                              onPressed: () {
+                                DeviceService.triggerMediumHaptic();
+                                FundraiserSheet.show(context, gift, birthday.name);
+                              },
+                            ),
+                            const SizedBox(width: 4),
+                            // Reserve / Release Button
+                            if (gift.isReserved)
+                              OutlinedButton(
+                                onPressed: () {
+                                  DeviceService.triggerLightHaptic();
+                                  giftService.toggleReserveGift(birthday.id, gift.id, 'Vous');
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('🔓 Cadeau libéré avec succès !'),
+                                      behavior: SnackBarBehavior.floating,
+                                      duration: Duration(seconds: 1),
+                                    ),
+                                  );
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(color: AppColors.accentPink),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                child: const Text(
+                                  'Libérer',
+                                  style: TextStyle(
+                                    color: AppColors.accentPink,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              )
+                            else
+                              ElevatedButton(
+                                onPressed: () {
+                                  DeviceService.triggerLightHaptic();
+                                  giftService.toggleReserveGift(birthday.id, gift.id, 'Vous');
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('🎁 Cadeau réservé !'),
+                                      backgroundColor: AppColors.primaryCyan,
+                                      behavior: SnackBarBehavior.floating,
+                                      duration: Duration(seconds: 1),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primaryCyan,
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                child: const Text(
+                                  'Réserver',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            IconButton(
+                              icon: const Icon(Icons.delete_outline_rounded, color: Colors.white38, size: 18),
+                              tooltip: 'Supprimer',
+                              padding: const EdgeInsets.all(6),
+                              constraints: const BoxConstraints(),
+                              onPressed: () {
+                                _showDeleteGiftDialog(context, giftService, birthday.id, gift);
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
