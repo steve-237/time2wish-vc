@@ -272,3 +272,54 @@
   align-items: center;
   gap: 12px;
 }
+
+
+/* Mobile Responsive Grid Styling */
+@media (max-width: 600px) {
+  .birthdays-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+
+  .birthday-item {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .grid-avatar {
+    width: 58px;
+    height: 58px;
+  }
+
+  .grid-name {
+    font-size: 1.1rem;
+  }
+
+  .grid-badges {
+    gap: 6px;
+  }
+
+  .grid-age, .grid-urgency {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+  }
+
+  .quick-wish-btn {
+    width: 100%;
+    margin-bottom: 8px;
+    justify-content: center;
+  }
+
+  .birthday-actions-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .action-buttons-right {
+    width: 100%;
+    justify-content: space-around;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-card);
+  }
+}

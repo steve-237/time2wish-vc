@@ -583,3 +583,311 @@ body.dark-theme .stat-card:hover { box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3); }
 .stat-card.highlight .stat-icon { animation: pulseGlow 2s infinite; }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
+
+
+/* ==========================================================================
+   Mobile-First Header, Hero Spotlight & Category Chips
+   ========================================================================== */
+
+.mobile-dashboard-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-card);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.mobile-brand-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-app-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.mobile-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-app-title {
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: 1.15rem;
+  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+}
+
+.mobile-app-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.mobile-lang-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-card);
+  border-radius: 20px;
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-lang-chip:active {
+  transform: scale(0.95);
+  background: rgba(56, 189, 248, 0.15);
+}
+
+.mobile-lang-flag {
+  width: 20px;
+  height: 14px;
+  object-fit: cover;
+  border-radius: 3px;
+}
+
+.mobile-lang-modal {
+  max-width: 340px;
+  width: 90%;
+  padding: 24px;
+  border-radius: 22px;
+}
+
+/* Hero Spotlight Card: Next Birthday */
+.next-birthday-hero {
+  position: relative;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(168, 85, 247, 0.14) 50%, rgba(236, 72, 153, 0.12) 100%);
+  border: 1.5px solid rgba(168, 85, 247, 0.35);
+  border-radius: 24px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 10px 30px rgba(168, 85, 247, 0.15);
+  overflow: hidden;
+}
+
+.hero-top-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hero-countdown-pill {
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.hero-countdown-pill.hero-today {
+  background: linear-gradient(135deg, #ef4444 0%, #ec4899 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+  animation: pulse-countdown 1.8s infinite;
+}
+
+@keyframes pulse-countdown {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.hero-person-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.hero-avatar-wrapper {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.35);
+  flex-shrink: 0;
+}
+
+.hero-avatar-wrapper.pulse-glow {
+  animation: avatarPulse 2s infinite;
+}
+
+@keyframes avatarPulse {
+  0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.6); }
+  70% { box-shadow: 0 0 0 12px rgba(236, 72, 153, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+}
+
+.hero-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--bg-card);
+}
+
+.hero-party-icon {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  font-size: 22px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+
+.hero-person-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.hero-person-name {
+  font-family: var(--font-title);
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0 0 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero-person-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.hero-turning-age {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.hero-wish-btn {
+  padding: 10px 18px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.35);
+  white-space: nowrap;
+}
+
+/* Category Quick Filter Chips */
+.mobile-category-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px 14px 2px;
+  margin-bottom: 20px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.mobile-category-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.category-chip {
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.category-chip.active {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+}
+
+.category-chip.fav-chip.active {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+}
+
+/* Responsive Breakpoints for Mobile */
+@media (max-width: 768px) {
+  .mobile-dashboard-header {
+    display: flex;
+  }
+
+  .dashboard-header {
+    display: none; /* Replaced by mobile header */
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .stat-icon {
+    font-size: 1.4rem;
+    padding: 8px;
+  }
+
+  .stat-value {
+    font-size: 1.4rem;
+  }
+
+  .hero-person-row {
+    flex-wrap: wrap;
+  }
+
+  .hero-action-box {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .hero-wish-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

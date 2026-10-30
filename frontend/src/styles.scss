@@ -1304,7 +1304,7 @@ select.custom-select-control option {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .main-nav, .user-info, .logout-text, .hide-mobile {
+  .main-nav, .user-info, .logout-text, .hide-mobile, .messaging-nav-btn, .PRO-nav-btn {
     display: none !important;
   }
   .user-profile-menu {

@@ -2,6 +2,138 @@
 <canvas #confettiCanvas class="confetti-canvas"></canvas>
 
 <!-- Dashboard Header -->
+
+<!-- Mobile Header Bar with Official Time2Wish Icon & Instant Language Switcher -->
+<div class="mobile-dashboard-header">
+  <div class="mobile-brand-box">
+    <img src="branding/time2wish_icon_192.png" alt="Time2Wish" class="mobile-app-logo">
+    <div class="mobile-brand-text">
+      <span class="mobile-app-title">Time2Wish</span>
+      <span class="mobile-app-subtitle">{{ authService.currentUser()?.fullName || 'Ne manquez aucun anniversaire' }}</span>
+    </div>
+  </div>
+  <button class="mobile-lang-chip" (click)="isLangModalOpen.set(true)" [title]="t9n.t('nav.language') || 'Changer de langue'">
+    <img [src]="getActiveFlagUrl()" alt="flag" class="mobile-lang-flag">
+    <span>{{ t9n.currentLang().toUpperCase() }}</span>
+    <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span>
+  </button>
+</div>
+
+<!-- Language Modal for Mobile -->
+@if (isLangModalOpen()) {
+<div class="tm-modal-overlay" (click)="isLangModalOpen.set(false)" style="z-index: 2500;">
+  <div class="tm-modal-content glass-card mobile-lang-modal" (click)="$event.stopPropagation()">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="margin: 0; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined" style="color: #38bdf8;">language</span>
+        {{ t9n.t('nav.language') || 'Choisir la langue' }}
+      </h3>
+      <button class="icon-btn" (click)="isLangModalOpen.set(false)">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      @for (lang of languages; track lang.code) {
+        <button 
+          (click)="setLanguage(lang.code)"
+          [style.background]="t9n.currentLang() === lang.code ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 255, 255, 0.04)'"
+          [style.borderColor]="t9n.currentLang() === lang.code ? '#38bdf8' : 'var(--border-card)'"
+          style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1.5px solid; border-radius: 14px; cursor: pointer; color: var(--text-main); font-size: 1rem; font-weight: 600; transition: all 0.2s;">
+          <img [src]="lang.flagUrl" alt="flag" style="width: 28px; height: 18px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
+          <span>{{ lang.label }}</span>
+          @if (t9n.currentLang() === lang.code) {
+            <span class="material-symbols-outlined" style="margin-left: auto; color: #38bdf8;">check_circle</span>
+          }
+        </button>
+      }
+    </div>
+  </div>
+</div>
+}
+
+<!-- Hero Spotlight: Next Birthday Celebration Card -->
+@if (nextBirthday(); as nb) {
+<div class="next-birthday-hero glass-card">
+  <div class="hero-top-badge">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span class="material-symbols-outlined" style="font-size: 18px; color: #fbbf24;">celebration</span>
+      <span style="font-weight: 700; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-main);">{{ t9n.t('dashboard.next_birthday_hero') || 'Prochain anniversaire à fêter !' }}</span>
+    </div>
+    <span class="hero-countdown-pill" [class.hero-today]="nextBirthdayDays() === 0">
+      {{ nextBirthdayDays() === 0 ? ('🎉 ' + (t9n.t('countdown.today') || "Aujourd'hui !")) : (nextBirthdayDays() === 1 ? 'Demain !' : ('Dans ' + nextBirthdayDays() + ' jours')) }}
+    </span>
+  </div>
+  
+  <div class="hero-person-row">
+    <div class="hero-avatar-wrapper" [class.pulse-glow]="nextBirthdayDays() === 0">
+      <img [src]="nb.photoUrl" [alt]="nb.name" class="hero-avatar">
+      @if (nextBirthdayDays() === 0) {
+        <span class="hero-party-icon">🎂</span>
+      }
+    </div>
+    <div class="hero-person-details">
+      <h2 class="hero-person-name">
+        {{ nb.name }}
+        @if (nb.gender === 'Masculin') { <span class="material-symbols-outlined gender-icon male">male</span> }
+        @if (nb.gender === 'Féminin') { <span class="material-symbols-outlined gender-icon female">female</span> }
+      </h2>
+      <p class="hero-person-subtitle">
+        <span class="material-symbols-outlined" style="font-size: 16px; color: var(--text-muted);">event</span>
+        <span>{{ nb.birthdate | date:'dd MMMM' }}</span>
+        <span class="separator">•</span>
+        <span class="hero-turning-age">{{ getAge(nb.birthdate) + (nextBirthdayDays() === 0 ? 0 : 1) }} {{ t9n.t('common.years_short') || 'ans' }}</span>
+      </p>
+    </div>
+    <div class="hero-action-box">
+      <button (click)="onSendWish({ birthday: nb, event: $event })" class="btn-PRO hero-wish-btn" [title]="t9n.t('dashboard.btn_wish') || 'Souhaiter'">
+        <span class="material-symbols-outlined">send</span>
+        <span>{{ t9n.t('dashboard.btn_wish') || 'Souhaiter' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Category Quick Filter Chips (Mobile-friendly horizontal scroll) -->
+<div class="mobile-category-chips">
+  <button 
+    class="category-chip" 
+    [class.active]="selectedCategory() === 'All' && !filterFavorite()"
+    (click)="selectedCategory.set('All'); filterFavorite.set(false)">
+    {{ t9n.t('categories.All') || 'Tous' }} ({{ birthdayService.activeBirthdays().length }})
+  </button>
+  <button 
+    class="category-chip" 
+    [class.active]="selectedCategory() === 'Family' && !filterFavorite()"
+    (click)="selectedCategory.set('Family'); filterFavorite.set(false)">
+    👨‍👩‍👦 {{ t9n.t('categories.Family') || 'Famille' }}
+  </button>
+  <button 
+    class="category-chip" 
+    [class.active]="selectedCategory() === 'Friend' && !filterFavorite()"
+    (click)="selectedCategory.set('Friend'); filterFavorite.set(false)">
+    🎉 {{ t9n.t('categories.Friend') || 'Amis' }}
+  </button>
+  <button 
+    class="category-chip" 
+    [class.active]="selectedCategory() === 'Work' && !filterFavorite()"
+    (click)="selectedCategory.set('Work'); filterFavorite.set(false)">
+    💼 {{ t9n.t('categories.Work') || 'Travail' }}
+  </button>
+  <button 
+    class="category-chip" 
+    [class.active]="selectedCategory() === 'Other' && !filterFavorite()"
+    (click)="selectedCategory.set('Other'); filterFavorite.set(false)">
+    ✨ {{ t9n.t('categories.Other') || 'Autre' }}
+  </button>
+  <button 
+    class="category-chip fav-chip" 
+    [class.active]="filterFavorite()"
+    (click)="filterFavorite.set(!filterFavorite())">
+    ⭐ {{ t9n.t('dashboard.filter_favorites') || 'Favoris' }}
+  </button>
+</div>
+
 <div class="dashboard-header">
   <div>
     <h1>{{ t9n.t('dashboard.title') }}</h1>

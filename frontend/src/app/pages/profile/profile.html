@@ -10,6 +10,34 @@
 
     <!-- Main Profile Card -->
     <div class="profile-body">
+
+    <!-- Prominent Language Selector (Mobile & Desktop) -->
+    <div class="profile-lang-quick-section" style="margin-bottom: 24px; padding: 16px; background: rgba(56, 189, 248, 0.06); border: 1.5px solid rgba(56, 189, 248, 0.2); border-radius: 18px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <span style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; color: var(--text-main);">
+          <span class="material-symbols-outlined" style="color: #38bdf8;">language</span>
+          {{ t9n.t('profile.language') || 'Langue de l\'application' }}
+        </span>
+        <span style="font-size: 0.8rem; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.15); padding: 2px 8px; border-radius: 8px;">
+          {{ t9n.currentLang().toUpperCase() }}
+        </span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+        @for (lang of languages; track lang.code) {
+          <button 
+            type="button"
+            (click)="setLanguage(lang.code)"
+            [style.background]="t9n.currentLang() === lang.code ? 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)' : 'rgba(255, 255, 255, 0.05)'"
+            [style.borderColor]="t9n.currentLang() === lang.code ? '#38bdf8' : 'var(--border-card)'"
+            [style.color]="t9n.currentLang() === lang.code ? '#ffffff' : 'var(--text-main)'"
+            style="border: 1.5px solid; border-radius: 12px; padding: 10px 8px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <img [src]="lang.flagUrl" alt="flag" style="width: 28px; height: 18px; object-fit: cover; border-radius: 3px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+            <span>{{ lang.label }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
     
     <form (ngSubmit)="onSaveProfile()">
       <h2 class="form-section-title">{{ t9n.t('profile.section_info') || 'Informations Personnelles' }}</h2>

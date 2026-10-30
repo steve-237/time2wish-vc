@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { BirthdayService } from '../../services/birthday.service';
 import { Birthday, BirthdayCategory } from '../../models/birthday.model';
-import { TranslationService } from '../../services/translation.service';
+import { TranslationService, Language } from '../../services/translation.service';
 import { BirthdayGridComponent } from '../../components/birthday-grid/birthday-grid.component';
 import { BirthdayListComponent } from '../../components/birthday-list/birthday-list.component';
 import { BirthdayCalendarComponent } from '../../components/birthday-calendar/birthday-calendar.component';
@@ -39,6 +39,46 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   isOptionsMenuOpen = signal<boolean>(false);
   isAdvancedFiltersOpen = signal<boolean>(false);
+  isLangModalOpen = signal<boolean>(false);
+
+  languages = [
+    { code: 'fr' as Language, label: 'Français', flagUrl: 'https://flagcdn.com/w40/fr.png' },
+    { code: 'en' as Language, label: 'English', flagUrl: 'https://flagcdn.com/w40/gb.png' },
+    { code: 'de' as Language, label: 'Deutsch', flagUrl: 'https://flagcdn.com/w40/de.png' }
+  ];
+
+  getActiveFlagUrl(): string {
+    return this.languages.find(l => l.code === this.t9n.currentLang())?.flagUrl || 'https://flagcdn.com/w40/fr.png';
+  }
+
+  setLanguage(lang: Language): void {
+    this.t9n.setLanguage(lang);
+    this.isLangModalOpen.set(false);
+    this.toastService.success(this.t9n.t('common.lang_changed') || ('Langue: ' + lang.toUpperCase()));
+  }
+
+  // Next upcoming birthday (Hero Celebration Card)
+  readonly nextBirthday = computed(() => {
+    const list = this.birthdayService.activeBirthdays();
+    if (!list.length) return null;
+    let closest: Birthday | null = null;
+    let minDays = Infinity;
+    for (const b of list) {
+      const days = this.birthdayService.getDaysUntil(b.birthdate);
+      if (days >= 0 && days < minDays) {
+        minDays = days;
+        closest = b;
+      }
+    }
+    return closest;
+  });
+
+  readonly nextBirthdayDays = computed(() => {
+    const next = this.nextBirthday();
+    if (!next) return null;
+    return this.birthdayService.getDaysUntil(next.birthdate);
+  });
+
 
   @ViewChild('confettiCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
   private cleanupConfetti?: () => void;
