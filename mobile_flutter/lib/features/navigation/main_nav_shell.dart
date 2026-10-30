@@ -107,12 +107,12 @@ class _MainNavShellState extends State<MainNavShell> {
                 ),
                 child: Row(
                   children: [
-                    // Item 1: Anniversaires
+                    // Item 1: Anniversaires / Accueil (Home icon with glow)
                     Expanded(
                       child: _buildNavItem(
                         index: 0,
-                        icon: Icons.cake_outlined,
-                        activeIcon: Icons.cake_rounded,
+                        icon: Icons.home_outlined,
+                        activeIcon: Icons.home_rounded,
                         label: settings.tr('birthdays'),
                         badgeCount: 0,
                       ),
@@ -281,6 +281,23 @@ class _MainNavShellState extends State<MainNavShell> {
               letterSpacing: 0.2,
             ),
           ),
+          if (isSelected)
+            Container(
+              margin: const EdgeInsets.only(top: 2),
+              width: 4,
+              height: 4,
+              decoration: const BoxDecoration(
+                color: activeColor,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: activeColor,
+                    blurRadius: 6,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );

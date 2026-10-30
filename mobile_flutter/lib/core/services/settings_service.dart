@@ -116,6 +116,12 @@ class SettingsService extends ChangeNotifier {
       'offline_status': '100% Autonome & Hors-Ligne',
       'sync_pending': 'action(s) hors-ligne en attente',
       'sync_now': 'Synchroniser',
+      'view_all': 'Voir tout',
+      'this_month': 'Ce mois',
+      'total_birthdays': 'Total',
+      'days_unit': 'Jours',
+      'hours_unit': 'Heures',
+      'app_subtitle': 'Birthday Manager · AI Reminder',
     },
     'en': {
       'dashboard': 'Dashboard',
@@ -162,6 +168,12 @@ class SettingsService extends ChangeNotifier {
       'offline_status': '100% Autonomous & Offline',
       'sync_pending': 'pending offline action(s)',
       'sync_now': 'Sync',
+      'view_all': 'View all',
+      'this_month': 'This month',
+      'total_birthdays': 'Total',
+      'days_unit': 'Days',
+      'hours_unit': 'Hours',
+      'app_subtitle': 'Birthday Manager · AI Reminder',
     },
     'de': {
       'dashboard': 'Dashboard',
@@ -208,6 +220,12 @@ class SettingsService extends ChangeNotifier {
       'offline_status': '100% Autonom & Offline',
       'sync_pending': 'ausstehende Offline-Aktion(en)',
       'sync_now': 'Sync',
+      'view_all': 'Alle anzeigen',
+      'this_month': 'Diesen Monat',
+      'total_birthdays': 'Gesamt',
+      'days_unit': 'Tage',
+      'hours_unit': 'Stunden',
+      'app_subtitle': 'Birthday Manager · AI Reminder',
     },
   };
 }

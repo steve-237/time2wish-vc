@@ -28,12 +28,13 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
   String _selectedCategory = 'TOUS';
   String _sortBy = 'DATE';
 
-  final List<String> _categories = ['TOUS', 'FAVORIS', 'AMIS', 'FAMILLE', 'TRAVAIL'];
+  final List<String> _categories = ['TOUS', 'CE_MOIS', 'FAVORIS', 'AMIS', 'FAMILLE', 'TRAVAIL'];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       context.read<BirthdayService>().fetchBirthdays();
     });
   }
@@ -45,6 +46,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
   }
 
   List<BirthdayModel> _getFilteredBirthdays(List<BirthdayModel> birthdays) {
+    final now = DateTime.now();
     var result = birthdays.where((b) {
       final matchesSearch = _searchQuery.isEmpty ||
           b.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -54,6 +56,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
       if (!matchesSearch) return false;
 
       if (_selectedCategory == 'FAVORIS') return b.isFavorite;
+      if (_selectedCategory == 'CE_MOIS') return b.birthDate.month == now.month;
       if (_selectedCategory != 'TOUS') return b.category.toUpperCase() == _selectedCategory;
       return true;
     }).toList();
@@ -155,6 +158,132 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
           ),
         );
       },
+    );
+  }
+
+  void _showNotificationSheet(BuildContext context, BirthdayService birthdayService, SettingsService settings) {
+    final upcomingList = birthdayService.upcoming.take(5).toList();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: Container(
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.96),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF38BDF8).withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.notifications_active_rounded, color: Color(0xFF38BDF8), size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Rappels & Notifications',
+                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (upcomingList.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 30),
+                  child: Center(
+                    child: Text('Aucun rappel pour le moment.', style: TextStyle(color: AppColors.textMutedDark)),
+                  ),
+                )
+              else
+                Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: upcomingList.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (ctx, idx) {
+                      final b = upcomingList[idx];
+                      return Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 42,
+                              height: 42,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: AppColors.primaryGradient,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  b.name.isNotEmpty ? b.name[0].toUpperCase() : '?',
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(b.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    b.isToday ? '🎉 C\'est son anniversaire aujourd\'hui !' : 'Dans ${b.daysRemaining} jours 🎂',
+                                    style: TextStyle(
+                                      color: b.isToday ? const Color(0xFFF43F5E) : const Color(0xFF38BDF8),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(ctx);
+                                context.push('/birthday/${b.id}');
+                              },
+                              child: const Text('Voir', style: TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -261,6 +390,10 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
     final filtered = _getFilteredBirthdays(birthdayService.upcoming);
     final BirthdayModel? nextBirthday = birthdayService.upcoming.isNotEmpty ? birthdayService.upcoming.first : null;
 
+    final now = DateTime.now();
+    final thisMonthCount = birthdayService.birthdays.where((b) => b.birthDate.month == now.month).length;
+    final totalCount = birthdayService.birthdays.length;
+
     final String langFlag = settings.language == 'en'
         ? '🇬🇧'
         : settings.language == 'de'
@@ -281,53 +414,25 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // 1. TOP HEADER APP BAR WITH OFFICIAL ICON & BRANDING
+            // 1. TOP HEADER APP BAR WITH TITLE, SUBTITLE & NOTIFICATION BELL
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
               sliver: SliverToBoxAdapter(
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Official App Icon with Glowing Ring
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primaryCyan.withValues(alpha: 0.4),
-                            blurRadius: 14,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(22),
-                        child: Image.asset(
-                          'assets/branding/time2wish_icon_192.png',
-                          width: 44,
-                          height: 44,
-                          fit: BoxFit.cover,
-                          errorBuilder: (ctx, err, stack) => Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: AppColors.primaryGradient,
-                            ),
-                            child: const Icon(Icons.cake, color: Colors.white, size: 24),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // Stylized Brand Title: Time2Wish
+                    // Brand Title & Subtitle
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           RichText(
                             text: const TextSpan(
-                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.5),
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.8,
+                              ),
                               children: [
                                 TextSpan(text: 'Time', style: TextStyle(color: Colors.white)),
                                 TextSpan(text: '2', style: TextStyle(color: Color(0xFF38BDF8))),
@@ -335,81 +440,330 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                               ],
                             ),
                           ),
+                          const SizedBox(height: 3),
                           Text(
-                            user?.fullName.isNotEmpty == true ? 'Bonjour, ${user!.fullName}' : 'Assistant Célébrations',
-                            style: const TextStyle(fontSize: 11, color: AppColors.textMutedDark),
-                            overflow: TextOverflow.ellipsis,
+                            settings.tr('app_subtitle'),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white.withValues(alpha: 0.55),
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.2,
+                            ),
                           ),
                         ],
                       ),
                     ),
 
-                    // Quick Language Switcher Button (Flag Pill)
-                    GestureDetector(
-                      onTap: () => _showLanguageSelector(context, settings),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(langFlag, style: const TextStyle(fontSize: 16)),
-                            const SizedBox(width: 4),
-                            Text(
-                              settings.language.toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
+                    // Right header accessories: Lang pill & Notification Bell
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Language switcher pill
+                        GestureDetector(
+                          onTap: () => _showLanguageSelector(context, settings),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
                             ),
-                            const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white70, size: 16),
-                          ],
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(langFlag, style: const TextStyle(fontSize: 14)),
+                                const SizedBox(width: 4),
+                                Text(
+                                  settings.language.toUpperCase(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+
+                        // Notification Bell with Red Badge Dot
+                        GestureDetector(
+                          onTap: () => _showNotificationSheet(context, birthdayService, settings),
+                          child: Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF161F33).withValues(alpha: 0.8),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 1.2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.25),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.notifications_none_rounded,
+                                  color: Colors.white,
+                                  size: 22,
+                                ),
+                                // Red active dot
+                                Positioned(
+                                  top: 8,
+                                  right: 9,
+                                  child: Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFEF4444),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: const Color(0xFF161F33), width: 1.5),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(0xFFEF4444).withValues(alpha: 0.6),
+                                          blurRadius: 4,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // 2. THE 3 HERO METRIC STAT CARDS IN A ROW (AS IN MOCKUP)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 6, 20, 16),
+              sliver: SliverToBoxAdapter(
+                child: Row(
+                  children: [
+                    // Card 1: Next Birthday (Blue Glow Border)
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          if (nextBirthday != null) {
+                            context.push('/birthday/${nextBirthday.id}');
+                          }
+                        },
+                        child: Container(
+                          height: 132,
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0F1E36),
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(
+                              color: const Color(0xFF38BDF8),
+                              width: 1.6,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF38BDF8).withValues(alpha: 0.32),
+                                blurRadius: 18,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Top Icon Badge
+                              Container(
+                                width: 34,
+                                height: 34,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: const Color(0xFF0284C7).withValues(alpha: 0.4),
+                                ),
+                                child: const Icon(
+                                  Icons.card_giftcard_rounded,
+                                  color: Color(0xFF38BDF8),
+                                  size: 19,
+                                ),
+                              ),
+                              // Big Number
+                              Text(
+                                '${nextBirthday?.daysRemaining ?? 0}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1.0,
+                                ),
+                              ),
+                              // Subtitle
+                              Text(
+                                nextBirthday != null && nextBirthday.daysRemaining <= 1
+                                    ? settings.tr('day_remaining')
+                                    : settings.tr('days_unit'),
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.65),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 10),
 
-                    // Quick Theme Toggle Button
-                    IconButton(
-                      icon: Icon(
-                        settings.isDarkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-                        color: settings.isDarkMode ? AppColors.wishCoinsAmber : Colors.orangeAccent,
-                        size: 22,
-                      ),
-                      onPressed: () => settings.toggleDarkMode(),
-                      tooltip: settings.tr('appearance'),
-                      visualDensity: VisualDensity.compact,
-                    ),
-
-                    // WishCoins Badge
-                    GestureDetector(
-                      onTap: () => _showWishCoinsModal(context, user?.coins ?? 100),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.wishCoinsAmber.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.wishCoinsAmber.withValues(alpha: 0.4)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.monetization_on, color: AppColors.wishCoinsAmber, size: 16),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${user?.coins ?? 100}',
-                              style: const TextStyle(
-                                color: AppColors.wishCoinsAmber,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
+                    // Card 2: This Month (Dark Glass Card)
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _selectedCategory = 'CE_MOIS'),
+                        child: Container(
+                          height: 132,
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF161F33).withValues(alpha: 0.85),
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(
+                              color: _selectedCategory == 'CE_MOIS'
+                                  ? const Color(0xFF38BDF8)
+                                  : Colors.white.withValues(alpha: 0.12),
+                              width: 1.2,
                             ),
-                          ],
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.25),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Top Icon Badge
+                              Container(
+                                width: 34,
+                                height: 34,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withValues(alpha: 0.08),
+                                ),
+                                child: const Icon(
+                                  Icons.access_time_rounded,
+                                  color: Colors.white70,
+                                  size: 19,
+                                ),
+                              ),
+                              // Big Number
+                              Text(
+                                '$thisMonthCount',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1.0,
+                                ),
+                              ),
+                              // Subtitle
+                              Text(
+                                settings.tr('this_month'),
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.65),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // Card 3: Total Celebrations (Purple Gradient Glow)
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _selectedCategory = 'TOUS'),
+                        child: Container(
+                          height: 132,
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0xFF8B5CF6),
+                                Color(0xFF6D28D9),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              width: 1.2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF8B5CF6).withValues(alpha: 0.45),
+                                blurRadius: 18,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Top Icon Badge
+                              Container(
+                                width: 34,
+                                height: 34,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withValues(alpha: 0.22),
+                                ),
+                                child: const Icon(
+                                  Icons.cake_rounded,
+                                  color: Colors.white,
+                                  size: 19,
+                                ),
+                              ),
+                              // Big Number
+                              Text(
+                                '$totalCount',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1.0,
+                                ),
+                              ),
+                              // Subtitle
+                              Text(
+                                settings.tr('total_birthdays'),
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.85),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -418,169 +772,11 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
               ),
             ),
 
-            // 2. HERO HIGHLIGHT: PROCHAIN ANNIVERSAIRE (NEXT CELEBRATION FEATURE CARD)
-            if (nextBirthday != null && _searchQuery.isEmpty && _selectedCategory == 'TOUS')
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(18, 8, 18, 12),
-                sliver: SliverToBoxAdapter(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22),
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFF1E1B4B), // Deep Indigo
-                          Color(0xFF311042), // Deep Violet
-                          Color(0xFF1E293B), // Slate
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      border: Border.all(
-                        color: AppColors.primaryCyan.withValues(alpha: 0.4),
-                        width: 1.2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.accentPurple.withValues(alpha: 0.3),
-                          blurRadius: 18,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                const Text('✨', style: TextStyle(fontSize: 16)),
-                                const SizedBox(width: 6),
-                                Text(
-                                  settings.tr('next_celebration').toUpperCase(),
-                                  style: const TextStyle(
-                                    color: Color(0xFF38BDF8),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 0.8,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: nextBirthday.isToday
-                                    ? AppColors.accentPink
-                                    : (nextBirthday.daysRemaining <= 3 ? AppColors.accentPink : AppColors.primaryCyan).withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: nextBirthday.isToday ? Colors.white : AppColors.primaryCyan,
-                                  width: 1,
-                                ),
-                              ),
-                              child: Text(
-                                nextBirthday.isToday
-                                    ? settings.tr('today')
-                                    : 'Dans ${nextBirthday.daysRemaining} ${nextBirthday.daysRemaining <= 1 ? settings.tr('day_remaining') : settings.tr('days_remaining')}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            // Avatar
-                            Container(
-                              width: 54,
-                              height: 54,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: AppColors.primaryGradient,
-                                border: Border.all(color: Colors.white, width: 2),
-                              ),
-                              child: nextBirthday.photoUrl != null && nextBirthday.photoUrl!.isNotEmpty
-                                  ? ClipOval(
-                                      child: AvatarImage(
-                                        photoUrl: nextBirthday.photoUrl!,
-                                        width: 54,
-                                        height: 54,
-                                        fit: BoxFit.cover,
-                                        fallback: Center(
-                                          child: Text(
-                                            nextBirthday.name.isNotEmpty ? nextBirthday.name[0].toUpperCase() : '?',
-                                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : Center(
-                                      child: Text(
-                                        nextBirthday.name.isNotEmpty ? nextBirthday.name[0].toUpperCase() : '?',
-                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),
-                                      ),
-                                    ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    nextBirthday.name,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 3),
-                                  Text(
-                                    '${DateFormat('d MMMM', settings.language).format(nextBirthday.birthdate)} • ${nextBirthday.nextAge} ans',
-                                    style: const TextStyle(color: Color(0xFFE2E8F0), fontSize: 13),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // Quick Action Button
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF38BDF8),
-                                foregroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                elevation: 0,
-                              ),
-                              onPressed: () => context.push('/birthday/${nextBirthday.id}'),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.auto_awesome, size: 16),
-                                  SizedBox(width: 4),
-                                  Text('Fêter 🎉', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
             // 3. OFFLINE SYNC BANNER (IF PENDING)
             if (syncService.hasPending)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 4.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
                   child: GlassCard(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     child: Row(
@@ -618,144 +814,241 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                 ),
               ),
 
-            // 4. SEARCH & SORT BAR
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 4.0),
-                child: GlassCard(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (val) => setState(() => _searchQuery = val),
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                    decoration: InputDecoration(
-                      hintText: settings.tr('search_hint'),
-                      hintStyle: const TextStyle(color: AppColors.textMutedDark, fontSize: 13),
-                      icon: const Icon(Icons.search_rounded, color: AppColors.primaryCyan),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      suffixIcon: Row(
-                        mainAxisSize: MainAxisSize.min,
+            // 4. MAIN "BIRTHDAYS" SECTION GLASS CARD (MATCHING MOCKUP)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 6, 20, 110),
+              sliver: SliverToBoxAdapter(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF131A29).withValues(alpha: 0.94),
+                    borderRadius: BorderRadius.circular(26),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      width: 1.2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.45),
+                        blurRadius: 22,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Header inside Card: "Birthdays" title & "View all" link
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          if (_searchQuery.isNotEmpty)
-                            IconButton(
-                              icon: const Icon(Icons.clear, color: AppColors.textMutedDark, size: 18),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() => _searchQuery = '');
-                              },
+                          Text(
+                            settings.tr('birthdays'),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.2,
                             ),
-                          PopupMenuButton<String>(
-                            icon: const Icon(Icons.tune_rounded, color: AppColors.primaryCyan, size: 20),
-                            color: AppColors.backgroundDialogDark,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            tooltip: settings.tr('sort_by'),
-                            onSelected: (val) => setState(() => _sortBy = val),
-                            itemBuilder: (ctx) => [
-                              PopupMenuItem(
-                                value: 'DATE',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.calendar_today, size: 16, color: _sortBy == 'DATE' ? AppColors.primaryCyan : Colors.white70),
-                                    const SizedBox(width: 8),
-                                    Text(settings.tr('sort_date'), style: TextStyle(color: _sortBy == 'DATE' ? AppColors.primaryCyan : Colors.white)),
-                                  ],
-                                ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedCategory = 'TOUS';
+                                _searchQuery = '';
+                                _searchController.clear();
+                              });
+                            },
+                            child: Text(
+                              settings.tr('view_all'),
+                              style: const TextStyle(
+                                color: Color(0xFF38BDF8),
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
                               ),
-                              PopupMenuItem(
-                                value: 'NOM',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.sort_by_alpha, size: 16, color: _sortBy == 'NOM' ? AppColors.primaryCyan : Colors.white70),
-                                    const SizedBox(width: 8),
-                                    Text(settings.tr('sort_name'), style: TextStyle(color: _sortBy == 'NOM' ? AppColors.primaryCyan : Colors.white)),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem(
-                                value: 'FAVORIS',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.star, size: 16, color: _sortBy == 'FAVORIS' ? AppColors.wishCoinsAmber : Colors.white70),
-                                    const SizedBox(width: 8),
-                                    Text(settings.tr('sort_favorites'), style: TextStyle(color: _sortBy == 'FAVORIS' ? AppColors.wishCoinsAmber : Colors.white)),
-                                  ],
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+                      const SizedBox(height: 12),
 
-            // 5. CATEGORY FILTER CHIPS
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 52,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-                  itemCount: _categories.length,
-                  itemBuilder: (context, index) {
-                    final cat = _categories[index];
-                    final isSelected = _selectedCategory == cat;
+                      // Quick Filter Pills Row
+                      SizedBox(
+                        height: 36,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _categories.length,
+                          itemBuilder: (context, index) {
+                            final cat = _categories[index];
+                            final isSelected = _selectedCategory == cat;
 
-                    String label;
-                    String emoji;
-                    switch (cat) {
-                      case 'FAVORIS':
-                        label = settings.tr('filter_favorites');
-                        emoji = '⭐';
-                        break;
-                      case 'AMIS':
-                        label = settings.tr('filter_friends');
-                        emoji = '🎈';
-                        break;
-                      case 'FAMILLE':
-                        label = settings.tr('filter_family');
-                        emoji = '🏠';
-                        break;
-                      case 'TRAVAIL':
-                        label = settings.tr('filter_work');
-                        emoji = '💼';
-                        break;
-                      default:
-                        label = settings.tr('filter_all');
-                        emoji = '✨';
-                    }
+                            String label;
+                            switch (cat) {
+                              case 'CE_MOIS':
+                                label = settings.tr('this_month');
+                                break;
+                              case 'FAVORIS':
+                                label = settings.tr('filter_favorites');
+                                break;
+                              case 'AMIS':
+                                label = settings.tr('filter_friends');
+                                break;
+                              case 'FAMILLE':
+                                label = settings.tr('filter_family');
+                                break;
+                              case 'TRAVAIL':
+                                label = settings.tr('filter_work');
+                                break;
+                              default:
+                                label = settings.tr('filter_all');
+                            }
 
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: GestureDetector(
-                        onTap: () => setState(() => _selectedCategory = cat),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: GestureDetector(
+                                onTap: () => setState(() => _selectedCategory = cat),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 180),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? const Color(0xFF38BDF8).withValues(alpha: 0.22)
+                                        : Colors.white.withValues(alpha: 0.05),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: isSelected ? const Color(0xFF38BDF8) : Colors.white.withValues(alpha: 0.08),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      label,
+                                      style: TextStyle(
+                                        color: isSelected ? const Color(0xFF38BDF8) : const Color(0xFF94A3B8),
+                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Search bar
+                      Container(
+                        height: 40,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.04),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+                        ),
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (val) => setState(() => _searchQuery = val),
+                          style: const TextStyle(color: Colors.white, fontSize: 13),
+                          decoration: InputDecoration(
+                            isDense: true,
+                            hintText: settings.tr('search_hint'),
+                            hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: 12),
+                            prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF38BDF8), size: 18),
+                            prefixIconConstraints: const BoxConstraints(minWidth: 26, minHeight: 26),
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            suffixIcon: _searchQuery.isNotEmpty
+                                ? GestureDetector(
+                                    onTap: () {
+                                      _searchController.clear();
+                                      setState(() => _searchQuery = '');
+                                    },
+                                    child: const Icon(Icons.clear, color: Colors.white54, size: 16),
+                                  )
+                                : null,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Birthday List Content
+                      if (birthdayService.isLoading)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 40),
+                          child: Center(
+                            child: SpinKitThreeBounce(color: Color(0xFF38BDF8), size: 24),
+                          ),
+                        )
+                      else if (filtered.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 36),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 54,
+                                height: 54,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withValues(alpha: 0.05),
+                                ),
+                                child: const Center(child: Text('🎂', style: TextStyle(fontSize: 26))),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                _searchQuery.isNotEmpty
+                                    ? 'Aucun résultat pour "$_searchQuery"'
+                                    : settings.tr('no_birthdays'),
+                                style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                settings.tr('no_birthdays_sub'),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: filtered.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 8),
+                          itemBuilder: (context, index) {
+                            final b = filtered[index];
+                            return _buildMockupBirthdayItem(context, b, birthdayService, settings);
+                          },
+                        ),
+
+                      const SizedBox(height: 16),
+
+                      // Bottom Card Button: "+ Ajouter un anniversaire"
+                      GestureDetector(
+                        onTap: () => context.push('/birthday/new'),
+                        child: Container(
+                          height: 44,
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.primaryCyan.withValues(alpha: 0.25)
-                                : Colors.white.withValues(alpha: 0.06),
-                            borderRadius: BorderRadius.circular(16),
+                            color: const Color(0xFF1E283D),
+                            borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: isSelected ? AppColors.primaryCyan : Colors.white.withValues(alpha: 0.1),
-                              width: isSelected ? 1.5 : 1,
+                              color: Colors.white.withValues(alpha: 0.12),
+                              width: 1,
                             ),
                           ),
                           child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(emoji, style: const TextStyle(fontSize: 13)),
-                              const SizedBox(width: 6),
+                              const Icon(Icons.add_rounded, color: Color(0xFF38BDF8), size: 18),
+                              const SizedBox(width: 8),
                               Text(
-                                label,
-                                style: TextStyle(
-                                  color: isSelected ? Colors.white : AppColors.textMutedDark,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                settings.tr('add_birthday'),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
                                   fontSize: 13,
                                 ),
                               ),
@@ -763,109 +1056,40 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                           ),
                         ),
                       ),
-                    );
-                  },
+                    ],
+                  ),
                 ),
               ),
             ),
-
-            // 6. LOADING STATE
-            if (birthdayService.isLoading)
-              const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(50),
-                  child: Center(child: SpinKitThreeBounce(color: AppColors.primaryCyan, size: 28)),
-                ),
-              ),
-
-            // 7. EMPTY STATE
-            if (!birthdayService.isLoading && filtered.isEmpty)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.primaryCyan.withValues(alpha: 0.1),
-                            border: Border.all(color: AppColors.primaryCyan.withValues(alpha: 0.3)),
-                          ),
-                          child: const Center(
-                            child: Text('🎂', style: TextStyle(fontSize: 40)),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _searchQuery.isNotEmpty ? 'Aucun résultat pour "$_searchQuery"' : settings.tr('no_birthdays'),
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 17),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          settings.tr('no_birthdays_sub'),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.textMutedDark, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-            // 8. RICH & PRESENTABLE BIRTHDAY CARDS
-            if (!birthdayService.isLoading && filtered.isNotEmpty)
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(18, 4, 18, 120),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final birthday = filtered[index];
-                      return AnimatedListItem(
-                        index: index,
-                        child: _buildPresentableBirthdayCard(context, birthday, birthdayService, settings),
-                      );
-                    },
-                    childCount: filtered.length,
-                  ),
-                ),
-              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPresentableBirthdayCard(
+  Widget _buildMockupBirthdayItem(
     BuildContext context,
     BirthdayModel birthday,
     BirthdayService service,
     SettingsService settings,
   ) {
     final String initial = birthday.name.isNotEmpty ? birthday.name[0].toUpperCase() : '?';
-    final Color badgeColor = birthday.isToday
-        ? const Color(0xFFEC4899)
-        : birthday.daysRemaining <= 3
-            ? const Color(0xFFF43F5E)
-            : birthday.daysRemaining <= 7
-                ? const Color(0xFFF59E0B)
-                : const Color(0xFF10B981);
 
-    final String formattedDate = DateFormat('d MMM', settings.language).format(birthday.birthdate);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
-      child: GlassCard(
-        padding: const EdgeInsets.all(14),
-        onTap: () => context.push('/birthday/${birthday.id}'),
+    return GestureDetector(
+      onTap: () => context.push('/birthday/${birthday.id}'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        ),
         child: Row(
           children: [
-            // Avatar with Gradient Ring or Photo
+            // Avatar
             Container(
-              width: 52,
-              height: 52,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: AppColors.primaryGradient,
@@ -875,8 +1099,8 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primaryCyan.withValues(alpha: 0.25),
-                    blurRadius: 10,
+                    color: const Color(0xFF38BDF8).withValues(alpha: 0.25),
+                    blurRadius: 8,
                   ),
                 ],
               ),
@@ -884,13 +1108,13 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   ? ClipOval(
                       child: AvatarImage(
                         photoUrl: birthday.photoUrl!,
-                        width: 52,
-                        height: 52,
+                        width: 44,
+                        height: 44,
                         fit: BoxFit.cover,
                         fallback: Center(
                           child: Text(
                             initial,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
                           ),
                         ),
                       ),
@@ -898,13 +1122,13 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   : Center(
                       child: Text(
                         initial,
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
                       ),
                     ),
             ),
             const SizedBox(width: 12),
 
-            // Details: Name, Age, Date, Category
+            // Name & Subtext
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -917,97 +1141,42 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                            fontSize: 15,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () => service.toggleFavorite(birthday.id),
-                        child: Icon(
-                          birthday.isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
-                          color: birthday.isFavorite ? AppColors.wishCoinsAmber : Colors.white30,
-                          size: 22,
+                      if (birthday.isFavorite)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 4),
+                          child: Icon(Icons.star_rounded, color: AppColors.wishCoinsAmber, size: 16),
                         ),
-                      ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      // Date pill
-                      Row(
-                        children: [
-                          const Icon(Icons.calendar_today_rounded, size: 12, color: AppColors.primaryCyan),
-                          const SizedBox(width: 4),
-                          Text(
-                            formattedDate,
-                            style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 12, fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 8),
-                      // Age indicator
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          '${birthday.nextAge} ans',
-                          style: const TextStyle(color: AppColors.textMutedDark, fontSize: 11),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      // Category pill
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryCyan.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          birthday.category,
-                          style: const TextStyle(color: AppColors.primaryCyan, fontSize: 10, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 2),
+                  Text(
+                    birthday.isToday
+                        ? '🎂 Aujourd\'hui !'
+                        : 'Dans ${birthday.daysRemaining} jours 🎂',
+                    style: TextStyle(
+                      color: birthday.isToday
+                          ? const Color(0xFFF43F5E)
+                          : const Color(0xFF94A3B8),
+                      fontSize: 12,
+                      fontWeight: birthday.isToday ? FontWeight.bold : FontWeight.normal,
+                    ),
                   ),
                 ],
               ),
             ),
+
             const SizedBox(width: 8),
 
-            // Live Countdown Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: badgeColor.withValues(alpha: 0.18),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: badgeColor.withValues(alpha: 0.45)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    birthday.isToday ? '🎂' : '${birthday.daysRemaining}j',
-                    style: TextStyle(
-                      color: badgeColor,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 15,
-                    ),
-                  ),
-                  Text(
-                    birthday.isToday ? "Aujourd'hui" : 'Restants',
-                    style: TextStyle(
-                      color: badgeColor.withValues(alpha: 0.9),
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+            // Trailing Chevron
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.white38,
+              size: 22,
             ),
           ],
         ),
