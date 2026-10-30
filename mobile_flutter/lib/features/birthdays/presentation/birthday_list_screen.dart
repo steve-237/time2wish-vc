@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../../../core/services/auth_service.dart';
@@ -13,7 +12,6 @@ import '../../../core/models/birthday_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/avatar_image.dart';
-import '../../../core/widgets/animated_list_item.dart';
 
 class BirthdayListScreen extends StatefulWidget {
   const BirthdayListScreen({super.key});
@@ -26,7 +24,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedCategory = 'TOUS';
-  String _sortBy = 'DATE';
+  final String _sortBy = 'DATE';
 
   final List<String> _categories = ['TOUS', 'CE_MOIS', 'FAVORIS', 'AMIS', 'FAMILLE', 'TRAVAIL'];
 
@@ -56,7 +54,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
       if (!matchesSearch) return false;
 
       if (_selectedCategory == 'FAVORIS') return b.isFavorite;
-      if (_selectedCategory == 'CE_MOIS') return b.birthDate.month == now.month;
+      if (_selectedCategory == 'CE_MOIS') return b.birthdate.month == now.month;
       if (_selectedCategory != 'TOUS') return b.category.toUpperCase() == _selectedCategory;
       return true;
     }).toList();
@@ -223,7 +221,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   child: ListView.separated(
                     shrinkWrap: true,
                     itemCount: upcomingList.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    separatorBuilder: (context, index) => const SizedBox(height: 10),
                     itemBuilder: (ctx, idx) {
                       final b = upcomingList[idx];
                       return Container(
@@ -391,7 +389,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
     final BirthdayModel? nextBirthday = birthdayService.upcoming.isNotEmpty ? birthdayService.upcoming.first : null;
 
     final now = DateTime.now();
-    final thisMonthCount = birthdayService.birthdays.where((b) => b.birthDate.month == now.month).length;
+    final thisMonthCount = birthdayService.birthdays.where((b) => b.birthdate.month == now.month).length;
     final totalCount = birthdayService.birthdays.length;
 
     final String langFlag = settings.language == 'en'
@@ -454,10 +452,39 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                       ),
                     ),
 
-                    // Right header accessories: Lang pill & Notification Bell
+                    // Right header accessories: WishCoins, Lang pill & Notification Bell
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // WishCoins balance pill
+                        GestureDetector(
+                          onTap: () => _showWishCoinsModal(context, user?.coins ?? 100),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColors.wishCoinsAmber.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: AppColors.wishCoinsAmber.withValues(alpha: 0.35)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.monetization_on, color: AppColors.wishCoinsAmber, size: 14),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${user?.coins ?? 100}',
+                                  style: const TextStyle(
+                                    color: AppColors.wishCoinsAmber,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+
                         // Language switcher pill
                         GestureDetector(
                           onTap: () => _showLanguageSelector(context, settings),
@@ -1017,7 +1044,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: filtered.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 8),
+                          separatorBuilder: (context, index) => const SizedBox(height: 8),
                           itemBuilder: (context, index) {
                             final b = filtered[index];
                             return _buildMockupBirthdayItem(context, b, birthdayService, settings);
