@@ -30,8 +30,9 @@ class GiftService extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    if (_syncService != null && _syncService.hasPending) {
-      await _syncService.syncAll();
+    final sync = _syncService;
+    if (sync != null && sync.hasPending) {
+      await sync.syncAll();
     }
 
     try {

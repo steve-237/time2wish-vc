@@ -35,9 +35,8 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<GiftService>().fetchGifts(widget.birthdayId);
-      }
+      if (!mounted) return;
+      Provider.of<GiftService>(context, listen: false).fetchGifts(widget.birthdayId);
     });
 
     _animController = AnimationController(
