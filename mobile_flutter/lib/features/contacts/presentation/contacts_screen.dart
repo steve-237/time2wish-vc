@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/services/contact_service.dart';
+import '../../../core/services/settings_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/glowing_badge.dart';
@@ -37,6 +38,8 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
 
   void _showAddContactDialog(BuildContext context) {
     final emailController = TextEditingController();
+    final isDark = context.read<SettingsService>().isDarkMode;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -61,44 +64,51 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppColors.textMutedDark.withValues(alpha: 0.4),
+                        color: (isDark ? AppColors.textMutedDark : AppColors.textMutedLight).withValues(alpha: 0.4),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
+                  Text(
                     'Ajouter un Contact',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: isDark ? Colors.white : AppColors.textMainLight,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Entrez l\'adresse email de l\'utilisateur pour lui envoyer une demande.',
-                    style: TextStyle(color: AppColors.textMutedDark, fontSize: 13),
+                    style: TextStyle(
+                      color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                      fontSize: 13,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   TextField(
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
                     autofocus: true,
                     decoration: InputDecoration(
                       labelText: 'Email',
-                      labelStyle: const TextStyle(color: AppColors.textMutedDark),
-                      prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textMutedDark),
+                      labelStyle: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                      prefixIcon: Icon(Icons.email_outlined, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
                       filled: true,
-                      fillColor: Colors.white.withValues(alpha: 0.06),
+                      fillColor: isDark ? const Color(0xFF141B26) : const Color(0xFFF1F5F9),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide(color: AppColors.borderLight),
+                        borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide(color: AppColors.borderLight),
+                        borderSide: BorderSide(color: isDark ? AppColors.darkBorderSubtle : AppColors.lightBorderSubtle),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(color: AppColors.primaryCyan, width: 1.5),
+                        borderSide: BorderSide(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, width: 1.5),
                       ),
                     ),
                   ),
@@ -110,17 +120,19 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                           onPressed: () => Navigator.pop(ctx),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
-                            side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                            side: BorderSide(color: isDark ? Colors.white24 : AppColors.lightBorder),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           ),
-                          child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark)),
+                          child: Text('Annuler', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight)),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Container(
                           decoration: BoxDecoration(
-                            gradient: AppColors.primaryGradient,
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                            ),
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: ElevatedButton(
@@ -164,12 +176,14 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     final contactService = Provider.of<ContactService>(context);
+    final settings = Provider.of<SettingsService>(context);
+    final isDark = settings.isDarkMode;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddContactDialog(context),
-        backgroundColor: AppColors.primaryCyan,
+        backgroundColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
         child: const Icon(Icons.person_add, color: Colors.white),
       ),
       body: Column(
@@ -183,12 +197,12 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Contacts & Réseau 👥',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: isDark ? Colors.white : AppColors.textMainLight,
                       ),
                     ),
                     if (contactService.pendingRequests.isNotEmpty)
@@ -205,11 +219,11 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                   child: TextField(
                     controller: _searchController,
                     onChanged: (val) => setState(() => _searchQuery = val),
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                    decoration: const InputDecoration(
+                    style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontSize: 14),
+                    decoration: InputDecoration(
                       hintText: 'Rechercher un ami...',
-                      hintStyle: TextStyle(color: AppColors.textMutedDark, fontSize: 14),
-                      icon: Icon(Icons.search, color: AppColors.textMutedDark),
+                      hintStyle: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 14),
+                      icon: Icon(Icons.search, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
                       border: InputBorder.none,
                     ),
                   ),
@@ -221,9 +235,9 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
           // Tab Bar
           TabBar(
             controller: _tabController,
-            indicatorColor: AppColors.primaryCyan,
-            labelColor: AppColors.cyanLight,
-            unselectedLabelColor: AppColors.textMutedDark,
+            indicatorColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+            labelColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+            unselectedLabelColor: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
             tabs: [
               Tab(text: 'Mes Contacts (${contactService.contacts.length})'),
               Tab(text: 'Demandes (${contactService.pendingRequests.length})'),
@@ -235,8 +249,8 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildContactsList(contactService),
-                _buildPendingList(contactService),
+                _buildContactsList(contactService, isDark),
+                _buildPendingList(contactService, isDark),
               ],
             ),
           ),
@@ -245,25 +259,25 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
     );
   }
 
-  Widget _buildContactsList(ContactService service) {
+  Widget _buildContactsList(ContactService service, bool isDark) {
     final filtered = service.contacts
         .where((c) => c.fullName.toLowerCase().contains(_searchQuery.toLowerCase()))
         .toList();
 
     if (service.isLoading) {
-      return const Center(child: SpinKitThreeBounce(color: AppColors.primaryCyan, size: 28));
+      return Center(child: SpinKitThreeBounce(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, size: 28));
     }
 
     if (filtered.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.group_off_outlined, size: 64, color: AppColors.textMutedDark),
-            SizedBox(height: 12),
-            Text('Aucun contact trouvé', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-            SizedBox(height: 4),
-            Text('Ajoutez vos amis avec le bouton +', style: TextStyle(color: AppColors.textMutedDark, fontSize: 13)),
+            Icon(Icons.group_off_outlined, size: 64, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+            const SizedBox(height: 12),
+            Text('Aucun contact trouvé', style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text('Ajoutez vos amis avec le bouton +', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 13)),
           ],
         ),
       );
@@ -288,7 +302,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                   height: 44,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(colors: [AppColors.primaryCyan, AppColors.accentPurple]),
+                    gradient: LinearGradient(colors: [Color(0xFF4F46E5), Color(0xFF0EA5E9)]),
                   ),
                   child: Center(
                     child: Text(initial, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
@@ -299,14 +313,14 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(contact.fullName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                      Text(contact.fullName, style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontWeight: FontWeight.bold, fontSize: 15)),
                       const SizedBox(height: 2),
-                      Text(contact.email, style: const TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                      Text(contact.email, style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 12)),
                     ],
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.chat_bubble_outline, color: AppColors.cyanLight),
+                  icon: Icon(Icons.chat_bubble_outline, color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo),
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Discussion avec ${contact.fullName}')),
@@ -322,15 +336,15 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
     );
   }
 
-  Widget _buildPendingList(ContactService service) {
+  Widget _buildPendingList(ContactService service, bool isDark) {
     if (service.pendingRequests.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.mark_email_read_outlined, size: 64, color: AppColors.textMutedDark),
-            SizedBox(height: 12),
-            Text('Aucune demande en attente', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            Icon(Icons.mark_email_read_outlined, size: 64, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+            const SizedBox(height: 12),
+            Text('Aucune demande en attente', style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontSize: 16, fontWeight: FontWeight.bold)),
           ],
         ),
       );
@@ -366,7 +380,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(request.fullName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                      Text(request.fullName, style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontWeight: FontWeight.bold, fontSize: 15)),
                       const SizedBox(height: 2),
                       const Text('Demande de contact', style: TextStyle(color: AppColors.accentPink, fontSize: 11, fontWeight: FontWeight.bold)),
                     ],

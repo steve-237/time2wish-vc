@@ -3,12 +3,14 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/services/messaging_service.dart';
+import '../../../core/services/settings_service.dart';
 import '../../../core/models/conversation_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/glowing_badge.dart';
 import '../../../core/widgets/animated_list_item.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+
 class ConversationsScreen extends StatefulWidget {
   const ConversationsScreen({super.key});
 
@@ -28,6 +30,8 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
   @override
   Widget build(BuildContext context) {
     final messagingService = Provider.of<MessagingService>(context);
+    final settings = Provider.of<SettingsService>(context);
+    final isDark = settings.isDarkMode;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -42,18 +46,21 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Messagerie STOMP 💬',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: isDark ? Colors.white : AppColors.textMainLight,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       'Discussions directes & groupes secrets',
-                      style: const TextStyle(fontSize: 13, color: AppColors.textMutedDark),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                      ),
                     ),
                   ],
                 ),
@@ -61,7 +68,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                   GlowingBadge(
                     label: '${messagingService.totalUnread} non-lus',
                     icon: Icons.mark_email_unread_outlined,
-                    color: AppColors.primaryCyan,
+                    color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
                     isSelected: true,
                   ),
               ],
@@ -71,17 +78,30 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
           // Conversation List
           Expanded(
             child: messagingService.isLoading
-                ? const Center(child: SpinKitThreeBounce(color: AppColors.primaryCyan, size: 28))
+                ? Center(child: SpinKitThreeBounce(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, size: 28))
                 : messagingService.conversations.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.chat_bubble_outline, size: 64, color: AppColors.textMutedDark),
-                            SizedBox(height: 12),
-                            Text('Aucune discussion', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                            SizedBox(height: 4),
-                            Text('Démarrez une discussion avec vos contacts', style: TextStyle(color: AppColors.textMutedDark, fontSize: 13)),
+                            Icon(Icons.chat_bubble_outline, size: 64, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Aucune discussion',
+                              style: TextStyle(
+                                color: isDark ? Colors.white : AppColors.textMainLight,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Démarrez une discussion avec vos contacts',
+                              style: TextStyle(
+                                color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                                fontSize: 13,
+                              ),
+                            ),
                           ],
                         ),
                       )
@@ -92,7 +112,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                           itemCount: messagingService.conversations.length,
                           itemBuilder: (context, index) {
                             final conv = messagingService.conversations[index];
-                            return AnimatedListItem(index: index, child: _buildConversationItem(context, conv));
+                            return AnimatedListItem(index: index, child: _buildConversationItem(context, conv, isDark));
                           },
                         ),
                       ),
@@ -102,7 +122,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
     );
   }
 
-  Widget _buildConversationItem(BuildContext context, ConversationModel conv) {
+  Widget _buildConversationItem(BuildContext context, ConversationModel conv, bool isDark) {
     final String initial = conv.name.isNotEmpty ? conv.name[0].toUpperCase() : '?';
     final hasUnread = conv.unreadCount > 0;
     final String timeStr = conv.lastMessageAt != null
@@ -128,8 +148,8 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                       colors: conv.isBirthday
                           ? [AppColors.wishCoinsAmber, AppColors.accentPink]
                           : conv.isGroup
-                              ? [AppColors.accentPurple, AppColors.primaryCyan]
-                              : [AppColors.primaryCyan, AppColors.cyanLight],
+                              ? [AppColors.accentPurple, isDark ? AppColors.indigoLight : AppColors.primaryIndigo]
+                              : [const Color(0xFF4F46E5), const Color(0xFF0EA5E9)],
                     ),
                   ),
                   child: Center(
@@ -146,14 +166,14 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                 if (conv.isBirthday || conv.isGroup)
                   Container(
                     padding: const EdgeInsets.all(2),
-                    decoration: const BoxDecoration(
-                      color: AppColors.backgroundDeep,
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkCanvas : Colors.white,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       conv.isBirthday ? Icons.card_giftcard : Icons.groups,
                       size: 14,
-                      color: Colors.white,
+                      color: isDark ? Colors.white : AppColors.textMainLight,
                     ),
                   ),
               ],
@@ -172,7 +192,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                         child: Text(
                           conv.name,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: isDark ? Colors.white : AppColors.textMainLight,
                             fontWeight: hasUnread ? FontWeight.bold : FontWeight.w600,
                             fontSize: 15,
                           ),
@@ -183,8 +203,11 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                         Text(
                           timeStr,
                           style: TextStyle(
-                            color: hasUnread ? AppColors.cyanLight : AppColors.textMutedDark,
+                            color: hasUnread
+                                ? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo)
+                                : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
                             fontSize: 11,
+                            fontWeight: hasUnread ? FontWeight.bold : FontWeight.normal,
                           ),
                         ),
                     ],
@@ -196,7 +219,9 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                         child: Text(
                           conv.lastMessage ?? 'Commencer la discussion...',
                           style: TextStyle(
-                            color: hasUnread ? Colors.white : AppColors.textMutedDark,
+                            color: hasUnread
+                                ? (isDark ? Colors.white : AppColors.textMainLight)
+                                : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
                             fontSize: 13,
                             fontWeight: hasUnread ? FontWeight.w600 : FontWeight.normal,
                           ),
@@ -207,7 +232,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
                       if (hasUnread)
                         GlowingBadge(
                           label: '${conv.unreadCount}',
-                          color: AppColors.primaryCyan,
+                          color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
                           isSelected: true,
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         ),

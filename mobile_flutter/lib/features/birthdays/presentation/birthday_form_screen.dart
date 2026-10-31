@@ -196,10 +196,10 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
     }
   }
 
-  void _showPhotoPicker(BuildContext context) {
+  void _showPhotoPicker(BuildContext context, bool isDark) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.backgroundDialogDark,
+      backgroundColor: isDark ? AppColors.darkCard : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -213,12 +213,16 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Photo de profil',
-                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: isDark ? Colors.white : AppColors.textMainLight,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: AppColors.textMutedDark),
+                    icon: Icon(Icons.close, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
                     onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
@@ -234,8 +238,8 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                   ),
                   child: const Icon(Icons.photo_library_rounded, color: AppColors.primaryCyan),
                 ),
-                title: const Text('Galerie du téléphone 📱', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                subtitle: const Text('Choisir une photo de vos albums', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                title: Text('Galerie du téléphone 📱', style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontWeight: FontWeight.bold)),
+                subtitle: Text('Choisir une photo de vos albums', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 12)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickImage(ImageSource.gallery);
@@ -252,8 +256,8 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                   ),
                   child: const Icon(Icons.camera_alt_rounded, color: AppColors.accentPink),
                 ),
-                title: const Text('Prendre une photo 📸', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                subtitle: const Text('Ouvrir l\'appareil photo du téléphone', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                title: Text('Prendre une photo 📸', style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontWeight: FontWeight.bold)),
+                subtitle: Text('Ouvrir l\'appareil photo du téléphone', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 12)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickImage(ImageSource.camera);
@@ -270,11 +274,11 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                   ),
                   child: const Icon(Icons.link_rounded, color: Colors.blueAccent),
                 ),
-                title: const Text('Entrer l\'URL d\'une photo', style: TextStyle(color: Colors.white)),
-                subtitle: const Text('Lien direct web (https://...)', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                title: Text('Entrer l\'URL d\'une photo', style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight)),
+                subtitle: Text('Lien direct web (https://...)', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 12)),
                 onTap: () {
                   Navigator.pop(ctx);
-                  _showUrlInputDialog(context);
+                  _showUrlInputDialog(context, isDark);
                 },
               ),
               const SizedBox(height: 8),
@@ -288,11 +292,11 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                   ),
                   child: const Icon(Icons.face_rounded, color: AppColors.accentPurple),
                 ),
-                title: const Text('Avatars préconçus & portraits', style: TextStyle(color: Colors.white)),
-                subtitle: const Text('Choisir parmi une sélection de portraits', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                title: Text('Avatars préconçus & portraits', style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight)),
+                subtitle: Text('Choisir parmi une sélection de portraits', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 12)),
                 onTap: () {
                   Navigator.pop(ctx);
-                  _showAvatarPresetSelector(context);
+                  _showAvatarPresetSelector(context, isDark);
                 },
               ),
               const SizedBox(height: 8),
@@ -306,8 +310,8 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                   ),
                   child: const Icon(Icons.auto_awesome_rounded, color: AppColors.wishCoinsAmber),
                 ),
-                title: const Text('Générer un avatar monogramme', style: TextStyle(color: Colors.white)),
-                subtitle: const Text('Créé automatiquement avec les initiales', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                title: Text('Générer un avatar monogramme', style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight)),
+                subtitle: Text('Créé automatiquement avec les initiales', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 12)),
                 onTap: () {
                   Navigator.pop(ctx);
                   final nameForAvatar = _nameController.text.trim().isNotEmpty
@@ -346,7 +350,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
     );
   }
 
-  void _showAvatarPresetSelector(BuildContext context) {
+  void _showAvatarPresetSelector(BuildContext context, bool isDark) {
     final presets = [
       'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=256&h=256&fit=crop',
       'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=256&h=256&fit=crop',
@@ -362,7 +366,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.backgroundDialogDark,
+      backgroundColor: isDark ? AppColors.darkCard : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -373,9 +377,13 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
+              Text(
                 'Choisir un avatar',
-                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: isDark ? Colors.white : AppColors.textMainLight,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 16),
               SizedBox(
@@ -400,7 +408,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: _photoUrl == url ? AppColors.primaryCyan : Colors.white24,
+                            color: _photoUrl == url ? AppColors.primaryCyan : (isDark ? Colors.white24 : AppColors.lightBorder),
                             width: _photoUrl == url ? 3 : 1,
                           ),
                         ),
@@ -408,7 +416,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                           child: Image.network(
                             url,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => const Icon(Icons.person, color: Colors.white),
+                            errorBuilder: (_, _, _) => Icon(Icons.person, color: isDark ? Colors.white : AppColors.textMainLight),
                           ),
                         ),
                       ),
@@ -423,29 +431,29 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
     );
   }
 
-  void _showUrlInputDialog(BuildContext context) {
+  void _showUrlInputDialog(BuildContext context, bool isDark) {
     final urlController = TextEditingController(text: _photoUrl ?? '');
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.backgroundDialogDark,
+        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('URL de l\'image', style: TextStyle(color: Colors.white)),
+        title: Text('URL de l\'image', style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight)),
         content: TextField(
           controller: urlController,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
           decoration: InputDecoration(
             hintText: 'https://...',
-            hintStyle: const TextStyle(color: AppColors.textMutedDark),
+            hintStyle: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
             filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.05),
+            fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF1F5F9),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark)),
+            child: Text('Annuler', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -528,19 +536,23 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
     }
   }
 
-  InputDecoration _inputDecoration(String label) {
+  InputDecoration _inputDecoration(String label, bool isDark) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: AppColors.textMutedDark),
+      labelStyle: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
       filled: true,
-      fillColor: Colors.white.withValues(alpha: 0.06),
+      fillColor: isDark ? const Color(0xFF141B26) : const Color(0xFFF8FAFC),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide.none,
+        borderSide: BorderSide(color: isDark ? AppColors.darkBorderSubtle : AppColors.lightBorder),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(color: isDark ? AppColors.darkBorderSubtle : AppColors.lightBorder),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.primaryCyan, width: 1.5),
+        borderSide: BorderSide(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, width: 1.5),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     );
@@ -549,6 +561,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
   @override
   Widget build(BuildContext context) {
     final settings = Provider.of<SettingsService>(context);
+    final isDark = settings.isDarkMode;
     final localeStr = settings.language == 'en' ? 'en_US' : (settings.language == 'de' ? 'de_DE' : 'fr_FR');
     final isEditing = widget.birthdayId != null;
 
@@ -558,24 +571,22 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
+          icon: Icon(Icons.close, color: isDark ? Colors.white : AppColors.textMainLight),
           onPressed: () => context.pop(),
         ),
         title: Text(
           isEditing ? 'Modifier l\'Anniversaire' : 'Nouvel Anniversaire',
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: isDark ? Colors.white : AppColors.textMainLight,
             fontWeight: FontWeight.bold,
           ),
         ),
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
-        ),
+        color: isDark ? AppColors.darkCanvas : AppColors.lightCanvas,
         child: _isInitializing
-            ? const Center(
-                child: SpinKitThreeBounce(color: AppColors.primaryCyan, size: 30),
+            ? Center(
+                child: SpinKitThreeBounce(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, size: 30),
               )
             : SafeArea(
                 child: SingleChildScrollView(
@@ -588,7 +599,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                         // Photo Avatar Picker Header
                         Center(
                           child: GestureDetector(
-                            onTap: () => _showPhotoPicker(context),
+                            onTap: () => _showPhotoPicker(context, isDark),
                             child: Stack(
                               alignment: Alignment.bottomRight,
                               children: [
@@ -600,7 +611,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                     gradient: AppColors.primaryGradient,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: AppColors.primaryCyan.withValues(alpha: 0.35),
+                                        color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.35),
                                         blurRadius: 18,
                                         offset: const Offset(0, 4),
                                       ),
@@ -643,12 +654,12 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                 Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primaryCyan,
+                                    color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: AppColors.backgroundDark, width: 2),
+                                    border: Border.all(color: isDark ? AppColors.darkCanvas : Colors.white, width: 2),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: AppColors.primaryCyan.withValues(alpha: 0.5),
+                                        color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.5),
                                         blurRadius: 8,
                                       ),
                                     ],
@@ -668,11 +679,11 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                         const SizedBox(height: 8),
                         Center(
                           child: TextButton.icon(
-                            onPressed: () => _showPhotoPicker(context),
-                            icon: const Icon(Icons.photo_camera_rounded, size: 16, color: AppColors.primaryCyan),
+                            onPressed: () => _showPhotoPicker(context, isDark),
+                            icon: Icon(Icons.photo_camera_rounded, size: 16, color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo),
                             label: Text(
                               _photoUrl != null && _photoUrl!.isNotEmpty ? 'Modifier la photo' : 'Ajouter une photo',
-                              style: const TextStyle(color: AppColors.primaryCyan, fontSize: 13, fontWeight: FontWeight.w600),
+                              style: TextStyle(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, fontSize: 13, fontWeight: FontWeight.w600),
                             ),
                           ),
                         ),
@@ -684,8 +695,8 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                             padding: const EdgeInsets.all(16.0),
                             child: TextFormField(
                               controller: _nameController,
-                              style: const TextStyle(color: Colors.white),
-                              decoration: _inputDecoration('Nom complet'),
+                              style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                              decoration: _inputDecoration('Nom complet', isDark),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
                                   return 'Ce champ est requis';
@@ -714,22 +725,25 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'Date de naissance',
-                                    style: TextStyle(color: AppColors.textMutedDark, fontSize: 12),
+                                    style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 12),
                                   ),
                                   const SizedBox(height: 8),
                                   Row(
                                     children: [
-                                      const Icon(Icons.calendar_today, color: AppColors.primaryCyan),
+                                      Icon(Icons.calendar_today, color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo),
                                       const SizedBox(width: 12),
                                       Text(
                                         _birthdate != null
                                             ? DateFormat('dd MMMM yyyy', localeStr).format(_birthdate!)
                                             : 'Sélectionner une date',
                                         style: TextStyle(
-                                          color: _birthdate != null ? Colors.white : AppColors.textMutedDark,
+                                          color: _birthdate != null
+                                              ? (isDark ? Colors.white : AppColors.textMainLight)
+                                              : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
                                           fontSize: 16,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                     ],
@@ -747,9 +761,9 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                             padding: const EdgeInsets.all(16.0),
                             child: DropdownButtonFormField<String>(
                               initialValue: _category,
-                              dropdownColor: AppColors.backgroundDialogDark,
-                              style: const TextStyle(color: Colors.white),
-                              decoration: _inputDecoration('Catégorie').copyWith(
+                              dropdownColor: isDark ? AppColors.darkCard : Colors.white,
+                              style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                              decoration: _inputDecoration('Catégorie', isDark).copyWith(
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                               ),
                               items: _categories.map((String value) {
@@ -775,9 +789,9 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Genre',
-                                  style: TextStyle(color: AppColors.textMutedDark, fontSize: 12),
+                                  style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 12),
                                 ),
                                 const SizedBox(height: 8),
                                 SegmentedButton<String>(
@@ -795,7 +809,7 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                     backgroundColor: WidgetStateProperty.resolveWith<Color>(
                                       (Set<WidgetState> states) {
                                         if (states.contains(WidgetState.selected)) {
-                                          return AppColors.primaryCyan.withValues(alpha: 0.3);
+                                          return (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.2);
                                         }
                                         return Colors.transparent;
                                       },
@@ -803,9 +817,9 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                     foregroundColor: WidgetStateProperty.resolveWith<Color>(
                                       (Set<WidgetState> states) {
                                         if (states.contains(WidgetState.selected)) {
-                                          return Colors.white;
+                                          return isDark ? AppColors.indigoLight : AppColors.primaryIndigo;
                                         }
-                                        return AppColors.textMutedDark;
+                                        return isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
                                       },
                                     ),
                                   ),
@@ -822,8 +836,8 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                             padding: const EdgeInsets.all(16.0),
                             child: TextFormField(
                               controller: _notesController,
-                              style: const TextStyle(color: Colors.white),
-                              decoration: _inputDecoration('Notes (optionnel)'),
+                              style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                              decoration: _inputDecoration('Notes (optionnel)', isDark),
                               maxLines: 3,
                               onSaved: (value) => _notes = value?.trim() ?? '',
                             ),
@@ -838,9 +852,9 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Centres d\'intérêt',
-                                  style: TextStyle(color: AppColors.textMutedDark, fontSize: 12),
+                                  style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 12),
                                 ),
                                 const SizedBox(height: 12),
                                 Wrap(
@@ -850,40 +864,39 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                     ..._interests.map((interest) => InputChip(
                                       label: Text(interest),
                                       onDeleted: () => _removeInterest(interest),
-                                      backgroundColor: AppColors.accentPurple.withValues(alpha: 0.2),
-                                      deleteIconColor: Colors.white70,
-                                      labelStyle: const TextStyle(color: Colors.white),
-                                      side: BorderSide.none,
+                                      backgroundColor: (isDark ? AppColors.accentPurple : const Color(0xFF8B5CF6)).withValues(alpha: 0.16),
+                                      deleteIconColor: isDark ? Colors.white70 : AppColors.textMutedLight,
+                                      labelStyle: TextStyle(color: isDark ? Colors.white : const Color(0xFF6D28D9), fontWeight: FontWeight.w600),
+                                      side: BorderSide(color: (isDark ? AppColors.accentPurple : const Color(0xFF8B5CF6)).withValues(alpha: 0.3)),
                                     )),
                                     ActionChip(
-                                      avatar: const Icon(Icons.add, size: 16, color: Colors.white),
-                                      label: const Text('Ajouter'),
-                                      backgroundColor: Colors.white.withValues(alpha: 0.1),
-                                      labelStyle: const TextStyle(color: Colors.white),
-                                      side: BorderSide.none,
+                                      avatar: Icon(Icons.add, size: 16, color: isDark ? Colors.white : AppColors.primaryIndigo),
+                                      label: Text('Ajouter', style: TextStyle(color: isDark ? Colors.white : AppColors.primaryIndigo, fontWeight: FontWeight.bold)),
+                                      backgroundColor: isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFEEF2FF),
+                                      side: BorderSide(color: (isDark ? Colors.white24 : AppColors.lightBorder)),
                                       onPressed: () {
                                         showDialog(
                                           context: context,
                                           builder: (context) => AlertDialog(
-                                            backgroundColor: AppColors.backgroundDialogDark,
-                                            title: const Text('Ajouter un intérêt', style: TextStyle(color: Colors.white)),
+                                            backgroundColor: isDark ? AppColors.darkCard : Colors.white,
+                                            title: Text('Ajouter un intérêt', style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight)),
                                             content: TextField(
                                               controller: _interestController,
-                                              style: const TextStyle(color: Colors.white),
-                                              decoration: _inputDecoration('Ex: Musique, Sport, Lecture'),
+                                              style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                                              decoration: _inputDecoration('Ex: Musique, Sport, Lecture', isDark),
                                               autofocus: true,
                                             ),
                                             actions: [
                                               TextButton(
                                                 onPressed: () => context.pop(),
-                                                child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark)),
+                                                child: Text('Annuler', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight)),
                                               ),
                                               TextButton(
                                                 onPressed: () {
                                                   _addInterest();
                                                   context.pop();
                                                 },
-                                                child: const Text('Ajouter', style: TextStyle(color: AppColors.primaryCyan)),
+                                                child: Text('Ajouter', style: TextStyle(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, fontWeight: FontWeight.bold)),
                                               ),
                                             ],
                                           ),
@@ -907,8 +920,8 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text('Rappel avant (jours)', style: TextStyle(color: Colors.white)),
-                                    Text(_reminderDays.toString(), style: const TextStyle(color: AppColors.primaryCyan, fontWeight: FontWeight.bold, fontSize: 16)),
+                                    Text('Rappel avant (jours)', style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight)),
+                                    Text(_reminderDays.toString(), style: TextStyle(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, fontWeight: FontWeight.bold, fontSize: 16)),
                                   ],
                                 ),
                                 Slider(
@@ -916,20 +929,20 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                   min: 1,
                                   max: 30,
                                   divisions: 29,
-                                  activeColor: AppColors.primaryCyan,
-                                  inactiveColor: Colors.white.withValues(alpha: 0.1),
+                                  activeColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                                  inactiveColor: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black12,
                                   onChanged: (value) {
                                     setState(() {
                                       _reminderDays = value.round();
                                     });
                                   },
                                 ),
-                                const Divider(color: Colors.white12),
+                                Divider(color: isDark ? Colors.white12 : AppColors.lightBorder),
                                 SwitchListTile(
-                                  title: const Text('Mettre en favori', style: TextStyle(color: Colors.white)),
+                                  title: Text('Mettre en favori', style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight)),
                                   secondary: Icon(
                                     _isFavorite ? Icons.star : Icons.star_border,
-                                    color: _isFavorite ? AppColors.wishCoinsAmber : AppColors.textMutedDark,
+                                    color: _isFavorite ? AppColors.wishCoinsAmber : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
                                   ),
                                   value: _isFavorite,
                                   activeThumbColor: AppColors.wishCoinsAmber,
@@ -953,10 +966,10 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                               dividerColor: Colors.transparent,
                             ),
                             child: ExpansionTile(
-                              title: const Text('Section Fête (Optionnel)', style: TextStyle(color: Colors.white)),
+                              title: Text('Section Fête (Optionnel)', style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight)),
                               leading: const Icon(Icons.celebration, color: AppColors.accentPink),
-                              iconColor: Colors.white,
-                              collapsedIconColor: AppColors.textMutedDark,
+                              iconColor: isDark ? Colors.white : AppColors.textMainLight,
+                              collapsedIconColor: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.all(16.0),
@@ -964,15 +977,15 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                     children: [
                                       TextFormField(
                                         controller: _partyLocationController,
-                                        style: const TextStyle(color: Colors.white),
-                                        decoration: _inputDecoration('Lieu de la fête'),
+                                        style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                                        decoration: _inputDecoration('Lieu de la fête', isDark),
                                         onSaved: (value) => _partyLocation = value?.trim().isEmpty ?? true ? null : value?.trim(),
                                       ),
                                       const SizedBox(height: 12),
                                       TextFormField(
                                         controller: _partyDescriptionController,
-                                        style: const TextStyle(color: Colors.white),
-                                        decoration: _inputDecoration('Description / Infos'),
+                                        style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                                        decoration: _inputDecoration('Description / Infos', isDark),
                                         maxLines: 2,
                                         onSaved: (value) => _partyDescription = value?.trim().isEmpty ?? true ? null : value?.trim(),
                                       ),
@@ -988,13 +1001,15 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                         
                         // Submit Button
                         Container(
-                          height: 56,
+                          height: 54,
                           decoration: BoxDecoration(
-                            gradient: AppColors.primaryGradient,
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                            ),
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primaryCyan.withValues(alpha: 0.35),
+                                color: const Color(0xFF4F46E5).withValues(alpha: isDark ? 0.35 : 0.25),
                                 blurRadius: 16,
                                 offset: const Offset(0, 4),
                               ),

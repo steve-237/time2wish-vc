@@ -106,14 +106,21 @@ class SyncService extends ChangeNotifier {
         }
       } on DioException catch (e) {
         final statusCode = e.response?.statusCode;
-        // Client errors (400 Bad Request, 404 Not Found, 409 Conflict) should not block the queue forever
-        if (statusCode != null && (statusCode == 400 || statusCode == 404 || statusCode == 409)) {
-          debugPrint('[SyncService] Mutation discarded due to HTTP $statusCode: ${mutation.method} ${mutation.endpoint}');
+        final currentIdx = _queue.indexWhere((m) => m.id == mutation.id);
+        final currentRetries = currentIdx != -1 ? _queue[currentIdx].retryCount + 1 : mutation.retryCount + 1;
+
+        if (statusCode == 400 || statusCode == 401 || statusCode == 403 || statusCode == 404 || statusCode == 409 || currentRetries >= 3) {
+          debugPrint('[SyncService] Discarding mutation (${mutation.method} ${mutation.endpoint}) after status $statusCode or $currentRetries retries');
           _queue.removeWhere((m) => m.id == mutation.id);
           await _saveQueue();
-        } else {
-          // Network failure or backend unreachable: halt queue replay to preserve ordering
+        } else if (currentIdx != -1) {
+          _queue[currentIdx] = _queue[currentIdx].copyWith(retryCount: currentRetries);
+          await _saveQueue();
           debugPrint('[SyncService] Network error during sync (${e.type}): halting queue processing');
+          allSucceeded = false;
+          _lastSyncError = 'Serveur inaccessible ou hors-ligne';
+          break;
+        } else {
           allSucceeded = false;
           _lastSyncError = 'Serveur inaccessible ou hors-ligne';
           break;

@@ -12,24 +12,25 @@ class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   void _showLogoutDialog(BuildContext context, AuthService authService, SettingsService settings) {
+    final isDark = settings.isDarkMode;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.backgroundDialogDark,
+        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(settings.tr('logout'), style: const TextStyle(color: Colors.white)),
+        title: Text(settings.tr('logout'), style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight)),
         content: Text(
           settings.language == 'en'
               ? 'Are you sure you want to log out?'
               : settings.language == 'de'
                   ? 'Möchten Sie sich wirklich abmelden?'
                   : 'Voulez-vous vraiment vous déconnecter ?',
-          style: const TextStyle(color: AppColors.textMutedDark),
+          style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(settings.tr('cancel'), style: const TextStyle(color: AppColors.textMutedDark)),
+            child: Text(settings.tr('cancel'), style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -348,7 +349,7 @@ class ProfileScreen extends StatelessWidget {
                     trailing: const Icon(Icons.chevron_right, color: AppColors.textMutedDark),
                     onTap: () => context.push('/profile/edit'),
                   ),
-                  Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
+                  Divider(color: isDark ? Colors.white.withValues(alpha: 0.08) : AppColors.lightBorder, height: 1),
                   ListTile(
                     leading: const Icon(Icons.notifications_outlined, color: AppColors.accentPurple),
                     title: Text(
@@ -365,21 +366,21 @@ class ProfileScreen extends StatelessWidget {
                           : settings.language == 'de'
                               ? 'Aktiv (T-7, T-3, Tag X)'
                               : 'Actives (J-7, J-3, Jour J)',
-                      style: const TextStyle(color: AppColors.textMutedDark, fontSize: 11),
+                      style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 11),
                     ),
-                    trailing: const Icon(Icons.chevron_right, color: AppColors.textMutedDark),
+                    trailing: Icon(Icons.chevron_right, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Rappels locaux programmés (J-7, J-3, Jour J) 🔔'),
-                          backgroundColor: AppColors.primaryCyan,
+                        SnackBar(
+                          content: const Text('Rappels locaux programmés (J-7, J-3, Jour J) 🔔'),
+                          backgroundColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
                         ),
                       );
                     },
                   ),
-                  Divider(color: Colors.white.withValues(alpha: 0.08), height: 1),
+                  Divider(color: isDark ? Colors.white.withValues(alpha: 0.08) : AppColors.lightBorder, height: 1),
                   ListTile(
-                    leading: const Icon(Icons.info_outline, color: Colors.white70),
+                    leading: Icon(Icons.info_outline, color: isDark ? Colors.white70 : AppColors.textMutedLight),
                     title: Text(
                       settings.language == 'en'
                           ? 'App Version'
@@ -446,6 +447,9 @@ class _LanguageOptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsService>();
+    final isDark = settings.isDarkMode;
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -453,17 +457,19 @@ class _LanguageOptionCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primaryCyan.withValues(alpha: 0.22)
-              : Colors.white.withValues(alpha: 0.05),
+              ? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.16)
+              : (isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF1F5F9)),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primaryCyan : Colors.white.withValues(alpha: 0.1),
+            color: isSelected
+                ? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo)
+                : (isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.lightBorder),
             width: isSelected ? 1.8 : 1.0,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.primaryCyan.withValues(alpha: 0.3),
+                    color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.25),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -478,14 +484,16 @@ class _LanguageOptionCard extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : AppColors.textMutedDark,
+                color: isSelected
+                    ? (isDark ? Colors.white : AppColors.primaryIndigo)
+                    : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 fontSize: 12,
               ),
             ),
             if (isSelected) ...[
               const SizedBox(height: 2),
-              const Icon(Icons.check_circle, color: AppColors.primaryCyan, size: 14),
+              Icon(Icons.check_circle, color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, size: 14),
             ],
           ],
         ),
@@ -536,9 +544,9 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
-              color: AppColors.textMutedDark,
+              color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
             ),
           ),
         ],
