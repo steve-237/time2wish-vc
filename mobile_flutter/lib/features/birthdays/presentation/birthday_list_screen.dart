@@ -904,52 +904,53 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // 1. TOP EXECUTIVE HEADER WITH USER GREETING & UTILITIES
+            // 1. TOP EXECUTIVE HEADER: APP NAME -> WELCOME -> MENU BAR
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
               sliver: SliverToBoxAdapter(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // User Greeting & Date
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Time2Wish',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w900,
-                              color: isDark ? Colors.white : AppColors.textMainLight,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Bienvenue $firstName 👋',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.1,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Right header accessories
+                    // A. TOUT EN HAUT : Nom de l'application (+ WishCoins à droite)
                     Row(
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(7),
+                              decoration: BoxDecoration(
+                                gradient: AppColors.primaryGradient,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.35),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(Icons.cake_rounded, color: Colors.white, size: 20),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Time2Wish',
+                              style: TextStyle(
+                                fontSize: 25,
+                                fontWeight: FontWeight.w900,
+                                color: isDark ? Colors.white : AppColors.textMainLight,
+                                letterSpacing: -0.6,
+                              ),
+                            ),
+                          ],
+                        ),
+
                         // WishCoins chip
                         GestureDetector(
                           onTap: () => _showWishCoinsModal(context, user?.coins ?? 100),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
                               color: AppColors.wishCoinsAmber.withValues(alpha: isDark ? 0.16 : 0.12),
                               borderRadius: BorderRadius.circular(16),
@@ -964,7 +965,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                                 const Icon(Icons.monetization_on, color: AppColors.wishCoinsAmber, size: 14),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '${user?.coins ?? 100}',
+                                  '${user?.coins ?? 100} Coins',
                                   style: const TextStyle(
                                     color: AppColors.wishCoinsAmber,
                                     fontWeight: FontWeight.bold,
@@ -975,145 +976,85 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-
-                        // Language switcher chip
-                        GestureDetector(
-                          onTap: () => _showLanguageSelector(context, settings),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(langFlag, style: const TextStyle(fontSize: 13)),
-                                const SizedBox(width: 4),
-                                Text(
-                                  settings.language.toUpperCase(),
-                                  style: TextStyle(
-                                    color: isDark ? Colors.white : AppColors.textMainLight,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-
-                        // Notification Bell
-                        GestureDetector(
-                          onTap: () => _showNotificationSheet(context, birthdayService, settings),
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                                width: 1,
-                              ),
-                            ),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Icon(
-                                  Icons.notifications_none_rounded,
-                                  color: isDark ? Colors.white : AppColors.textMainLight,
-                                  size: 19,
-                                ),
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Container(
-                                    width: 7,
-                                    height: 7,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.accentCoral,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-
-                        // Manual Sync Button
-                        GestureDetector(
-                          onTap: () => _handleManualSync(context, syncService, birthdayService, settings),
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: isDark ? AppColors.darkCard : Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                                width: 1,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Center(
-                              child: syncService.isSyncing
-                                  ? SpinKitRing(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, size: 16, lineWidth: 2)
-                                  : Icon(
-                                      Icons.sync_rounded,
-                                      color: isDark ? Colors.white : AppColors.textMainLight,
-                                      size: 19,
-                                    ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-
-                        // Import / Export JSON Backup Button
-                        GestureDetector(
-                          onTap: () => BirthdayImportExportSheet.show(context),
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: isDark ? AppColors.darkCard : Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                                width: 1,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Center(
-                              child: Icon(
-                                Icons.sync_alt_rounded,
-                                color: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
-                                size: 19,
-                              ),
-                            ),
-                          ),
-                        ),
                       ],
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    // B. EN DESSOUS : Mot de bienvenue
+                    Text(
+                      'Bienvenue $firstName 👋',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.1,
+                      ),
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    // C. APRES : LE MENU (Barre d'actions et utilitaires de l'application)
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        children: [
+                          _buildHeaderMenuPill(
+                            context: context,
+                            isDark: isDark,
+                            icon: Icons.person_add_rounded,
+                            label: 'Ajouter',
+                            accentColor: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
+                            onTap: () => context.push('/birthdays/add'),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildHeaderMenuPill(
+                            context: context,
+                            isDark: isDark,
+                            icon: Icons.notifications_none_rounded,
+                            label: 'Rappels',
+                            hasBadge: true,
+                            onTap: () => _showNotificationSheet(context, birthdayService, settings),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildHeaderMenuPill(
+                            context: context,
+                            isDark: isDark,
+                            icon: syncService.isSyncing ? Icons.hourglass_top_rounded : Icons.sync_rounded,
+                            label: syncService.isSyncing ? 'Sync...' : 'Sync',
+                            isLoading: syncService.isSyncing,
+                            onTap: () => _handleManualSync(context, syncService, birthdayService, settings),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildHeaderMenuPill(
+                            context: context,
+                            isDark: isDark,
+                            icon: Icons.sync_alt_rounded,
+                            label: 'Import / Export',
+                            accentColor: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
+                            onTap: () => BirthdayImportExportSheet.show(context),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildHeaderMenuPill(
+                            context: context,
+                            isDark: isDark,
+                            customLeading: Text(langFlag, style: const TextStyle(fontSize: 13)),
+                            label: settings.language.toUpperCase(),
+                            onTap: () => _showLanguageSelector(context, settings),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildHeaderMenuPill(
+                            context: context,
+                            isDark: isDark,
+                            icon: isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                            label: isDark ? 'Clair' : 'Sombre',
+                            onTap: () async {
+                              await settings.toggleDarkMode();
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -1557,6 +1498,90 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         childCount: filtered.length,
                       ),
                     ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderMenuPill({
+    required BuildContext context,
+    required bool isDark,
+    IconData? icon,
+    Widget? customLeading,
+    required String label,
+    required VoidCallback onTap,
+    bool hasBadge = false,
+    bool isLoading = false,
+    Color? accentColor,
+  }) {
+    final effectiveColor = accentColor ?? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo);
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: () {
+        DeviceService.triggerLightHaptic();
+        onTap();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF161C28) : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isDark ? const Color(0xFF222B3E) : AppColors.lightBorder,
+            width: 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isLoading)
+              SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: effectiveColor,
+                ),
+              )
+            else if (customLeading != null)
+              customLeading
+            else if (icon != null)
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Icon(icon, size: 16, color: effectiveColor),
+                  if (hasBadge)
+                    Positioned(
+                      top: -1,
+                      right: -1,
+                      child: Container(
+                        width: 6,
+                        height: 6,
+                        decoration: const BoxDecoration(
+                          color: AppColors.accentCoral,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            const SizedBox(width: 7),
+            Text(
+              label,
+              style: TextStyle(
+                color: isDark ? Colors.white : AppColors.textMainLight,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
