@@ -86,6 +86,7 @@ class _AiWishDialogState extends State<AiWishDialog> {
 
   void _copyToClipboard() {
     if (_generatedWish.isNotEmpty) {
+      DeviceService.triggerLightHaptic();
       Clipboard.setData(ClipboardData(text: _generatedWish));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

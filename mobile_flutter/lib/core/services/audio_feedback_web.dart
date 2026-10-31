@@ -1,9 +1,11 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:js' as js;
+import 'dart:js_interop';
 
-/// Web implementation of audio feedback via Web Audio API
+@JS('t2wPlaySound')
+external void _t2wPlaySound(JSString type);
+
+/// Web implementation of audio feedback via modern JS Interop
 void playWebAudio(String soundType) {
   try {
-    js.context.callMethod('t2wPlaySound', [soundType]);
+    _t2wPlaySound(soundType.toJS);
   } catch (_) {}
 }

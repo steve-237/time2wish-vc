@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'audio_feedback_stub.dart' if (dart.library.js) 'audio_feedback_web.dart';
+import 'audio_feedback_stub.dart' if (dart.library.js_interop) 'audio_feedback_web.dart';
 
 class DeviceService {
   /// Play an immediate soft click sound (Web Audio + SystemSound)

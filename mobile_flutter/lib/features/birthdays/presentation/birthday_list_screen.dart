@@ -9,7 +9,6 @@ import '../../../core/services/birthday_service.dart';
 import '../../../core/services/sync_service.dart';
 import '../../../core/services/settings_service.dart';
 import '../../../core/services/device_service.dart';
-import '../../../core/widgets/celebration_effect.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/models/birthday_model.dart';
 import '../../../core/theme/app_theme.dart';
@@ -890,17 +889,8 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         : null) ?? nextBirthday;
     final bool isCustomSelection = _selectedBirthdayId != null && activeBirthday != null && activeBirthday.id != nextBirthday?.id;
 
-    final now = DateTime.now();
-    final thisMonthCount = birthdayService.birthdays.where((b) => b.birthdate.month == now.month).length;
     final totalCount = birthdayService.birthdays.length;
-    final favoritesCount = birthdayService.birthdays.where((b) => b.isFavorite).length;
     final urgentCount = birthdayService.birthdays.where((b) => b.daysRemaining <= 7).length;
-
-    // Greeting by time of day
-    final hour = now.hour;
-    final greetingWord = (hour >= 5 && hour < 18)
-        ? settings.tr('greeting_morning')
-        : settings.tr('greeting_evening');
     final firstName = user?.fullName.split(' ').first ?? 'Ami';
 
     final String langFlag = settings.language == 'en'
