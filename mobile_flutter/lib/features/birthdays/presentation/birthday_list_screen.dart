@@ -883,9 +883,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
 
     final filtered = _getFilteredBirthdays(birthdayService.upcoming);
     final BirthdayModel? nextBirthday = birthdayService.upcoming.isNotEmpty ? birthdayService.upcoming.first : null;
-    final BirthdayModel? activeBirthday = (_selectedBirthdayId != null
-        ? birthdayService.getBirthdayById(_selectedBirthdayId!)
-        : null) ?? nextBirthday;
 
     final totalCount = birthdayService.birthdays.length;
     final urgentCount = birthdayService.birthdays.where((b) => b.daysRemaining <= 7).length;
