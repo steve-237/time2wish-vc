@@ -48,6 +48,25 @@ class BirthdayService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Reload birthdays for a specific user session (offline multi-account switching)
+  Future<void> reloadForUser([int? userId]) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _birthdays = await _storageService.loadBirthdays(userId: userId);
+      if (_birthdays.isEmpty) {
+        _birthdays = _getDemoBirthdays();
+        await _storageService.saveBirthdays(_birthdays, userId: userId);
+      }
+      for (final b in _birthdays) {
+        await NotificationService.scheduleBirthdayReminder(b);
+      }
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   /// Fetch all birthdays from API if online, replay pending sync queue, or fallback to local storage
   Future<void> fetchBirthdays() async {
     _isLoading = true;
