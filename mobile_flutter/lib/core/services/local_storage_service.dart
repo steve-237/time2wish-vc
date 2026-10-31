@@ -63,7 +63,16 @@ class LocalStorageService {
   Future<Map<String, dynamic>?> getOfflineAccountByUsername(String username) async {
     final accounts = await getOfflineAccounts();
     final normalized = username.trim().toLowerCase();
-    return accounts[normalized];
+    if (accounts.containsKey(normalized)) {
+      return accounts[normalized];
+    }
+    for (final acc in accounts.values) {
+      final name = (acc['fullName'] ?? acc['name'] ?? acc['username'] ?? '').toString().trim().toLowerCase();
+      if (name == normalized) {
+        return acc;
+      }
+    }
+    return null;
   }
 
   Future<Map<String, dynamic>?> getOfflineAccountById(int id) async {
@@ -78,9 +87,10 @@ class LocalStorageService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final accounts = await getOfflineAccounts();
-      final username = account['username']?.toString().trim().toLowerCase() ??
-          account['fullName']?.toString().trim().toLowerCase() ??
-          '';
+      final username = (account['fullName'] ?? account['username'] ?? account['name'] ?? '')
+          .toString()
+          .trim()
+          .toLowerCase();
       if (username.isNotEmpty) {
         accounts[username] = account;
         await prefs.setString(_offlineAccountsKey, jsonEncode(accounts));

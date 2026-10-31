@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen>
   void _showOfflineLoginModal(BuildContext context, bool isDark, AuthService authService) async {
     final savedAccounts = await authService.getSavedOfflineAccounts();
     final usernameController = TextEditingController(
-      text: savedAccounts.isNotEmpty ? (savedAccounts.first['name'] ?? '') : '',
+      text: savedAccounts.isNotEmpty ? ((savedAccounts.first['fullName'] ?? savedAccounts.first['name']) ?? '').toString() : '',
     );
     final pinController = TextEditingController();
     bool obscurePin = true;
@@ -185,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen>
                         spacing: 8,
                         runSpacing: 8,
                         children: savedAccounts.map((acc) {
-                          final accName = acc['name']?.toString() ?? 'Invité';
+                          final accName = (acc['fullName'] ?? acc['name'] ?? 'Invité').toString();
                           final isSelected = usernameController.text.trim().toLowerCase() == accName.trim().toLowerCase();
                           return InkWell(
                             borderRadius: BorderRadius.circular(20),
