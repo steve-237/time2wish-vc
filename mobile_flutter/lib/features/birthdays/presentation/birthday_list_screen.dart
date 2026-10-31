@@ -29,7 +29,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedCategory = 'TOUS';
-  int? _selectedBirthdayId;
 
   final List<String> _categories = ['TOUS', 'CE_MOIS', 'FAVORIS', 'AMIS', 'FAMILLE', 'TRAVAIL'];
 
@@ -603,9 +602,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
               ),
               onPressed: () {
                 final targetId = birthday.id;
-                setState(() {
-                  _selectedBirthdayId = targetId;
-                });
                 Navigator.of(ctx).pop();
                 GoRouter.of(context).push('/birthday/$targetId');
               },
@@ -1165,7 +1161,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         onTap: () {
                           if (nextBirthday != null) {
                             DeviceService.triggerLightHaptic();
-                            setState(() => _selectedBirthdayId = nextBirthday.id);
                             context.push('/birthday/${nextBirthday.id}');
                           }
                         },
@@ -1444,7 +1439,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                               return GestureDetector(
                                 onTap: () {
                                   DeviceService.triggerLightHaptic();
-                                  setState(() => _selectedBirthdayId = b.id);
                                   context.push('/birthday/${b.id}');
                                 },
                                 child: Container(
@@ -2042,9 +2036,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            setState(() {
-              _selectedBirthdayId = birthday.id;
-            });
             DeviceService.triggerLightHaptic();
             context.push('/birthday/${birthday.id}');
           },
@@ -2224,9 +2215,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
                   onPressed: () {
-                    setState(() {
-                      _selectedBirthdayId = birthday.id;
-                    });
                     DeviceService.triggerLightHaptic();
                     context.push('/birthday/${birthday.id}');
                   },
