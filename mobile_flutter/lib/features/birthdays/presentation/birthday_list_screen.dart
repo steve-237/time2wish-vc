@@ -9,6 +9,7 @@ import '../../../core/services/birthday_service.dart';
 import '../../../core/services/sync_service.dart';
 import '../../../core/services/settings_service.dart';
 import '../../../core/services/device_service.dart';
+import '../../../core/widgets/celebration_effect.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/models/birthday_model.dart';
 import '../../../core/theme/app_theme.dart';
@@ -893,6 +894,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
     final thisMonthCount = birthdayService.birthdays.where((b) => b.birthdate.month == now.month).length;
     final totalCount = birthdayService.birthdays.length;
     final favoritesCount = birthdayService.birthdays.where((b) => b.isFavorite).length;
+    final urgentCount = birthdayService.birthdays.where((b) => b.daysRemaining <= 7).length;
 
     // Greeting by time of day
     final hour = now.hour;
@@ -944,7 +946,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Birthday Manager · $greetingWord, $firstName 👋',
+                            'Bienvenue $firstName 👋',
                             style: TextStyle(
                               fontSize: 12,
                               color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
@@ -1143,7 +1145,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
               sliver: SliverToBoxAdapter(
                 child: Row(
                   children: [
-                    // Stat 1: Total (Vibrant Royal Electric Blue Gradient)
+                    // Stat 1: Total Suivis (Vibrant Royal Electric Blue Gradient)
                     Expanded(
                       child: _buildVibrantStatCard(
                         context: context,
@@ -1151,7 +1153,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         isSelected: _selectedCategory == 'TOUS',
                         icon: Icons.cake_rounded,
                         value: '$totalCount',
-                        label: settings.tr('total_birthdays'),
+                        label: 'Anniversaires',
                         backgroundGradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -1159,20 +1161,25 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         ),
                         glowColor: const Color(0xFF2563EB),
                         isFilledGradient: true,
-                        onTap: () => setState(() => _selectedCategory = 'TOUS'),
+                        onTap: () {
+                          DeviceService.triggerLightHaptic();
+                          setState(() => _selectedCategory = 'TOUS');
+                        },
                       ),
                     ),
                     const SizedBox(width: 10),
 
-                    // Stat 2: Ce mois-ci (Sleek Dark Slate Frosted Glass)
+                    // Stat 2: Prochain Anniversaire - Compte à rebours J-X (Sleek Dark Slate Frosted Glass)
                     Expanded(
                       child: _buildVibrantStatCard(
                         context: context,
                         isDark: isDark,
-                        isSelected: _selectedCategory == 'CE_MOIS',
-                        icon: Icons.calendar_today_rounded,
-                        value: '$thisMonthCount',
-                        label: settings.tr('this_month'),
+                        isSelected: false,
+                        icon: Icons.timer_rounded,
+                        value: nextBirthday != null
+                            ? (nextBirthday.isToday ? 'Jour J !' : '${nextBirthday.daysRemaining} j')
+                            : '--',
+                        label: nextBirthday != null ? 'Prochain : ${nextBirthday.name.split(' ').first}' : 'Aucun',
                         backgroundColor: isDark ? const Color(0xFF161A26) : Colors.white,
                         borderColor: isDark ? const Color(0xFF252D3F) : AppColors.lightBorder,
                         iconColor: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
@@ -1181,20 +1188,26 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         labelColor: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
                         glowColor: const Color(0xFF38BDF8),
                         isFilledGradient: false,
-                        onTap: () => setState(() => _selectedCategory = 'CE_MOIS'),
+                        onTap: () {
+                          if (nextBirthday != null) {
+                            DeviceService.triggerLightHaptic();
+                            setState(() => _selectedBirthdayId = nextBirthday.id);
+                            context.push('/birthday/${nextBirthday.id}');
+                          }
+                        },
                       ),
                     ),
                     const SizedBox(width: 10),
 
-                    // Stat 3: Favoris (Vibrant Electric Violet / Purple Gradient)
+                    // Stat 3: À Souhaiter Bientôt (< 7 jours) (Vibrant Electric Violet / Purple Gradient)
                     Expanded(
                       child: _buildVibrantStatCard(
                         context: context,
                         isDark: isDark,
-                        isSelected: _selectedCategory == 'FAVORIS',
-                        icon: Icons.star_rounded,
-                        value: '$favoritesCount',
-                        label: settings.tr('filter_favorites'),
+                        isSelected: false,
+                        icon: Icons.bolt_rounded,
+                        value: '$urgentCount',
+                        label: 'Dans 7 jours',
                         backgroundGradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -1202,7 +1215,12 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         ),
                         glowColor: const Color(0xFF7C3AED),
                         isFilledGradient: true,
-                        onTap: () => setState(() => _selectedCategory = 'FAVORIS'),
+                        onTap: () {
+                          DeviceService.triggerLightHaptic();
+                          setState(() {
+                            _selectedCategory = 'TOUS';
+                          });
+                        },
                       ),
                     ),
                   ],

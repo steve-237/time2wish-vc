@@ -6,6 +6,8 @@ import '../../../core/services/settings_service.dart';
 import '../../../core/services/ai_service.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/services/device_service.dart';
+import '../../../core/widgets/celebration_effect.dart';
 
 class AiWishDialog extends StatefulWidget {
   final int birthdayId;
@@ -71,6 +73,9 @@ class _AiWishDialogState extends State<AiWishDialog> {
         _generatedWish = wish;
         _isLoading = false;
       });
+      if (mounted) {
+        CelebrationEffect.show(context);
+      }
     } catch (e) {
       setState(() {
         _error = 'Erreur lors de la génération. Réessayez.';

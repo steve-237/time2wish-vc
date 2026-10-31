@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:time2wish_mobile/core/services/birthday_service.dart';
 import 'package:time2wish_mobile/core/services/api_service.dart';
 import 'package:time2wish_mobile/core/services/gift_service.dart';
+import 'package:time2wish_mobile/core/services/device_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +42,15 @@ void main() {
 
       expect(emmaGifts.any((g) => g.name.contains('Alain Damasio')), isTrue);
       expect(emmaGifts.any((g) => g.name.contains('Yoga')), isTrue);
+    });
+
+    test('DeviceService audio and haptic triggers execute cleanly', () async {
+      DeviceService.playTapSound();
+      DeviceService.playSuccessSound();
+      DeviceService.playCelebrationSound();
+      await DeviceService.triggerLightHaptic();
+      await DeviceService.triggerMediumHaptic();
+      await DeviceService.triggerSuccessHaptic();
     });
   });
 }

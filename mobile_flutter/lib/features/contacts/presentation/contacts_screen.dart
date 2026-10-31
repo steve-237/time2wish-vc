@@ -6,6 +6,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/glowing_badge.dart';
 import '../../../core/widgets/animated_list_item.dart';
+import '../../../core/widgets/celebration_effect.dart';
+import '../../../core/services/device_service.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class ContactsScreen extends StatefulWidget {
@@ -149,6 +151,7 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                                 final service = context.read<ContactService>();
                                 await service.sendContactRequest(email);
                                 if (context.mounted) {
+                                  CelebrationEffect.show(context);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text('Demande de contact envoyée avec succès !'),
@@ -181,10 +184,17 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddContactDialog(context),
-        backgroundColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
-        child: const Icon(Icons.person_add, color: Colors.white),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 84),
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            DeviceService.triggerLightHaptic();
+            _showAddContactDialog(context);
+          },
+          backgroundColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+          icon: const Icon(Icons.person_add_rounded, color: Colors.white),
+          label: const Text('Ajouter un contact', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        ),
       ),
       body: Column(
         children: [
@@ -205,12 +215,34 @@ class _ContactsScreenState extends State<ContactsScreen> with SingleTickerProvid
                         color: isDark ? Colors.white : AppColors.textMainLight,
                       ),
                     ),
-                    if (contactService.pendingRequests.isNotEmpty)
-                      GlowingBadge(
-                        label: '${contactService.pendingRequests.length} attente',
-                        color: AppColors.accentPink,
-                        isSelected: true,
-                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (contactService.pendingRequests.isNotEmpty) ...[
+                          GlowingBadge(
+                            label: '${contactService.pendingRequests.length} attente',
+                            color: AppColors.accentPink,
+                            isSelected: true,
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            DeviceService.triggerLightHaptic();
+                            _showAddContactDialog(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 2,
+                          ),
+                          icon: const Icon(Icons.person_add_rounded, size: 18),
+                          label: const Text('Ajouter', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
