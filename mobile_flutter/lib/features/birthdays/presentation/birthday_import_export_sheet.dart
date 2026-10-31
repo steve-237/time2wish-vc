@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../core/services/birthday_service.dart';
 import '../../../core/services/settings_service.dart';
+import '../../../core/services/device_service.dart';
+import '../../../core/services/file_backup_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 
@@ -124,6 +127,89 @@ class _BirthdayImportExportSheetState extends State<BirthdayImportExportSheet>
         setState(() {
           _importError = 'Erreur lors de l\'importation : ${e.toString().split('\n').first}';
           _isImporting = false;
+        });
+      }
+    }
+  }
+
+  void _downloadBackupFile(BirthdayService birthdayService) {
+    try {
+      DeviceService.playSuccessSound();
+      DeviceService.triggerMediumHaptic();
+
+      final jsonContent = birthdayService.exportToJson();
+      final dateStr = DateFormat('yyyyMMdd_HHmm').format(DateTime.now());
+      final filename = 'time2wish_birthdays_$dateStr.json';
+
+      FileBackupService.downloadJsonFile(
+        filename: filename,
+        content: jsonContent,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.download_done_rounded, color: AppColors.successGreen, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text('✓ Téléchargement lancé : $filename'),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFF0F172A),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur de téléchargement : $e'),
+            backgroundColor: AppColors.accentPink,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickAndUploadFile() async {
+    try {
+      DeviceService.playTapSound();
+      DeviceService.triggerLightHaptic();
+
+      final content = await FileBackupService.pickJsonFile();
+      if (content != null && content.isNotEmpty && mounted) {
+        setState(() {
+          _importController.text = content;
+          _importError = null;
+        });
+
+        DeviceService.playSuccessSound();
+        DeviceService.triggerSuccessHaptic();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.file_present_rounded, color: AppColors.cyanLight, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text('✓ Fichier JSON chargé (${content.length} octets). Vérifiez et cliquez sur Importer.'),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFF0F172A),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _importError = 'Erreur lors de la sélection du fichier : $e';
         });
       }
     }
@@ -275,17 +361,17 @@ class _BirthdayImportExportSheetState extends State<BirthdayImportExportSheet>
 
                       const SizedBox(height: 16),
 
-                      // Copy Action Button
+                      // Primary Download Button (.json file)
                       Container(
                         height: 50,
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                            colors: [Color(0xFF2563EB), Color(0xFF4F46E5)],
                           ),
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: primaryColor.withValues(alpha: 0.3),
+                              color: const Color(0xFF2563EB).withValues(alpha: 0.35),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -297,7 +383,29 @@ class _BirthdayImportExportSheetState extends State<BirthdayImportExportSheet>
                             shadowColor: Colors.transparent,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           ),
+                          onPressed: () => _downloadBackupFile(birthdayService),
+                          icon: const Icon(Icons.file_download_rounded, color: Colors.white, size: 20),
+                          label: const Text(
+                            'Télécharger le fichier JSON (.json)',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      // Secondary Copy Action Button
+                      SizedBox(
+                        height: 44,
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: isDark ? const Color(0xFF2D3748) : AppColors.lightBorder),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            backgroundColor: isDark ? const Color(0xFF1E293B).withValues(alpha: 0.4) : Colors.white,
+                          ),
                           onPressed: () async {
+                            DeviceService.playTapSound();
+                            DeviceService.triggerLightHaptic();
                             await Clipboard.setData(ClipboardData(text: exportJsonString));
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -309,10 +417,10 @@ class _BirthdayImportExportSheetState extends State<BirthdayImportExportSheet>
                               );
                             }
                           },
-                          icon: const Icon(Icons.copy_rounded, color: Colors.white, size: 18),
-                          label: const Text(
+                          icon: Icon(Icons.copy_rounded, color: primaryColor, size: 16),
+                          label: Text(
                             'Copier le JSON dans le presse-papier',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: textMain, fontWeight: FontWeight.w600, fontSize: 13),
                           ),
                         ),
                       ),
@@ -352,11 +460,88 @@ class _BirthdayImportExportSheetState extends State<BirthdayImportExportSheet>
                   ListView(
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                     children: [
+                      // Upload File Banner Card
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.28),
+                            width: 1.2,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.upload_file_rounded, color: primaryColor, size: 24),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Fichier de sauvegarde JSON',
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: textMain),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Chargez un fichier .json depuis votre appareil',
+                                    style: TextStyle(fontSize: 11, color: textMuted),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryColor,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                elevation: 0,
+                              ),
+                              onPressed: _pickAndUploadFile,
+                              icon: const Icon(Icons.folder_open_rounded, size: 16),
+                              label: const Text('Uploader', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        child: Row(
+                          children: [
+                            Expanded(child: Divider(color: borderColor)),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              child: Text(
+                                'OU COLLER LE CONTENU JSON',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: textMuted,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                            Expanded(child: Divider(color: borderColor)),
+                          ],
+                        ),
+                      ),
+
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Coller des données JSON',
+                            'Données JSON',
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: textMain),
                           ),
                           Row(
