@@ -655,6 +655,8 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
       ),
     );
   }
+
+  void _showWishCoinsModal(BuildContext context, int coins) {
     final settings = Provider.of<SettingsService>(context, listen: false);
     final isDark = settings.isDarkMode;
 

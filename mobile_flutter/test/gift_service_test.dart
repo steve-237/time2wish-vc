@@ -24,9 +24,11 @@ void main() {
       final giftService = GiftService(apiService);
 
       // Add 3 gifts for birthday 99
-      final g1 = await giftService.addGift(99, 'Cadeau 1', 'Desc 1', '20€');
+      await giftService.addGift(99, 'Cadeau 1', 'Desc 1', '20€');
       final g2 = await giftService.addGift(99, 'Cadeau 2', 'Desc 2', '30€');
-      final g3 = await giftService.addGift(99, 'Cadeau 3', 'Desc 3', '40€');
+      await giftService.addGift(99, 'Cadeau 3', 'Desc 3', '40€');
+
+      expect(g2, isNotNull);
 
       final initialList = giftService.getGiftsForBirthday(99);
       expect(initialList.length, 3);
@@ -35,7 +37,7 @@ void main() {
       expect(initialList[2].isReserved, isFalse);
 
       // Reserve ONLY gift #2 (index 1)
-      await giftService.toggleReserveGift(99, g2.id, 'Alice', fallbackIndex: 1);
+      await giftService.toggleReserveGift(99, g2!.id, 'Alice', fallbackIndex: 1);
 
       final updatedList = giftService.getGiftsForBirthday(99);
       expect(updatedList[0].isReserved, isFalse, reason: 'Gift 1 should remain unreserved');
@@ -54,12 +56,14 @@ void main() {
       final apiService = ApiService();
       final giftService = GiftService(apiService);
 
-      final g1 = await giftService.addGift(88, 'A', 'Desc A', '10€');
+      await giftService.addGift(88, 'A', 'Desc A', '10€');
       final g2 = await giftService.addGift(88, 'B', 'Desc B', '20€');
-      final g3 = await giftService.addGift(88, 'C', 'Desc C', '30€');
+      await giftService.addGift(88, 'C', 'Desc C', '30€');
+
+      expect(g2, isNotNull);
 
       // Delete the middle gift (g2)
-      await giftService.deleteGift(88, g2.id, fallbackIndex: 1);
+      await giftService.deleteGift(88, g2!.id, fallbackIndex: 1);
 
       final list = giftService.getGiftsForBirthday(88);
       expect(list.length, 2);
