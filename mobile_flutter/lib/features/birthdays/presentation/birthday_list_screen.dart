@@ -601,8 +601,9 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
               onPressed: () {
-                Navigator.pop(ctx);
-                context.push('/birthday/${birthday.id}');
+                final targetId = birthday.id;
+                Navigator.of(ctx).pop();
+                GoRouter.of(context).push('/birthday/$targetId');
               },
               icon: Icon(
                 Icons.assignment_outlined,
@@ -1217,18 +1218,14 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                       border: Border.all(
                         color: activeBirthday.isToday
                             ? AppColors.accentCoral.withValues(alpha: 0.5)
-                            : (isCustomSelection
-                                ? (isDark ? AppColors.cyanLight : AppColors.primaryCyan).withValues(alpha: 0.6)
-                                : (isDark ? AppColors.darkBorder : AppColors.lightBorder)),
-                        width: (activeBirthday.isToday || isCustomSelection) ? 1.5 : 1.0,
+                            : (isDark ? const Color(0xFF232D3F) : AppColors.lightBorder),
+                        width: activeBirthday.isToday ? 1.5 : 1.0,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: isCustomSelection
-                              ? (isDark ? AppColors.cyanLight : AppColors.primaryCyan).withValues(alpha: isDark ? 0.2 : 0.08)
-                              : Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
-                          blurRadius: 14,
-                          offset: const Offset(0, 4),
+                          color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -1781,9 +1778,10 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                     )
                   : SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        (context, index) {
+                        (itemContext, index) {
                           final birthday = filtered[index];
                           return Padding(
+                            key: ValueKey('birthday_card_${birthday.id}'),
                             padding: const EdgeInsets.only(bottom: 10.0),
                             child: _buildCelebrationListItem(
                               context: context,
@@ -1841,35 +1839,22 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
 
     final effectiveBorder = isFilledGradient
         ? Border.all(
-            color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.20),
-            width: isSelected ? 2.0 : 1.0,
+            color: Colors.white.withValues(alpha: isSelected ? 0.35 : 0.18),
+            width: 1.0,
           )
         : Border.all(
             color: isSelected
-                ? (glowColor ?? (isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7)))
+                ? (isDark ? const Color(0xFF3B4861) : const Color(0xFF94A3B8))
                 : (borderColor ?? (isDark ? const Color(0xFF252D3F) : AppColors.lightBorder)),
-            width: isSelected ? 2.0 : 1.2,
+            width: 1.0,
           );
 
     final List<BoxShadow> effectiveBoxShadow = [
-      if (isFilledGradient && glowColor != null)
-        BoxShadow(
-          color: glowColor.withValues(alpha: isSelected ? 0.55 : (isDark ? 0.40 : 0.30)),
-          blurRadius: isSelected ? 20 : 16,
-          offset: const Offset(0, 6),
-        )
-      else if (isSelected && glowColor != null)
-        BoxShadow(
-          color: glowColor.withValues(alpha: isDark ? 0.38 : 0.22),
-          blurRadius: 16,
-          offset: const Offset(0, 4),
-        )
-      else
-        BoxShadow(
-          color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
-          blurRadius: 10,
-          offset: const Offset(0, 3),
-        ),
+      BoxShadow(
+        color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.05),
+        blurRadius: 10,
+        offset: const Offset(0, 3),
+      ),
     ];
 
     return GestureDetector(
@@ -1947,7 +1932,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
     required bool isDark,
   }) {
     final initial = birthday.name.isNotEmpty ? birthday.name[0].toUpperCase() : '?';
-    final isSelected = _selectedBirthdayId == birthday.id;
 
     Color categoryColor;
     switch (birthday.category.toUpperCase()) {
@@ -1969,19 +1953,15 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected
-              ? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo)
-              : (birthday.isToday
-                  ? AppColors.accentCoral.withValues(alpha: 0.45)
-                  : (isDark ? AppColors.darkBorderSubtle : AppColors.lightBorder)),
-          width: isSelected ? 2.0 : (birthday.isToday ? 1.5 : 1.0),
+          color: birthday.isToday
+              ? AppColors.accentCoral.withValues(alpha: 0.5)
+              : (isDark ? const Color(0xFF232D3F) : AppColors.lightBorder),
+          width: birthday.isToday ? 1.5 : 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: isSelected
-                ? (isDark ? AppColors.indigoLight.withValues(alpha: 0.25) : AppColors.primaryIndigo.withValues(alpha: 0.15))
-                : Colors.black.withValues(alpha: isDark ? 0.18 : 0.04),
-            blurRadius: isSelected ? 12 : 8,
+            color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.04),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
@@ -1991,9 +1971,11 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            setState(() {
-              _selectedBirthdayId = birthday.id;
-            });
+            DeviceService.triggerLightHaptic();
+            context.push('/birthday/${birthday.id}');
+          },
+          onLongPress: () {
+            DeviceService.triggerMediumHaptic();
             _showBirthdayQuickActionsModal(
               context,
               birthday,
@@ -2006,7 +1988,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
               children: [
-                // Avatar with category ring
+                // Avatar with clean neutral border
                 Container(
                   width: 46,
                   height: 46,
@@ -2014,7 +1996,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                     shape: BoxShape.circle,
                     gradient: AppColors.primaryGradient,
                     border: Border.all(
-                      color: categoryColor.withValues(alpha: 0.6),
+                      color: isDark ? const Color(0xFF2D3748) : Colors.white,
                       width: 2,
                     ),
                   ),
@@ -2060,23 +2042,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (isSelected)
-                            Container(
-                              margin: const EdgeInsets.only(left: 6),
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                              decoration: BoxDecoration(
-                                color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                'Actif',
-                                style: TextStyle(
-                                  color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
                         ],
                       ),
                       const SizedBox(height: 3),
@@ -2159,7 +2124,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
                   onPressed: () {
-                    setState(() => _selectedBirthdayId = birthday.id);
                     AiWishDialog.show(context, birthday.id, apiService);
                   },
                 ),
@@ -2186,7 +2150,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
                   onPressed: () {
-                    setState(() => _selectedBirthdayId = birthday.id);
+                    DeviceService.triggerLightHaptic();
                     context.push('/birthday/${birthday.id}');
                   },
                 ),
