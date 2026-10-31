@@ -603,6 +603,9 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
               ),
               onPressed: () {
                 final targetId = birthday.id;
+                setState(() {
+                  _selectedBirthdayId = targetId;
+                });
                 Navigator.of(ctx).pop();
                 GoRouter.of(context).push('/birthday/$targetId');
               },
@@ -1972,6 +1975,9 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
+            setState(() {
+              _selectedBirthdayId = birthday.id;
+            });
             DeviceService.triggerLightHaptic();
             context.push('/birthday/${birthday.id}');
           },
@@ -2151,6 +2157,9 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
                   onPressed: () {
+                    setState(() {
+                      _selectedBirthdayId = birthday.id;
+                    });
                     DeviceService.triggerLightHaptic();
                     context.push('/birthday/${birthday.id}');
                   },
