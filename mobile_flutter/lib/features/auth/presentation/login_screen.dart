@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/services/settings_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 
@@ -90,6 +91,157 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  void _showOfflineLoginModal(BuildContext context, bool isDark, AuthService authService) {
+    final usernameController = TextEditingController(text: 'Invité Time2Wish');
+    final emailController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(ctx).viewInsets.bottom,
+        ),
+        child: Container(
+          margin: const EdgeInsets.all(16),
+          child: GlassCard(
+            blurAmount: 24,
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 38,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white24 : Colors.black12,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.wifi_off_rounded, color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Connexion Hors-ligne 🚀',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : AppColors.textMainLight,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Stockage 100% autonome sur votre appareil',
+                            style: TextStyle(fontSize: 12, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Entrez votre prénom ou pseudo. Toutes vos données seront enregistrées localement sans dépendance réseau.',
+                  style: TextStyle(fontSize: 13, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                ),
+                const SizedBox(height: 16),
+
+                // Username input
+                TextField(
+                  controller: usernameController,
+                  autofocus: true,
+                  style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                  decoration: InputDecoration(
+                    labelText: 'Nom d\'utilisateur ou Prénom',
+                    labelStyle: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                    prefixIcon: Icon(Icons.person_rounded, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                    filled: true,
+                    fillColor: isDark ? const Color(0xFF141B26) : const Color(0xFFF1F5F9),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: isDark ? AppColors.darkBorderSubtle : AppColors.lightBorderSubtle)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, width: 1.5)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Email local (optionnel)
+                TextField(
+                  controller: emailController,
+                  style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                  decoration: InputDecoration(
+                    labelText: 'Email local (optionnel)',
+                    hintText: 'ex: invite@time2wish.local',
+                    hintStyle: TextStyle(color: isDark ? AppColors.textMutedDark.withValues(alpha: 0.6) : AppColors.textMutedLight.withValues(alpha: 0.6), fontSize: 13),
+                    labelStyle: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                    prefixIcon: Icon(Icons.email_outlined, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                    filled: true,
+                    fillColor: isDark ? const Color(0xFF141B26) : const Color(0xFFF1F5F9),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: isDark ? AppColors.darkBorderSubtle : AppColors.lightBorderSubtle)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, width: 1.5)),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Button submit
+                Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                    onPressed: () async {
+                      final name = usernameController.text.trim();
+                      final email = emailController.text.trim();
+                      Navigator.pop(ctx);
+                      final success = await authService.loginOffline(
+                        username: name.isNotEmpty ? name : 'Invité Local',
+                        email: email.isNotEmpty ? email : null,
+                      );
+                      if (success && mounted) {
+                        context.go('/dashboard');
+                      }
+                    },
+                    icon: const Icon(Icons.rocket_launch_rounded, color: Colors.white, size: 18),
+                    label: const Text(
+                      'Démarrer en Mode Hors-ligne',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _animatedChild(int index, Widget child) {
     return AnimatedBuilder(
       animation: _animController,
@@ -106,12 +258,18 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final settings = Provider.of<SettingsService>(context);
+    final isDark = settings.isDarkMode;
+
+    final primaryColor = isDark ? AppColors.indigoLight : AppColors.primaryIndigo;
+    final textMain = isDark ? Colors.white : AppColors.textMainLight;
+    final textMuted = isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
+    final inputBg = isDark ? const Color(0xFF141B26) : const Color(0xFFF8FAFC);
+    final borderCol = isDark ? AppColors.darkBorderSubtle : AppColors.lightBorder;
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
-        ),
+        color: isDark ? AppColors.darkCanvas : AppColors.lightCanvas,
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -129,12 +287,12 @@ class _LoginScreenState extends State<LoginScreen>
                         borderRadius: BorderRadius.circular(22),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primaryCyan.withValues(alpha: 0.45),
+                            color: primaryColor.withValues(alpha: 0.35),
                             blurRadius: 24,
                             spreadRadius: 1,
                           ),
                           BoxShadow(
-                            color: AppColors.accentPurple.withValues(alpha: 0.35),
+                            color: AppColors.accentPurple.withValues(alpha: 0.25),
                             blurRadius: 32,
                             spreadRadius: 4,
                           ),
@@ -163,31 +321,33 @@ class _LoginScreenState extends State<LoginScreen>
                       children: [
                         ShaderMask(
                           shaderCallback: (bounds) => const LinearGradient(
-                            colors: [AppColors.primaryCyan, AppColors.accentPurple],
+                            colors: [Color(0xFF4F46E5), Color(0xFF8B5CF6)],
                           ).createShader(bounds),
                           child: Text(
                             'Time2Wish',
                             style: Theme.of(context).textTheme.displayLarge?.copyWith(
                               fontSize: 34,
                               color: Colors.white,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ),
                         const SizedBox(height: 6),
-                        const Text(
+                        Text(
                           'N\'oubliez plus jamais un anniversaire',
-                          style: TextStyle(color: AppColors.textMutedDark, fontSize: 14),
+                          style: TextStyle(color: textMuted, fontSize: 14),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 36),
+                  const SizedBox(height: 32),
 
                   // Form Card
                   _animatedChild(
                     2,
                     GlassCard(
                       blurAmount: 24,
+                      padding: const EdgeInsets.all(22),
                       child: Form(
                         key: _formKey,
                         child: Column(
@@ -195,7 +355,11 @@ class _LoginScreenState extends State<LoginScreen>
                           children: [
                             Text(
                               'Connexion',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22),
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: textMain,
+                              ),
                             ),
                             const SizedBox(height: 20),
 
@@ -227,24 +391,24 @@ class _LoginScreenState extends State<LoginScreen>
                             TextFormField(
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(color: textMain),
                               decoration: InputDecoration(
                                 labelText: 'Email',
-                                labelStyle: const TextStyle(color: AppColors.textMutedDark),
-                                prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textMutedDark),
+                                labelStyle: TextStyle(color: textMuted),
+                                prefixIcon: Icon(Icons.email_outlined, color: textMuted),
                                 filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.06),
+                                fillColor: inputBg,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: AppColors.borderLight),
+                                  borderSide: BorderSide(color: borderCol),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: AppColors.borderLight),
+                                  borderSide: BorderSide(color: borderCol),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(color: AppColors.primaryCyan, width: 1.5),
+                                  borderSide: BorderSide(color: primaryColor, width: 1.5),
                                 ),
                               ),
                               validator: (val) {
@@ -260,32 +424,32 @@ class _LoginScreenState extends State<LoginScreen>
                             TextFormField(
                               controller: _passwordController,
                               obscureText: _obscurePassword,
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(color: textMain),
                               decoration: InputDecoration(
                                 labelText: 'Mot de passe',
-                                labelStyle: const TextStyle(color: AppColors.textMutedDark),
-                                prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textMutedDark),
+                                labelStyle: TextStyle(color: textMuted),
+                                prefixIcon: Icon(Icons.lock_outline, color: textMuted),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                    color: AppColors.textMutedDark,
+                                    color: textMuted,
                                     size: 20,
                                   ),
                                   onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                                 ),
                                 filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.06),
+                                fillColor: inputBg,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: AppColors.borderLight),
+                                  borderSide: BorderSide(color: borderCol),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: AppColors.borderLight),
+                                  borderSide: BorderSide(color: borderCol),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(color: AppColors.primaryCyan, width: 1.5),
+                                  borderSide: BorderSide(color: primaryColor, width: 1.5),
                                 ),
                               ),
                               validator: (val) {
@@ -299,14 +463,16 @@ class _LoginScreenState extends State<LoginScreen>
 
                             // Gradient Submit Button
                             Container(
-                              height: 54,
+                              height: 52,
                               decoration: BoxDecoration(
-                                gradient: AppColors.primaryGradient,
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                                ),
                                 borderRadius: BorderRadius.circular(14),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.primaryCyan.withValues(alpha: 0.4),
-                                    blurRadius: 16,
+                                    color: primaryColor.withValues(alpha: 0.35),
+                                    blurRadius: 14,
                                     offset: const Offset(0, 4),
                                   ),
                                 ],
@@ -332,7 +498,8 @@ class _LoginScreenState extends State<LoginScreen>
                                       ),
                               ),
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 10),
+
                             Center(
                               child: TextButton.icon(
                                 onPressed: () {
@@ -342,10 +509,50 @@ class _LoginScreenState extends State<LoginScreen>
                                   });
                                 },
                                 icon: const Icon(Icons.bolt_rounded, color: AppColors.wishCoinsAmber, size: 18),
-                                label: const Text(
-                                  'Remplir le compte d\u00e9mo',
-                                  style: TextStyle(color: AppColors.textMutedDark, fontSize: 13),
+                                label: Text(
+                                  'Remplir le compte démo',
+                                  style: TextStyle(color: textMuted, fontSize: 13),
                                 ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            // Separator
+                            Row(
+                              children: [
+                                Expanded(child: Divider(color: isDark ? Colors.white12 : AppColors.lightBorder)),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  child: Text(
+                                    'OU SANS COMPTE',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: textMuted,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(child: Divider(color: isDark ? Colors.white12 : AppColors.lightBorder)),
+                              ],
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            // Offline Mode Button
+                            OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 13),
+                                side: BorderSide(color: primaryColor.withValues(alpha: 0.45)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                foregroundColor: primaryColor,
+                              ),
+                              onPressed: () => _showOfflineLoginModal(context, isDark, authService),
+                              icon: const Icon(Icons.wifi_off_rounded, size: 18),
+                              label: const Text(
+                                'Mode Hors-ligne (Invité) 🚀',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                               ),
                             ),
                           ],
@@ -362,16 +569,16 @@ class _LoginScreenState extends State<LoginScreen>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           'Pas encore de compte ? ',
-                          style: TextStyle(color: AppColors.textMutedDark),
+                          style: TextStyle(color: textMuted),
                         ),
                         TextButton(
                           onPressed: () => context.go('/register'),
-                          child: const Text(
+                          child: Text(
                             'S\'inscrire',
                             style: TextStyle(
-                              color: AppColors.primaryCyan,
+                              color: primaryColor,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

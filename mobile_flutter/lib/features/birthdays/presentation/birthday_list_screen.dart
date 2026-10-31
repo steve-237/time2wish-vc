@@ -14,6 +14,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/avatar_image.dart';
 import 'ai_wish_dialog.dart';
 import 'ai_gift_sheet.dart';
+import 'reminder_settings_sheet.dart';
+import 'birthday_import_export_sheet.dart';
 
 class BirthdayListScreen extends StatefulWidget {
   const BirthdayListScreen({super.key});
@@ -324,6 +326,27 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   },
                 ),
               ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  ReminderSettingsSheet.show(context);
+                },
+                icon: const Icon(Icons.tune_rounded, size: 18),
+                label: const Text(
+                  'Configurer les rappels & push ⚙️',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -873,10 +896,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         : settings.tr('greeting_evening');
     final firstName = user?.fullName.split(' ').first ?? 'Ami';
 
-    // Localized date header
-    final dateRaw = DateFormat('EEEE d MMMM', localeStr).format(now);
-    final dateTodayFormatted = dateRaw.isNotEmpty ? dateRaw[0].toUpperCase() + dateRaw.substring(1) : dateRaw;
-
     final String langFlag = settings.language == 'en'
         ? '🇬🇧'
         : settings.language == 'de'
@@ -910,22 +929,22 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            dateTodayFormatted,
+                            'Time2Wish',
                             style: TextStyle(
-                              fontSize: 12,
-                              color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.2,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900,
+                              color: isDark ? Colors.white : AppColors.textMainLight,
+                              letterSpacing: -0.5,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '$greetingWord, $firstName 👋',
+                            'Birthday Manager · $greetingWord, $firstName 👋',
                             style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                              color: isDark ? Colors.white : AppColors.textMainLight,
-                              letterSpacing: -0.4,
+                              fontSize: 12,
+                              color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.1,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -1074,6 +1093,38 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 8),
+
+                        // Import / Export JSON Backup Button
+                        GestureDetector(
+                          onTap: () => BirthdayImportExportSheet.show(context),
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: isDark ? AppColors.darkCard : Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                                width: 1,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.sync_alt_rounded,
+                                color: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
+                                size: 19,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -1081,7 +1132,80 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
               ),
             ),
 
-            // 2. HERO SPOTLIGHT CARD: PROCHAIN ANNIVERSAIRE OU ANNIVERSAIRE SÉLECTIONNÉ
+            // 2. VIBRANT STAT METRICS ROW (MATCHING EXECUTIVE DESIGN MOCKUP)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 2, 20, 16),
+              sliver: SliverToBoxAdapter(
+                child: Row(
+                  children: [
+                    // Stat 1: Total (Vibrant Royal Electric Blue Gradient)
+                    Expanded(
+                      child: _buildVibrantStatCard(
+                        context: context,
+                        isDark: isDark,
+                        isSelected: _selectedCategory == 'TOUS',
+                        icon: Icons.cake_rounded,
+                        value: '$totalCount',
+                        label: settings.tr('total_birthdays'),
+                        backgroundGradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+                        ),
+                        glowColor: const Color(0xFF2563EB),
+                        isFilledGradient: true,
+                        onTap: () => setState(() => _selectedCategory = 'TOUS'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // Stat 2: Ce mois-ci (Sleek Dark Slate Frosted Glass)
+                    Expanded(
+                      child: _buildVibrantStatCard(
+                        context: context,
+                        isDark: isDark,
+                        isSelected: _selectedCategory == 'CE_MOIS',
+                        icon: Icons.calendar_today_rounded,
+                        value: '$thisMonthCount',
+                        label: settings.tr('this_month'),
+                        backgroundColor: isDark ? const Color(0xFF161A26) : Colors.white,
+                        borderColor: isDark ? const Color(0xFF252D3F) : AppColors.lightBorder,
+                        iconColor: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                        iconBgColor: isDark ? const Color(0xFF22293C) : const Color(0xFFE0F2FE),
+                        textColor: isDark ? Colors.white : AppColors.textMainLight,
+                        labelColor: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                        glowColor: const Color(0xFF38BDF8),
+                        isFilledGradient: false,
+                        onTap: () => setState(() => _selectedCategory = 'CE_MOIS'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // Stat 3: Favoris (Vibrant Electric Violet / Purple Gradient)
+                    Expanded(
+                      child: _buildVibrantStatCard(
+                        context: context,
+                        isDark: isDark,
+                        isSelected: _selectedCategory == 'FAVORIS',
+                        icon: Icons.star_rounded,
+                        value: '$favoritesCount',
+                        label: settings.tr('filter_favorites'),
+                        backgroundGradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFFA855F7), Color(0xFF7C3AED)],
+                        ),
+                        glowColor: const Color(0xFF7C3AED),
+                        isFilledGradient: true,
+                        onTap: () => setState(() => _selectedCategory = 'FAVORIS'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // 3. HERO SPOTLIGHT CARD: PROCHAIN ANNIVERSAIRE OU ANNIVERSAIRE SÉLECTIONNÉ
             if (activeBirthday != null)
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 2, 20, 16),
@@ -1344,75 +1468,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   ),
                 ),
               ),
-
-            // 3. EXECUTIVE STAT METRICS ROW (3 CLEAN INTERACTIVE CARDS)
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-              sliver: SliverToBoxAdapter(
-                child: Row(
-                  children: [
-                    // Stat 1: Total
-                    Expanded(
-                      child: _buildExecutiveStatCard(
-                        context: context,
-                        isDark: isDark,
-                        isSelected: _selectedCategory == 'TOUS',
-                        icon: Icons.cake_rounded,
-                        iconColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
-                        activeGradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-                        ),
-                        value: '$totalCount',
-                        label: settings.tr('total_birthdays'),
-                        onTap: () => setState(() => _selectedCategory = 'TOUS'),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // Stat 2: Ce mois-ci
-                    Expanded(
-                      child: _buildExecutiveStatCard(
-                        context: context,
-                        isDark: isDark,
-                        isSelected: _selectedCategory == 'CE_MOIS',
-                        icon: Icons.calendar_today_rounded,
-                        iconColor: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
-                        activeGradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFF0284C7), Color(0xFF2563EB)],
-                        ),
-                        value: '$thisMonthCount',
-                        label: settings.tr('this_month'),
-                        onTap: () => setState(() => _selectedCategory = 'CE_MOIS'),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // Stat 3: Favoris
-                    Expanded(
-                      child: _buildExecutiveStatCard(
-                        context: context,
-                        isDark: isDark,
-                        isSelected: _selectedCategory == 'FAVORIS',
-                        icon: Icons.star_rounded,
-                        iconColor: AppColors.wishCoinsAmber,
-                        activeGradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFFD97706), Color(0xFFEA580C)],
-                        ),
-                        value: '$favoritesCount',
-                        label: settings.tr('filter_favorites'),
-                        onTap: () => setState(() => _selectedCategory = 'FAVORIS'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
 
             // 4. OFFLINE SYNC BANNER (IF PENDING)
             if (syncService.hasPending)
@@ -1750,94 +1805,132 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
     );
   }
 
-  Widget _buildExecutiveStatCard({
+  Widget _buildVibrantStatCard({
     required BuildContext context,
     required bool isDark,
     required bool isSelected,
     required IconData icon,
-    required Color iconColor,
-    required Gradient activeGradient,
     required String value,
     required String label,
     required VoidCallback onTap,
+    Gradient? backgroundGradient,
+    Color? backgroundColor,
+    Color? borderColor,
+    Color? iconColor,
+    Color? iconBgColor,
+    Color? textColor,
+    Color? labelColor,
+    Color? glowColor,
+    bool isFilledGradient = false,
   }) {
+    final effectiveIconBg = isFilledGradient
+        ? Colors.white.withValues(alpha: 0.22)
+        : (iconBgColor ?? (isDark ? const Color(0xFF22293C) : const Color(0xFFE0F2FE)));
+
+    final effectiveIconColor = isFilledGradient
+        ? Colors.white
+        : (iconColor ?? (isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7)));
+
+    final effectiveTextColor = isFilledGradient
+        ? Colors.white
+        : (textColor ?? (isDark ? Colors.white : AppColors.textMainLight));
+
+    final effectiveLabelColor = isFilledGradient
+        ? Colors.white.withValues(alpha: 0.92)
+        : (labelColor ?? (isDark ? AppColors.textMutedDark : AppColors.textMutedLight));
+
+    final effectiveBorder = isFilledGradient
+        ? Border.all(
+            color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.20),
+            width: isSelected ? 2.0 : 1.0,
+          )
+        : Border.all(
+            color: isSelected
+                ? (glowColor ?? (isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7)))
+                : (borderColor ?? (isDark ? const Color(0xFF252D3F) : AppColors.lightBorder)),
+            width: isSelected ? 2.0 : 1.2,
+          );
+
+    final List<BoxShadow> effectiveBoxShadow = [
+      if (isFilledGradient && glowColor != null)
+        BoxShadow(
+          color: glowColor.withValues(alpha: isSelected ? 0.55 : (isDark ? 0.40 : 0.30)),
+          blurRadius: isSelected ? 20 : 16,
+          offset: const Offset(0, 6),
+        )
+      else if (isSelected && glowColor != null)
+        BoxShadow(
+          color: glowColor.withValues(alpha: isDark ? 0.38 : 0.22),
+          blurRadius: 16,
+          offset: const Offset(0, 4),
+        )
+      else
+        BoxShadow(
+          color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 3),
+        ),
+    ];
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
-        height: 108,
-        padding: const EdgeInsets.all(12),
+        height: 124,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF131826) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected
-                ? iconColor
-                : (isDark ? const Color(0xFF232D3F) : AppColors.lightBorder),
-            width: isSelected ? 1.8 : 1.0,
-          ),
-          boxShadow: [
-            if (isSelected)
-              BoxShadow(
-                color: iconColor.withValues(alpha: isDark ? 0.32 : 0.18),
-                blurRadius: 14,
-                offset: const Offset(0, 3),
-              )
-            else
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-          ],
+          color: isFilledGradient ? null : (backgroundColor ?? (isDark ? const Color(0xFF161A26) : Colors.white)),
+          gradient: backgroundGradient,
+          borderRadius: BorderRadius.circular(22),
+          border: effectiveBorder,
+          boxShadow: effectiveBoxShadow,
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Top rounded icon pill
             Container(
-              width: 32,
-              height: 32,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: isDark ? 0.18 : 0.12),
-                borderRadius: BorderRadius.circular(10),
+                color: effectiveIconBg,
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
-                color: iconColor,
-                size: 17,
+                color: effectiveIconColor,
+                size: 20,
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    color: isDark ? Colors.white : AppColors.textMainLight,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.4,
-                    height: 1.0,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: isSelected
-                        ? (isDark ? Colors.white : AppColors.textMainLight)
-                        : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
-                    fontSize: 11,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    letterSpacing: 0.1,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+            const SizedBox(height: 8),
+
+            // Big Bold Metric Number
+            Text(
+              value,
+              style: TextStyle(
+                color: effectiveTextColor,
+                fontSize: 26,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.5,
+                height: 1.0,
+              ),
+            ),
+            const SizedBox(height: 4),
+
+            // Clear Centered Subtitle Label
+            Text(
+              label,
+              style: TextStyle(
+                color: effectiveLabelColor,
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                letterSpacing: 0.1,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

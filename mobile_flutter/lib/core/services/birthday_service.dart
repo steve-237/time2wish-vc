@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../models/birthday_model.dart';
 import 'api_service.dart';
@@ -204,6 +205,105 @@ class BirthdayService extends ChangeNotifier {
       );
       await _storageService.saveBirthdays(_birthdays);
       notifyListeners();
+    }
+  }
+
+  /// Export all current birthdays to a clean formatted JSON string
+  String exportToJson() {
+    final exportData = {
+      'app': 'Time2Wish',
+      'version': '1.0',
+      'exportedAt': DateTime.now().toIso8601String(),
+      'totalCount': _birthdays.length,
+      'birthdays': _birthdays.map((b) => b.toJson()).toList(),
+    };
+    const encoder = JsonEncoder.withIndent('  ');
+    return encoder.convert(exportData);
+  }
+
+  /// Import birthdays from a JSON string (either direct list or wrapped object)
+  /// Returns the count of successfully imported birthdays
+  Future<int> importFromJson(String jsonContent, {bool replaceExisting = false}) async {
+    try {
+      final dynamic decoded = jsonDecode(jsonContent.trim());
+      List<dynamic> rawList;
+
+      if (decoded is List) {
+        rawList = decoded;
+      } else if (decoded is Map<String, dynamic> && decoded['birthdays'] is List) {
+        rawList = decoded['birthdays'] as List<dynamic>;
+      } else {
+        throw const FormatException('Format JSON non reconnu. Une liste d\'anniversaires est attendue.');
+      }
+
+      final List<BirthdayModel> imported = [];
+      int baseId = DateTime.now().millisecondsSinceEpoch;
+
+      for (int i = 0; i < rawList.length; i++) {
+        final item = rawList[i];
+        if (item is Map<String, dynamic>) {
+          final name = (item['name'] as String?)?.trim() ?? '';
+          if (name.isEmpty) continue;
+
+          DateTime? birthdate;
+          if (item['birthdate'] != null) {
+            birthdate = DateTime.tryParse(item['birthdate'].toString());
+          }
+          if (birthdate == null) continue;
+
+          final model = BirthdayModel(
+            id: (item['id'] is int && (item['id'] as int) > 0)
+                ? item['id'] as int
+                : (baseId + i),
+            name: name,
+            birthdate: birthdate,
+            category: (item['category'] as String?) ?? 'AUTRE',
+            gender: item['gender'] as String?,
+            notes: item['notes'] as String?,
+            interests: (item['interests'] is List)
+                ? (item['interests'] as List).map((e) => e.toString()).toList()
+                : [],
+            reminderDays: (item['reminderDays'] as int?) ?? 3,
+            isFavorite: (item['isFavorite'] as bool?) ?? false,
+            partyLocation: item['partyLocation'] as String?,
+            partyDescription: item['partyDescription'] as String?,
+            photoUrl: item['photoUrl'] as String?,
+            createdAt: item['createdAt'] != null
+                ? DateTime.tryParse(item['createdAt'].toString()) ?? DateTime.now()
+                : DateTime.now(),
+          );
+          imported.add(model);
+        }
+      }
+
+      if (imported.isEmpty) {
+        return 0;
+      }
+
+      if (replaceExisting) {
+        _birthdays = imported;
+      } else {
+        final existingIds = _birthdays.map((b) => b.id).toSet();
+        for (final b in imported) {
+          if (existingIds.contains(b.id)) {
+            final idx = _birthdays.indexWhere((item) => item.id == b.id);
+            _birthdays[idx] = b;
+          } else {
+            _birthdays.add(b);
+            existingIds.add(b.id);
+          }
+        }
+      }
+
+      await _storageService.saveBirthdays(_birthdays);
+      for (final b in imported) {
+        await NotificationService.scheduleBirthdayReminder(b);
+      }
+      notifyListeners();
+      return imported.length;
+    } catch (e) {
+      debugPrint('[BirthdayService] Error importing birthdays from JSON: $e');
+      rethrow;
     }
   }
 

@@ -52,6 +52,9 @@ class AuthService extends ChangeNotifier {
   UserModel? get currentUser => _currentUser;
   bool get isAuthenticated => _isAuthenticated;
   bool get isLoading => _isLoading;
+  bool get isOfflineMode =>
+      _currentUser?.planType == 'OFFLINE_LOCAL' ||
+      (_currentUser?.email.endsWith('.local') ?? false);
 
   Future<void> checkInitialAuth() async {
     _isLoading = true;
@@ -178,6 +181,35 @@ class AuthService extends ChangeNotifier {
         _isLoading = false;
         notifyListeners();
       }
+    }
+  }
+
+  /// Login directly in offline guest mode with a chosen username and optional email
+  Future<bool> loginOffline({required String username, String? email}) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final cleanUsername = username.trim().isNotEmpty ? username.trim() : 'Invité Local';
+      final cleanEmail = (email != null && email.trim().isNotEmpty)
+          ? email.trim()
+          : '${cleanUsername.toLowerCase().replaceAll(RegExp(r'\s+'), '.')}@time2wish.local';
+
+      await _apiService.saveToken('offline_guest_token_${DateTime.now().millisecondsSinceEpoch}');
+      _currentUser = UserModel(
+        id: 1,
+        email: cleanEmail,
+        fullName: cleanUsername,
+        coins: 100,
+        planType: 'OFFLINE_LOCAL',
+      );
+      await _storageService.saveProfile(_currentUser!.toJson());
+      _isAuthenticated = true;
+      debugPrint('[AuthService] Logged in offline mode as: $cleanUsername ($cleanEmail)');
+      return true;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
