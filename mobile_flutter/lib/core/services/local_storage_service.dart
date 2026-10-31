@@ -45,9 +45,14 @@ class LocalStorageService {
       if (jsonStr != null && jsonStr.isNotEmpty) {
         final Map<String, dynamic> rawMap = jsonDecode(jsonStr);
         rawMap.forEach((key, value) {
-          final int birthdayId = int.parse(key);
+          final int? birthdayId = int.tryParse(key);
+          if (birthdayId == null) return;
           final List list = value;
-          map[birthdayId] = list.map((g) => GiftModel.fromJson(g)).toList();
+          int seq = 1;
+          map[birthdayId] = list.map((g) {
+            final raw = g as Map<String, dynamic>;
+            return GiftModel.fromJson(raw, birthdayId * 1000 + (seq++));
+          }).toList();
         });
       }
     } catch (e) {

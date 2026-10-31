@@ -72,6 +72,14 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
   }
 
   @override
+  void didUpdateWidget(BirthdayDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.birthdayId != widget.birthdayId) {
+      Provider.of<GiftService>(context, listen: false).fetchGifts(widget.birthdayId);
+    }
+  }
+
+  @override
   void dispose() {
     _animController.dispose();
     super.dispose();
@@ -442,7 +450,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
     );
   }
 
-  void _showDeleteGiftDialog(BuildContext context, GiftService giftService, int birthdayId, GiftModel gift) {
+  void _showDeleteGiftDialog(BuildContext context, GiftService giftService, int birthdayId, GiftModel gift, {int? fallbackIndex}) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -463,7 +471,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
             onPressed: () {
               Navigator.pop(ctx);
               DeviceService.triggerMediumHaptic();
-              giftService.deleteGift(birthdayId, gift.id);
+              giftService.deleteGift(birthdayId, gift.id, fallbackIndex: fallbackIndex);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Idée cadeau "${gift.name}" supprimée'),
@@ -662,8 +670,11 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
           )
         else
           Column(
-            children: gifts.map((gift) {
+            children: List.generate(gifts.length, (index) {
+              final gift = gifts[index];
+              final actualGiftId = gift.id;
               return Padding(
+                key: ValueKey('gift_${actualGiftId}_$index'),
                 padding: const EdgeInsets.only(bottom: 10.0),
                 child: GlassCard(
                   child: Padding(
@@ -788,7 +799,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                               OutlinedButton(
                                 onPressed: () {
                                   DeviceService.triggerLightHaptic();
-                                  giftService.toggleReserveGift(birthday.id, gift.id, 'Vous');
+                                  giftService.toggleReserveGift(birthday.id, actualGiftId, 'Vous', fallbackIndex: index);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text('🔓 Cadeau libéré avec succès !'),
@@ -817,7 +828,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                               ElevatedButton(
                                 onPressed: () {
                                   DeviceService.triggerLightHaptic();
-                                  giftService.toggleReserveGift(birthday.id, gift.id, 'Vous');
+                                  giftService.toggleReserveGift(birthday.id, actualGiftId, 'Vous', fallbackIndex: index);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text('🎁 Cadeau réservé !'),
@@ -849,7 +860,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                               padding: const EdgeInsets.all(6),
                               constraints: const BoxConstraints(),
                               onPressed: () {
-                                _showDeleteGiftDialog(context, giftService, birthday.id, gift);
+                                _showDeleteGiftDialog(context, giftService, birthday.id, gift, fallbackIndex: index);
                               },
                             ),
                           ],
@@ -859,7 +870,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                   ),
                 ),
               );
-            }).toList(),
+            }),
           ),
       ],
     );

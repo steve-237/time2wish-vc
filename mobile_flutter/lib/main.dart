@@ -89,14 +89,14 @@ class _Time2WishAppState extends State<Time2WishApp> {
           path: '/birthday/:id',
           builder: (context, state) {
             final id = int.parse(state.pathParameters['id']!);
-            return BirthdayDetailScreen(birthdayId: id);
+            return BirthdayDetailScreen(key: ValueKey(id), birthdayId: id);
           },
         ),
         GoRoute(
           path: '/birthday/:id/edit',
           builder: (context, state) {
             final id = int.parse(state.pathParameters['id']!);
-            return BirthdayFormScreen(birthdayId: id);
+            return BirthdayFormScreen(key: ValueKey(id), birthdayId: id);
           },
         ),
         GoRoute(
