@@ -475,10 +475,6 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
       ),
     );
   }
-        ],
-      ),
-    );
-  }
 
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) {
