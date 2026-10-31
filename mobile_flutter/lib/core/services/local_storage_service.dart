@@ -106,10 +106,7 @@ class LocalStorageService {
       final prefs = await SharedPreferences.getInstance();
       final effectiveUserId = userId ?? prefs.getInt(_activeOfflineSessionKey);
       final key = effectiveUserId != null ? 't2w_local_birthdays_$effectiveUserId' : _birthdaysKey;
-      var jsonStr = prefs.getString(key);
-      if ((jsonStr == null || jsonStr.isEmpty) && effectiveUserId != null) {
-        jsonStr = prefs.getString(_birthdaysKey);
-      }
+      final jsonStr = prefs.getString(key);
       if (jsonStr != null && jsonStr.isNotEmpty) {
         final List list = jsonDecode(jsonStr);
         return list.map((item) => BirthdayModel.fromJson(item)).toList();

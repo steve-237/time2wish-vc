@@ -293,6 +293,8 @@ class AuthService extends ChangeNotifier {
 
         await _storageService.saveOfflineAccount(newAccount);
         await _storageService.setActiveOfflineAccountId(newId);
+        // Explicitly start new offline user with an empty birthday collection
+        await _storageService.saveBirthdays([], userId: newId);
 
         _currentUser = UserModel.fromJson(newAccount);
         _isAuthenticated = true;

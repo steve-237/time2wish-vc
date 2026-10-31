@@ -86,5 +86,10 @@ void main() {
       expect(list2.length, equals(1));
       expect(list2.first.name, equals('Ami de Marie'));
     });
+
+    test('A newly created offline user starts with an empty birthday list', () async {
+      final list = await storage.loadBirthdays(userId: 2000);
+      expect(list, isEmpty);
+    });
   });
 }

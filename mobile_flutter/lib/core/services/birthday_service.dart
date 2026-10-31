@@ -37,10 +37,15 @@ class BirthdayService extends ChangeNotifier {
   }
 
   Future<void> _initLocalStorage() async {
-    _birthdays = await _storageService.loadBirthdays();
-    if (_birthdays.isEmpty) {
-      _birthdays = _getDemoBirthdays();
-      await _storageService.saveBirthdays(_birthdays);
+    final activeOfflineId = await _storageService.getActiveOfflineAccountId();
+    if (activeOfflineId != null) {
+      _birthdays = await _storageService.loadBirthdays(userId: activeOfflineId);
+    } else {
+      _birthdays = await _storageService.loadBirthdays();
+      if (_birthdays.isEmpty) {
+        _birthdays = _getDemoBirthdays();
+        await _storageService.saveBirthdays(_birthdays);
+      }
     }
     for (final b in _birthdays) {
       await NotificationService.scheduleBirthdayReminder(b);
@@ -53,11 +58,9 @@ class BirthdayService extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      _birthdays = await _storageService.loadBirthdays(userId: userId);
-      if (_birthdays.isEmpty) {
-        _birthdays = _getDemoBirthdays();
-        await _storageService.saveBirthdays(_birthdays, userId: userId);
-      }
+      final activeOfflineId = userId ?? await _storageService.getActiveOfflineAccountId();
+      _birthdays = await _storageService.loadBirthdays(userId: activeOfflineId);
+      // Clean slate for individual user accounts: never inject demo birthdays!
       for (final b in _birthdays) {
         await NotificationService.scheduleBirthdayReminder(b);
       }
@@ -79,6 +82,8 @@ class BirthdayService extends ChangeNotifier {
       await sync.syncAll();
     }
 
+    final activeOfflineId = await _storageService.getActiveOfflineAccountId();
+
     try {
       final response = await _apiService.dio.get('/birthdays');
       if (response.statusCode == 200 && response.data != null) {
@@ -95,12 +100,12 @@ class BirthdayService extends ChangeNotifier {
         final pendingLocalItems = _birthdays.where((b) => pendingIds.contains(b.id)).toList();
 
         _birthdays = [...serverList, ...pendingLocalItems];
-        await _storageService.saveBirthdays(_birthdays);
+        await _storageService.saveBirthdays(_birthdays, userId: activeOfflineId);
       }
     } catch (e) {
       debugPrint('[BirthdayService] Offline mode: loading local storage: $e');
-      _birthdays = await _storageService.loadBirthdays();
-      if (_birthdays.isEmpty) {
+      _birthdays = await _storageService.loadBirthdays(userId: activeOfflineId);
+      if (_birthdays.isEmpty && activeOfflineId == null) {
         _birthdays = _getDemoBirthdays();
         await _storageService.saveBirthdays(_birthdays);
       }

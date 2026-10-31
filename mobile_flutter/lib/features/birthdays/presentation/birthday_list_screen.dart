@@ -1495,6 +1495,43 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                                   ),
                                 ),
                               ),
+                            ] else ...[
+                              const SizedBox(height: 20),
+                              Wrap(
+                                alignment: WrapAlignment.center,
+                                spacing: 10,
+                                runSpacing: 10,
+                                children: [
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                    onPressed: () {
+                                      DeviceService.triggerLightHaptic();
+                                      context.push('/birthdays/add');
+                                    },
+                                    icon: const Icon(Icons.add_rounded, size: 18),
+                                    label: const Text('Ajouter un contact', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  ),
+                                  OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      side: BorderSide(color: (isDark ? AppColors.cyanLight : AppColors.primaryCyan).withValues(alpha: 0.5)),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      foregroundColor: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
+                                    ),
+                                    onPressed: () {
+                                      DeviceService.triggerLightHaptic();
+                                      BirthdayImportExportSheet.show(context);
+                                    },
+                                    icon: const Icon(Icons.file_upload_outlined, size: 18),
+                                    label: const Text('Importer JSON', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  ),
+                                ],
+                              ),
                             ],
                           ],
                         ),
