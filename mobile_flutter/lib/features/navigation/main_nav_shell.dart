@@ -155,14 +155,14 @@ class _MainNavShellState extends State<MainNavShell> {
                 context.push('/birthday/new');
               },
               child: Container(
-                width: 56,
-                height: 56,
+                width: 58,
+                height: 58,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: const LinearGradient(
                     colors: [
-                      Color(0xFF4F46E5), // Indigo
-                      Color(0xFF6366F1), // Light Indigo
+                      Color(0xFF8B5CF6), // Purple
+                      Color(0xFFD946EF), // Magenta / Fuchsia
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -173,9 +173,9 @@ class _MainNavShellState extends State<MainNavShell> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF4F46E5).withValues(alpha: 0.38),
-                      blurRadius: 14,
-                      offset: const Offset(0, 6),
+                      color: const Color(0xFFC026D3).withValues(alpha: isDark ? 0.45 : 0.32),
+                      blurRadius: 16,
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
@@ -183,7 +183,7 @@ class _MainNavShellState extends State<MainNavShell> {
                   child: Icon(
                     Icons.add_rounded,
                     color: Colors.white,
-                    size: 30,
+                    size: 32,
                   ),
                 ),
               ),
@@ -203,7 +203,7 @@ class _MainNavShellState extends State<MainNavShell> {
     required bool isDark,
   }) {
     final bool isSelected = _currentIndex == index;
-    final activeColor = isDark ? AppColors.indigoLight : AppColors.primaryIndigo;
+    final activeColor = isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7);
     final inactiveColor = isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
 
     return InkWell(

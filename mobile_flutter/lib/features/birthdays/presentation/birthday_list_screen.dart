@@ -768,6 +768,80 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
     );
   }
 
+  Future<void> _handleManualSync(
+    BuildContext context,
+    SyncService syncService,
+    BirthdayService birthdayService,
+    SettingsService settings,
+  ) async {
+    final isDark = settings.isDarkMode;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+            ),
+            SizedBox(width: 12),
+            Text('Synchronisation en cours...'),
+          ],
+        ),
+        duration: const Duration(seconds: 1),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isDark ? AppColors.darkCardElevated : const Color(0xFF1E293B),
+      ),
+    );
+
+    bool syncOk = true;
+    if (syncService.hasPending) {
+      syncOk = await syncService.syncAll();
+    }
+    await birthdayService.fetchBirthdays();
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+    if (syncOk) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle_rounded, color: AppColors.successGreen, size: 20),
+              SizedBox(width: 10),
+              Text('✓ Synchronisation terminée avec succès !'),
+            ],
+          ),
+          backgroundColor: isDark ? AppColors.darkCardElevated : const Color(0xFF0F172A),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.info_outline_rounded, color: AppColors.wishCoinsAmber, size: 20),
+              SizedBox(width: 10),
+              Expanded(child: Text('Synchronisé en local (serveur distant indisponible)')),
+            ],
+          ),
+          action: SnackBarAction(
+            label: 'Vider',
+            textColor: AppColors.accentCoral,
+            onPressed: () => syncService.clearQueue(),
+          ),
+          backgroundColor: isDark ? AppColors.darkCardElevated : const Color(0xFF0F172A),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
@@ -963,6 +1037,40 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                                   ),
                                 ),
                               ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+
+                        // Manual Sync Button
+                        GestureDetector(
+                          onTap: () => _handleManualSync(context, syncService, birthdayService, settings),
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: isDark ? AppColors.darkCard : Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                                width: 1,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: syncService.isSyncing
+                                  ? SpinKitRing(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, size: 16, lineWidth: 2)
+                                  : Icon(
+                                      Icons.sync_rounded,
+                                      color: isDark ? Colors.white : AppColors.textMainLight,
+                                      size: 19,
+                                    ),
                             ),
                           ),
                         ),
@@ -1317,8 +1425,16 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                       color: isDark ? AppColors.darkCard : Colors.white,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: AppColors.wishCoinsAmber.withValues(alpha: 0.35),
+                        color: AppColors.wishCoinsAmber.withValues(alpha: isDark ? 0.35 : 0.5),
+                        width: 1.0,
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.wishCoinsAmber.withValues(alpha: isDark ? 0.12 : 0.08),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Row(
                       children: [
@@ -1345,9 +1461,14 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                             ),
                           ),
                         ),
-                        if (!syncService.isSyncing)
+                        if (!syncService.isSyncing) ...[
                           TextButton(
-                            onPressed: () => syncService.syncAll(),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            onPressed: () => _handleManualSync(context, syncService, birthdayService, settings),
                             child: Text(
                               settings.tr('sync_now'),
                               style: TextStyle(
@@ -1357,6 +1478,35 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                               ),
                             ),
                           ),
+                          const SizedBox(width: 6),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            onPressed: () async {
+                              await syncService.clearQueue();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('File de synchronisation vidée avec succès !'),
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Text(
+                              'Vider',
+                              style: TextStyle(
+                                color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -1614,81 +1764,80 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
+        duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
-        height: 114,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        height: 108,
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          gradient: isSelected ? activeGradient : null,
-          color: isSelected ? null : (isDark ? const Color(0xFF131826) : Colors.white),
-          borderRadius: BorderRadius.circular(18),
+          color: isDark ? const Color(0xFF131826) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
-                ? Colors.white.withValues(alpha: 0.28)
+                ? iconColor
                 : (isDark ? const Color(0xFF232D3F) : AppColors.lightBorder),
-            width: isSelected ? 1.5 : 1.0,
+            width: isSelected ? 1.8 : 1.0,
           ),
           boxShadow: [
             if (isSelected)
               BoxShadow(
-                color: iconColor.withValues(alpha: isDark ? 0.38 : 0.28),
-                blurRadius: 16,
-                spreadRadius: 1,
-                offset: const Offset(0, 6),
+                color: iconColor.withValues(alpha: isDark ? 0.32 : 0.18),
+                blurRadius: 14,
+                offset: const Offset(0, 3),
               )
             else
               BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.05),
+                color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.04),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
           ],
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
-              width: 34,
-              height: 34,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
-                color: isSelected
-                    ? Colors.white.withValues(alpha: 0.22)
-                    : iconColor.withValues(alpha: isDark ? 0.16 : 0.12),
+                color: iconColor.withValues(alpha: isDark ? 0.18 : 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? Colors.white : iconColor,
-                size: 18,
+                color: iconColor,
+                size: 17,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: isSelected ? Colors.white : (isDark ? Colors.white : AppColors.textMainLight),
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.3,
-                height: 1.0,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: isSelected
-                    ? Colors.white.withValues(alpha: 0.9)
-                    : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.1,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: isDark ? Colors.white : AppColors.textMainLight,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.4,
+                    height: 1.0,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: isSelected
+                        ? (isDark ? Colors.white : AppColors.textMainLight)
+                        : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                    fontSize: 11,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    letterSpacing: 0.1,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ],
         ),

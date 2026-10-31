@@ -10,7 +10,7 @@ class AppColors {
   static const Color darkBorderSubtle = Color(0xFF1E2838);
 
   // Clean Professional Light Palette (Porcelain / Pure White)
-  static const Color lightCanvas = Color(0xFFF8FAFC);
+  static const Color lightCanvas = Color(0xFFF6F8FB);
   static const Color lightCard = Color(0xFFFFFFFF);
   static const Color lightCardElevated = Color(0xFFF1F5F9);
   static const Color lightBorder = Color(0xFFE2E8F0);
@@ -38,7 +38,7 @@ class AppColors {
   static const Color backgroundDark = Color(0xFF0B0F17);
   static const Color backgroundCard = Color(0xFF141B26);
   static const Color surfaceDark = Color(0xFF1C2536);
-  static const Color backgroundLight = Color(0xFFF8FAFC);
+  static const Color backgroundLight = Color(0xFFF6F8FB);
   static const Color borderLight = Color(0xFF263246);
   static const Color backgroundDialogDark = Color(0xFF141B26);
   static const Color backgroundDeep = Color(0xFF0B0F17);
@@ -77,6 +77,19 @@ class AppColors {
       Color(0xFF0B0F17),
     ],
   );
+
+  static const LinearGradient lightBackgroundGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFFF8FAFC),
+      Color(0xFFF1F5F9),
+      Color(0xFFF8FAFC),
+    ],
+  );
+
+  static LinearGradient getBackgroundGradient(bool isDark) =>
+      isDark ? backgroundGradient : lightBackgroundGradient;
 }
 
 class AppTheme {

@@ -139,14 +139,19 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
     final birthdayService = Provider.of<BirthdayService>(context);
     final settings = Provider.of<SettingsService>(context);
     final localeStr = settings.language == 'en' ? 'en_US' : (settings.language == 'de' ? 'de_DE' : 'fr_FR');
+    final isDark = settings.isDarkMode;
     final birthday = birthdayService.getBirthdayById(widget.birthdayId);
 
     if (birthday == null) {
       return Scaffold(
+        backgroundColor: isDark ? AppColors.darkCanvas : AppColors.lightCanvas,
         appBar: AppBar(
-          title: const Text('Détails Anniversaire'),
+          title: Text(
+            'Détails Anniversaire',
+            style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+          ),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : AppColors.textMainLight),
             onPressed: () => context.pop(),
           ),
         ),
@@ -154,11 +159,17 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.cake_outlined, size: 64, color: AppColors.textMutedDark),
+              Icon(Icons.cake_outlined, size: 64, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
               const SizedBox(height: 16),
-              const Text('Anniversaire introuvable', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                'Anniversaire introuvable',
+                style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
-              const Text('Cet anniversaire a été supprimé ou n\'existe pas.', style: TextStyle(color: AppColors.textMutedDark)),
+              Text(
+                'Cet anniversaire a été supprimé ou n\'existe pas.',
+                style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+              ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryCyan),
@@ -175,26 +186,27 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
     final String initial = birthday.name.isNotEmpty ? birthday.name[0].toUpperCase() : '?';
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: isDark ? AppColors.darkCanvas : AppColors.lightCanvas,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: isDark ? AppColors.darkCanvas : AppColors.lightCanvas,
         elevation: 0,
         leading: Container(
           margin: const EdgeInsets.only(left: 16),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withValues(alpha: 0.1),
+            color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
           ),
           child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+            icon: Icon(Icons.arrow_back_ios_new, color: isDark ? Colors.white : AppColors.textMainLight, size: 18),
             onPressed: () => context.pop(),
           ),
         ),
         actions: [
           IconButton(
             icon: Icon(
-              birthday.isFavorite ? Icons.star : Icons.star_border,
-              color: birthday.isFavorite ? AppColors.wishCoinsAmber : Colors.white,
+              birthday.isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
+              color: birthday.isFavorite ? AppColors.wishCoinsAmber : (isDark ? Colors.white54 : Colors.black38),
+              size: 26,
             ),
             onPressed: () {
               DeviceService.triggerLightHaptic();
@@ -204,7 +216,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
         ],
       ),
       body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
+        color: isDark ? AppColors.darkCanvas : AppColors.lightCanvas,
         child: SafeArea(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
@@ -265,7 +277,11 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                         const SizedBox(height: 16),
                         Text(
                           birthday.name,
-                          style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 26),
+                          style: TextStyle(
+                            color: isDark ? Colors.white : AppColors.textMainLight,
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -304,18 +320,21 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                           'Jours restants',
                           birthday.isToday ? '🎂 Aujourd\'hui' : '${birthday.daysRemaining}j',
                           AppColors.primaryCyan,
+                          isDark,
                         ),
-                        Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.1)),
+                        Container(width: 1, height: 40, color: isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.lightBorder),
                         _buildStatColumn(
                           'Prochain âge',
                           '${birthday.nextAge} ans',
                           AppColors.accentPurple,
+                          isDark,
                         ),
-                        Container(width: 1, height: 40, color: Colors.white.withValues(alpha: 0.1)),
+                        Container(width: 1, height: 40, color: isDark ? Colors.white.withValues(alpha: 0.1) : AppColors.lightBorder),
                         _buildStatColumn(
                           'Rappel',
                           'J-${birthday.reminderDays}',
                           AppColors.wishCoinsAmber,
+                          isDark,
                         ),
                       ],
                     ),
@@ -331,23 +350,26 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.cake, color: AppColors.primaryCyan, size: 20),
-                            SizedBox(width: 10),
-                            Text('Date de naissance', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                            const Icon(Icons.cake, color: AppColors.primaryCyan, size: 20),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Date de naissance',
+                              style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 12),
                         Text(
                           DateFormat('dd MMMM yyyy', localeStr).format(birthday.birthdate),
-                          style: const TextStyle(color: AppColors.textLight, fontSize: 15, fontWeight: FontWeight.w500),
+                          style: TextStyle(color: isDark ? AppColors.textLight : AppColors.textMainLight, fontSize: 15, fontWeight: FontWeight.w600),
                         ),
                         if (birthday.notes != null && birthday.notes!.isNotEmpty) ...[
                           const SizedBox(height: 16),
-                          const Text('Notes & Remarques', style: TextStyle(color: AppColors.textMutedDark, fontSize: 12)),
+                          Text('Notes & Remarques', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 12)),
                           const SizedBox(height: 4),
-                          Text(birthday.notes!, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                          Text(birthday.notes!, style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontSize: 14)),
                         ],
                       ],
                     ),
@@ -362,11 +384,14 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             children: [
-                              Icon(Icons.interests, color: AppColors.accentPurple, size: 20),
-                              SizedBox(width: 10),
-                              Text('Centres d\'intérêt', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                              const Icon(Icons.interests, color: AppColors.accentPurple, size: 20),
+                              const SizedBox(width: 10),
+                              Text(
+                                'Centres d\'intérêt',
+                                style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 12),
@@ -391,11 +416,14 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             children: [
-                              Icon(Icons.celebration_rounded, color: AppColors.accentPink, size: 20),
-                              SizedBox(width: 10),
-                              Text('Fête & Célébration 🎉', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                              const Icon(Icons.celebration_rounded, color: AppColors.accentPink, size: 20),
+                              const SizedBox(width: 10),
+                              Text(
+                                'Fête & Célébration 🎉',
+                                style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
                           if (birthday.partyLocation != null && birthday.partyLocation!.isNotEmpty) ...[
@@ -407,7 +435,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                                 Expanded(
                                   child: Text(
                                     birthday.partyLocation!,
-                                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                                    style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontSize: 14),
                                   ),
                                 ),
                               ],
@@ -417,7 +445,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                             const SizedBox(height: 8),
                             Text(
                               birthday.partyDescription!,
-                              style: const TextStyle(color: AppColors.textMutedDark, fontSize: 13),
+                              style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 13),
                             ),
                           ],
                         ],
@@ -427,10 +455,10 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                 ],
 
                 const SizedBox(height: 20),
-                _staggeredChild(3, _buildGiftsSection(context, birthday)),
+                _staggeredChild(3, _buildGiftsSection(context, birthday, isDark)),
 
                 const SizedBox(height: 24),
-                _staggeredChild(4, _buildActionButtons(context, birthday)),
+                _staggeredChild(4, _buildActionButtons(context, birthday, isDark)),
                 const SizedBox(height: 40),
               ],
             ),
@@ -440,34 +468,47 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
     );
   }
 
-  Widget _buildStatColumn(String label, String value, Color color) {
+  Widget _buildStatColumn(String label, String value, Color color, bool isDark) {
     return Column(
       children: [
         Text(value, style: TextStyle(color: color, fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(color: AppColors.textMutedDark, fontSize: 11)),
+        Text(
+          label,
+          style: TextStyle(
+            color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
 
-  void _showDeleteGiftDialog(BuildContext context, GiftService giftService, int birthdayId, GiftModel gift, {int? fallbackIndex}) {
+  void _showDeleteGiftDialog(BuildContext context, GiftService giftService, int birthdayId, GiftModel gift, bool isDark, {int? fallbackIndex}) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.backgroundDialogDark,
+        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Supprimer l\'idée cadeau', style: TextStyle(color: Colors.white)),
+        title: Text(
+          'Supprimer l\'idée cadeau',
+          style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontWeight: FontWeight.bold),
+        ),
         content: Text(
           'Voulez-vous supprimer "${gift.name}" de la liste ?',
-          style: const TextStyle(color: AppColors.textMutedDark),
+          style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler', style: TextStyle(color: AppColors.textMutedDark)),
+            child: Text('Annuler', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.accentPink),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accentPink,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
             onPressed: () {
               Navigator.pop(ctx);
               DeviceService.triggerMediumHaptic();
@@ -480,14 +521,14 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                 ),
               );
             },
-            child: const Text('Supprimer', style: TextStyle(color: Colors.white)),
+            child: const Text('Supprimer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildGiftsSection(BuildContext context, BirthdayModel birthday) {
+  Widget _buildGiftsSection(BuildContext context, BirthdayModel birthday, bool isDark) {
     final giftService = Provider.of<GiftService>(context);
     final gifts = giftService.getGiftsForBirthday(birthday.id);
 
@@ -497,9 +538,9 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               '🎁 Idées Cadeaux & Cagnotte',
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Row(
               children: [
@@ -713,7 +754,9 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                                     child: Text(
                                       gift.name,
                                       style: TextStyle(
-                                        color: gift.isReserved ? AppColors.textMutedDark : Colors.white,
+                                        color: gift.isReserved
+                                            ? (isDark ? AppColors.textMutedDark : AppColors.textMutedLight)
+                                            : (isDark ? Colors.white : AppColors.textMainLight),
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14,
                                         decoration: gift.isReserved ? TextDecoration.lineThrough : null,
@@ -855,12 +898,12 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                                 ),
                               ),
                             IconButton(
-                              icon: const Icon(Icons.delete_outline_rounded, color: Colors.white38, size: 18),
+                              icon: Icon(Icons.delete_outline_rounded, color: isDark ? Colors.white38 : Colors.black38, size: 18),
                               tooltip: 'Supprimer',
                               padding: const EdgeInsets.all(6),
                               constraints: const BoxConstraints(),
                               onPressed: () {
-                                _showDeleteGiftDialog(context, giftService, birthday.id, gift, fallbackIndex: index);
+                                _showDeleteGiftDialog(context, giftService, birthday.id, gift, isDark, fallbackIndex: index);
                               },
                             ),
                           ],
@@ -876,7 +919,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, BirthdayModel birthday) {
+  Widget _buildActionButtons(BuildContext context, BirthdayModel birthday, bool isDark) {
     final apiService = context.read<ApiService>();
 
     return Column(
@@ -935,11 +978,14 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
               ),
             );
           },
-          icon: const Icon(Icons.copy_rounded, color: Colors.white, size: 18),
-          label: const Text('Copier un message rapide 💌', style: TextStyle(color: Colors.white)),
+          icon: Icon(Icons.copy_rounded, color: isDark ? Colors.white : AppColors.primaryIndigo, size: 18),
+          label: Text(
+            'Copier un message rapide 💌',
+            style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontWeight: FontWeight.w600),
+          ),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size(double.infinity, 50),
-            side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+            side: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.2) : AppColors.lightBorder),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           ),
         ),
@@ -951,11 +997,14 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () => context.push('/birthday/${birthday.id}/edit'),
-                icon: const Icon(Icons.edit_outlined, color: Colors.white, size: 18),
-                label: const Text('Modifier', style: TextStyle(color: Colors.white)),
+                icon: Icon(Icons.edit_outlined, color: isDark ? Colors.white : AppColors.primaryIndigo, size: 18),
+                label: Text(
+                  'Modifier',
+                  style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontWeight: FontWeight.w600),
+                ),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                  side: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.2) : AppColors.lightBorder),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
               ),
@@ -965,7 +1014,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
               child: OutlinedButton.icon(
                 onPressed: () => _showDeleteConfirmation(context, birthday),
                 icon: const Icon(Icons.delete_outline, color: AppColors.accentPink, size: 18),
-                label: const Text('Supprimer', style: TextStyle(color: AppColors.accentPink)),
+                label: const Text('Supprimer', style: TextStyle(color: AppColors.accentPink, fontWeight: FontWeight.bold)),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   side: const BorderSide(color: AppColors.accentPink),
