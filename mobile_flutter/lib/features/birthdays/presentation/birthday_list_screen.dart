@@ -1135,7 +1135,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
               sliver: SliverToBoxAdapter(
                 child: Row(
                   children: [
-                    // Stat 1: Total Suivis (Vibrant Royal Electric Blue Gradient)
+                    // Stat 1: Total Suivis
                     Expanded(
                       child: _buildVibrantStatCard(
                         context: context,
@@ -1143,14 +1143,9 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         isSelected: _selectedCategory == 'TOUS',
                         icon: Icons.cake_rounded,
                         value: '$totalCount',
-                        label: 'Anniversaires',
-                        backgroundGradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
-                        ),
-                        glowColor: const Color(0xFF2563EB),
-                        isFilledGradient: true,
+                        label: 'Total',
+                        iconColor: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                        iconBgColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE0F2FE),
                         onTap: () {
                           DeviceService.triggerLightHaptic();
                           setState(() => _selectedCategory = 'TOUS');
@@ -1159,7 +1154,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                     ),
                     const SizedBox(width: 10),
 
-                    // Stat 2: Prochain Anniversaire - Compte à rebours J-X (Sleek Dark Slate Frosted Glass)
+                    // Stat 2: Prochain Anniversaire - Compte à rebours J-X
                     Expanded(
                       child: _buildVibrantStatCard(
                         context: context,
@@ -1169,15 +1164,9 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         value: nextBirthday != null
                             ? (nextBirthday.isToday ? 'Jour J !' : '${nextBirthday.daysRemaining} j')
                             : '--',
-                        label: nextBirthday != null ? 'Prochain : ${nextBirthday.name.split(' ').first}' : 'Aucun',
-                        backgroundColor: isDark ? const Color(0xFF161A26) : Colors.white,
-                        borderColor: isDark ? const Color(0xFF252D3F) : AppColors.lightBorder,
-                        iconColor: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
-                        iconBgColor: isDark ? const Color(0xFF22293C) : const Color(0xFFE0F2FE),
-                        textColor: isDark ? Colors.white : AppColors.textMainLight,
-                        labelColor: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
-                        glowColor: const Color(0xFF38BDF8),
-                        isFilledGradient: false,
+                        label: nextBirthday != null ? 'Prochain : ${nextBirthday.name.split(' ').first}' : 'Prochain : --',
+                        iconColor: const Color(0xFF06B6D4),
+                        iconBgColor: isDark ? const Color(0xFF0E2F3E) : const Color(0xFFCFFAFE),
                         onTap: () {
                           if (nextBirthday != null) {
                             DeviceService.triggerLightHaptic();
@@ -1189,7 +1178,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                     ),
                     const SizedBox(width: 10),
 
-                    // Stat 3: À Souhaiter Bientôt (< 7 jours) (Vibrant Electric Violet / Purple Gradient)
+                    // Stat 3: À Souhaiter Bientôt (< 7 jours)
                     Expanded(
                       child: _buildVibrantStatCard(
                         context: context,
@@ -1198,18 +1187,11 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         icon: Icons.bolt_rounded,
                         value: '$urgentCount',
                         label: 'Dans 7 jours',
-                        backgroundGradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFFA855F7), Color(0xFF7C3AED)],
-                        ),
-                        glowColor: const Color(0xFF7C3AED),
-                        isFilledGradient: true,
+                        iconColor: const Color(0xFFF59E0B),
+                        iconBgColor: isDark ? const Color(0xFF332612) : const Color(0xFFFEF3C7),
                         onTap: () {
                           DeviceService.triggerLightHaptic();
-                          setState(() {
-                            _selectedCategory = 'TOUS';
-                          });
+                          setState(() => _selectedCategory = 'TOUS');
                         },
                       ),
                     ),
@@ -1823,77 +1805,53 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
     required String value,
     required String label,
     required VoidCallback onTap,
-    Gradient? backgroundGradient,
-    Color? backgroundColor,
-    Color? borderColor,
     Color? iconColor,
     Color? iconBgColor,
     Color? textColor,
     Color? labelColor,
-    Color? glowColor,
-    bool isFilledGradient = false,
   }) {
-    final effectiveIconBg = isFilledGradient
-        ? Colors.white.withValues(alpha: 0.22)
-        : (iconBgColor ?? (isDark ? const Color(0xFF22293C) : const Color(0xFFE0F2FE)));
+    final effectiveIconBg = iconBgColor ?? (isDark ? const Color(0xFF1E293B) : const Color(0xFFE0F2FE));
+    final effectiveIconColor = iconColor ?? (isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7));
+    final effectiveTextColor = textColor ?? (isDark ? Colors.white : AppColors.textMainLight);
+    final effectiveLabelColor = labelColor ?? (isDark ? AppColors.textMutedDark : AppColors.textMutedLight);
 
-    final effectiveIconColor = isFilledGradient
-        ? Colors.white
-        : (iconColor ?? (isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7)));
-
-    final effectiveTextColor = isFilledGradient
-        ? Colors.white
-        : (textColor ?? (isDark ? Colors.white : AppColors.textMainLight));
-
-    final effectiveLabelColor = isFilledGradient
-        ? Colors.white.withValues(alpha: 0.92)
-        : (labelColor ?? (isDark ? AppColors.textMutedDark : AppColors.textMutedLight));
-
-    final effectiveBorder = isFilledGradient
-        ? Border.all(
-            color: Colors.white.withValues(alpha: isSelected ? 0.35 : 0.18),
-            width: 1.0,
-          )
-        : Border.all(
-            color: isSelected
-                ? (isDark ? const Color(0xFF3B4861) : const Color(0xFF94A3B8))
-                : (borderColor ?? (isDark ? const Color(0xFF252D3F) : AppColors.lightBorder)),
-            width: 1.0,
-          );
-
-    final List<BoxShadow> effectiveBoxShadow = [
-      BoxShadow(
-        color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.05),
-        blurRadius: 10,
-        offset: const Offset(0, 3),
-      ),
-    ];
+    final effectiveBorder = Border.all(
+      color: isSelected
+          ? (isDark ? const Color(0xFF3B82F6) : AppColors.primaryIndigo)
+          : (isDark ? const Color(0xFF222B3E) : AppColors.lightBorder),
+      width: isSelected ? 1.8 : 1.0,
+    );
 
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
-        height: 124,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        height: 118,
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isFilledGradient ? null : (backgroundColor ?? (isDark ? const Color(0xFF161A26) : Colors.white)),
-          gradient: backgroundGradient,
-          borderRadius: BorderRadius.circular(22),
+          color: isDark ? const Color(0xFF131826) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
           border: effectiveBorder,
-          boxShadow: effectiveBoxShadow,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Top rounded icon pill
+            // Top left squircle icon
             Container(
-              width: 38,
-              height: 38,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
                 color: effectiveIconBg,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 icon,
@@ -1903,31 +1861,36 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
             ),
             const SizedBox(height: 8),
 
-            // Big Bold Metric Number
-            Text(
-              value,
-              style: TextStyle(
-                color: effectiveTextColor,
-                fontSize: 26,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.5,
-                height: 1.0,
-              ),
-            ),
-            const SizedBox(height: 4),
-
-            // Clear Centered Subtitle Label
-            Text(
-              label,
-              style: TextStyle(
-                color: effectiveLabelColor,
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                letterSpacing: 0.1,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            // Metric number & label
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: effectiveTextColor,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                    height: 1.1,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: effectiveLabelColor,
+                    fontSize: 12,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    letterSpacing: 0.1,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ],
         ),
