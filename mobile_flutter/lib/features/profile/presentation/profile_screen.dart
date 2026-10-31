@@ -7,6 +7,7 @@ import '../../../core/services/settings_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/glowing_badge.dart';
+import '../../../core/widgets/avatar_image.dart';
 import '../../birthdays/presentation/reminder_settings_sheet.dart';
 import '../../birthdays/presentation/birthday_import_export_sheet.dart';
 
@@ -130,14 +131,31 @@ class ProfileScreen extends StatelessWidget {
                                     ],
                                   ),
                                   child: Center(
-                                    child: Text(
-                                      initial,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 34,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    child: (user.avatarUrl != null && user.avatarUrl!.isNotEmpty)
+                                        ? ClipOval(
+                                            child: AvatarImage(
+                                              photoUrl: user.avatarUrl!,
+                                              width: 76,
+                                              height: 76,
+                                              fit: BoxFit.cover,
+                                              fallback: Text(
+                                                initial,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 34,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        : Text(
+                                            initial,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 34,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                   ),
                                 ),
                               ),
@@ -164,6 +182,21 @@ class ProfileScreen extends StatelessWidget {
                       fontSize: 13,
                     ),
                   ),
+                  if (user.bio != null && user.bio!.trim().isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        user.bio!.trim(),
+                        style: TextStyle(
+                          color: isDark ? Colors.white70 : const Color(0xFF475569),
+                          fontSize: 13,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 12),
                   if (authService.isOfflineMode) ...[
                     const GlowingBadge(

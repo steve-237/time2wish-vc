@@ -8,6 +8,8 @@ class UserModel {
   final String fullName;
   final int coins;
   final String planType;
+  final String? avatarUrl;
+  final String? bio;
 
   UserModel({
     required this.id,
@@ -15,6 +17,8 @@ class UserModel {
     required this.fullName,
     required this.coins,
     required this.planType,
+    this.avatarUrl,
+    this.bio,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -24,6 +28,8 @@ class UserModel {
       fullName: json['fullName'] ?? json['username'] ?? json['email'] ?? 'Utilisateur Autonome',
       coins: json['coins'] ?? json['wishCoins'] ?? 100,
       planType: json['planType'] ?? 'PREMIUM',
+      avatarUrl: json['avatarUrl'] ?? json['avatar'] ?? json['photoUrl'],
+      bio: json['bio'],
     );
   }
 
@@ -34,7 +40,29 @@ class UserModel {
       'fullName': fullName,
       'coins': coins,
       'planType': planType,
+      if (avatarUrl != null) 'avatarUrl': avatarUrl,
+      if (bio != null) 'bio': bio,
     };
+  }
+
+  UserModel copyWith({
+    int? id,
+    String? email,
+    String? fullName,
+    int? coins,
+    String? planType,
+    String? avatarUrl,
+    String? bio,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      fullName: fullName ?? this.fullName,
+      coins: coins ?? this.coins,
+      planType: planType ?? this.planType,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      bio: bio ?? this.bio,
+    );
   }
 }
 
@@ -210,6 +238,35 @@ class AuthService extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  /// Update profile info (full name, avatar photo, bio) with local cache & optional remote sync
+  Future<void> updateProfile({
+    String? fullName,
+    String? avatarUrl,
+    String? bio,
+  }) async {
+    if (_currentUser == null) return;
+
+    _currentUser = _currentUser!.copyWith(
+      fullName: (fullName != null && fullName.trim().isNotEmpty) ? fullName.trim() : _currentUser!.fullName,
+      avatarUrl: avatarUrl,
+      bio: bio,
+    );
+
+    await _storageService.saveProfile(_currentUser!.toJson());
+    notifyListeners();
+
+    // Attempt remote update if backend is reachable
+    try {
+      await _apiService.dio.put('/users/profile', data: {
+        'fullName': _currentUser!.fullName,
+        'avatarUrl': _currentUser!.avatarUrl,
+        'bio': _currentUser!.bio,
+      });
+    } catch (_) {
+      // Offline fallback: saved locally
     }
   }
 
