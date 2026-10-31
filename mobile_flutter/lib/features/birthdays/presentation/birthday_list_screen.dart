@@ -896,10 +896,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         : settings.tr('greeting_evening');
     final firstName = user?.fullName.split(' ').first ?? 'Ami';
 
-    // Localized date header
-    final dateRaw = DateFormat('EEEE d MMMM', localeStr).format(now);
-    final dateTodayFormatted = dateRaw.isNotEmpty ? dateRaw[0].toUpperCase() + dateRaw.substring(1) : dateRaw;
-
     final String langFlag = settings.language == 'en'
         ? '🇬🇧'
         : settings.language == 'de'
@@ -943,7 +939,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Birthday Manager · $firstName 👋',
+                            'Birthday Manager · $greetingWord, $firstName 👋',
                             style: TextStyle(
                               fontSize: 12,
                               color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
