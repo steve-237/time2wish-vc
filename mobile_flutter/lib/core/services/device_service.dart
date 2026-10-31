@@ -26,6 +26,22 @@ class DeviceService {
     } catch (_) {}
   }
 
+  /// Play a gentle error / warning alert tone
+  static void playErrorSound() {
+    try {
+      SystemSound.play(SystemSoundType.alert);
+      playWebAudio('error');
+    } catch (_) {}
+  }
+
+  /// Trigger error haptic vibration + sound feedback
+  static Future<void> triggerErrorHaptic() async {
+    try {
+      playErrorSound();
+      await HapticFeedback.heavyImpact();
+    } catch (_) {}
+  }
+
   /// Trigger light haptic vibration + tap sound for buttons and card selections
   static Future<void> triggerLightHaptic() async {
     try {

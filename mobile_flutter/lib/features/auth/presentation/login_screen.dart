@@ -357,8 +357,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 );
 
                                 if (res == OfflineAuthResult.invalidPin) {
-                                  DeviceService.hapticError();
-                                  DeviceService.playClickSound();
+                                  DeviceService.triggerErrorHaptic();
                                   setModalState(() {
                                     isSubmitting = false;
                                     modalError = 'Code de sécurité incorrect pour ce compte.';
@@ -367,6 +366,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 }
 
                                 if (res == OfflineAuthResult.emptyUsername || res == OfflineAuthResult.emptyPin) {
+                                  DeviceService.triggerErrorHaptic();
                                   setModalState(() {
                                     isSubmitting = false;
                                     modalError = 'Informations de session incomplètes.';
@@ -380,8 +380,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 final bdayService = Provider.of<BirthdayService>(context, listen: false);
                                 await bdayService.reloadForUser(authService.currentUser?.id);
 
-                                DeviceService.hapticSuccess();
-                                DeviceService.playClickSound();
+                                DeviceService.triggerSuccessHaptic();
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(

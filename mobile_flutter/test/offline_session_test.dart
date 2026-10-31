@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:time2wish_mobile/core/models/birthday_model.dart';
 import 'package:time2wish_mobile/core/services/local_storage_service.dart';
-import 'package:time2wish_mobile/features/birthdays/domain/birthday_model.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -59,15 +59,15 @@ void main() {
 
     test('Birthdays are isolated between user accounts', () async {
       final user1Birthday = BirthdayModel(
-        id: 'b1',
-        fullName: 'Ami de Thomas',
-        dateOfBirth: DateTime(1995, 5, 10),
+        id: 1,
+        name: 'Ami de Thomas',
+        birthdate: DateTime(1995, 5, 10),
       );
 
       final user2Birthday = BirthdayModel(
-        id: 'b2',
-        fullName: 'Ami de Marie',
-        dateOfBirth: DateTime(1998, 8, 20),
+        id: 2,
+        name: 'Ami de Marie',
+        birthdate: DateTime(1998, 8, 20),
       );
 
       // Save for user 1001
@@ -79,12 +79,12 @@ void main() {
       // Load for user 1001
       final list1 = await storage.loadBirthdays(userId: 1001);
       expect(list1.length, equals(1));
-      expect(list1.first.fullName, equals('Ami de Thomas'));
+      expect(list1.first.name, equals('Ami de Thomas'));
 
       // Load for user 1002
       final list2 = await storage.loadBirthdays(userId: 1002);
       expect(list2.length, equals(1));
-      expect(list2.first.fullName, equals('Ami de Marie'));
+      expect(list2.first.name, equals('Ami de Marie'));
     });
   });
 }

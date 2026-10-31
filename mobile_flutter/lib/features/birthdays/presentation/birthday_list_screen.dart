@@ -880,14 +880,12 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
 
     final user = authService.currentUser;
     final isDark = settings.isDarkMode;
-    final localeStr = settings.language == 'en' ? 'en_US' : (settings.language == 'de' ? 'de_DE' : 'fr_FR');
 
     final filtered = _getFilteredBirthdays(birthdayService.upcoming);
     final BirthdayModel? nextBirthday = birthdayService.upcoming.isNotEmpty ? birthdayService.upcoming.first : null;
     final BirthdayModel? activeBirthday = (_selectedBirthdayId != null
         ? birthdayService.getBirthdayById(_selectedBirthdayId!)
         : null) ?? nextBirthday;
-    final bool isCustomSelection = _selectedBirthdayId != null && activeBirthday != null && activeBirthday.id != nextBirthday?.id;
 
     final totalCount = birthdayService.birthdays.length;
     final urgentCount = birthdayService.birthdays.where((b) => b.daysRemaining <= 7).length;
