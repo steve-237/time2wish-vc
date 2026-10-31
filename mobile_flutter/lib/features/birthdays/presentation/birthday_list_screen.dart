@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -9,11 +8,12 @@ import '../../../core/services/auth_service.dart';
 import '../../../core/services/birthday_service.dart';
 import '../../../core/services/sync_service.dart';
 import '../../../core/services/settings_service.dart';
+import '../../../core/services/api_service.dart';
 import '../../../core/models/birthday_model.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/avatar_image.dart';
-import '../../../core/widgets/animated_list_item.dart';
+import 'ai_wish_dialog.dart';
+import 'ai_gift_sheet.dart';
 
 class BirthdayListScreen extends StatefulWidget {
   const BirthdayListScreen({super.key});
@@ -26,14 +26,15 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedCategory = 'TOUS';
-  String _sortBy = 'DATE';
+  int? _selectedBirthdayId;
 
-  final List<String> _categories = ['TOUS', 'FAVORIS', 'AMIS', 'FAMILLE', 'TRAVAIL'];
+  final List<String> _categories = ['TOUS', 'CE_MOIS', 'FAVORIS', 'AMIS', 'FAMILLE', 'TRAVAIL'];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       context.read<BirthdayService>().fetchBirthdays();
     });
   }
@@ -45,7 +46,8 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
   }
 
   List<BirthdayModel> _getFilteredBirthdays(List<BirthdayModel> birthdays) {
-    var result = birthdays.where((b) {
+    final now = DateTime.now();
+    final result = birthdays.where((b) {
       final matchesSearch = _searchQuery.isEmpty ||
           b.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           b.category.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -54,95 +56,98 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
       if (!matchesSearch) return false;
 
       if (_selectedCategory == 'FAVORIS') return b.isFavorite;
+      if (_selectedCategory == 'CE_MOIS') return b.birthdate.month == now.month;
       if (_selectedCategory != 'TOUS') return b.category.toUpperCase() == _selectedCategory;
       return true;
     }).toList();
 
-    if (_sortBy == 'NOM') {
-      result.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-    } else if (_sortBy == 'FAVORIS') {
-      result.sort((a, b) {
-        if (a.isFavorite && !b.isFavorite) return -1;
-        if (!a.isFavorite && b.isFavorite) return 1;
-        return a.daysRemaining.compareTo(b.daysRemaining);
-      });
-    } else {
-      result.sort((a, b) => a.daysRemaining.compareTo(b.daysRemaining));
-    }
+    result.sort((a, b) => a.daysRemaining.compareTo(b.daysRemaining));
     return result;
   }
 
   void _showLanguageSelector(BuildContext context, SettingsService settings) {
+    final isDark = settings.isDarkMode;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
-          decoration: BoxDecoration(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.95),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkCard : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border(
+            top: BorderSide(
+              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              width: 1.0,
+            ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 38,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white24 : Colors.black12,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              Row(
-                children: [
-                  const Icon(Icons.language_rounded, color: AppColors.primaryCyan, size: 22),
-                  const SizedBox(width: 10),
-                  Text(
-                    settings.tr('select_language'),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                    ),
+            ),
+            Row(
+              children: [
+                Icon(Icons.language_rounded, color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, size: 22),
+                const SizedBox(width: 10),
+                Text(
+                  settings.tr('select_language'),
+                  style: TextStyle(
+                    color: isDark ? Colors.white : AppColors.textMainLight,
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildLangTile(ctx, settings, 'fr', 'Français', '🇫🇷'),
-              _buildLangTile(ctx, settings, 'en', 'English', '🇬🇧'),
-              _buildLangTile(ctx, settings, 'de', 'Deutsch', '🇩🇪'),
-            ],
-          ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _buildLangTile(ctx, settings, 'fr', 'Français', '🇫🇷', isDark),
+            _buildLangTile(ctx, settings, 'en', 'English', '🇬🇧', isDark),
+            _buildLangTile(ctx, settings, 'de', 'Deutsch', '🇩🇪', isDark),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildLangTile(BuildContext ctx, SettingsService settings, String code, String label, String flag) {
+  Widget _buildLangTile(BuildContext ctx, SettingsService settings, String code, String label, String flag, bool isDark) {
     final isSelected = settings.language == code;
+    final primary = isDark ? AppColors.indigoLight : AppColors.primaryIndigo;
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      tileColor: isSelected ? AppColors.primaryCyan.withValues(alpha: 0.18) : Colors.transparent,
+      tileColor: isSelected ? primary.withValues(alpha: 0.12) : Colors.transparent,
       leading: Text(flag, style: const TextStyle(fontSize: 24)),
       title: Text(
         label,
         style: TextStyle(
-          color: isSelected ? AppColors.primaryCyan : Colors.white,
+          color: isSelected ? primary : (isDark ? Colors.white : AppColors.textMainLight),
           fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
           fontSize: 15,
         ),
       ),
       trailing: isSelected
-          ? const Icon(Icons.check_circle_rounded, color: AppColors.primaryCyan, size: 20)
+          ? Icon(Icons.check_circle_rounded, color: primary, size: 20)
           : null,
       onTap: () {
         settings.setLanguage(code);
@@ -150,7 +155,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('$flag Langue : $label'),
-            backgroundColor: AppColors.primaryCyan,
+            backgroundColor: primary,
             duration: const Duration(seconds: 1),
           ),
         );
@@ -158,24 +163,526 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
     );
   }
 
+  void _showNotificationSheet(BuildContext context, BirthdayService birthdayService, SettingsService settings) {
+    final upcomingList = birthdayService.upcoming.take(5).toList();
+    final isDark = settings.isDarkMode;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkCard : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border(
+            top: BorderSide(
+              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              width: 1.0,
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 38,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white24 : Colors.black12,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.notifications_active_rounded,
+                    color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Rappels & Notifications',
+                  style: TextStyle(
+                    color: isDark ? Colors.white : AppColors.textMainLight,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (upcomingList.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 30),
+                child: Center(
+                  child: Text(
+                    'Aucun rappel pour le moment.',
+                    style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                  ),
+                ),
+              )
+            else
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: upcomingList.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 8),
+                  itemBuilder: (ctx, idx) {
+                    final b = upcomingList[idx];
+                    return Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isDark ? AppColors.darkBorderSubtle : AppColors.lightBorderSubtle,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: AppColors.primaryGradient,
+                            ),
+                            child: Center(
+                              child: Text(
+                                b.name.isNotEmpty ? b.name[0].toUpperCase() : '?',
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  b.name,
+                                  style: TextStyle(
+                                    color: isDark ? Colors.white : AppColors.textMainLight,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  b.isToday
+                                      ? '🎉 C\'est son anniversaire aujourd\'hui !'
+                                      : 'Dans ${b.daysRemaining} jours 🎂',
+                                  style: TextStyle(
+                                    color: b.isToday
+                                        ? AppColors.accentCoral
+                                        : (isDark ? AppColors.cyanLight : AppColors.primaryCyan),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(ctx);
+                              context.push('/birthday/${b.id}');
+                            },
+                            child: Text(
+                              settings.tr('see_details'),
+                              style: TextStyle(
+                                color: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showBirthdayQuickActionsModal(
+    BuildContext context,
+    BirthdayModel birthday,
+    SettingsService settings,
+    ApiService apiService,
+    BirthdayService birthdayService,
+  ) {
+    final isDark = settings.isDarkMode;
+    final localeStr = settings.language == 'en' ? 'en_US' : (settings.language == 'de' ? 'de_DE' : 'fr_FR');
+    final initial = birthday.name.isNotEmpty ? birthday.name[0].toUpperCase() : '?';
+
+    Color categoryColor;
+    switch (birthday.category.toUpperCase()) {
+      case 'FAMILLE':
+        categoryColor = AppColors.accentCoral;
+        break;
+      case 'TRAVAIL':
+        categoryColor = AppColors.accentEmerald;
+        break;
+      case 'AMIS':
+        categoryColor = isDark ? AppColors.indigoLight : AppColors.primaryIndigo;
+        break;
+      default:
+        categoryColor = isDark ? AppColors.cyanLight : AppColors.primaryCyan;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkCard : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border(
+            top: BorderSide(
+              color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+              width: 1.0,
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.1),
+              blurRadius: 24,
+              offset: const Offset(0, -6),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Handle Bar
+            Center(
+              child: Container(
+                width: 38,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white24 : Colors.black12,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+
+            // Profile Header Card
+            Row(
+              children: [
+                Container(
+                  width: 54,
+                  height: 54,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: AppColors.primaryGradient,
+                    border: Border.all(
+                      color: categoryColor.withValues(alpha: 0.7),
+                      width: 2.5,
+                    ),
+                  ),
+                  child: birthday.photoUrl != null && birthday.photoUrl!.isNotEmpty
+                      ? ClipOval(
+                          child: AvatarImage(
+                            photoUrl: birthday.photoUrl!,
+                            width: 54,
+                            height: 54,
+                            fit: BoxFit.cover,
+                            fallback: Center(
+                              child: Text(
+                                initial,
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                              ),
+                            ),
+                          ),
+                        )
+                      : Center(
+                          child: Text(
+                            initial,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                          ),
+                        ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        birthday.name,
+                        style: TextStyle(
+                          color: isDark ? Colors.white : AppColors.textMainLight,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: categoryColor.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              birthday.category,
+                              style: TextStyle(
+                                color: categoryColor,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '· ${birthday.nextAge} ${settings.tr('turning_age')} · ${DateFormat('d MMMM', localeStr).format(birthday.birthdate)}',
+                            style: TextStyle(
+                              color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: birthday.isToday
+                        ? AppColors.accentCoral.withValues(alpha: 0.15)
+                        : (birthday.daysRemaining <= 7
+                            ? AppColors.wishCoinsAmber.withValues(alpha: 0.14)
+                            : (isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated)),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: birthday.isToday
+                          ? AppColors.accentCoral.withValues(alpha: 0.4)
+                          : (birthday.daysRemaining <= 7
+                              ? AppColors.wishCoinsAmber.withValues(alpha: 0.3)
+                              : Colors.transparent),
+                    ),
+                  ),
+                  child: Text(
+                    birthday.isToday
+                        ? '🎂 ${settings.tr('today')}'
+                        : (birthday.daysRemaining <= 1
+                            ? settings.tr('in_day')
+                            : '${settings.tr('in_days')} ${birthday.daysRemaining} j'),
+                    style: TextStyle(
+                      color: birthday.isToday
+                          ? AppColors.accentCoral
+                          : (birthday.daysRemaining <= 7
+                              ? AppColors.wishCoinsAmber
+                              : (isDark ? AppColors.cyanLight : AppColors.primaryIndigo)),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            // Action 1: AI Wish Generator
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                AiWishDialog.show(context, birthday.id, apiService);
+              },
+              icon: const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
+              label: Text(
+                'Générer un vœu IA pour ${birthday.name} ✨',
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Action 2: AI Gift Ideas
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                side: BorderSide(
+                  color: AppColors.wishCoinsAmber.withValues(alpha: 0.5),
+                  width: 1.2,
+                ),
+                backgroundColor: AppColors.wishCoinsAmber.withValues(alpha: 0.08),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                AiGiftSheet.show(context, birthday);
+              },
+              icon: const Icon(Icons.lightbulb_outline_rounded, color: AppColors.wishCoinsAmber, size: 18),
+              label: Text(
+                'Idées cadeaux IA pour ${birthday.name} 💡',
+                style: TextStyle(
+                  color: isDark ? Colors.white : AppColors.textMainLight,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Action 3: View Full Details Screen
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                side: BorderSide(
+                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                  width: 1.0,
+                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                context.push('/birthday/${birthday.id}');
+              },
+              icon: Icon(
+                Icons.assignment_outlined,
+                color: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
+                size: 18,
+              ),
+              label: Text(
+                'Voir la fiche complète & liste de cadeaux 📋',
+                style: TextStyle(
+                  color: isDark ? Colors.white : AppColors.textMainLight,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Action 4: Edit & Favorite Quick Row
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      side: BorderSide(
+                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      context.push('/birthday/${birthday.id}/edit');
+                    },
+                    icon: const Icon(Icons.edit_outlined, size: 16),
+                    label: const Text('Modifier ✏️', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      side: BorderSide(
+                        color: birthday.isFavorite
+                            ? AppColors.wishCoinsAmber
+                            : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                      birthdayService.toggleFavorite(birthday.id);
+                      Navigator.pop(ctx);
+                    },
+                    icon: Icon(
+                      birthday.isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
+                      color: AppColors.wishCoinsAmber,
+                      size: 18,
+                    ),
+                    label: Text(
+                      birthday.isFavorite ? 'En favori ⭐' : 'Ajouter favori',
+                      style: TextStyle(
+                        color: birthday.isFavorite ? AppColors.wishCoinsAmber : null,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showWishCoinsModal(BuildContext context, int coins) {
+    final settings = Provider.of<SettingsService>(context, listen: false);
+    final isDark = settings.isDarkMode;
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.backgroundDialogDark,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.wishCoinsAmber.withValues(alpha: 0.2),
+                color: AppColors.wishCoinsAmber.withValues(alpha: 0.16),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.monetization_on, color: AppColors.wishCoinsAmber, size: 24),
+              child: const Icon(Icons.monetization_on, color: AppColors.wishCoinsAmber, size: 22),
             ),
-            const SizedBox(width: 12),
-            const Text('WishCoins', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            const SizedBox(width: 10),
+            Text(
+              'WishCoins',
+              style: TextStyle(
+                color: isDark ? Colors.white : AppColors.textMainLight,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
         content: Column(
@@ -184,64 +691,74 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
           children: [
             Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
-                  gradient: AppColors.goldGradient,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.wishCoinsAmber.withValues(alpha: 0.4),
-                      blurRadius: 16,
-                    ),
-                  ],
+                  color: AppColors.wishCoinsAmber.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.wishCoinsAmber.withValues(alpha: 0.35)),
                 ),
                 child: Text(
                   '$coins WishCoins 🪙',
-                  style: const TextStyle(color: Colors.black87, fontSize: 22, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: AppColors.wishCoinsAmber,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
-            const Text(
+            const SizedBox(height: 18),
+            Text(
               'Avantages de vos WishCoins :',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
+              style: TextStyle(
+                color: isDark ? Colors.white : AppColors.textMainLight,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
             ),
             const SizedBox(height: 10),
-            _buildCoinPerk('✨ Vœux IA personnalisés', '1 crédit / vœu généré'),
+            _buildCoinPerk('✨ Vœux IA personnalisés', '1 crédit / vœu généré', isDark),
             const SizedBox(height: 6),
-            _buildCoinPerk('💡 Idées cadeaux ciblées', 'Analyses de profils exclusives'),
+            _buildCoinPerk('💡 Idées cadeaux ciblées', 'Analyses de profils exclusives', isDark),
             const SizedBox(height: 6),
-            _buildCoinPerk('🎁 Cagnottes collectives', 'Rechargement quotidien gratuit'),
+            _buildCoinPerk('🎁 Cagnottes collectives', 'Rechargement quotidien gratuit', isDark),
           ],
         ),
         actions: [
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryCyan,
+              backgroundColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Super !', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text('Compris', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCoinPerk(String title, String subtitle) {
+  Widget _buildCoinPerk(String title, String subtitle, bool isDark) {
     return Row(
       children: [
-        const Icon(Icons.check_circle_outline, color: AppColors.successGreen, size: 16),
+        const Icon(Icons.check_circle_rounded, color: AppColors.successGreen, size: 16),
         const SizedBox(width: 8),
         Expanded(
           child: RichText(
             text: TextSpan(
               text: '$title : ',
-              style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: isDark ? Colors.white : AppColors.textMainLight,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
               children: [
                 TextSpan(
                   text: subtitle,
-                  style: const TextStyle(color: AppColors.textMutedDark, fontWeight: FontWeight.normal),
+                  style: TextStyle(
+                    color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
               ],
             ),
@@ -257,9 +774,34 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
     final birthdayService = Provider.of<BirthdayService>(context);
     final syncService = Provider.of<SyncService>(context);
     final settings = Provider.of<SettingsService>(context);
+    final apiService = Provider.of<ApiService>(context, listen: false);
+
     final user = authService.currentUser;
+    final isDark = settings.isDarkMode;
+    final localeStr = settings.language == 'en' ? 'en_US' : (settings.language == 'de' ? 'de_DE' : 'fr_FR');
+
     final filtered = _getFilteredBirthdays(birthdayService.upcoming);
     final BirthdayModel? nextBirthday = birthdayService.upcoming.isNotEmpty ? birthdayService.upcoming.first : null;
+    final BirthdayModel? activeBirthday = (_selectedBirthdayId != null
+        ? birthdayService.getBirthdayById(_selectedBirthdayId!)
+        : null) ?? nextBirthday;
+    final bool isCustomSelection = _selectedBirthdayId != null && activeBirthday != null && activeBirthday.id != nextBirthday?.id;
+
+    final now = DateTime.now();
+    final thisMonthCount = birthdayService.birthdays.where((b) => b.birthdate.month == now.month).length;
+    final totalCount = birthdayService.birthdays.length;
+    final favoritesCount = birthdayService.birthdays.where((b) => b.isFavorite).length;
+
+    // Greeting by time of day
+    final hour = now.hour;
+    final greetingWord = (hour >= 5 && hour < 18)
+        ? settings.tr('greeting_morning')
+        : settings.tr('greeting_evening');
+    final firstName = user?.fullName.split(' ').first ?? 'Ami';
+
+    // Localized date header
+    final dateRaw = DateFormat('EEEE d MMMM', localeStr).format(now);
+    final dateTodayFormatted = dateRaw.isNotEmpty ? dateRaw[0].toUpperCase() + dateRaw.substring(1) : dateRaw;
 
     final String langFlag = settings.language == 'en'
         ? '🇬🇧'
@@ -268,10 +810,10 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
             : '🇫🇷';
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: isDark ? AppColors.darkCanvas : AppColors.lightCanvas,
       body: RefreshIndicator(
-        color: AppColors.primaryCyan,
-        backgroundColor: AppColors.backgroundDialogDark,
+        color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
         onRefresh: () async {
           if (syncService.hasPending) {
             await syncService.syncAll();
@@ -281,169 +823,180 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // 1. TOP HEADER APP BAR WITH OFFICIAL ICON & BRANDING
+            // 1. TOP EXECUTIVE HEADER WITH USER GREETING & UTILITIES
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(18, 14, 18, 8),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
               sliver: SliverToBoxAdapter(
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Official App Icon with Glowing Ring
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primaryCyan.withValues(alpha: 0.4),
-                            blurRadius: 14,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(22),
-                        child: Image.asset(
-                          'assets/branding/time2wish_icon_192.png',
-                          width: 44,
-                          height: 44,
-                          fit: BoxFit.cover,
-                          errorBuilder: (ctx, err, stack) => Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: AppColors.primaryGradient,
-                            ),
-                            child: const Icon(Icons.cake, color: Colors.white, size: 24),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-
-                    // Stylized Brand Title: Time2Wish
+                    // User Greeting & Date
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          RichText(
-                            text: const TextSpan(
-                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.5),
-                              children: [
-                                TextSpan(text: 'Time', style: TextStyle(color: Colors.white)),
-                                TextSpan(text: '2', style: TextStyle(color: Color(0xFF38BDF8))),
-                                TextSpan(text: 'Wish', style: TextStyle(color: Color(0xFFA855F7))),
-                              ],
+                          Text(
+                            dateTodayFormatted,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.2,
                             ),
                           ),
+                          const SizedBox(height: 2),
                           Text(
-                            user?.fullName.isNotEmpty == true ? 'Bonjour, ${user!.fullName}' : 'Assistant Célébrations',
-                            style: const TextStyle(fontSize: 11, color: AppColors.textMutedDark),
+                            '$greetingWord, $firstName 👋',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: isDark ? Colors.white : AppColors.textMainLight,
+                              letterSpacing: -0.4,
+                            ),
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
 
-                    // Quick Language Switcher Button (Flag Pill)
-                    GestureDetector(
-                      onTap: () => _showLanguageSelector(context, settings),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(langFlag, style: const TextStyle(fontSize: 16)),
-                            const SizedBox(width: 4),
-                            Text(
-                              settings.language.toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                    // Right header accessories
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // WishCoins chip
+                        GestureDetector(
+                          onTap: () => _showWishCoinsModal(context, user?.coins ?? 100),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColors.wishCoinsAmber.withValues(alpha: isDark ? 0.16 : 0.12),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: AppColors.wishCoinsAmber.withValues(alpha: 0.35),
+                                width: 1,
                               ),
                             ),
-                            const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white70, size: 16),
-                          ],
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.monetization_on, color: AppColors.wishCoinsAmber, size: 14),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${user?.coins ?? 100}',
+                                  style: const TextStyle(
+                                    color: AppColors.wishCoinsAmber,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
+                        const SizedBox(width: 8),
 
-                    // Quick Theme Toggle Button
-                    IconButton(
-                      icon: Icon(
-                        settings.isDarkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-                        color: settings.isDarkMode ? AppColors.wishCoinsAmber : Colors.orangeAccent,
-                        size: 22,
-                      ),
-                      onPressed: () => settings.toggleDarkMode(),
-                      tooltip: settings.tr('appearance'),
-                      visualDensity: VisualDensity.compact,
-                    ),
-
-                    // WishCoins Badge
-                    GestureDetector(
-                      onTap: () => _showWishCoinsModal(context, user?.coins ?? 100),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.wishCoinsAmber.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.wishCoinsAmber.withValues(alpha: 0.4)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.monetization_on, color: AppColors.wishCoinsAmber, size: 16),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${user?.coins ?? 100}',
-                              style: const TextStyle(
-                                color: AppColors.wishCoinsAmber,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                        // Language switcher chip
+                        GestureDetector(
+                          onTap: () => _showLanguageSelector(context, settings),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: isDark ? AppColors.darkCard : AppColors.lightCard,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                                width: 1,
                               ),
                             ),
-                          ],
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(langFlag, style: const TextStyle(fontSize: 13)),
+                                const SizedBox(width: 4),
+                                Text(
+                                  settings.language.toUpperCase(),
+                                  style: TextStyle(
+                                    color: isDark ? Colors.white : AppColors.textMainLight,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+
+                        // Notification Bell
+                        GestureDetector(
+                          onTap: () => _showNotificationSheet(context, birthdayService, settings),
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: isDark ? AppColors.darkCard : AppColors.lightCard,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                                width: 1,
+                              ),
+                            ),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Icon(
+                                  Icons.notifications_none_rounded,
+                                  color: isDark ? Colors.white : AppColors.textMainLight,
+                                  size: 19,
+                                ),
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: Container(
+                                    width: 7,
+                                    height: 7,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.accentCoral,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
 
-            // 2. HERO HIGHLIGHT: PROCHAIN ANNIVERSAIRE (NEXT CELEBRATION FEATURE CARD)
-            if (nextBirthday != null && _searchQuery.isEmpty && _selectedCategory == 'TOUS')
+            // 2. HERO SPOTLIGHT CARD: PROCHAIN ANNIVERSAIRE OU ANNIVERSAIRE SÉLECTIONNÉ
+            if (activeBirthday != null)
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(18, 8, 18, 12),
+                padding: const EdgeInsets.fromLTRB(20, 2, 20, 16),
                 sliver: SliverToBoxAdapter(
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22),
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFF1E1B4B), // Deep Indigo
-                          Color(0xFF311042), // Deep Violet
-                          Color(0xFF1E293B), // Slate
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      color: isDark ? AppColors.darkCard : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: AppColors.primaryCyan.withValues(alpha: 0.4),
-                        width: 1.2,
+                        color: activeBirthday.isToday
+                            ? AppColors.accentCoral.withValues(alpha: 0.5)
+                            : (isCustomSelection
+                                ? (isDark ? AppColors.cyanLight : AppColors.primaryCyan).withValues(alpha: 0.6)
+                                : (isDark ? AppColors.darkBorder : AppColors.lightBorder)),
+                        width: (activeBirthday.isToday || isCustomSelection) ? 1.5 : 1.0,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.accentPurple.withValues(alpha: 0.3),
-                          blurRadius: 18,
-                          offset: const Offset(0, 6),
+                          color: isCustomSelection
+                              ? (isDark ? AppColors.cyanLight : AppColors.primaryCyan).withValues(alpha: isDark ? 0.2 : 0.08)
+                              : Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+                          blurRadius: 14,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
@@ -451,121 +1004,229 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Spotlight Header Pill Row
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: [
-                                const Text('✨', style: TextStyle(fontSize: 16)),
-                                const SizedBox(width: 6),
-                                Text(
-                                  settings.tr('next_celebration').toUpperCase(),
-                                  style: const TextStyle(
-                                    color: Color(0xFF38BDF8),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 0.8,
-                                  ),
-                                ),
-                              ],
-                            ),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: nextBirthday.isToday
-                                    ? AppColors.accentPink
-                                    : (nextBirthday.daysRemaining <= 3 ? AppColors.accentPink : AppColors.primaryCyan).withValues(alpha: 0.2),
+                                color: activeBirthday.isToday
+                                    ? AppColors.accentCoral.withValues(alpha: 0.15)
+                                    : (isCustomSelection
+                                        ? (isDark ? AppColors.cyanLight : AppColors.primaryCyan).withValues(alpha: 0.15)
+                                        : (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.12)),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: nextBirthday.isToday ? Colors.white : AppColors.primaryCyan,
-                                  width: 1,
-                                ),
                               ),
-                              child: Text(
-                                nextBirthday.isToday
-                                    ? settings.tr('today')
-                                    : 'Dans ${nextBirthday.daysRemaining} ${nextBirthday.daysRemaining <= 1 ? settings.tr('day_remaining') : settings.tr('days_remaining')}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    activeBirthday.isToday
+                                        ? Icons.celebration_rounded
+                                        : (isCustomSelection ? Icons.touch_app_rounded : Icons.star_rounded),
+                                    color: activeBirthday.isToday
+                                        ? AppColors.accentCoral
+                                        : (isCustomSelection
+                                            ? (isDark ? AppColors.cyanLight : AppColors.primaryCyan)
+                                            : (isDark ? AppColors.indigoLight : AppColors.primaryIndigo)),
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    activeBirthday.isToday
+                                        ? settings.tr('spotlight_today')
+                                        : (isCustomSelection
+                                            ? 'Sélectionné'
+                                            : settings.tr('spotlight_next')),
+                                    style: TextStyle(
+                                      color: activeBirthday.isToday
+                                          ? AppColors.accentCoral
+                                          : (isCustomSelection
+                                              ? (isDark ? AppColors.cyanLight : AppColors.primaryCyan)
+                                              : (isDark ? AppColors.indigoLight : AppColors.primaryIndigo)),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  if (isCustomSelection) ...[
+                                    const SizedBox(width: 6),
+                                    GestureDetector(
+                                      onTap: () => setState(() => _selectedBirthdayId = null),
+                                      child: Icon(
+                                        Icons.close_rounded,
+                                        size: 13,
+                                        color: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+
+                            // Countdown Tag
+                            Text(
+                              activeBirthday.isToday
+                                  ? '🎉 ${settings.tr('today')}'
+                                  : (activeBirthday.daysRemaining <= 1
+                                      ? settings.tr('in_day')
+                                      : '${settings.tr('in_days')} ${activeBirthday.daysRemaining} ${settings.tr('days_unit').toLowerCase()}'),
+                              style: TextStyle(
+                                color: activeBirthday.isToday
+                                    ? AppColors.accentCoral
+                                    : (isDark ? AppColors.cyanLight : AppColors.primaryCyan),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            // Avatar
-                            Container(
-                              width: 54,
-                              height: 54,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: AppColors.primaryGradient,
-                                border: Border.all(color: Colors.white, width: 2),
-                              ),
-                              child: nextBirthday.photoUrl != null && nextBirthday.photoUrl!.isNotEmpty
-                                  ? ClipOval(
-                                      child: AvatarImage(
-                                        photoUrl: nextBirthday.photoUrl!,
-                                        width: 54,
-                                        height: 54,
-                                        fit: BoxFit.cover,
-                                        fallback: Center(
-                                          child: Text(
-                                            nextBirthday.name.isNotEmpty ? nextBirthday.name[0].toUpperCase() : '?',
-                                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),
+
+                        const SizedBox(height: 14),
+
+                        // Middle Contact Row
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => context.push('/birthday/${activeBirthday.id}'),
+                          child: Row(
+                            children: [
+                              // Avatar
+                              Container(
+                                width: 52,
+                                height: 52,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: AppColors.primaryGradient,
+                                  border: Border.all(
+                                    color: isDark ? AppColors.darkBorder : Colors.white,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: activeBirthday.photoUrl != null && activeBirthday.photoUrl!.isNotEmpty
+                                    ? ClipOval(
+                                        child: AvatarImage(
+                                          photoUrl: activeBirthday.photoUrl!,
+                                          width: 52,
+                                          height: 52,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    : Center(
+                                        child: Text(
+                                          activeBirthday.name.isNotEmpty ? activeBirthday.name[0].toUpperCase() : '?',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
                                           ),
                                         ),
                                       ),
-                                    )
-                                  : Center(
-                                      child: Text(
-                                        nextBirthday.name.isNotEmpty ? nextBirthday.name[0].toUpperCase() : '?',
-                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24),
+                              ),
+                              const SizedBox(width: 14),
+
+                              // Name & Age details
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      activeBirthday.name,
+                                      style: TextStyle(
+                                        color: isDark ? Colors.white : AppColors.textMainLight,
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 3),
+                                    Text(
+                                      '${settings.tr('fete_ses')} ${activeBirthday.nextAge} ${settings.tr('turning_age')} · ${DateFormat('d MMMM', localeStr).format(activeBirthday.birthdate)}',
+                                      style: TextStyle(
+                                        color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                            ),
-                            const SizedBox(width: 14),
+                                  ],
+                                ),
+                              ),
+
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                color: isDark ? Colors.white38 : Colors.black26,
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // Bottom Action Buttons
+                        Row(
+                          children: [
+                            // Quick Action 1: AI Wish
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    nextBirthday.name,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 18,
-                                    ),
+                              child: OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
+                                  side: BorderSide(
+                                    color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.35),
                                   ),
-                                  const SizedBox(height: 3),
-                                  Text(
-                                    '${DateFormat('d MMMM', settings.language).format(nextBirthday.birthdate)} • ${nextBirthday.nextAge} ans',
-                                    style: const TextStyle(color: Color(0xFFE2E8F0), fontSize: 13),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  backgroundColor: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.08),
+                                ),
+                                onPressed: () {
+                                  AiWishDialog.show(context, activeBirthday.id, apiService);
+                                },
+                                icon: Icon(
+                                  Icons.auto_awesome,
+                                  color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                                  size: 15,
+                                ),
+                                label: Text(
+                                  settings.tr('wish_button'),
+                                  style: TextStyle(
+                                    color: isDark ? Colors.white : AppColors.primaryIndigo,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
                                   ),
-                                ],
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ),
-                            // Quick Action Button
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF38BDF8),
-                                foregroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                elevation: 0,
-                              ),
-                              onPressed: () => context.push('/birthday/${nextBirthday.id}'),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.auto_awesome, size: 16),
-                                  SizedBox(width: 4),
-                                  Text('Fêter 🎉', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                                ],
+                            const SizedBox(width: 8),
+
+                            // Quick Action 2: AI Gifts
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
+                                  side: BorderSide(
+                                    color: AppColors.wishCoinsAmber.withValues(alpha: 0.35),
+                                  ),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  backgroundColor: AppColors.wishCoinsAmber.withValues(alpha: 0.08),
+                                ),
+                                onPressed: () {
+                                  AiGiftSheet.show(context, activeBirthday);
+                                },
+                                icon: const Icon(
+                                  Icons.lightbulb_outline_rounded,
+                                  color: AppColors.wishCoinsAmber,
+                                  size: 15,
+                                ),
+                                label: Text(
+                                  settings.tr('ai_gifts').split(' ').take(2).join(' '),
+                                  style: TextStyle(
+                                    color: isDark ? Colors.white : AppColors.textMainLight,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ),
                           ],
@@ -576,23 +1237,99 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                 ),
               ),
 
-            // 3. OFFLINE SYNC BANNER (IF PENDING)
+            // 3. EXECUTIVE STAT METRICS ROW (3 CLEAN INTERACTIVE CARDS)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+              sliver: SliverToBoxAdapter(
+                child: Row(
+                  children: [
+                    // Stat 1: Total
+                    Expanded(
+                      child: _buildExecutiveStatCard(
+                        context: context,
+                        isDark: isDark,
+                        isSelected: _selectedCategory == 'TOUS',
+                        icon: Icons.cake_rounded,
+                        iconColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                        activeGradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                        ),
+                        value: '$totalCount',
+                        label: settings.tr('total_birthdays'),
+                        onTap: () => setState(() => _selectedCategory = 'TOUS'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // Stat 2: Ce mois-ci
+                    Expanded(
+                      child: _buildExecutiveStatCard(
+                        context: context,
+                        isDark: isDark,
+                        isSelected: _selectedCategory == 'CE_MOIS',
+                        icon: Icons.calendar_today_rounded,
+                        iconColor: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
+                        activeGradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF0284C7), Color(0xFF2563EB)],
+                        ),
+                        value: '$thisMonthCount',
+                        label: settings.tr('this_month'),
+                        onTap: () => setState(() => _selectedCategory = 'CE_MOIS'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // Stat 3: Favoris
+                    Expanded(
+                      child: _buildExecutiveStatCard(
+                        context: context,
+                        isDark: isDark,
+                        isSelected: _selectedCategory == 'FAVORIS',
+                        icon: Icons.star_rounded,
+                        iconColor: AppColors.wishCoinsAmber,
+                        activeGradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFFD97706), Color(0xFFEA580C)],
+                        ),
+                        value: '$favoritesCount',
+                        label: settings.tr('filter_favorites'),
+                        onTap: () => setState(() => _selectedCategory = 'FAVORIS'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // 4. OFFLINE SYNC BANNER (IF PENDING)
             if (syncService.hasPending)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 4.0),
-                  child: GlassCard(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
+                  child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkCard : Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: AppColors.wishCoinsAmber.withValues(alpha: 0.35),
+                      ),
+                    ),
                     child: Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(7),
                           decoration: BoxDecoration(
                             color: AppColors.wishCoinsAmber.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
                           child: syncService.isSyncing
-                              ? const SpinKitRing(color: AppColors.wishCoinsAmber, size: 16, lineWidth: 2)
+                              ? const SpinKitRing(color: AppColors.wishCoinsAmber, size: 14, lineWidth: 2)
                               : const Icon(Icons.cloud_sync, color: AppColors.wishCoinsAmber, size: 16),
                         ),
                         const SizedBox(width: 12),
@@ -601,7 +1338,11 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                             syncService.isSyncing
                                 ? 'Synchronisation en cours...'
                                 : '${syncService.pendingCount} ${settings.tr('sync_pending')}',
-                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              color: isDark ? Colors.white : AppColors.textMainLight,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                         if (!syncService.isSyncing)
@@ -609,7 +1350,11 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                             onPressed: () => syncService.syncAll(),
                             child: Text(
                               settings.tr('sync_now'),
-                              style: const TextStyle(color: AppColors.primaryCyan, fontSize: 12, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                       ],
@@ -618,398 +1363,594 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                 ),
               ),
 
-            // 4. SEARCH & SORT BAR
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 4.0),
-                child: GlassCard(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (val) => setState(() => _searchQuery = val),
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                    decoration: InputDecoration(
-                      hintText: settings.tr('search_hint'),
-                      hintStyle: const TextStyle(color: AppColors.textMutedDark, fontSize: 13),
-                      icon: const Icon(Icons.search_rounded, color: AppColors.primaryCyan),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      suffixIcon: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (_searchQuery.isNotEmpty)
-                            IconButton(
-                              icon: const Icon(Icons.clear, color: AppColors.textMutedDark, size: 18),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() => _searchQuery = '');
-                              },
-                            ),
-                          PopupMenuButton<String>(
-                            icon: const Icon(Icons.tune_rounded, color: AppColors.primaryCyan, size: 20),
-                            color: AppColors.backgroundDialogDark,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            tooltip: settings.tr('sort_by'),
-                            onSelected: (val) => setState(() => _sortBy = val),
-                            itemBuilder: (ctx) => [
-                              PopupMenuItem(
-                                value: 'DATE',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.calendar_today, size: 16, color: _sortBy == 'DATE' ? AppColors.primaryCyan : Colors.white70),
-                                    const SizedBox(width: 8),
-                                    Text(settings.tr('sort_date'), style: TextStyle(color: _sortBy == 'DATE' ? AppColors.primaryCyan : Colors.white)),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem(
-                                value: 'NOM',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.sort_by_alpha, size: 16, color: _sortBy == 'NOM' ? AppColors.primaryCyan : Colors.white70),
-                                    const SizedBox(width: 8),
-                                    Text(settings.tr('sort_name'), style: TextStyle(color: _sortBy == 'NOM' ? AppColors.primaryCyan : Colors.white)),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem(
-                                value: 'FAVORIS',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.star, size: 16, color: _sortBy == 'FAVORIS' ? AppColors.wishCoinsAmber : Colors.white70),
-                                    const SizedBox(width: 8),
-                                    Text(settings.tr('sort_favorites'), style: TextStyle(color: _sortBy == 'FAVORIS' ? AppColors.wishCoinsAmber : Colors.white)),
-                                  ],
-                                ),
-                              ),
-                            ],
+            // 5. SEARCH & FILTER SECTION
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Modern Search Bar
+                    Container(
+                      height: 46,
+                      decoration: BoxDecoration(
+                        color: isDark ? AppColors.darkCard : Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                          width: 1.0,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.search_rounded,
+                            color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              onChanged: (val) => setState(() => _searchQuery = val),
+                              style: TextStyle(
+                                color: isDark ? Colors.white : AppColors.textMainLight,
+                                fontSize: 14,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: settings.tr('search_hint'),
+                                hintStyle: TextStyle(
+                                  color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                                  fontSize: 13,
+                                ),
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
+                          ),
+                          if (_searchQuery.isNotEmpty)
+                            GestureDetector(
+                              onTap: () {
+                                _searchController.clear();
+                                setState(() => _searchQuery = '');
+                              },
+                              child: Icon(
+                                Icons.close_rounded,
+                                color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                                size: 18,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
+
+                    const SizedBox(height: 12),
+
+                    // Filter Pills Horizontal Row
+                    SizedBox(
+                      height: 34,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _categories.length,
+                        itemBuilder: (context, index) {
+                          final cat = _categories[index];
+                          final isSelected = _selectedCategory == cat;
+
+                          String label;
+                          switch (cat) {
+                            case 'CE_MOIS':
+                              label = settings.tr('this_month');
+                              break;
+                            case 'FAVORIS':
+                              label = settings.tr('filter_favorites');
+                              break;
+                            case 'AMIS':
+                              label = settings.tr('filter_friends');
+                              break;
+                            case 'FAMILLE':
+                              label = settings.tr('filter_family');
+                              break;
+                            case 'TRAVAIL':
+                              label = settings.tr('filter_work');
+                              break;
+                            default:
+                              label = settings.tr('filter_all');
+                          }
+
+                          final primaryColor = isDark ? AppColors.indigoLight : AppColors.primaryIndigo;
+
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: GestureDetector(
+                              onTap: () => setState(() => _selectedCategory = cat),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 160),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? primaryColor
+                                      : (isDark ? AppColors.darkCard : Colors.white),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? primaryColor
+                                        : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    label,
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? Colors.white
+                                          : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
 
-            // 5. CATEGORY FILTER CHIPS
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 52,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-                  itemCount: _categories.length,
-                  itemBuilder: (context, index) {
-                    final cat = _categories[index];
-                    final isSelected = _selectedCategory == cat;
-
-                    String label;
-                    String emoji;
-                    switch (cat) {
-                      case 'FAVORIS':
-                        label = settings.tr('filter_favorites');
-                        emoji = '⭐';
-                        break;
-                      case 'AMIS':
-                        label = settings.tr('filter_friends');
-                        emoji = '🎈';
-                        break;
-                      case 'FAMILLE':
-                        label = settings.tr('filter_family');
-                        emoji = '🏠';
-                        break;
-                      case 'TRAVAIL':
-                        label = settings.tr('filter_work');
-                        emoji = '💼';
-                        break;
-                      default:
-                        label = settings.tr('filter_all');
-                        emoji = '✨';
-                    }
-
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: GestureDetector(
-                        onTap: () => setState(() => _selectedCategory = cat),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.primaryCyan.withValues(alpha: 0.25)
-                                : Colors.white.withValues(alpha: 0.06),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isSelected ? AppColors.primaryCyan : Colors.white.withValues(alpha: 0.1),
-                              width: isSelected ? 1.5 : 1,
-                            ),
+            // 6. MAIN CELEBRATIONS LIST
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 110),
+              sliver: filtered.isEmpty
+                  ? SliverToBoxAdapter(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 20),
+                        decoration: BoxDecoration(
+                          color: isDark ? AppColors.darkCard : Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(emoji, style: const TextStyle(fontSize: 13)),
-                              const SizedBox(width: 6),
-                              Text(
-                                label,
-                                style: TextStyle(
-                                  color: isSelected ? Colors.white : AppColors.textMutedDark,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                  fontSize: 13,
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.cake_outlined,
+                              size: 48,
+                              color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              settings.tr('no_birthdays'),
+                              style: TextStyle(
+                                color: isDark ? Colors.white : AppColors.textMainLight,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              settings.tr('no_birthdays_sub'),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                                fontSize: 13,
+                              ),
+                            ),
+                            if (_searchQuery.isNotEmpty || _selectedCategory != 'TOUS') ...[
+                              const SizedBox(height: 16),
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _searchQuery = '';
+                                    _selectedCategory = 'TOUS';
+                                    _searchController.clear();
+                                  });
+                                },
+                                child: Text(
+                                  settings.tr('view_all'),
+                                  style: TextStyle(
+                                    color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ],
-                          ),
+                          ],
                         ),
                       ),
-                    );
-                  },
-                ),
-              ),
-            ),
-
-            // 6. LOADING STATE
-            if (birthdayService.isLoading)
-              const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(50),
-                  child: Center(child: SpinKitThreeBounce(color: AppColors.primaryCyan, size: 28)),
-                ),
-              ),
-
-            // 7. EMPTY STATE
-            if (!birthdayService.isLoading && filtered.isEmpty)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.primaryCyan.withValues(alpha: 0.1),
-                            border: Border.all(color: AppColors.primaryCyan.withValues(alpha: 0.3)),
-                          ),
-                          child: const Center(
-                            child: Text('🎂', style: TextStyle(fontSize: 40)),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _searchQuery.isNotEmpty ? 'Aucun résultat pour "$_searchQuery"' : settings.tr('no_birthdays'),
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 17),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          settings.tr('no_birthdays_sub'),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.textMutedDark, fontSize: 13),
-                        ),
-                      ],
+                    )
+                  : SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final birthday = filtered[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 10.0),
+                            child: _buildCelebrationListItem(
+                              context: context,
+                              birthday: birthday,
+                              birthdayService: birthdayService,
+                              settings: settings,
+                              apiService: apiService,
+                              isDark: isDark,
+                            ),
+                          );
+                        },
+                        childCount: filtered.length,
+                      ),
                     ),
-                  ),
-                ),
-              ),
-
-            // 8. RICH & PRESENTABLE BIRTHDAY CARDS
-            if (!birthdayService.isLoading && filtered.isNotEmpty)
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(18, 4, 18, 120),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final birthday = filtered[index];
-                      return AnimatedListItem(
-                        index: index,
-                        child: _buildPresentableBirthdayCard(context, birthday, birthdayService, settings),
-                      );
-                    },
-                    childCount: filtered.length,
-                  ),
-                ),
-              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPresentableBirthdayCard(
-    BuildContext context,
-    BirthdayModel birthday,
-    BirthdayService service,
-    SettingsService settings,
-  ) {
-    final String initial = birthday.name.isNotEmpty ? birthday.name[0].toUpperCase() : '?';
-    final Color badgeColor = birthday.isToday
-        ? const Color(0xFFEC4899)
-        : birthday.daysRemaining <= 3
-            ? const Color(0xFFF43F5E)
-            : birthday.daysRemaining <= 7
-                ? const Color(0xFFF59E0B)
-                : const Color(0xFF10B981);
-
-    final String formattedDate = DateFormat('d MMM', settings.language).format(birthday.birthdate);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
-      child: GlassCard(
-        padding: const EdgeInsets.all(14),
-        onTap: () => context.push('/birthday/${birthday.id}'),
-        child: Row(
-          children: [
-            // Avatar with Gradient Ring or Photo
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: AppColors.primaryGradient,
-                border: Border.all(
-                  color: birthday.isFavorite ? AppColors.wishCoinsAmber : Colors.white24,
-                  width: 1.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primaryCyan.withValues(alpha: 0.25),
-                    blurRadius: 10,
-                  ),
-                ],
+  Widget _buildExecutiveStatCard({
+    required BuildContext context,
+    required bool isDark,
+    required bool isSelected,
+    required IconData icon,
+    required Color iconColor,
+    required Gradient activeGradient,
+    required String value,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeInOut,
+        height: 114,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: isSelected ? activeGradient : null,
+          color: isSelected ? null : (isDark ? const Color(0xFF131826) : Colors.white),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isSelected
+                ? Colors.white.withValues(alpha: 0.28)
+                : (isDark ? const Color(0xFF232D3F) : AppColors.lightBorder),
+            width: isSelected ? 1.5 : 1.0,
+          ),
+          boxShadow: [
+            if (isSelected)
+              BoxShadow(
+                color: iconColor.withValues(alpha: isDark ? 0.38 : 0.28),
+                blurRadius: 16,
+                spreadRadius: 1,
+                offset: const Offset(0, 6),
+              )
+            else
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
-              child: birthday.photoUrl != null && birthday.photoUrl!.isNotEmpty
-                  ? ClipOval(
-                      child: AvatarImage(
-                        photoUrl: birthday.photoUrl!,
-                        width: 52,
-                        height: 52,
-                        fit: BoxFit.cover,
-                        fallback: Center(
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Colors.white.withValues(alpha: 0.22)
+                    : iconColor.withValues(alpha: isDark ? 0.16 : 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? Colors.white : iconColor,
+                size: 18,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: isSelected ? Colors.white : (isDark ? Colors.white : AppColors.textMainLight),
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+                height: 1.0,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: isSelected
+                    ? Colors.white.withValues(alpha: 0.9)
+                    : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.1,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCelebrationListItem({
+    required BuildContext context,
+    required BirthdayModel birthday,
+    required BirthdayService birthdayService,
+    required SettingsService settings,
+    required ApiService apiService,
+    required bool isDark,
+  }) {
+    final initial = birthday.name.isNotEmpty ? birthday.name[0].toUpperCase() : '?';
+    final isSelected = _selectedBirthdayId == birthday.id;
+
+    Color categoryColor;
+    switch (birthday.category.toUpperCase()) {
+      case 'FAMILLE':
+        categoryColor = AppColors.accentCoral;
+        break;
+      case 'TRAVAIL':
+        categoryColor = AppColors.accentEmerald;
+        break;
+      case 'AMIS':
+        categoryColor = isDark ? AppColors.indigoLight : AppColors.primaryIndigo;
+        break;
+      default:
+        categoryColor = isDark ? AppColors.cyanLight : AppColors.primaryCyan;
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isSelected
+              ? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo)
+              : (birthday.isToday
+                  ? AppColors.accentCoral.withValues(alpha: 0.45)
+                  : (isDark ? AppColors.darkBorderSubtle : AppColors.lightBorder)),
+          width: isSelected ? 2.0 : (birthday.isToday ? 1.5 : 1.0),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isSelected
+                ? (isDark ? AppColors.indigoLight.withValues(alpha: 0.25) : AppColors.primaryIndigo.withValues(alpha: 0.15))
+                : Colors.black.withValues(alpha: isDark ? 0.18 : 0.04),
+            blurRadius: isSelected ? 12 : 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            setState(() {
+              _selectedBirthdayId = birthday.id;
+            });
+            _showBirthdayQuickActionsModal(
+              context,
+              birthday,
+              settings,
+              apiService,
+              birthdayService,
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Row(
+              children: [
+                // Avatar with category ring
+                Container(
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: AppColors.primaryGradient,
+                    border: Border.all(
+                      color: categoryColor.withValues(alpha: 0.6),
+                      width: 2,
+                    ),
+                  ),
+                  child: birthday.photoUrl != null && birthday.photoUrl!.isNotEmpty
+                      ? ClipOval(
+                          child: AvatarImage(
+                            photoUrl: birthday.photoUrl!,
+                            width: 46,
+                            height: 46,
+                            fit: BoxFit.cover,
+                            fallback: Center(
+                              child: Text(
+                                initial,
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                              ),
+                            ),
+                          ),
+                        )
+                      : Center(
                           child: Text(
                             initial,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
                           ),
                         ),
-                      ),
-                    )
-                  : Center(
-                      child: Text(
-                        initial,
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
-                      ),
-                    ),
-            ),
-            const SizedBox(width: 12),
+                ),
+                const SizedBox(width: 12),
 
-            // Details: Name, Age, Date, Category
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                // Name, Category & Age
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          birthday.name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () => service.toggleFavorite(birthday.id),
-                        child: Icon(
-                          birthday.isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
-                          color: birthday.isFavorite ? AppColors.wishCoinsAmber : Colors.white30,
-                          size: 22,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      // Date pill
                       Row(
                         children: [
-                          const Icon(Icons.calendar_today_rounded, size: 12, color: AppColors.primaryCyan),
-                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              birthday.name,
+                              style: TextStyle(
+                                color: isDark ? Colors.white : AppColors.textMainLight,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (isSelected)
+                            Container(
+                              margin: const EdgeInsets.only(left: 6),
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                'Actif',
+                                style: TextStyle(
+                                  color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: categoryColor.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              birthday.category,
+                              style: TextStyle(
+                                color: categoryColor,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
                           Text(
-                            formattedDate,
-                            style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 12, fontWeight: FontWeight.w600),
+                            '· ${birthday.nextAge} ${settings.tr('turning_age')}',
+                            style: TextStyle(
+                              color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(width: 8),
-                      // Age indicator
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          '${birthday.nextAge} ans',
-                          style: const TextStyle(color: AppColors.textMutedDark, fontSize: 11),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      // Category pill
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryCyan.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          birthday.category,
-                          style: const TextStyle(color: AppColors.primaryCyan, fontSize: 10, fontWeight: FontWeight.bold),
-                        ),
-                      ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
+                ),
 
-            // Live Countdown Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: badgeColor.withValues(alpha: 0.18),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: badgeColor.withValues(alpha: 0.45)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    birthday.isToday ? '🎂' : '${birthday.daysRemaining}j',
-                    style: TextStyle(
-                      color: badgeColor,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 15,
+                const SizedBox(width: 8),
+
+                // Countdown Pill
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: birthday.isToday
+                        ? AppColors.accentCoral.withValues(alpha: 0.15)
+                        : (birthday.daysRemaining <= 7
+                            ? AppColors.wishCoinsAmber.withValues(alpha: 0.14)
+                            : (isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated)),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: birthday.isToday
+                          ? AppColors.accentCoral.withValues(alpha: 0.4)
+                          : (birthday.daysRemaining <= 7
+                              ? AppColors.wishCoinsAmber.withValues(alpha: 0.3)
+                              : Colors.transparent),
                     ),
                   ),
-                  Text(
-                    birthday.isToday ? "Aujourd'hui" : 'Restants',
+                  child: Text(
+                    birthday.isToday
+                        ? '🎂 ${settings.tr('today')}'
+                        : (birthday.daysRemaining <= 1
+                            ? settings.tr('in_day')
+                            : '${settings.tr('in_days')} ${birthday.daysRemaining} j'),
                     style: TextStyle(
-                      color: badgeColor.withValues(alpha: 0.9),
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
+                      color: birthday.isToday
+                          ? AppColors.accentCoral
+                          : (birthday.daysRemaining <= 7
+                              ? AppColors.wishCoinsAmber
+                              : (isDark ? AppColors.cyanLight : AppColors.primaryIndigo)),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                ],
-              ),
+                ),
+
+                const SizedBox(width: 4),
+
+                // Quick AI Wish Action Button (directly on row)
+                IconButton(
+                  icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+                  color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                  tooltip: 'Vœu IA pour ${birthday.name}',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+                  onPressed: () {
+                    setState(() => _selectedBirthdayId = birthday.id);
+                    AiWishDialog.show(context, birthday.id, apiService);
+                  },
+                ),
+
+                // Favorite Toggle Button
+                IconButton(
+                  icon: Icon(
+                    birthday.isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
+                    color: birthday.isFavorite ? AppColors.wishCoinsAmber : (isDark ? Colors.white24 : Colors.black26),
+                    size: 20,
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+                  onPressed: () => birthdayService.toggleFavorite(birthday.id),
+                ),
+
+                // Direct Navigation to Details Screen
+                IconButton(
+                  icon: Icon(
+                    Icons.chevron_right_rounded,
+                    color: isDark ? Colors.white38 : Colors.black38,
+                    size: 20,
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
+                  onPressed: () {
+                    setState(() => _selectedBirthdayId = birthday.id);
+                    context.push('/birthday/${birthday.id}');
+                  },
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

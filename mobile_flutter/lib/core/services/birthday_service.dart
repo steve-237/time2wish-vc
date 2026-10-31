@@ -31,8 +31,7 @@ class BirthdayService extends ChangeNotifier {
   int get upcomingThisMonth {
     final now = DateTime.now();
     return _birthdays.where((b) {
-      final nextBd = DateTime(now.year, b.birthdate.month, b.birthdate.day);
-      return nextBd.month == now.month;
+      return b.birthdate.month == now.month;
     }).length;
   }
 
@@ -55,15 +54,16 @@ class BirthdayService extends ChangeNotifier {
     notifyListeners();
 
     // Replay offline mutations first if any exist
-    if (_syncService != null && _syncService.hasPending) {
-      await _syncService.syncAll();
+    final sync = _syncService;
+    if (sync != null && sync.hasPending) {
+      await sync.syncAll();
     }
 
     try {
       final response = await _apiService.dio.get('/birthdays');
       if (response.statusCode == 200 && response.data != null) {
         final serverList = (response.data as List)
-            .map((json) => BirthdayModel.fromJson(json))
+            .map((json) => BirthdayModel.fromJson(json as Map<String, dynamic>))
             .toList();
 
         // Preserve any local birthdays that are pending synchronization
@@ -113,16 +113,26 @@ class BirthdayService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _apiService.dio.post(
+      final response = await _apiService.dio.post(
         '/birthdays',
-        data: created.toJson(),
+        data: created.toApiJson(),
       );
+      if (response.statusCode == 200 && response.data != null) {
+        final serverBirthday = BirthdayModel.fromJson(response.data as Map<String, dynamic>);
+        final idx = _birthdays.indexWhere((b) => b.id == created.id);
+        if (idx != -1) {
+          _birthdays[idx] = serverBirthday;
+          await _storageService.saveBirthdays(_birthdays);
+          notifyListeners();
+          return serverBirthday;
+        }
+      }
     } catch (e) {
       debugPrint('[BirthdayService] Offline create: saved locally and queued for sync: $e');
       await _syncService?.enqueue(
         endpoint: '/birthdays',
         method: 'POST',
-        data: created.toJson(),
+        data: created.toApiJson(),
       );
     }
     return created;
@@ -139,16 +149,26 @@ class BirthdayService extends ChangeNotifier {
       notifyListeners();
 
       try {
-        await _apiService.dio.put(
+        final response = await _apiService.dio.put(
           '/birthdays/$id',
-          data: updated.toJson(),
+          data: updated.toApiJson(),
         );
+        if (response.statusCode == 200 && response.data != null) {
+          final serverBirthday = BirthdayModel.fromJson(response.data as Map<String, dynamic>);
+          final idx = _birthdays.indexWhere((b) => b.id == id);
+          if (idx != -1) {
+            _birthdays[idx] = serverBirthday;
+            await _storageService.saveBirthdays(_birthdays);
+            notifyListeners();
+            return serverBirthday;
+          }
+        }
       } catch (e) {
         debugPrint('[BirthdayService] Offline update: saved locally and queued for sync: $e');
         await _syncService?.enqueue(
           endpoint: '/birthdays/$id',
           method: 'PUT',
-          data: updated.toJson(),
+          data: updated.toApiJson(),
         );
       }
       return updated;

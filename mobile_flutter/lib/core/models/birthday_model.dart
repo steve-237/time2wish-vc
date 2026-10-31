@@ -44,18 +44,20 @@ class BirthdayModel {
   /// Days remaining until next birthday occurrence
   int get daysRemaining {
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     var nextBirthday = DateTime(now.year, birthdate.month, birthdate.day);
-    if (nextBirthday.isBefore(now) || nextBirthday.isAtSameMomentAs(now)) {
+    if (nextBirthday.isBefore(today)) {
       nextBirthday = DateTime(now.year + 1, birthdate.month, birthdate.day);
     }
-    return nextBirthday.difference(now).inDays;
+    return nextBirthday.difference(today).inDays;
   }
 
   /// Age on next birthday
   int get nextAge {
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     var nextBirthday = DateTime(now.year, birthdate.month, birthdate.day);
-    if (nextBirthday.isBefore(now)) {
+    if (nextBirthday.isBefore(today)) {
       nextBirthday = DateTime(now.year + 1, birthdate.month, birthdate.day);
     }
     return nextBirthday.year - birthdate.year;
@@ -69,35 +71,63 @@ class BirthdayModel {
 
   factory BirthdayModel.fromJson(Map<String, dynamic> json) {
     return BirthdayModel(
-      id: json['id'] ?? 0,
-      name: json['name'] ?? '',
+      id: json['id'] is int
+          ? json['id'] as int
+          : int.tryParse(json['id']?.toString() ?? '') ?? 0,
+      name: json['name']?.toString() ?? '',
       birthdate: json['birthdate'] != null
-          ? DateTime.parse(json['birthdate'])
+          ? DateTime.parse(json['birthdate'].toString())
           : DateTime.now(),
-      category: json['category'] ?? 'AMIS',
-      photoUrl: json['photoUrl'],
-      notes: json['notes'],
-      reminderDays: json['reminderDays'] ?? 3,
-      showAge: json['showAge'] ?? true,
-      email: json['email'],
-      whatsapp: json['whatsapp'],
-      gender: json['gender'],
+      category: json['category']?.toString() ?? 'AMIS',
+      photoUrl: json['photoUrl']?.toString(),
+      notes: json['notes']?.toString(),
+      reminderDays: json['reminderDays'] is int
+          ? json['reminderDays'] as int
+          : int.tryParse(json['reminderDays']?.toString() ?? '') ?? 3,
+      showAge: json['showAge'] == true || json['showAge'] == null,
+      email: json['email']?.toString(),
+      whatsapp: json['whatsapp']?.toString(),
+      gender: json['gender']?.toString(),
       interests: json['interests'] != null
           ? List<String>.from(json['interests'])
           : [],
-      isFavorite: json['isFavorite'] ?? false,
-      shareToken: json['shareToken'],
-      partyDate: json['partyDate'],
-      partyTime: json['partyTime'],
-      partyLocation: json['partyLocation'],
-      partyDescription: json['partyDescription'],
+      isFavorite: json['isFavorite'] == true,
+      shareToken: json['shareToken']?.toString(),
+      partyDate: json['partyDate']?.toString(),
+      partyTime: json['partyTime']?.toString(),
+      partyLocation: json['partyLocation']?.toString(),
+      partyDescription: json['partyDescription']?.toString(),
       createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
+          ? DateTime.tryParse(json['createdAt'].toString())
           : null,
     );
   }
 
   Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'birthdate': '${birthdate.year}-${birthdate.month.toString().padLeft(2, '0')}-${birthdate.day.toString().padLeft(2, '0')}',
+      'category': category,
+      'photoUrl': photoUrl,
+      'notes': notes,
+      'reminderDays': reminderDays,
+      'showAge': showAge,
+      'email': email,
+      'whatsapp': whatsapp,
+      'gender': gender,
+      'interests': interests,
+      'isFavorite': isFavorite,
+      'shareToken': shareToken,
+      'partyDate': partyDate,
+      'partyTime': partyTime,
+      'partyLocation': partyLocation,
+      'partyDescription': partyDescription,
+      'createdAt': createdAt?.toIso8601String(),
+    };
+  }
+
+  Map<String, dynamic> toApiJson() {
     return {
       'name': name,
       'birthdate': '${birthdate.year}-${birthdate.month.toString().padLeft(2, '0')}-${birthdate.day.toString().padLeft(2, '0')}',

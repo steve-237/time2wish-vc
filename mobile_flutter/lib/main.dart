@@ -22,7 +22,14 @@ import 'features/profile/presentation/profile_edit_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('fr_FR', null);
+  await Future.wait([
+    initializeDateFormatting('fr_FR', null),
+    initializeDateFormatting('fr', null),
+    initializeDateFormatting('en_US', null),
+    initializeDateFormatting('en', null),
+    initializeDateFormatting('de_DE', null),
+    initializeDateFormatting('de', null),
+  ]);
   runApp(const Time2WishApp());
 }
 
@@ -82,14 +89,14 @@ class _Time2WishAppState extends State<Time2WishApp> {
           path: '/birthday/:id',
           builder: (context, state) {
             final id = int.parse(state.pathParameters['id']!);
-            return BirthdayDetailScreen(birthdayId: id);
+            return BirthdayDetailScreen(key: ValueKey(id), birthdayId: id);
           },
         ),
         GoRoute(
           path: '/birthday/:id/edit',
           builder: (context, state) {
             final id = int.parse(state.pathParameters['id']!);
-            return BirthdayFormScreen(birthdayId: id);
+            return BirthdayFormScreen(key: ValueKey(id), birthdayId: id);
           },
         ),
         GoRoute(

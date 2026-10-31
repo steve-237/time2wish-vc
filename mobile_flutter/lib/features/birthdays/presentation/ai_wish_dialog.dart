@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:provider/provider.dart';
+import '../../../core/services/settings_service.dart';
 import '../../../core/services/ai_service.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_theme.dart';
@@ -63,6 +65,7 @@ class _AiWishDialogState extends State<AiWishDialog> {
       final wish = await _aiService.generateWish(
         birthdayId: widget.birthdayId,
         tone: _selectedTone,
+        lang: mounted ? context.read<SettingsService>().language : 'fr',
       );
       setState(() {
         _generatedWish = wish;

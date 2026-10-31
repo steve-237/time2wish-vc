@@ -27,11 +27,22 @@ class GiftModel {
     this.createdAt,
   });
 
-  factory GiftModel.fromJson(Map<String, dynamic> json) {
+  factory GiftModel.fromJson(Map<String, dynamic> json, [int? fallbackId]) {
+    final rawId = json['id'];
+    int parsedId = 0;
+    if (rawId is int) {
+      parsedId = rawId;
+    } else if (rawId != null) {
+      parsedId = int.tryParse(rawId.toString()) ?? 0;
+    }
+    if (parsedId == 0 && fallbackId != null && fallbackId != 0) {
+      parsedId = fallbackId;
+    } else if (parsedId == 0) {
+      parsedId = DateTime.now().microsecondsSinceEpoch;
+    }
+
     return GiftModel(
-      id: json['id'] is int
-          ? json['id'] as int
-          : int.tryParse(json['id']?.toString() ?? '') ?? 0,
+      id: parsedId,
       birthdayId: json['birthdayId'] is int
           ? json['birthdayId'] as int
           : int.tryParse(json['birthdayId']?.toString() ?? '') ?? 0,

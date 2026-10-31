@@ -68,27 +68,41 @@ class AuthService extends ChangeNotifier {
           return;
         }
       }
+
+      // Offline mode: load from LocalStorageService or default local user profile
+      final storedProfile = await _storageService.loadProfile();
+      if (storedProfile != null) {
+        _currentUser = UserModel.fromJson(storedProfile);
+      } else {
+        _currentUser = UserModel(
+          id: 1,
+          email: 'mon.compte@time2wish.local',
+          fullName: 'Utilisateur Autonome',
+          coins: 100,
+          planType: 'PREMIUM',
+        );
+        await _storageService.saveProfile(_currentUser!.toJson());
+      }
+      _isAuthenticated = true;
     } catch (e) {
       debugPrint('[AuthService] API offline/unreachable: $e');
+      final storedProfile = await _storageService.loadProfile();
+      if (storedProfile != null) {
+        _currentUser = UserModel.fromJson(storedProfile);
+      } else {
+        _currentUser = UserModel(
+          id: 1,
+          email: 'mon.compte@time2wish.local',
+          fullName: 'Utilisateur Autonome',
+          coins: 100,
+          planType: 'PREMIUM',
+        );
+      }
+      _isAuthenticated = true;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    // Offline mode: load from LocalStorageService or default local user profile
-    final storedProfile = await _storageService.loadProfile();
-    if (storedProfile != null) {
-      _currentUser = UserModel.fromJson(storedProfile);
-    } else {
-      _currentUser = UserModel(
-        id: 1,
-        email: 'mon.compte@time2wish.local',
-        fullName: 'Utilisateur Autonome',
-        coins: 100,
-        planType: 'PREMIUM',
-      );
-      await _storageService.saveProfile(_currentUser!.toJson());
-    }
-    _isAuthenticated = true;
-    _isLoading = false;
-    notifyListeners();
   }
 
   Future<bool> login(String email, String password) async {
@@ -140,7 +154,31 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<bool> register(String fullName, String email, String password) async {
-    return await login(email, password);
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await _apiService.dio.post('/auth/register', data: {
+        'fullName': fullName,
+        'email': email,
+        'password': password,
+      });
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _isLoading = false;
+        return await login(email, password);
+      }
+      return false;
+    } catch (e) {
+      debugPrint('[AuthService] Register offline/fallback: $e');
+      _isLoading = false;
+      return await login(email, password);
+    } finally {
+      if (_isLoading) {
+        _isLoading = false;
+        notifyListeners();
+      }
+    }
   }
 
   Future<void> logout() async {

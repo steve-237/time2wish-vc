@@ -19,7 +19,112 @@ class GiftService extends ChangeNotifier {
 
   Future<void> _initLocalStorage() async {
     _giftsCache = await _storageService.loadGifts();
+    final demoGifts = _getDemoGifts();
+    bool modified = false;
+    demoGifts.forEach((bId, list) {
+      if (!_giftsCache.containsKey(bId) || _giftsCache[bId]!.isEmpty) {
+        _giftsCache[bId] = list;
+        modified = true;
+      }
+    });
+    if (modified) {
+      await _storageService.saveGifts(_giftsCache);
+    }
     notifyListeners();
+  }
+
+  Map<int, List<GiftModel>> _getDemoGifts() {
+    return {
+      1: [
+        const GiftModel(
+          id: 101,
+          birthdayId: 1,
+          name: 'Coffret Chocolats d\'Artisan 🍫',
+          description: 'Chocolats fins pralinés et ganaches grand cru',
+          priceRange: '30€',
+          isReserved: false,
+        ),
+        const GiftModel(
+          id: 102,
+          birthdayId: 1,
+          name: 'Bouquet de Fleurs Séchées Pastel 🌸',
+          description: 'Bouquet bohème chic durable fait main',
+          priceRange: '40€',
+          isReserved: true,
+          reservedByName: 'Lucas',
+        ),
+        const GiftModel(
+          id: 103,
+          birthdayId: 1,
+          name: 'Livre de Recettes Italiennes 🍝',
+          description: 'Grand livre illustré de cuisine italienne traditionnelle',
+          priceRange: '28€',
+          isReserved: false,
+        ),
+      ],
+      2: [
+        const GiftModel(
+          id: 201,
+          birthdayId: 2,
+          name: 'Casque Gaming Sans Fil 🎧',
+          description: 'Audio spatial 7.1 avec micro réducteur de bruit',
+          priceRange: '89€',
+          isReserved: false,
+        ),
+        const GiftModel(
+          id: 202,
+          birthdayId: 2,
+          name: 'Clavier Mécanique RGB ⌨️',
+          description: 'Switches tactiles et rétroéclairage personnalisable',
+          priceRange: '79€',
+          isReserved: false,
+        ),
+      ],
+      3: [
+        const GiftModel(
+          id: 301,
+          birthdayId: 3,
+          name: 'Livre : Les Furtifs - Alain Damasio 📚',
+          description: 'Édition collector reliée science-fiction philosophique',
+          priceRange: '25€',
+          isReserved: false,
+        ),
+        const GiftModel(
+          id: 302,
+          birthdayId: 3,
+          name: 'Tapis de Yoga Antidérapant Éco 🧘‍♀️',
+          description: 'Liège naturel et caoutchouc recyclé avec sangle',
+          priceRange: '45€',
+          isReserved: false,
+        ),
+        const GiftModel(
+          id: 303,
+          birthdayId: 3,
+          name: 'Abonnement Cinéma Pass Duo 🎬',
+          description: 'Carte cinéma illimitée pour 2 personnes pendant 3 mois',
+          priceRange: '60€',
+          isReserved: false,
+        ),
+      ],
+      4: [
+        const GiftModel(
+          id: 401,
+          birthdayId: 4,
+          name: 'Ballon de Match Officiel ⚽',
+          description: 'Ballon certifié FIFA Quality Pro',
+          priceRange: '45€',
+          isReserved: false,
+        ),
+        const GiftModel(
+          id: 402,
+          birthdayId: 4,
+          name: 'Trépied Photo Carbone Compact 📷',
+          description: 'Trépied voyage léger avec rotule panoramique',
+          priceRange: '75€',
+          isReserved: false,
+        ),
+      ],
+    };
   }
 
   List<GiftModel> getGiftsForBirthday(int birthdayId) {
@@ -38,8 +143,9 @@ class GiftService extends ChangeNotifier {
     try {
       final response = await _apiService.dio.get('/birthdays/$birthdayId/gifts');
       if (response.statusCode == 200 && response.data != null) {
+        int seq = 1;
         final list = (response.data as List)
-            .map((json) => GiftModel.fromJson(json as Map<String, dynamic>))
+            .map((json) => GiftModel.fromJson(json as Map<String, dynamic>, birthdayId * 1000 + (seq++)))
             .toList();
         _giftsCache[birthdayId] = list;
         await _storageService.saveGifts(_giftsCache);
@@ -63,8 +169,9 @@ class GiftService extends ChangeNotifier {
     String? priceRange, {
     String? url,
   }) async {
+    final uniqueId = DateTime.now().millisecondsSinceEpoch + (_giftsCache[birthdayId]?.length ?? 0) + 1;
     final provisionalGift = GiftModel(
-      id: DateTime.now().millisecondsSinceEpoch,
+      id: uniqueId,
       birthdayId: birthdayId,
       name: name,
       description: description,
@@ -92,7 +199,7 @@ class GiftService extends ChangeNotifier {
         data: payload,
       );
       if (response.statusCode == 200 && response.data != null) {
-        final serverGift = GiftModel.fromJson(response.data as Map<String, dynamic>);
+        final serverGift = GiftModel.fromJson(response.data as Map<String, dynamic>, provisionalGift.id);
         final list = _giftsCache[birthdayId];
         if (list != null) {
           final idx = list.indexWhere((g) => g.id == provisionalGift.id);
@@ -115,10 +222,17 @@ class GiftService extends ChangeNotifier {
     return provisionalGift;
   }
 
-  Future<void> toggleReserveGift(int birthdayId, int giftId, String userName) async {
+  Future<void> toggleReserveGift(int birthdayId, int giftId, String userName, {int? fallbackIndex}) async {
     final list = _giftsCache[birthdayId];
-    if (list == null) return;
-    final index = list.indexWhere((g) => g.id == giftId);
+    if (list == null || list.isEmpty) return;
+
+    int index = -1;
+    if (giftId != 0) {
+      index = list.indexWhere((g) => g.id == giftId);
+    }
+    if (index == -1 && fallbackIndex != null && fallbackIndex >= 0 && fallbackIndex < list.length) {
+      index = fallbackIndex;
+    }
     if (index == -1) return;
 
     final current = list[index];
@@ -140,16 +254,13 @@ class GiftService extends ChangeNotifier {
         data: {'guestName': userName},
       );
       if (response.statusCode == 200 && response.data != null) {
-        final serverGift = GiftModel.fromJson(response.data as Map<String, dynamic>);
+        final serverGift = GiftModel.fromJson(response.data as Map<String, dynamic>, giftId);
         final currentList = _giftsCache[birthdayId];
-        if (currentList != null) {
-          final curIdx = currentList.indexWhere((g) => g.id == giftId);
-          if (curIdx != -1) {
-            currentList[curIdx] = serverGift;
-            _giftsCache[birthdayId] = currentList;
-            await _storageService.saveGifts(_giftsCache);
-            notifyListeners();
-          }
+        if (currentList != null && index >= 0 && index < currentList.length) {
+          currentList[index] = serverGift;
+          _giftsCache[birthdayId] = currentList;
+          await _storageService.saveGifts(_giftsCache);
+          notifyListeners();
         }
       }
     } catch (e) {
@@ -162,10 +273,16 @@ class GiftService extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteGift(int birthdayId, int giftId) async {
+  Future<void> deleteGift(int birthdayId, int giftId, {int? fallbackIndex}) async {
     final list = _giftsCache[birthdayId];
-    if (list != null) {
-      list.removeWhere((g) => g.id == giftId);
+    if (list != null && list.isNotEmpty) {
+      final initialCount = list.length;
+      if (giftId != 0) {
+        list.removeWhere((g) => g.id == giftId);
+      }
+      if (list.length == initialCount && fallbackIndex != null && fallbackIndex >= 0 && fallbackIndex < list.length) {
+        list.removeAt(fallbackIndex);
+      }
       _giftsCache[birthdayId] = list;
       await _storageService.saveGifts(_giftsCache);
       notifyListeners();

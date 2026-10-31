@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../core/services/settings_service.dart';
 import '../../../core/models/birthday_model.dart';
 import '../../../core/models/gift_model.dart';
 import '../../../core/services/birthday_service.dart';
@@ -71,6 +72,14 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
   }
 
   @override
+  void didUpdateWidget(BirthdayDetailScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.birthdayId != widget.birthdayId) {
+      Provider.of<GiftService>(context, listen: false).fetchGifts(widget.birthdayId);
+    }
+  }
+
+  @override
   void dispose() {
     _animController.dispose();
     super.dispose();
@@ -128,6 +137,8 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
   @override
   Widget build(BuildContext context) {
     final birthdayService = Provider.of<BirthdayService>(context);
+    final settings = Provider.of<SettingsService>(context);
+    final localeStr = settings.language == 'en' ? 'en_US' : (settings.language == 'de' ? 'de_DE' : 'fr_FR');
     final birthday = birthdayService.getBirthdayById(widget.birthdayId);
 
     if (birthday == null) {
@@ -329,7 +340,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          DateFormat('dd MMMM yyyy', 'fr_FR').format(birthday.birthdate),
+                          DateFormat('dd MMMM yyyy', localeStr).format(birthday.birthdate),
                           style: const TextStyle(color: AppColors.textLight, fontSize: 15, fontWeight: FontWeight.w500),
                         ),
                         if (birthday.notes != null && birthday.notes!.isNotEmpty) ...[
@@ -439,7 +450,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
     );
   }
 
-  void _showDeleteGiftDialog(BuildContext context, GiftService giftService, int birthdayId, GiftModel gift) {
+  void _showDeleteGiftDialog(BuildContext context, GiftService giftService, int birthdayId, GiftModel gift, {int? fallbackIndex}) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -460,7 +471,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
             onPressed: () {
               Navigator.pop(ctx);
               DeviceService.triggerMediumHaptic();
-              giftService.deleteGift(birthdayId, gift.id);
+              giftService.deleteGift(birthdayId, gift.id, fallbackIndex: fallbackIndex);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Idée cadeau "${gift.name}" supprimée'),
@@ -659,8 +670,11 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
           )
         else
           Column(
-            children: gifts.map((gift) {
+            children: List.generate(gifts.length, (index) {
+              final gift = gifts[index];
+              final actualGiftId = gift.id;
               return Padding(
+                key: ValueKey('gift_${actualGiftId}_$index'),
                 padding: const EdgeInsets.only(bottom: 10.0),
                 child: GlassCard(
                   child: Padding(
@@ -785,7 +799,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                               OutlinedButton(
                                 onPressed: () {
                                   DeviceService.triggerLightHaptic();
-                                  giftService.toggleReserveGift(birthday.id, gift.id, 'Vous');
+                                  giftService.toggleReserveGift(birthday.id, actualGiftId, 'Vous', fallbackIndex: index);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text('🔓 Cadeau libéré avec succès !'),
@@ -814,7 +828,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                               ElevatedButton(
                                 onPressed: () {
                                   DeviceService.triggerLightHaptic();
-                                  giftService.toggleReserveGift(birthday.id, gift.id, 'Vous');
+                                  giftService.toggleReserveGift(birthday.id, actualGiftId, 'Vous', fallbackIndex: index);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text('🎁 Cadeau réservé !'),
@@ -846,7 +860,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                               padding: const EdgeInsets.all(6),
                               constraints: const BoxConstraints(),
                               onPressed: () {
-                                _showDeleteGiftDialog(context, giftService, birthday.id, gift);
+                                _showDeleteGiftDialog(context, giftService, birthday.id, gift, fallbackIndex: index);
                               },
                             ),
                           ],
@@ -856,7 +870,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                   ),
                 ),
               );
-            }).toList(),
+            }),
           ),
       ],
     );

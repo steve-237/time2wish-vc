@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -36,14 +35,11 @@ class _MainNavShellState extends State<MainNavShell> {
     return Scaffold(
       extendBody: true,
       body: Container(
-        decoration: BoxDecoration(
-          gradient: isDark ? AppColors.backgroundGradient : null,
-          color: isDark ? null : AppColors.backgroundLight,
-        ),
+        color: isDark ? AppColors.darkCanvas : AppColors.lightCanvas,
         child: SafeArea(
           bottom: false,
           child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 280),
+            duration: const Duration(milliseconds: 240),
             switchInCurve: Curves.easeOut,
             switchOutCurve: Curves.easeIn,
             transitionBuilder: (child, animation) => FadeTransition(
@@ -64,14 +60,8 @@ class _MainNavShellState extends State<MainNavShell> {
   Widget _buildBottomNav(BuildContext context, int unreadMessages, SettingsService settings) {
     final isDark = settings.isDarkMode;
 
-    // Background color matching screenshot: deep dark slate / navy glass
-    final navBgColor = isDark
-        ? const Color(0xFF0C1322).withValues(alpha: 0.94)
-        : Colors.white.withValues(alpha: 0.95);
-
-    final borderColor = isDark
-        ? Colors.white.withValues(alpha: 0.12)
-        : Colors.black.withValues(alpha: 0.08);
+    final navBgColor = isDark ? AppColors.darkCard : Colors.white;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.lightBorder;
 
     return Container(
       color: Colors.transparent,
@@ -79,87 +69,85 @@ class _MainNavShellState extends State<MainNavShell> {
         alignment: Alignment.bottomCenter,
         clipBehavior: Clip.none,
         children: [
-          // Background Bar Container
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-              child: Container(
-                height: 68 + MediaQuery.of(context).padding.bottom,
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).padding.bottom > 0
-                      ? MediaQuery.of(context).padding.bottom
-                      : 6,
-                ),
-                decoration: BoxDecoration(
-                  color: navBgColor,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
-                  border: Border(
-                    top: BorderSide(color: borderColor, width: 1.2),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.5 : 0.08),
-                      blurRadius: 25,
-                      offset: const Offset(0, -5),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    // Item 1: Anniversaires
-                    Expanded(
-                      child: _buildNavItem(
-                        index: 0,
-                        icon: Icons.cake_outlined,
-                        activeIcon: Icons.cake_rounded,
-                        label: settings.tr('birthdays'),
-                        badgeCount: 0,
-                      ),
-                    ),
-
-                    // Item 2: Contacts
-                    Expanded(
-                      child: _buildNavItem(
-                        index: 1,
-                        icon: Icons.people_alt_outlined,
-                        activeIcon: Icons.people_alt_rounded,
-                        label: settings.tr('contacts'),
-                        badgeCount: 0,
-                      ),
-                    ),
-
-                    // Middle spacer reserved for the central FAB
-                    const SizedBox(width: 68),
-
-                    // Item 3: Messages
-                    Expanded(
-                      child: _buildNavItem(
-                        index: 2,
-                        icon: Icons.chat_bubble_outline_rounded,
-                        activeIcon: Icons.chat_bubble_rounded,
-                        label: settings.tr('messages'),
-                        badgeCount: unreadMessages,
-                      ),
-                    ),
-
-                    // Item 4: Profil
-                    Expanded(
-                      child: _buildNavItem(
-                        index: 3,
-                        icon: Icons.person_outline_rounded,
-                        activeIcon: Icons.person_rounded,
-                        label: settings.tr('profile'),
-                        badgeCount: 0,
-                      ),
-                    ),
-                  ],
-                ),
+          // Background Bar Container (Clean solid elevated bar - zero glassmorphism)
+          Container(
+            height: 66 + MediaQuery.of(context).padding.bottom,
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).padding.bottom > 0
+                  ? MediaQuery.of(context).padding.bottom
+                  : 6,
+            ),
+            decoration: BoxDecoration(
+              color: navBgColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+              border: Border(
+                top: BorderSide(color: borderColor, width: 1.0),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.06),
+                  blurRadius: 18,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // Item 1: Anniversaires / Accueil
+                Expanded(
+                  child: _buildNavItem(
+                    index: 0,
+                    icon: Icons.cake_outlined,
+                    activeIcon: Icons.cake_rounded,
+                    label: settings.tr('birthdays'),
+                    badgeCount: 0,
+                    isDark: isDark,
+                  ),
+                ),
+
+                // Item 2: Contacts
+                Expanded(
+                  child: _buildNavItem(
+                    index: 1,
+                    icon: Icons.people_outline_rounded,
+                    activeIcon: Icons.people_rounded,
+                    label: settings.tr('contacts'),
+                    badgeCount: 0,
+                    isDark: isDark,
+                  ),
+                ),
+
+                // Middle spacer reserved for the central FAB
+                const SizedBox(width: 68),
+
+                // Item 3: Messages
+                Expanded(
+                  child: _buildNavItem(
+                    index: 2,
+                    icon: Icons.chat_bubble_outline_rounded,
+                    activeIcon: Icons.chat_bubble_rounded,
+                    label: settings.tr('messages'),
+                    badgeCount: unreadMessages,
+                    isDark: isDark,
+                  ),
+                ),
+
+                // Item 4: Profil
+                Expanded(
+                  child: _buildNavItem(
+                    index: 3,
+                    icon: Icons.person_outline_rounded,
+                    activeIcon: Icons.person_rounded,
+                    label: settings.tr('profile'),
+                    badgeCount: 0,
+                    isDark: isDark,
+                  ),
+                ),
+              ],
             ),
           ),
 
-          // Central Floating Action Button (Elevated + Gradient)
+          // Central Floating Action Button (Elevated clean primary button)
           Positioned(
             top: -20,
             child: GestureDetector(
@@ -167,29 +155,27 @@ class _MainNavShellState extends State<MainNavShell> {
                 context.push('/birthday/new');
               },
               child: Container(
-                width: 58,
-                height: 58,
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: const LinearGradient(
                     colors: [
-                      Color(0xFF6366F1), // Indigo
-                      Color(0xFFA855F7), // Purple / Violet
-                      Color(0xFFEC4899), // Pink / Magenta
+                      Color(0xFF4F46E5), // Indigo
+                      Color(0xFF6366F1), // Light Indigo
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   border: Border.all(
-                    color: isDark ? const Color(0xFF0C1322) : Colors.white,
+                    color: isDark ? AppColors.darkCanvas : Colors.white,
                     width: 3.5,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFA855F7).withValues(alpha: 0.55),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
-                      spreadRadius: 1,
+                      color: const Color(0xFF4F46E5).withValues(alpha: 0.38),
+                      blurRadius: 14,
+                      offset: const Offset(0, 6),
                     ),
                   ],
                 ),
@@ -197,7 +183,7 @@ class _MainNavShellState extends State<MainNavShell> {
                   child: Icon(
                     Icons.add_rounded,
                     color: Colors.white,
-                    size: 32,
+                    size: 30,
                   ),
                 ),
               ),
@@ -214,10 +200,11 @@ class _MainNavShellState extends State<MainNavShell> {
     required IconData activeIcon,
     required String label,
     required int badgeCount,
+    required bool isDark,
   }) {
     final bool isSelected = _currentIndex == index;
-    const activeColor = Color(0xFF38BDF8); // Cyan highlight from screenshot
-    final inactiveColor = Colors.white.withValues(alpha: 0.58);
+    final activeColor = isDark ? AppColors.indigoLight : AppColors.primaryIndigo;
+    final inactiveColor = isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
 
     return InkWell(
       onTap: () => setState(() => _currentIndex = index),
@@ -230,8 +217,8 @@ class _MainNavShellState extends State<MainNavShell> {
             clipBehavior: Clip.none,
             children: [
               AnimatedScale(
-                duration: const Duration(milliseconds: 200),
-                scale: isSelected ? 1.15 : 1.0,
+                duration: const Duration(milliseconds: 180),
+                scale: isSelected ? 1.12 : 1.0,
                 child: Icon(
                   isSelected ? activeIcon : icon,
                   color: isSelected ? activeColor : inactiveColor,
@@ -245,15 +232,8 @@ class _MainNavShellState extends State<MainNavShell> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEF4444),
+                      color: AppColors.accentCoral,
                       borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFEF4444).withValues(alpha: 0.6),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
                     ),
                     constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                     child: Text(
@@ -269,17 +249,16 @@ class _MainNavShellState extends State<MainNavShell> {
                 ),
             ],
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 4),
           Text(
             label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: isSelected ? activeColor : inactiveColor,
               fontSize: 11,
               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              letterSpacing: 0.2,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
