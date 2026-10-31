@@ -15,7 +15,7 @@ void main() {
 
     test('pickJsonFile completes gracefully', () async {
       final result = await FileBackupService.pickJsonFile();
-      expect(result == null || result is String, isTrue);
+      expect(result, isNull);
     });
   });
 }
