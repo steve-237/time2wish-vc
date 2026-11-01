@@ -246,7 +246,7 @@ class _PastBirthdaysScreenState extends State<PastBirthdaysScreen> {
                                 ),
                               ),
                               child: Text(
-                                cat == 'TOUS' ? 'Tous' : cat.substring(0, 1) + cat.substring(1).toLowerCase(),
+                                cat == 'TOUS' ? 'Tous' : '${cat.substring(0, 1)}${cat.substring(1).toLowerCase()}',
                                 style: TextStyle(
                                   color: isSelected
                                       ? Colors.white
@@ -255,6 +255,7 @@ class _PastBirthdaysScreenState extends State<PastBirthdaysScreen> {
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                                 ),
                               ),
+                            ),
                             ),
                           );
                       }).toList(),

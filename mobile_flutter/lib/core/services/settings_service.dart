@@ -15,6 +15,7 @@ class SettingsService extends ChangeNotifier {
 
   ThemeMode get themeMode => _themeMode;
   String get language => _language;
+  String get currentLanguage => _language;
   bool get isDarkMode => _themeMode == ThemeMode.dark;
   bool get isInitialized => _isInitialized;
 
@@ -73,6 +74,8 @@ class SettingsService extends ChangeNotifier {
   static const Map<String, Map<String, String>> _translations = {
     'fr': {
       'dashboard': 'Tableau de bord',
+      'past_birthdays': 'Passés',
+      'past_birthdays_title': 'Anniversaires passés',
       'birthdays': 'Anniversaires',
       'contacts': 'Contacts',
       'messages': 'Messages',
@@ -136,6 +139,8 @@ class SettingsService extends ChangeNotifier {
     },
     'en': {
       'dashboard': 'Dashboard',
+      'past_birthdays': 'Past',
+      'past_birthdays_title': 'Past birthdays',
       'birthdays': 'Birthdays',
       'contacts': 'Contacts',
       'messages': 'Messages',
@@ -199,6 +204,8 @@ class SettingsService extends ChangeNotifier {
     },
     'de': {
       'dashboard': 'Dashboard',
+      'past_birthdays': 'Past',
+      'past_birthdays_title': 'Past birthdays',
       'birthdays': 'Geburtstage',
       'contacts': 'Kontakte',
       'messages': 'Nachrichten',

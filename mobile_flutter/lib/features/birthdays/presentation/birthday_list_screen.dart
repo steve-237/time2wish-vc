@@ -13,6 +13,7 @@ import '../../../core/services/api_service.dart';
 import '../../../core/models/birthday_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/avatar_image.dart';
+import '../../../core/widgets/glass_card.dart';
 import 'ai_wish_dialog.dart';
 import 'ai_gift_sheet.dart';
 import 'reminder_settings_sheet.dart';
@@ -2111,8 +2112,8 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                           const SizedBox(width: 6),
                           Text(
                             birthday.isPastThisYear && (_selectedCategory == 'PASSÉS' || _selectedCategory == 'PASSES')
-                                ? '· Fêté : ' + birthday.celebratedAge.toString() + ' ans'
-                                : '· ' + birthday.nextAge.toString() + ' ' + settings.tr('turning_age'),
+                                ? '· Fêté : ${birthday.celebratedAge} ans'
+                                : '· ${birthday.nextAge} ${settings.tr('turning_age')}',
                             style: TextStyle(
                               color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
                               fontSize: 12,
@@ -2150,12 +2151,12 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   ),
                   child: Text(
                     birthday.isToday
-                        ? '🎂 ' + settings.tr('today')
+                        ? '🎂 ${settings.tr('today')}'
                         : (birthday.isPastThisYear && (_selectedCategory == 'PASSÉS' || _selectedCategory == 'PASSES')
-                            ? 'Il y a ' + birthday.daysSinceOccurrence.toString() + ' j'
+                            ? 'Il y a ${birthday.daysSinceOccurrence} j'
                             : (birthday.daysRemaining <= 1
                                 ? settings.tr('in_day')
-                                : settings.tr('in_days') + ' ' + birthday.daysRemaining.toString() + ' j')),
+                                : '${settings.tr('in_days')} ${birthday.daysRemaining} j')),
                     style: TextStyle(
                       color: birthday.isToday
                           ? AppColors.accentCoral
