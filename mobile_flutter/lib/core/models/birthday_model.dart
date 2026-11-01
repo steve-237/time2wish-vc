@@ -52,6 +52,37 @@ class BirthdayModel {
     return nextBirthday.difference(today).inDays;
   }
 
+  /// Whether the birthday occurrence for the current calendar year has already passed
+  bool get isPastThisYear {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final thisYearBirthday = DateTime(now.year, birthdate.month, birthdate.day);
+    return thisYearBirthday.isBefore(today);
+  }
+
+  /// Days elapsed since birthday occurrence this year (if past)
+  int get daysSinceOccurrence {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final thisYearBirthday = DateTime(now.year, birthdate.month, birthdate.day);
+    if (thisYearBirthday.isBefore(today)) {
+      return today.difference(thisYearBirthday).inDays;
+    }
+    final lastYearBirthday = DateTime(now.year - 1, birthdate.month, birthdate.day);
+    return today.difference(lastYearBirthday).inDays;
+  }
+
+  /// Age reached during the most recent birthday occurrence
+  int get celebratedAge {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final thisYearBirthday = DateTime(now.year, birthdate.month, birthdate.day);
+    if (thisYearBirthday.isBefore(today) || thisYearBirthday.isAtSameMomentAs(today)) {
+      return now.year - birthdate.year;
+    }
+    return now.year - birthdate.year - 1;
+  }
+
   /// Age on next birthday
   int get nextAge {
     final now = DateTime.now();

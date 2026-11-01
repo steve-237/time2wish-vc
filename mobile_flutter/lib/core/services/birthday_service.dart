@@ -36,6 +36,13 @@ class BirthdayService extends ChangeNotifier {
     }).length;
   }
 
+  /// List of birthdays that have already occurred earlier this calendar year
+  List<BirthdayModel> get pastBirthdays {
+    final list = _birthdays.where((b) => b.isPastThisYear).toList();
+    list.sort((a, b) => a.daysSinceOccurrence.compareTo(b.daysSinceOccurrence));
+    return list;
+  }
+
   Future<void> _initLocalStorage() async {
     final activeOfflineId = await _storageService.getActiveOfflineAccountId();
     if (activeOfflineId != null) {
