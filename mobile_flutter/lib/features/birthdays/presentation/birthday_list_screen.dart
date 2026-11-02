@@ -8,12 +8,16 @@ import '../../../core/services/auth_service.dart';
 import '../../../core/services/birthday_service.dart';
 import '../../../core/services/sync_service.dart';
 import '../../../core/services/settings_service.dart';
+import '../../../core/services/device_service.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/models/birthday_model.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/avatar_image.dart';
+import '../../../core/widgets/glass_card.dart';
 import 'ai_wish_dialog.dart';
 import 'ai_gift_sheet.dart';
+import 'reminder_settings_sheet.dart';
+import 'birthday_import_export_sheet.dart';
 
 class BirthdayListScreen extends StatefulWidget {
   const BirthdayListScreen({super.key});
@@ -26,9 +30,8 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedCategory = 'TOUS';
-  int? _selectedBirthdayId;
 
-  final List<String> _categories = ['TOUS', 'CE_MOIS', 'FAVORIS', 'AMIS', 'FAMILLE', 'TRAVAIL'];
+  final List<String> _categories = ['TOUS', 'CE_MOIS', 'PASSÉS', 'FAVORIS', 'AMIS', 'FAMILLE', 'TRAVAIL'];
 
   @override
   void initState() {
@@ -45,9 +48,10 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
     super.dispose();
   }
 
-  List<BirthdayModel> _getFilteredBirthdays(List<BirthdayModel> birthdays) {
+  List<BirthdayModel> _getFilteredBirthdays(List<BirthdayModel> birthdays, {List<BirthdayModel>? allBirthdays}) {
     final now = DateTime.now();
-    final result = birthdays.where((b) {
+    final source = _selectedCategory == 'PASSÉS' ? (allBirthdays ?? birthdays) : birthdays;
+    final result = source.where((b) {
       final matchesSearch = _searchQuery.isEmpty ||
           b.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           b.category.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -55,13 +59,18 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
 
       if (!matchesSearch) return false;
 
+      if (_selectedCategory == 'PASSÉS') return b.isPastThisYear;
       if (_selectedCategory == 'FAVORIS') return b.isFavorite;
       if (_selectedCategory == 'CE_MOIS') return b.birthdate.month == now.month;
       if (_selectedCategory != 'TOUS') return b.category.toUpperCase() == _selectedCategory;
       return true;
     }).toList();
 
-    result.sort((a, b) => a.daysRemaining.compareTo(b.daysRemaining));
+    if (_selectedCategory == 'PASSÉS') {
+      result.sort((a, b) => a.daysSinceOccurrence.compareTo(b.daysSinceOccurrence));
+    } else {
+      result.sort((a, b) => a.daysRemaining.compareTo(b.daysRemaining));
+    }
     return result;
   }
 
@@ -324,6 +333,27 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   },
                 ),
               ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  ReminderSettingsSheet.show(context);
+                },
+                icon: const Icon(Icons.tune_rounded, size: 18),
+                label: const Text(
+                  'Configurer les rappels & push ⚙️',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -578,8 +608,9 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
               onPressed: () {
-                Navigator.pop(ctx);
-                context.push('/birthday/${birthday.id}');
+                final targetId = birthday.id;
+                Navigator.of(ctx).pop();
+                GoRouter.of(context).push('/birthday/$targetId');
               },
               icon: Icon(
                 Icons.assignment_outlined,
@@ -852,30 +883,13 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
 
     final user = authService.currentUser;
     final isDark = settings.isDarkMode;
-    final localeStr = settings.language == 'en' ? 'en_US' : (settings.language == 'de' ? 'de_DE' : 'fr_FR');
 
-    final filtered = _getFilteredBirthdays(birthdayService.upcoming);
+    final filtered = _getFilteredBirthdays(birthdayService.upcoming, allBirthdays: birthdayService.birthdays);
     final BirthdayModel? nextBirthday = birthdayService.upcoming.isNotEmpty ? birthdayService.upcoming.first : null;
-    final BirthdayModel? activeBirthday = (_selectedBirthdayId != null
-        ? birthdayService.getBirthdayById(_selectedBirthdayId!)
-        : null) ?? nextBirthday;
-    final bool isCustomSelection = _selectedBirthdayId != null && activeBirthday != null && activeBirthday.id != nextBirthday?.id;
 
-    final now = DateTime.now();
-    final thisMonthCount = birthdayService.birthdays.where((b) => b.birthdate.month == now.month).length;
     final totalCount = birthdayService.birthdays.length;
-    final favoritesCount = birthdayService.birthdays.where((b) => b.isFavorite).length;
-
-    // Greeting by time of day
-    final hour = now.hour;
-    final greetingWord = (hour >= 5 && hour < 18)
-        ? settings.tr('greeting_morning')
-        : settings.tr('greeting_evening');
+    final urgentCount = birthdayService.birthdays.where((b) => b.daysRemaining <= 7).length;
     final firstName = user?.fullName.split(' ').first ?? 'Ami';
-
-    // Localized date header
-    final dateRaw = DateFormat('EEEE d MMMM', localeStr).format(now);
-    final dateTodayFormatted = dateRaw.isNotEmpty ? dateRaw[0].toUpperCase() + dateRaw.substring(1) : dateRaw;
 
     final String langFlag = settings.language == 'en'
         ? '🇬🇧'
@@ -897,443 +911,173 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // 1. TOP EXECUTIVE HEADER WITH USER GREETING & UTILITIES
+            // 1. TOP HEADER: APP NAME -> NOTIFICATION BELL & ACTION MENU -> GREETING
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
               sliver: SliverToBoxAdapter(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // User Greeting & Date
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            dateTodayFormatted,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '$greetingWord, $firstName 👋',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                              color: isDark ? Colors.white : AppColors.textMainLight,
-                              letterSpacing: -0.4,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Right header accessories
+                    // A. TOUT EN HAUT: Nom de l'application + Cloche de notification + Bouton Menu
                     Row(
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // WishCoins chip
-                        GestureDetector(
-                          onTap: () => _showWishCoinsModal(context, user?.coins ?? 100),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: AppColors.wishCoinsAmber.withValues(alpha: isDark ? 0.16 : 0.12),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: AppColors.wishCoinsAmber.withValues(alpha: 0.35),
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.monetization_on, color: AppColors.wishCoinsAmber, size: 14),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${user?.coins ?? 100}',
-                                  style: const TextStyle(
-                                    color: AppColors.wishCoinsAmber,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-
-                        // Language switcher chip
-                        GestureDetector(
-                          onTap: () => _showLanguageSelector(context, settings),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(langFlag, style: const TextStyle(fontSize: 13)),
-                                const SizedBox(width: 4),
-                                Text(
-                                  settings.language.toUpperCase(),
-                                  style: TextStyle(
-                                    color: isDark ? Colors.white : AppColors.textMainLight,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-
-                        // Notification Bell
-                        GestureDetector(
-                          onTap: () => _showNotificationSheet(context, birthdayService, settings),
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                                width: 1,
-                              ),
-                            ),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Icon(
-                                  Icons.notifications_none_rounded,
-                                  color: isDark ? Colors.white : AppColors.textMainLight,
-                                  size: 19,
-                                ),
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: Container(
-                                    width: 7,
-                                    height: 7,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.accentCoral,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-
-                        // Manual Sync Button
-                        GestureDetector(
-                          onTap: () => _handleManualSync(context, syncService, birthdayService, settings),
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: isDark ? AppColors.darkCard : Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                                width: 1,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Center(
-                              child: syncService.isSyncing
-                                  ? SpinKitRing(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, size: 16, lineWidth: 2)
-                                  : Icon(
-                                      Icons.sync_rounded,
-                                      color: isDark ? Colors.white : AppColors.textMainLight,
-                                      size: 19,
-                                    ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            // 2. HERO SPOTLIGHT CARD: PROCHAIN ANNIVERSAIRE OU ANNIVERSAIRE SÉLECTIONNÉ
-            if (activeBirthday != null)
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 2, 20, 16),
-                sliver: SliverToBoxAdapter(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.darkCard : Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: activeBirthday.isToday
-                            ? AppColors.accentCoral.withValues(alpha: 0.5)
-                            : (isCustomSelection
-                                ? (isDark ? AppColors.cyanLight : AppColors.primaryCyan).withValues(alpha: 0.6)
-                                : (isDark ? AppColors.darkBorder : AppColors.lightBorder)),
-                        width: (activeBirthday.isToday || isCustomSelection) ? 1.5 : 1.0,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: isCustomSelection
-                              ? (isDark ? AppColors.cyanLight : AppColors.primaryCyan).withValues(alpha: isDark ? 0.2 : 0.08)
-                              : Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
-                          blurRadius: 14,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Spotlight Header Pill Row
+                        // Logo & Nom de l'application
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.all(7),
                               decoration: BoxDecoration(
-                                color: activeBirthday.isToday
-                                    ? AppColors.accentCoral.withValues(alpha: 0.15)
-                                    : (isCustomSelection
-                                        ? (isDark ? AppColors.cyanLight : AppColors.primaryCyan).withValues(alpha: 0.15)
-                                        : (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.12)),
+                                gradient: AppColors.primaryGradient,
                                 borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    activeBirthday.isToday
-                                        ? Icons.celebration_rounded
-                                        : (isCustomSelection ? Icons.touch_app_rounded : Icons.star_rounded),
-                                    color: activeBirthday.isToday
-                                        ? AppColors.accentCoral
-                                        : (isCustomSelection
-                                            ? (isDark ? AppColors.cyanLight : AppColors.primaryCyan)
-                                            : (isDark ? AppColors.indigoLight : AppColors.primaryIndigo)),
-                                    size: 14,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.35),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
                                   ),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    activeBirthday.isToday
-                                        ? settings.tr('spotlight_today')
-                                        : (isCustomSelection
-                                            ? 'Sélectionné'
-                                            : settings.tr('spotlight_next')),
-                                    style: TextStyle(
-                                      color: activeBirthday.isToday
-                                          ? AppColors.accentCoral
-                                          : (isCustomSelection
-                                              ? (isDark ? AppColors.cyanLight : AppColors.primaryCyan)
-                                              : (isDark ? AppColors.indigoLight : AppColors.primaryIndigo)),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                  if (isCustomSelection) ...[
-                                    const SizedBox(width: 6),
-                                    GestureDetector(
-                                      onTap: () => setState(() => _selectedBirthdayId = null),
-                                      child: Icon(
-                                        Icons.close_rounded,
-                                        size: 13,
-                                        color: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
-                                      ),
-                                    ),
-                                  ],
                                 ],
                               ),
+                              child: const Icon(Icons.cake_rounded, color: Colors.white, size: 20),
                             ),
-
-                            // Countdown Tag
+                            const SizedBox(width: 10),
                             Text(
-                              activeBirthday.isToday
-                                  ? '🎉 ${settings.tr('today')}'
-                                  : (activeBirthday.daysRemaining <= 1
-                                      ? settings.tr('in_day')
-                                      : '${settings.tr('in_days')} ${activeBirthday.daysRemaining} ${settings.tr('days_unit').toLowerCase()}'),
+                              'Time2Wish',
                               style: TextStyle(
-                                color: activeBirthday.isToday
-                                    ? AppColors.accentCoral
-                                    : (isDark ? AppColors.cyanLight : AppColors.primaryCyan),
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12,
+                                fontSize: 25,
+                                fontWeight: FontWeight.w900,
+                                color: isDark ? Colors.white : AppColors.textMainLight,
+                                letterSpacing: -0.6,
                               ),
                             ),
                           ],
                         ),
 
-                        const SizedBox(height: 14),
-
-                        // Middle Contact Row
-                        GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => context.push('/birthday/${activeBirthday.id}'),
-                          child: Row(
-                            children: [
-                              // Avatar
-                              Container(
-                                width: 52,
-                                height: 52,
+                        // Accessoires hauts : Coins + Cloche Notifications + Bouton Menu
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // WishCoins badge
+                            GestureDetector(
+                              onTap: () => _showWishCoinsModal(context, user?.coins ?? 100),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                                 decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: AppColors.primaryGradient,
+                                  color: AppColors.wishCoinsAmber.withValues(alpha: isDark ? 0.16 : 0.12),
+                                  borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
-                                    color: isDark ? AppColors.darkBorder : Colors.white,
-                                    width: 2,
+                                    color: AppColors.wishCoinsAmber.withValues(alpha: 0.35),
+                                    width: 1,
                                   ),
                                 ),
-                                child: activeBirthday.photoUrl != null && activeBirthday.photoUrl!.isNotEmpty
-                                    ? ClipOval(
-                                        child: AvatarImage(
-                                          photoUrl: activeBirthday.photoUrl!,
-                                          width: 52,
-                                          height: 52,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      )
-                                    : Center(
-                                        child: Text(
-                                          activeBirthday.name.isNotEmpty ? activeBirthday.name[0].toUpperCase() : '?',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                      ),
-                              ),
-                              const SizedBox(width: 14),
-
-                              // Name & Age details
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
+                                    const Icon(Icons.monetization_on, color: AppColors.wishCoinsAmber, size: 13),
+                                    const SizedBox(width: 4),
                                     Text(
-                                      activeBirthday.name,
-                                      style: TextStyle(
-                                        color: isDark ? Colors.white : AppColors.textMainLight,
-                                        fontSize: 17,
+                                      '${user?.coins ?? 100}',
+                                      style: const TextStyle(
+                                        color: AppColors.wishCoinsAmber,
                                         fontWeight: FontWeight.bold,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 3),
-                                    Text(
-                                      '${settings.tr('fete_ses')} ${activeBirthday.nextAge} ${settings.tr('turning_age')} · ${DateFormat('d MMMM', localeStr).format(activeBirthday.birthdate)}',
-                                      style: TextStyle(
-                                        color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
+                                        fontSize: 12,
                                       ),
                                     ),
                                   ],
-                                ),
-                              ),
-
-                              Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                color: isDark ? Colors.white38 : Colors.black26,
-                                size: 16,
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        // Bottom Action Buttons
-                        Row(
-                          children: [
-                            // Quick Action 1: AI Wish
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
-                                  side: BorderSide(
-                                    color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.35),
-                                  ),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  backgroundColor: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.08),
-                                ),
-                                onPressed: () {
-                                  AiWishDialog.show(context, activeBirthday.id, apiService);
-                                },
-                                icon: Icon(
-                                  Icons.auto_awesome,
-                                  color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
-                                  size: 15,
-                                ),
-                                label: Text(
-                                  settings.tr('wish_button'),
-                                  style: TextStyle(
-                                    color: isDark ? Colors.white : AppColors.primaryIndigo,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ),
                             const SizedBox(width: 8),
 
-                            // Quick Action 2: AI Gifts
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
-                                  side: BorderSide(
-                                    color: AppColors.wishCoinsAmber.withValues(alpha: 0.35),
+                            // Cloche de notification (reste accessible directement)
+                            GestureDetector(
+                              onTap: () {
+                                DeviceService.triggerLightHaptic();
+                                _showNotificationSheet(context, birthdayService, settings);
+                              },
+                              child: Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  color: isDark ? const Color(0xFF161C28) : Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: isDark ? const Color(0xFF222B3E) : AppColors.lightBorder,
+                                    width: 1,
                                   ),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  backgroundColor: AppColors.wishCoinsAmber.withValues(alpha: 0.08),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
-                                onPressed: () {
-                                  AiGiftSheet.show(context, activeBirthday);
-                                },
-                                icon: const Icon(
-                                  Icons.lightbulb_outline_rounded,
-                                  color: AppColors.wishCoinsAmber,
-                                  size: 15,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.notifications_none_rounded,
+                                      color: isDark ? Colors.white : AppColors.textMainLight,
+                                      size: 20,
+                                    ),
+                                    Positioned(
+                                      top: 9,
+                                      right: 9,
+                                      child: Container(
+                                        width: 7,
+                                        height: 7,
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.accentCoral,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                label: Text(
-                                  settings.tr('ai_gifts').split(' ').take(2).join(' '),
-                                  style: TextStyle(
-                                    color: isDark ? Colors.white : AppColors.textMainLight,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
+                            // Bouton Menu (regroupe toutes les actions : Anniversaires passés, Ajout, Sync, Import, Thème, Langue)
+                            GestureDetector(
+                              onTap: () {
+                                DeviceService.triggerLightHaptic();
+                                _showActionMenuModal(
+                                  context: context,
+                                  isDark: isDark,
+                                  birthdayService: birthdayService,
+                                  syncService: syncService,
+                                  settings: settings,
+                                  user: user,
+                                  langFlag: langFlag,
+                                );
+                              },
+                              child: Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.35),
+                                    width: 1,
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.menu_rounded,
+                                    color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                                    size: 21,
+                                  ),
                                 ),
                               ),
                             ),
@@ -1341,72 +1085,137 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         ),
                       ],
                     ),
-                  ),
+
+                    const SizedBox(height: 6),
+
+                    // B. EN DESSOUS : Mot de bienvenue + Raccourci vers anniversaires passés
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Bienvenue $firstName 👋',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.1,
+                          ),
+                        ),
+                        if (birthdayService.pastBirthdays.isNotEmpty)
+                          InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () {
+                              DeviceService.triggerLightHaptic();
+                              context.push('/birthdays/past');
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: (isDark ? AppColors.cyanLight : AppColors.primaryCyan).withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: (isDark ? AppColors.cyanLight : AppColors.primaryCyan).withValues(alpha: 0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.history_rounded,
+                                    size: 13,
+                                    color: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${birthdayService.pastBirthdays.length} passés',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Icon(
+                                    Icons.chevron_right_rounded,
+                                    size: 13,
+                                    color: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
+            ),
 
-            // 3. EXECUTIVE STAT METRICS ROW (3 CLEAN INTERACTIVE CARDS)
+            // 2. VIBRANT STAT METRICS ROW (MATCHING EXECUTIVE DESIGN MOCKUP)
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+              padding: const EdgeInsets.fromLTRB(20, 2, 20, 16),
               sliver: SliverToBoxAdapter(
                 child: Row(
                   children: [
-                    // Stat 1: Total
+                    // Stat 1: Total Suivis
                     Expanded(
-                      child: _buildExecutiveStatCard(
+                      child: _buildVibrantStatCard(
                         context: context,
                         isDark: isDark,
                         isSelected: _selectedCategory == 'TOUS',
                         icon: Icons.cake_rounded,
-                        iconColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
-                        activeGradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-                        ),
                         value: '$totalCount',
-                        label: settings.tr('total_birthdays'),
-                        onTap: () => setState(() => _selectedCategory = 'TOUS'),
+                        label: 'Total',
+                        iconColor: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                        iconBgColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE0F2FE),
+                        onTap: () {
+                          DeviceService.triggerLightHaptic();
+                          setState(() => _selectedCategory = 'TOUS');
+                        },
                       ),
                     ),
                     const SizedBox(width: 10),
 
-                    // Stat 2: Ce mois-ci
+                    // Stat 2: Prochain Anniversaire - Compte à rebours J-X
                     Expanded(
-                      child: _buildExecutiveStatCard(
+                      child: _buildVibrantStatCard(
                         context: context,
                         isDark: isDark,
-                        isSelected: _selectedCategory == 'CE_MOIS',
-                        icon: Icons.calendar_today_rounded,
-                        iconColor: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
-                        activeGradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFF0284C7), Color(0xFF2563EB)],
-                        ),
-                        value: '$thisMonthCount',
-                        label: settings.tr('this_month'),
-                        onTap: () => setState(() => _selectedCategory = 'CE_MOIS'),
+                        isSelected: false,
+                        icon: Icons.timer_rounded,
+                        value: nextBirthday != null
+                            ? (nextBirthday.isToday ? 'Jour J !' : '${nextBirthday.daysRemaining} j')
+                            : '--',
+                        label: nextBirthday != null ? 'Prochain : ${nextBirthday.name.split(' ').first}' : 'Prochain : --',
+                        iconColor: const Color(0xFF06B6D4),
+                        iconBgColor: isDark ? const Color(0xFF0E2F3E) : const Color(0xFFCFFAFE),
+                        onTap: () {
+                          if (nextBirthday != null) {
+                            DeviceService.triggerLightHaptic();
+                            context.push('/birthday/${nextBirthday.id}');
+                          }
+                        },
                       ),
                     ),
                     const SizedBox(width: 10),
 
-                    // Stat 3: Favoris
+                    // Stat 3: À Souhaiter Bientôt (< 7 jours)
                     Expanded(
-                      child: _buildExecutiveStatCard(
+                      child: _buildVibrantStatCard(
                         context: context,
                         isDark: isDark,
-                        isSelected: _selectedCategory == 'FAVORIS',
-                        icon: Icons.star_rounded,
-                        iconColor: AppColors.wishCoinsAmber,
-                        activeGradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [Color(0xFFD97706), Color(0xFFEA580C)],
-                        ),
-                        value: '$favoritesCount',
-                        label: settings.tr('filter_favorites'),
-                        onTap: () => setState(() => _selectedCategory = 'FAVORIS'),
+                        isSelected: false,
+                        icon: Icons.bolt_rounded,
+                        value: '$urgentCount',
+                        label: 'Dans 7 jours',
+                        iconColor: const Color(0xFFF59E0B),
+                        iconBgColor: isDark ? const Color(0xFF332612) : const Color(0xFFFEF3C7),
+                        onTap: () {
+                          DeviceService.triggerLightHaptic();
+                          setState(() => _selectedCategory = 'TOUS');
+                        },
                       ),
                     ),
                   ],
@@ -1414,7 +1223,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
               ),
             ),
 
-            // 4. OFFLINE SYNC BANNER (IF PENDING)
+            // 3. OFFLINE SYNC BANNER (IF PENDING)
             if (syncService.hasPending)
               SliverToBoxAdapter(
                 child: Padding(
@@ -1602,6 +1411,10 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                             case 'CE_MOIS':
                               label = settings.tr('this_month');
                               break;
+                            case 'PASSÉS':
+                            case 'PASSES':
+                              label = settings.currentLanguage == 'fr' ? 'Passés' : 'Past';
+                              break;
                             case 'FAVORIS':
                               label = settings.tr('filter_favorites');
                               break;
@@ -1719,6 +1532,43 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                                   ),
                                 ),
                               ),
+                            ] else ...[
+                              const SizedBox(height: 20),
+                              Wrap(
+                                alignment: WrapAlignment.center,
+                                spacing: 10,
+                                runSpacing: 10,
+                                children: [
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                    onPressed: () {
+                                      DeviceService.triggerLightHaptic();
+                                      context.push('/birthdays/add');
+                                    },
+                                    icon: const Icon(Icons.add_rounded, size: 18),
+                                    label: const Text('Ajouter un contact', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  ),
+                                  OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                      side: BorderSide(color: (isDark ? AppColors.cyanLight : AppColors.primaryCyan).withValues(alpha: 0.5)),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      foregroundColor: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
+                                    ),
+                                    onPressed: () {
+                                      DeviceService.triggerLightHaptic();
+                                      BirthdayImportExportSheet.show(context);
+                                    },
+                                    icon: const Icon(Icons.file_upload_outlined, size: 18),
+                                    label: const Text('Importer JSON', style: TextStyle(fontWeight: FontWeight.bold)),
+                                  ),
+                                ],
+                              ),
                             ],
                           ],
                         ),
@@ -1726,9 +1576,10 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                     )
                   : SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        (context, index) {
+                        (itemContext, index) {
                           final birthday = filtered[index];
                           return Padding(
+                            key: ValueKey('birthday_card_${birthday.id}'),
                             padding: const EdgeInsets.only(bottom: 10.0),
                             child: _buildCelebrationListItem(
                               context: context,
@@ -1750,65 +1601,339 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
     );
   }
 
-  Widget _buildExecutiveStatCard({
+  void _showActionMenuModal({
+    required BuildContext context,
+    required bool isDark,
+    required BirthdayService birthdayService,
+    required SyncService syncService,
+    required SettingsService settings,
+    required UserModel? user,
+    required String langFlag,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: GlassCard(
+          blurAmount: 24,
+          padding: const EdgeInsets.all(22),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 38,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.white24 : Colors.black12,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.menu_open_rounded, color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Menu Time2Wish ⚡',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : AppColors.textMainLight,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Actions rapides et gestion de l\'application',
+                          style: TextStyle(fontSize: 12, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // 1. Anniversaires passés
+              _buildActionMenuItem(
+                context: ctx,
+                isDark: isDark,
+                icon: Icons.history_rounded,
+                iconColor: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
+                title: 'Anniversaires Passés',
+                subtitle: 'Historique des célébrations déjà fêtées cette année (${birthdayService.pastBirthdays.length})',
+                badge: '${birthdayService.pastBirthdays.length}',
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.push('/birthdays/past');
+                },
+              ),
+              const SizedBox(height: 8),
+
+              // 2. Ajouter un anniversaire
+              _buildActionMenuItem(
+                context: ctx,
+                isDark: isDark,
+                icon: Icons.person_add_rounded,
+                iconColor: const Color(0xFF10B981),
+                title: 'Ajouter un contact',
+                subtitle: 'Créer un nouvel anniversaire avec rappels et vœux',
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.push('/birthday/new');
+                },
+              ),
+              const SizedBox(height: 8),
+
+              // 3. Synchronisation
+              _buildActionMenuItem(
+                context: ctx,
+                isDark: isDark,
+                icon: syncService.isSyncing ? Icons.hourglass_top_rounded : Icons.sync_rounded,
+                iconColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                title: syncService.isSyncing ? 'Synchronisation en cours...' : 'Synchroniser maintenant',
+                subtitle: syncService.hasPending ? '${syncService.queue.length} modification(s) en attente' : 'Données synchronisées',
+                isLoading: syncService.isSyncing,
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _handleManualSync(context, syncService, birthdayService, settings);
+                },
+              ),
+              const SizedBox(height: 8),
+
+              // 4. Sauvegarde & Import / Export
+              _buildActionMenuItem(
+                context: ctx,
+                isDark: isDark,
+                icon: Icons.sync_alt_rounded,
+                iconColor: const Color(0xFFF59E0B),
+                title: 'Sauvegarde & Import/Export JSON',
+                subtitle: 'Sauvegarder ou importer des anniversaires depuis un fichier',
+                onTap: () {
+                  Navigator.pop(ctx);
+                  BirthdayImportExportSheet.show(context);
+                },
+              ),
+              const SizedBox(height: 8),
+
+              // 5. Langue
+              _buildActionMenuItem(
+                context: ctx,
+                isDark: isDark,
+                customLeading: Text(langFlag, style: const TextStyle(fontSize: 18)),
+                title: 'Langue de l\'application',
+                subtitle: 'Actuellement : ${settings.language == 'fr' ? 'Français' : (settings.language == 'en' ? 'English' : 'Deutsch')}',
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _showLanguageSelector(context, settings);
+                },
+              ),
+              const SizedBox(height: 8),
+
+              // 6. Thème
+              _buildActionMenuItem(
+                context: ctx,
+                isDark: isDark,
+                icon: isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                iconColor: isDark ? Colors.amber : Colors.indigo,
+                title: isDark ? 'Passer en Mode Clair' : 'Passer en Mode Sombre',
+                subtitle: isDark ? 'Interface lumineuse et contrastée' : 'Interface sombre et épurée',
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  await settings.toggleDarkMode();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionMenuItem({
+    required BuildContext context,
+    required bool isDark,
+    IconData? icon,
+    Widget? customLeading,
+    Color? iconColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    String? badge,
+    bool isLoading = false,
+  }) {
+    final effectiveIconColor = iconColor ?? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo);
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: () {
+        DeviceService.triggerLightHaptic();
+        onTap();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF161C28) : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isDark ? const Color(0xFF232D3F) : AppColors.lightBorder,
+            width: 1.0,
+          ),
+        ),
+        child: Row(
+          children: [
+            if (isLoading)
+              SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(strokeWidth: 2, color: effectiveIconColor),
+              )
+            else if (customLeading != null)
+              customLeading
+            else if (icon != null)
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: effectiveIconColor.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: effectiveIconColor, size: 18),
+              ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : AppColors.textMainLight,
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            if (badge != null) ...[
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: (isDark ? AppColors.cyanLight : AppColors.primaryCyan).withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  badge,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? AppColors.cyanLight : AppColors.primaryCyan,
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(width: 6),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 18,
+              color: isDark ? Colors.white38 : Colors.black26,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVibrantStatCard({
     required BuildContext context,
     required bool isDark,
     required bool isSelected,
     required IconData icon,
-    required Color iconColor,
-    required Gradient activeGradient,
     required String value,
     required String label,
     required VoidCallback onTap,
+    Color? iconColor,
+    Color? iconBgColor,
+    Color? textColor,
+    Color? labelColor,
   }) {
+    final effectiveIconBg = iconBgColor ?? (isDark ? const Color(0xFF1E293B) : const Color(0xFFE0F2FE));
+    final effectiveIconColor = iconColor ?? (isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7));
+    final effectiveTextColor = textColor ?? (isDark ? Colors.white : AppColors.textMainLight);
+    final effectiveLabelColor = labelColor ?? (isDark ? AppColors.textMutedDark : AppColors.textMutedLight);
+
+    final effectiveBorder = Border.all(
+      color: isSelected
+          ? (isDark ? const Color(0xFF3B82F6) : AppColors.primaryIndigo)
+          : (isDark ? const Color(0xFF222B3E) : AppColors.lightBorder),
+      width: isSelected ? 1.8 : 1.0,
+    );
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
-        height: 108,
+        height: 118,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF131826) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected
-                ? iconColor
-                : (isDark ? const Color(0xFF232D3F) : AppColors.lightBorder),
-            width: isSelected ? 1.8 : 1.0,
-          ),
+          borderRadius: BorderRadius.circular(18),
+          border: effectiveBorder,
           boxShadow: [
-            if (isSelected)
-              BoxShadow(
-                color: iconColor.withValues(alpha: isDark ? 0.32 : 0.18),
-                blurRadius: 14,
-                offset: const Offset(0, 3),
-              )
-            else
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            // Top left squircle icon
             Container(
-              width: 32,
-              height: 32,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: isDark ? 0.18 : 0.12),
+                color: effectiveIconBg,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 icon,
-                color: iconColor,
-                size: 17,
+                color: effectiveIconColor,
+                size: 20,
               ),
             ),
+            const SizedBox(height: 8),
+
+            // Metric number & label
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -1816,21 +1941,21 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                 Text(
                   value,
                   style: TextStyle(
-                    color: isDark ? Colors.white : AppColors.textMainLight,
-                    fontSize: 22,
+                    color: effectiveTextColor,
+                    fontSize: 24,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: -0.4,
-                    height: 1.0,
+                    letterSpacing: -0.5,
+                    height: 1.1,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
                   label,
                   style: TextStyle(
-                    color: isSelected
-                        ? (isDark ? Colors.white : AppColors.textMainLight)
-                        : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
-                    fontSize: 11,
+                    color: effectiveLabelColor,
+                    fontSize: 12,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     letterSpacing: 0.1,
                   ),
@@ -1854,7 +1979,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
     required bool isDark,
   }) {
     final initial = birthday.name.isNotEmpty ? birthday.name[0].toUpperCase() : '?';
-    final isSelected = _selectedBirthdayId == birthday.id;
 
     Color categoryColor;
     switch (birthday.category.toUpperCase()) {
@@ -1876,19 +2000,15 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         color: isDark ? AppColors.darkCard : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected
-              ? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo)
-              : (birthday.isToday
-                  ? AppColors.accentCoral.withValues(alpha: 0.45)
-                  : (isDark ? AppColors.darkBorderSubtle : AppColors.lightBorder)),
-          width: isSelected ? 2.0 : (birthday.isToday ? 1.5 : 1.0),
+          color: birthday.isToday
+              ? AppColors.accentCoral.withValues(alpha: 0.5)
+              : (isDark ? const Color(0xFF232D3F) : AppColors.lightBorder),
+          width: birthday.isToday ? 1.5 : 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: isSelected
-                ? (isDark ? AppColors.indigoLight.withValues(alpha: 0.25) : AppColors.primaryIndigo.withValues(alpha: 0.15))
-                : Colors.black.withValues(alpha: isDark ? 0.18 : 0.04),
-            blurRadius: isSelected ? 12 : 8,
+            color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.04),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
@@ -1898,9 +2018,11 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            setState(() {
-              _selectedBirthdayId = birthday.id;
-            });
+            DeviceService.triggerLightHaptic();
+            context.push('/birthday/${birthday.id}');
+          },
+          onLongPress: () {
+            DeviceService.triggerMediumHaptic();
             _showBirthdayQuickActionsModal(
               context,
               birthday,
@@ -1913,7 +2035,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
               children: [
-                // Avatar with category ring
+                // Avatar with clean neutral border
                 Container(
                   width: 46,
                   height: 46,
@@ -1921,7 +2043,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                     shape: BoxShape.circle,
                     gradient: AppColors.primaryGradient,
                     border: Border.all(
-                      color: categoryColor.withValues(alpha: 0.6),
+                      color: isDark ? const Color(0xFF2D3748) : Colors.white,
                       width: 2,
                     ),
                   ),
@@ -1967,23 +2089,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (isSelected)
-                            Container(
-                              margin: const EdgeInsets.only(left: 6),
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                              decoration: BoxDecoration(
-                                color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                'Actif',
-                                style: TextStyle(
-                                  color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
                         ],
                       ),
                       const SizedBox(height: 3),
@@ -2006,7 +2111,9 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            '· ${birthday.nextAge} ${settings.tr('turning_age')}',
+                            birthday.isPastThisYear && (_selectedCategory == 'PASSÉS' || _selectedCategory == 'PASSES')
+                                ? '· Fêté : ${birthday.celebratedAge} ans'
+                                : '· ${birthday.nextAge} ${settings.tr('turning_age')}',
                             style: TextStyle(
                               color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
                               fontSize: 12,
@@ -2026,36 +2133,43 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   decoration: BoxDecoration(
                     color: birthday.isToday
                         ? AppColors.accentCoral.withValues(alpha: 0.15)
-                        : (birthday.daysRemaining <= 7
-                            ? AppColors.wishCoinsAmber.withValues(alpha: 0.14)
-                            : (isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated)),
+                        : (birthday.isPastThisYear && (_selectedCategory == 'PASSÉS' || _selectedCategory == 'PASSES')
+                            ? (isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05))
+                            : (birthday.daysRemaining <= 7
+                                ? AppColors.wishCoinsAmber.withValues(alpha: 0.14)
+                                : (isDark ? AppColors.darkCardElevated : AppColors.lightCardElevated))),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: birthday.isToday
                           ? AppColors.accentCoral.withValues(alpha: 0.4)
-                          : (birthday.daysRemaining <= 7
-                              ? AppColors.wishCoinsAmber.withValues(alpha: 0.3)
-                              : Colors.transparent),
+                          : (birthday.isPastThisYear && (_selectedCategory == 'PASSÉS' || _selectedCategory == 'PASSES')
+                              ? (isDark ? Colors.white12 : Colors.black12)
+                              : (birthday.daysRemaining <= 7
+                                  ? AppColors.wishCoinsAmber.withValues(alpha: 0.3)
+                                  : Colors.transparent)),
                     ),
                   ),
                   child: Text(
                     birthday.isToday
                         ? '🎂 ${settings.tr('today')}'
-                        : (birthday.daysRemaining <= 1
-                            ? settings.tr('in_day')
-                            : '${settings.tr('in_days')} ${birthday.daysRemaining} j'),
+                        : (birthday.isPastThisYear && (_selectedCategory == 'PASSÉS' || _selectedCategory == 'PASSES')
+                            ? 'Il y a ${birthday.daysSinceOccurrence} j'
+                            : (birthday.daysRemaining <= 1
+                                ? settings.tr('in_day')
+                                : '${settings.tr('in_days')} ${birthday.daysRemaining} j')),
                     style: TextStyle(
                       color: birthday.isToday
                           ? AppColors.accentCoral
-                          : (birthday.daysRemaining <= 7
-                              ? AppColors.wishCoinsAmber
-                              : (isDark ? AppColors.cyanLight : AppColors.primaryIndigo)),
+                          : (birthday.isPastThisYear && (_selectedCategory == 'PASSÉS' || _selectedCategory == 'PASSES')
+                              ? (isDark ? AppColors.textMutedDark : AppColors.textMutedLight)
+                              : (birthday.daysRemaining <= 7
+                                  ? AppColors.wishCoinsAmber
+                                  : (isDark ? AppColors.cyanLight : AppColors.primaryIndigo))),
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-
                 const SizedBox(width: 4),
 
                 // Quick AI Wish Action Button (directly on row)
@@ -2066,7 +2180,6 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
                   onPressed: () {
-                    setState(() => _selectedBirthdayId = birthday.id);
                     AiWishDialog.show(context, birthday.id, apiService);
                   },
                 ),
@@ -2093,7 +2206,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
                   onPressed: () {
-                    setState(() => _selectedBirthdayId = birthday.id);
+                    DeviceService.triggerLightHaptic();
                     context.push('/birthday/${birthday.id}');
                   },
                 ),

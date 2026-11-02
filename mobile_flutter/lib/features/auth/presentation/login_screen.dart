@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/services/birthday_service.dart';
+import '../../../core/services/device_service.dart';
+import '../../../core/services/settings_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 
@@ -90,6 +93,332 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  void _showOfflineLoginModal(BuildContext context, bool isDark, AuthService authService) async {
+    final savedAccounts = await authService.getSavedOfflineAccounts();
+    final usernameController = TextEditingController(
+      text: savedAccounts.isNotEmpty ? ((savedAccounts.first['fullName'] ?? savedAccounts.first['name']) ?? '').toString() : '',
+    );
+    final pinController = TextEditingController();
+    bool obscurePin = true;
+    String? modalError;
+    bool isSubmitting = false;
+
+    if (!context.mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (modalCtx, setModalState) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(modalCtx).viewInsets.bottom,
+          ),
+          child: Container(
+            margin: const EdgeInsets.all(16),
+            child: GlassCard(
+              blurAmount: 24,
+              padding: const EdgeInsets.all(22),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 38,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.white24 : Colors.black12,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.shield_outlined, color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Session Hors-ligne Sécurisée 🔐',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white : AppColors.textMainLight,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Sessions isolées & protégées par code secret',
+                                style: TextStyle(fontSize: 12, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Quick account chips if saved accounts exist
+                    if (savedAccounts.isNotEmpty) ...[
+                      Text(
+                        'Comptes hors-ligne détectés :',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: savedAccounts.map((acc) {
+                          final accName = (acc['fullName'] ?? acc['name'] ?? 'Invité').toString();
+                          final isSelected = usernameController.text.trim().toLowerCase() == accName.trim().toLowerCase();
+                          return InkWell(
+                            borderRadius: BorderRadius.circular(20),
+                            onTap: () {
+                              setModalState(() {
+                                usernameController.text = accName;
+                                modalError = null;
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? (isDark ? AppColors.indigoLight.withValues(alpha: 0.25) : AppColors.primaryIndigo.withValues(alpha: 0.15))
+                                    : (isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.04)),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo)
+                                      : (isDark ? Colors.white12 : Colors.black12),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.account_circle,
+                                    size: 14,
+                                    color: isSelected ? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo) : (isDark ? Colors.white70 : Colors.black54),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    accName,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      color: isSelected ? (isDark ? Colors.white : AppColors.primaryIndigo) : (isDark ? Colors.white70 : Colors.black87),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 14),
+                    ],
+
+                    // Username input
+                    TextField(
+                      controller: usernameController,
+                      autofocus: savedAccounts.isEmpty,
+                      style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                      decoration: InputDecoration(
+                        labelText: 'Nom d\'utilisateur ou Prénom',
+                        hintText: 'ex: Alice ou Thomas',
+                        labelStyle: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                        prefixIcon: Icon(Icons.person_rounded, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                        filled: true,
+                        fillColor: isDark ? const Color(0xFF141B26) : const Color(0xFFF1F5F9),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder)),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: isDark ? AppColors.darkBorderSubtle : AppColors.lightBorderSubtle)),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, width: 1.5)),
+                      ),
+                      onChanged: (_) {
+                        if (modalError != null) setModalState(() => modalError = null);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Security code / PIN input
+                    TextField(
+                      controller: pinController,
+                      obscureText: obscurePin,
+                      keyboardType: TextInputType.text,
+                      style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                      decoration: InputDecoration(
+                        labelText: 'Code de sécurité / PIN',
+                        hintText: 'ex: 1234 ou mot de passe',
+                        labelStyle: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                        prefixIcon: Icon(Icons.lock_rounded, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            obscurePin ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                            color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                          ),
+                          onPressed: () => setModalState(() => obscurePin = !obscurePin),
+                        ),
+                        filled: true,
+                        fillColor: isDark ? const Color(0xFF141B26) : const Color(0xFFF1F5F9),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: isDark ? AppColors.darkBorder : AppColors.lightBorder)),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: isDark ? AppColors.darkBorderSubtle : AppColors.lightBorderSubtle)),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo, width: 1.5)),
+                      ),
+                      onChanged: (_) {
+                        if (modalError != null) setModalState(() => modalError = null);
+                      },
+                    ),
+
+                    if (modalError != null) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                modalError!,
+                                style: const TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 12),
+                    Text(
+                      '💡 Si ce compte existe déjà, le code de sécurité déverrouille votre session. Sinon, une nouvelle session protégée est créée.',
+                      style: TextStyle(fontSize: 11.5, color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, height: 1.3),
+                    ),
+                    const SizedBox(height: 18),
+
+                    // Button submit
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                        onPressed: isSubmitting
+                            ? null
+                            : () async {
+                                final name = usernameController.text.trim();
+                                final pin = pinController.text.trim();
+
+                                if (name.isEmpty) {
+                                  setModalState(() => modalError = 'Veuillez saisir votre nom ou prénom.');
+                                  return;
+                                }
+                                if (pin.isEmpty) {
+                                  setModalState(() => modalError = 'Veuillez définir un code de sécurité (PIN).');
+                                  return;
+                                }
+
+                                setModalState(() {
+                                  isSubmitting = true;
+                                  modalError = null;
+                                });
+
+                                final res = await authService.loginOffline(
+                                  username: name,
+                                  securityCode: pin,
+                                );
+
+                                if (res == OfflineAuthResult.invalidPin) {
+                                  DeviceService.triggerErrorHaptic();
+                                  setModalState(() {
+                                    isSubmitting = false;
+                                    modalError = 'Code de sécurité incorrect pour ce compte.';
+                                  });
+                                  return;
+                                }
+
+                                if (res == OfflineAuthResult.emptyUsername || res == OfflineAuthResult.emptyPin) {
+                                  DeviceService.triggerErrorHaptic();
+                                  setModalState(() {
+                                    isSubmitting = false;
+                                    modalError = 'Informations de session incomplètes.';
+                                  });
+                                  return;
+                                }
+
+                                Navigator.pop(modalCtx);
+                                if (!context.mounted) return;
+
+                                final bdayService = Provider.of<BirthdayService>(context, listen: false);
+                                await bdayService.reloadForUser(authService.currentUser?.id);
+
+                                DeviceService.triggerSuccessHaptic();
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      res == OfflineAuthResult.created
+                                          ? 'Nouvelle session créée pour $name avec code de protection ! 🎉'
+                                          : 'Session déverrouillée : bienvenue $name ! 🔓',
+                                    ),
+                                    backgroundColor: const Color(0xFF10B981),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+
+                                context.go('/dashboard');
+                              },
+                        icon: isSubmitting
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              )
+                            : const Icon(Icons.lock_open_rounded, color: Colors.white, size: 18),
+                        label: Text(
+                          isSubmitting ? 'Connexion en cours...' : 'Déverrouiller ou Créer la Session',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.5),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _animatedChild(int index, Widget child) {
     return AnimatedBuilder(
       animation: _animController,
@@ -106,12 +435,18 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final settings = Provider.of<SettingsService>(context);
+    final isDark = settings.isDarkMode;
+
+    final primaryColor = isDark ? AppColors.indigoLight : AppColors.primaryIndigo;
+    final textMain = isDark ? Colors.white : AppColors.textMainLight;
+    final textMuted = isDark ? AppColors.textMutedDark : AppColors.textMutedLight;
+    final inputBg = isDark ? const Color(0xFF141B26) : const Color(0xFFF8FAFC);
+    final borderCol = isDark ? AppColors.darkBorderSubtle : AppColors.lightBorder;
 
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
-        ),
+        color: isDark ? AppColors.darkCanvas : AppColors.lightCanvas,
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -129,12 +464,12 @@ class _LoginScreenState extends State<LoginScreen>
                         borderRadius: BorderRadius.circular(22),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primaryCyan.withValues(alpha: 0.45),
+                            color: primaryColor.withValues(alpha: 0.35),
                             blurRadius: 24,
                             spreadRadius: 1,
                           ),
                           BoxShadow(
-                            color: AppColors.accentPurple.withValues(alpha: 0.35),
+                            color: AppColors.accentPurple.withValues(alpha: 0.25),
                             blurRadius: 32,
                             spreadRadius: 4,
                           ),
@@ -163,31 +498,33 @@ class _LoginScreenState extends State<LoginScreen>
                       children: [
                         ShaderMask(
                           shaderCallback: (bounds) => const LinearGradient(
-                            colors: [AppColors.primaryCyan, AppColors.accentPurple],
+                            colors: [Color(0xFF4F46E5), Color(0xFF8B5CF6)],
                           ).createShader(bounds),
                           child: Text(
                             'Time2Wish',
                             style: Theme.of(context).textTheme.displayLarge?.copyWith(
                               fontSize: 34,
                               color: Colors.white,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ),
                         const SizedBox(height: 6),
-                        const Text(
+                        Text(
                           'N\'oubliez plus jamais un anniversaire',
-                          style: TextStyle(color: AppColors.textMutedDark, fontSize: 14),
+                          style: TextStyle(color: textMuted, fontSize: 14),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 36),
+                  const SizedBox(height: 32),
 
                   // Form Card
                   _animatedChild(
                     2,
                     GlassCard(
                       blurAmount: 24,
+                      padding: const EdgeInsets.all(22),
                       child: Form(
                         key: _formKey,
                         child: Column(
@@ -195,7 +532,11 @@ class _LoginScreenState extends State<LoginScreen>
                           children: [
                             Text(
                               'Connexion',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22),
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: textMain,
+                              ),
                             ),
                             const SizedBox(height: 20),
 
@@ -227,24 +568,24 @@ class _LoginScreenState extends State<LoginScreen>
                             TextFormField(
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(color: textMain),
                               decoration: InputDecoration(
                                 labelText: 'Email',
-                                labelStyle: const TextStyle(color: AppColors.textMutedDark),
-                                prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textMutedDark),
+                                labelStyle: TextStyle(color: textMuted),
+                                prefixIcon: Icon(Icons.email_outlined, color: textMuted),
                                 filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.06),
+                                fillColor: inputBg,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: AppColors.borderLight),
+                                  borderSide: BorderSide(color: borderCol),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: AppColors.borderLight),
+                                  borderSide: BorderSide(color: borderCol),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(color: AppColors.primaryCyan, width: 1.5),
+                                  borderSide: BorderSide(color: primaryColor, width: 1.5),
                                 ),
                               ),
                               validator: (val) {
@@ -260,32 +601,32 @@ class _LoginScreenState extends State<LoginScreen>
                             TextFormField(
                               controller: _passwordController,
                               obscureText: _obscurePassword,
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(color: textMain),
                               decoration: InputDecoration(
                                 labelText: 'Mot de passe',
-                                labelStyle: const TextStyle(color: AppColors.textMutedDark),
-                                prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textMutedDark),
+                                labelStyle: TextStyle(color: textMuted),
+                                prefixIcon: Icon(Icons.lock_outline, color: textMuted),
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                    color: AppColors.textMutedDark,
+                                    color: textMuted,
                                     size: 20,
                                   ),
                                   onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                                 ),
                                 filled: true,
-                                fillColor: Colors.white.withValues(alpha: 0.06),
+                                fillColor: inputBg,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: AppColors.borderLight),
+                                  borderSide: BorderSide(color: borderCol),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: BorderSide(color: AppColors.borderLight),
+                                  borderSide: BorderSide(color: borderCol),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(color: AppColors.primaryCyan, width: 1.5),
+                                  borderSide: BorderSide(color: primaryColor, width: 1.5),
                                 ),
                               ),
                               validator: (val) {
@@ -299,14 +640,16 @@ class _LoginScreenState extends State<LoginScreen>
 
                             // Gradient Submit Button
                             Container(
-                              height: 54,
+                              height: 52,
                               decoration: BoxDecoration(
-                                gradient: AppColors.primaryGradient,
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                                ),
                                 borderRadius: BorderRadius.circular(14),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.primaryCyan.withValues(alpha: 0.4),
-                                    blurRadius: 16,
+                                    color: primaryColor.withValues(alpha: 0.35),
+                                    blurRadius: 14,
                                     offset: const Offset(0, 4),
                                   ),
                                 ],
@@ -332,7 +675,8 @@ class _LoginScreenState extends State<LoginScreen>
                                       ),
                               ),
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 10),
+
                             Center(
                               child: TextButton.icon(
                                 onPressed: () {
@@ -342,10 +686,50 @@ class _LoginScreenState extends State<LoginScreen>
                                   });
                                 },
                                 icon: const Icon(Icons.bolt_rounded, color: AppColors.wishCoinsAmber, size: 18),
-                                label: const Text(
-                                  'Remplir le compte d\u00e9mo',
-                                  style: TextStyle(color: AppColors.textMutedDark, fontSize: 13),
+                                label: Text(
+                                  'Remplir le compte démo',
+                                  style: TextStyle(color: textMuted, fontSize: 13),
                                 ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            // Separator
+                            Row(
+                              children: [
+                                Expanded(child: Divider(color: isDark ? Colors.white12 : AppColors.lightBorder)),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                                  child: Text(
+                                    'OU SANS COMPTE',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: textMuted,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(child: Divider(color: isDark ? Colors.white12 : AppColors.lightBorder)),
+                              ],
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            // Offline Mode Button
+                            OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 13),
+                                side: BorderSide(color: primaryColor.withValues(alpha: 0.45)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                foregroundColor: primaryColor,
+                              ),
+                              onPressed: () => _showOfflineLoginModal(context, isDark, authService),
+                              icon: const Icon(Icons.wifi_off_rounded, size: 18),
+                              label: const Text(
+                                'Mode Hors-ligne (Invité) 🚀',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                               ),
                             ),
                           ],
@@ -362,16 +746,16 @@ class _LoginScreenState extends State<LoginScreen>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           'Pas encore de compte ? ',
-                          style: TextStyle(color: AppColors.textMutedDark),
+                          style: TextStyle(color: textMuted),
                         ),
                         TextButton(
                           onPressed: () => context.go('/register'),
-                          child: const Text(
+                          child: Text(
                             'S\'inscrire',
                             style: TextStyle(
-                              color: AppColors.primaryCyan,
+                              color: primaryColor,
                               fontWeight: FontWeight.bold,
                             ),
                           ),

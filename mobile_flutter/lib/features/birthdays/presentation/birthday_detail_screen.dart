@@ -11,6 +11,7 @@ import '../../../core/services/birthday_service.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/services/gift_service.dart';
 import '../../../core/services/device_service.dart';
+import '../../../core/widgets/celebration_effect.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/glowing_badge.dart';
@@ -870,7 +871,7 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                             else
                               ElevatedButton(
                                 onPressed: () {
-                                  DeviceService.triggerLightHaptic();
+                                  CelebrationEffect.show(context);
                                   giftService.toggleReserveGift(birthday.id, actualGiftId, 'Vous', fallbackIndex: index);
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(

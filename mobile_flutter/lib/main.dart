@@ -19,6 +19,7 @@ import 'features/birthdays/presentation/birthday_detail_screen.dart';
 import 'features/birthdays/presentation/birthday_form_screen.dart';
 import 'features/messaging/presentation/chat_screen.dart';
 import 'features/profile/presentation/profile_edit_screen.dart';
+import 'features/birthdays/presentation/past_birthdays_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,6 +85,10 @@ class _Time2WishAppState extends State<Time2WishApp> {
         GoRoute(
           path: '/birthday/new',
           builder: (context, state) => const BirthdayFormScreen(),
+        ),
+        GoRoute(
+          path: '/birthdays/past',
+          builder: (context, state) => const PastBirthdaysScreen(),
         ),
         GoRoute(
           path: '/birthday/:id',

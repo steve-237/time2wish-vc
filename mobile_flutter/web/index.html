@@ -1,24 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Time2Wish - L'assistant intelligent pour vos anniversaires & célébrations">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -31,16 +21,126 @@
 
   <title>Time2Wish</title>
   <link rel="manifest" href="manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        for (var r of regs) r.unregister();
+      });
+    }
+    if ('caches' in window) {
+      caches.keys().then(function(names) {
+        for (var n of names) caches.delete(n);
+      });
+    }
+
+    // High quality Web Audio synthesizer for UI sound effects
+    window.t2wPlaySound = function(type) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        if (!window._t2wAudioCtx) {
+          window._t2wAudioCtx = new AudioCtx();
+        }
+        const ctx = window._t2wAudioCtx;
+        if (ctx.state === 'suspended') {
+          ctx.resume();
+        }
+        const now = ctx.currentTime;
+        if (type === 'click' || type === 'pop') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(780, now + 0.035);
+          gain.gain.setValueAtTime(0.09, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.045);
+        } else if (type === 'success' || type === 'chime') {
+          [523.25, 659.25, 783.99, 1046.50].forEach(function(freq, idx) {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+            gain.gain.setValueAtTime(0.12, now + idx * 0.06);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.32);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.06);
+            osc.stop(now + idx * 0.06 + 0.32);
+          });
+        } else if (type === 'celebrate') {
+          [440, 554.37, 659.25, 880, 1108.73].forEach(function(freq, idx) {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+            gain.gain.setValueAtTime(0.14, now + idx * 0.07);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.45);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.07);
+            osc.stop(now + idx * 0.07 + 0.45);
+          });
+        }
+      } catch (e) {
+        console.warn('Audio feedback error:', e);
+      }
+    };
+
+    // File download helper
+    window.t2wDownloadFile = function(filename, content, mimeType) {
+      try {
+        const blob = new Blob([content], { type: mimeType || 'application/json;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function() {
+          URL.revokeObjectURL(url);
+        }, 1000);
+      } catch (e) {
+        console.error('File download error:', e);
+      }
+    };
+
+    // File picker / uploader helper
+    window.t2wPickFile = function(accept) {
+      return new Promise(function(resolve) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = accept || '.json,application/json,text/plain';
+        input.style.display = 'none';
+        input.onchange = function(e) {
+          const file = e.target.files && e.target.files[0];
+          if (!file) {
+            resolve('');
+            if (input.parentNode) input.parentNode.removeChild(input);
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            resolve(evt.target.result || '');
+            if (input.parentNode) input.parentNode.removeChild(input);
+          };
+          reader.onerror = function() {
+            resolve('');
+            if (input.parentNode) input.parentNode.removeChild(input);
+          };
+          reader.readAsText(file);
+        };
+        document.body.appendChild(input);
+        input.click();
+      });
+    };
+  </script>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
-  <script src="flutter_bootstrap.js" async></script>
+  <script src="flutter_bootstrap.js?v=20261031_1838" async></script>
 </body>
 </html>

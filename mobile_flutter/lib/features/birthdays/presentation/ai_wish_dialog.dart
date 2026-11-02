@@ -6,18 +6,22 @@ import '../../../core/services/settings_service.dart';
 import '../../../core/services/ai_service.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/services/device_service.dart';
+import '../../../core/widgets/celebration_effect.dart';
 
 class AiWishDialog extends StatefulWidget {
   final int birthdayId;
   final ApiService apiService;
+  final String? initialTone;
 
   const AiWishDialog({
     super.key,
     required this.birthdayId,
     required this.apiService,
+    this.initialTone,
   });
 
-  static Future<void> show(BuildContext context, int birthdayId, ApiService apiService) {
+  static Future<void> show(BuildContext context, int birthdayId, ApiService apiService, {String? initialTone}) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -25,6 +29,7 @@ class AiWishDialog extends StatefulWidget {
       builder: (context) => AiWishDialog(
         birthdayId: birthdayId,
         apiService: apiService,
+        initialTone: initialTone,
       ),
     );
   }
@@ -51,6 +56,9 @@ class _AiWishDialogState extends State<AiWishDialog> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialTone != null && _tones.containsKey(widget.initialTone)) {
+      _selectedTone = widget.initialTone!;
+    }
     _aiService = AiService(widget.apiService);
     _generateWish();
   }
@@ -71,6 +79,9 @@ class _AiWishDialogState extends State<AiWishDialog> {
         _generatedWish = wish;
         _isLoading = false;
       });
+      if (mounted) {
+        CelebrationEffect.show(context);
+      }
     } catch (e) {
       setState(() {
         _error = 'Erreur lors de la génération. Réessayez.';
@@ -81,6 +92,7 @@ class _AiWishDialogState extends State<AiWishDialog> {
 
   void _copyToClipboard() {
     if (_generatedWish.isNotEmpty) {
+      DeviceService.triggerLightHaptic();
       Clipboard.setData(ClipboardData(text: _generatedWish));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

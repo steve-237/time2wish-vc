@@ -153,8 +153,10 @@ class GiftService extends ChangeNotifier {
     } catch (e) {
       debugPrint('[GiftService] Offline/fallback gift fetch: $e');
       final loaded = await _storageService.loadGifts();
-      if (loaded.containsKey(birthdayId)) {
+      if (loaded.containsKey(birthdayId) && loaded[birthdayId]!.isNotEmpty) {
         _giftsCache[birthdayId] = loaded[birthdayId]!;
+      } else if ((_giftsCache[birthdayId]?.isEmpty ?? true) && _getDemoGifts().containsKey(birthdayId)) {
+        _giftsCache[birthdayId] = _getDemoGifts()[birthdayId]!;
       }
     } finally {
       _isLoading = false;
