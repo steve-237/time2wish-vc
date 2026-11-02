@@ -18,6 +18,7 @@ import '../../../core/widgets/glowing_badge.dart';
 import 'ai_wish_dialog.dart';
 import 'ai_gift_sheet.dart';
 import 'fundraiser_sheet.dart';
+import 'astrology_insight_card.dart';
 
 class BirthdayDetailScreen extends StatefulWidget {
   final int birthdayId;
@@ -87,12 +88,13 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
   }
 
   Widget _staggeredChild(int index, Widget child) {
+    final safeIndex = index.clamp(0, _fadeAnims.length - 1);
     return AnimatedBuilder(
       animation: _animController,
       builder: (context, _) => Opacity(
-        opacity: _fadeAnims[index].value,
+        opacity: _fadeAnims[safeIndex].value,
         child: Transform.translate(
-          offset: _slideAnims[index].value,
+          offset: _slideAnims[safeIndex].value,
           child: child,
         ),
       ),
@@ -376,6 +378,19 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                     ),
                   ),
                 ),
+
+                // 2.b Astrology & Zodiac Insights Widget (if enabled in settings)
+                if (settings.showAstrology) ...[
+                  const SizedBox(height: 20),
+                  _staggeredChild(
+                    2,
+                    AstrologyInsightCard(
+                      birthday: birthday,
+                      settings: settings,
+                      isDark: isDark,
+                    ),
+                  ),
+                ],
 
                 if (birthday.interests.isNotEmpty) ...[
                   const SizedBox(height: 20),

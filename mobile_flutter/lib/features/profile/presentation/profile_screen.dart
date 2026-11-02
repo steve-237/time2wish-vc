@@ -363,6 +363,46 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
 
+            const SizedBox(height: 10),
+            GlassCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Text('✨', style: TextStyle(fontSize: 18)),
+                ),
+                title: Text(
+                  settings.tr('astrology_insights'),
+                  style: TextStyle(
+                    color: isDark ? Colors.white : AppColors.textMainLight,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                subtitle: Text(
+                  settings.tr('astrology_desc'),
+                  style: TextStyle(
+                    color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                    fontSize: 11.5,
+                  ),
+                ),
+                trailing: Switch(
+                  value: settings.showAstrology,
+                  onChanged: (val) {
+                    DeviceService.triggerLightHaptic();
+                    settings.toggleShowAstrology(val);
+                  },
+                  activeTrackColor: const Color(0xFF8B5CF6),
+                  activeThumbColor: Colors.white,
+                ),
+              ),
+            ),
+
             const SizedBox(height: 20),
 
             // --- SECTION 3: COMPTE & PARAMÈTRES ---

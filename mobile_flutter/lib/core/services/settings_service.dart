@@ -4,9 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsService extends ChangeNotifier {
   static const _themeKey = 'app_theme_mode';
   static const _langKey = 'app_language';
+  static const _astrologyKey = 'app_show_astrology';
 
   ThemeMode _themeMode = ThemeMode.dark;
   String _language = 'fr'; // 'fr', 'en', or 'de'
+  bool _showAstrology = true;
   bool _isInitialized = false;
 
   SettingsService() {
@@ -18,6 +20,7 @@ class SettingsService extends ChangeNotifier {
   String get currentLanguage => _language;
   bool get isDarkMode => _themeMode == ThemeMode.dark;
   bool get isInitialized => _isInitialized;
+  bool get showAstrology => _showAstrology;
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -33,6 +36,7 @@ class SettingsService extends ChangeNotifier {
     }
 
     _language = prefs.getString(_langKey) ?? 'fr';
+    _showAstrology = prefs.getBool(_astrologyKey) ?? true;
     _isInitialized = true;
     notifyListeners();
   }
@@ -57,6 +61,13 @@ class SettingsService extends ChangeNotifier {
     }
   }
 
+  Future<void> toggleShowAstrology(bool value) async {
+    _showAstrology = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_astrologyKey, value);
+  }
+
   Future<void> setLanguage(String lang) async {
     if (lang != 'fr' && lang != 'en' && lang != 'de') return;
     _language = lang;
@@ -74,6 +85,14 @@ class SettingsService extends ChangeNotifier {
   static const Map<String, Map<String, String>> _translations = {
     'fr': {
       'dashboard': 'Tableau de bord',
+      'astrology_insights': 'Insights Astrologiques & Zodiaque',
+      'astrology_desc': 'Signes occidentaux et chinois, éléments et horoscopes',
+      'chinese_zodiac': 'Zodiaque Chinois',
+      'western_zodiac': 'Zodiaque Occidental',
+      'lucky_numbers': 'Chiffres porte-bonheur',
+      'lucky_day': 'Jour chanceux',
+      'celebration_horoscope': 'Horoscope de Célébration',
+      'compatibility_test': 'Test de synergie cosmique',
       'past_birthdays': 'Passés',
       'past_birthdays_title': 'Anniversaires passés',
       'birthdays': 'Anniversaires',
@@ -139,6 +158,14 @@ class SettingsService extends ChangeNotifier {
     },
     'en': {
       'dashboard': 'Dashboard',
+      'astrology_insights': 'Astrology & Zodiac Insights',
+      'astrology_desc': 'Western & Chinese zodiac signs, elements and horoscopes',
+      'chinese_zodiac': 'Chinese Zodiac',
+      'western_zodiac': 'Western Zodiac',
+      'lucky_numbers': 'Lucky Numbers',
+      'lucky_day': 'Lucky Day',
+      'celebration_horoscope': 'Celebration Horoscope',
+      'compatibility_test': 'Cosmic Synergy Test',
       'past_birthdays': 'Past',
       'past_birthdays_title': 'Past birthdays',
       'birthdays': 'Birthdays',

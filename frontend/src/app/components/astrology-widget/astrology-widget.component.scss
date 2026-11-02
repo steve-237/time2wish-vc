@@ -1,0 +1,421 @@
+.astrology-card {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, rgba(23, 25, 56, 0.75), rgba(31, 27, 60, 0.85));
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.12);
+  color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 12px 32px rgba(139, 92, 246, 0.2);
+  }
+}
+
+.astrology-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .celestial-badge {
+      font-size: 1.4rem;
+      padding: 0.4rem;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .title-group {
+      .astrology-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+        color: #ffffff;
+      }
+
+      .astrology-sub {
+        font-size: 0.8rem;
+        color: #94a3b8;
+      }
+    }
+  }
+
+  .element-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &.element-fire {
+      background: rgba(239, 68, 68, 0.18);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    &.element-water {
+      background: rgba(6, 182, 212, 0.18);
+      color: #22d3ee;
+      border: 1px solid rgba(6, 182, 212, 0.4);
+    }
+    &.element-earth {
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    &.element-air {
+      background: rgba(99, 102, 241, 0.18);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+    }
+
+    .element-icon {
+      font-size: 14px;
+    }
+  }
+}
+
+.dual-signs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+
+  .sign-box {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 1rem;
+    border-radius: 0.85rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    .sign-symbol {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .sign-meta {
+      .sign-name {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #ffffff;
+      }
+      .sign-type {
+        font-size: 0.75rem;
+        color: #94a3b8;
+      }
+    }
+  }
+}
+
+.traits-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  .trait-pill {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.06);
+    color: #e2e8f0;
+    font-weight: 500;
+  }
+}
+
+.lucky-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 0.65rem 1rem;
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 0.8rem;
+  color: #cbd5e1;
+
+  .lucky-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    .lucky-icon {
+      font-size: 16px;
+      color: #fbbf24;
+    }
+
+    strong {
+      color: #ffffff;
+    }
+  }
+}
+
+.horoscope-box {
+  padding: 1rem;
+  border-radius: 0.85rem;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(99, 102, 241, 0.08));
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .horoscope-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #c4b5fd;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .horoscope-text {
+    font-size: 0.825rem;
+    line-height: 1.5;
+    color: #e2e8f0;
+    margin: 0;
+  }
+
+  .horoscope-affirmation {
+    font-size: 0.8rem;
+    font-style: italic;
+    color: #a78bfa;
+    margin-top: 0.25rem;
+    font-weight: 500;
+  }
+}
+
+.compat-action {
+  .compat-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.85rem;
+    border: none;
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(139, 92, 246, 0.45);
+    }
+
+    .material-symbols-outlined {
+      font-size: 18px;
+    }
+  }
+}
+
+// Modal Styles
+.compat-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1rem;
+}
+
+.compat-modal-card {
+  width: 100%;
+  max-width: 480px;
+  background: #1e1b4b;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  color: #f8fafc;
+}
+
+.compat-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .title-with-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .sparkle {
+      font-size: 1.2rem;
+    }
+
+    h4 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+  }
+
+  .close-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+
+    &:hover {
+      color: #ffffff;
+    }
+  }
+}
+
+.partner-select-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  label {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+  }
+
+  .partner-dropdown {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.65rem;
+    color: #ffffff;
+    font-size: 0.9rem;
+    outline: none;
+
+    option {
+      background: #1e1b4b;
+      color: #ffffff;
+    }
+  }
+}
+
+.compatibility-result {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(46, 16, 101, 0.6), rgba(30, 27, 75, 0.6));
+  border: 1px solid rgba(139, 92, 246, 0.3);
+
+  .signs-duo {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+
+    .sign-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+
+      .duo-emoji {
+        font-size: 2rem;
+      }
+      .duo-name {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: #ffffff;
+      }
+    }
+
+    .score-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.4rem 0.85rem;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      border-radius: 1rem;
+
+      .score-number {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #34d399;
+      }
+      .score-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        color: #a7f3d0;
+        letter-spacing: 0.5px;
+      }
+    }
+  }
+
+  .harmony-header {
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #c4b5fd;
+  }
+
+  .synergy-desc {
+    text-align: center;
+    font-size: 0.825rem;
+    line-height: 1.45;
+    color: #e2e8f0;
+    margin: 0;
+  }
+
+  .harmony-tip {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.65rem;
+    background: rgba(0, 0, 0, 0.25);
+    font-size: 0.775rem;
+    font-style: italic;
+    color: #cbd5e1;
+
+    p {
+      margin: 0;
+    }
+  }
+}
+
+.modal-close-btn {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+}

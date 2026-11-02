@@ -1,0 +1,146 @@
+@if (astrologyService.showAstrology() && insight()) {
+  <div class="astrology-card" [class]="getElementClass(insight()?.element)">
+    <!-- Header -->
+    <div class="astrology-header">
+      <div class="header-left">
+        <span class="celestial-badge">✨</span>
+        <div class="title-group">
+          <h3 class="astrology-title">Insights Astrologiques & Zodiaque</h3>
+          <span class="astrology-sub">{{ insight()?.westernDateRange }} · Planète {{ insight()?.rulingPlanet }}</span>
+        </div>
+      </div>
+      <div class="element-pill" [class]="getElementClass(insight()?.element)">
+        <span class="material-symbols-outlined element-icon">auto_awesome</span>
+        {{ insight()?.element }}
+      </div>
+    </div>
+
+    <!-- Dual Signs Showcase -->
+    <div class="dual-signs-grid">
+      <!-- Western Sign -->
+      <div class="sign-box western-box">
+        <div class="sign-symbol">{{ insight()?.westernEmoji }}</div>
+        <div class="sign-meta">
+          <div class="sign-name">{{ insight()?.westernSign }}</div>
+          <div class="sign-type">Zodiaque Occidental</div>
+        </div>
+      </div>
+
+      <!-- Chinese Sign -->
+      <div class="sign-box chinese-box">
+        <div class="sign-symbol">{{ insight()?.chineseEmoji }}</div>
+        <div class="sign-meta">
+          <div class="sign-name">{{ insight()?.chineseAnimal }} {{ insight()?.chineseElement }}</div>
+          <div class="sign-type">Signe Chinois ({{ insight()?.polarity }})</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Traits Wrap -->
+    @if (insight()?.personalityTraits?.length) {
+      <div class="traits-wrap">
+        @for (trait of insight()?.personalityTraits; track trait) {
+          <span class="trait-pill">⭐ {{ trait }}</span>
+        }
+      </div>
+    }
+
+    <!-- Lucky Attributes -->
+    <div class="lucky-row">
+      <div class="lucky-item">
+        <span class="material-symbols-outlined lucky-icon">casino</span>
+        <span>Chiffres chanceux : <strong>{{ insight()?.luckyNumbers?.join(', ') }}</strong></span>
+      </div>
+      @if (insight()?.luckyDays?.length) {
+        <div class="lucky-item">
+          <span class="material-symbols-outlined lucky-icon">event</span>
+          <span>Jour chanceux : <strong>{{ insight()?.luckyDays?.[0] }}</strong></span>
+        </div>
+      }
+    </div>
+
+    <!-- Celebration Horoscope Box -->
+    <div class="horoscope-box">
+      <div class="horoscope-title">
+        <span>🌟</span> Horoscope de Célébration
+      </div>
+      <p class="horoscope-text">{{ insight()?.celebrationHoroscope }}</p>
+      <div class="horoscope-affirmation">
+        💬 « {{ insight()?.dailyAffirmation }} »
+      </div>
+    </div>
+
+    <!-- Compatibility Action Button -->
+    <div class="compat-action">
+      <button class="compat-btn" (click)="openCompatibilityModal()">
+        <span class="material-symbols-outlined">flare</span>
+        Calculer la synergie cosmique avec un contact
+      </button>
+    </div>
+  </div>
+
+  <!-- Compatibility Modal -->
+  @if (isCompatModalOpen()) {
+    <div class="compat-modal-overlay" (click)="closeCompatibilityModal()">
+      <div class="compat-modal-card" (click)="$event.stopPropagation()">
+        <div class="compat-modal-header">
+          <div class="title-with-badge">
+            <span class="sparkle">✨</span>
+            <h4>Compatibilité Cosmique</h4>
+          </div>
+          <button class="close-btn" (click)="closeCompatibilityModal()">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="partner-select-group">
+          <label for="partnerSelect">Comparer avec :</label>
+          <select id="partnerSelect" class="partner-dropdown" (change)="onPartnerChange($any($event.target).value)">
+            @for (other of birthdayService.birthdays(); track other.id) {
+              @if (other.id !== currentBirthday()?.id) {
+                <option [value]="other.id" [selected]="other.id === selectedPartner()?.id">
+                  {{ other.name }} ({{ other.birthdate | date:'dd MMM yyyy' }})
+                </option>
+              }
+            }
+          </select>
+        </div>
+
+        @if (compatibility()) {
+          <div class="compatibility-result">
+            <div class="score-display">
+              <div class="signs-duo">
+                <div class="sign-item">
+                  <span class="duo-emoji">{{ compatibility()?.sign1Emoji }}</span>
+                  <span class="duo-name">{{ compatibility()?.sign1 }}</span>
+                </div>
+                <div class="score-badge">
+                  <span class="score-number">{{ compatibility()?.compatibilityScore }}%</span>
+                  <span class="score-label">Synergie</span>
+                </div>
+                <div class="sign-item">
+                  <span class="duo-emoji">{{ compatibility()?.sign2Emoji }}</span>
+                  <span class="duo-name">{{ compatibility()?.sign2 }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="harmony-header">
+              {{ compatibility()?.elementHarmony }}
+            </div>
+            <p class="synergy-desc">{{ compatibility()?.synergyDescription }}</p>
+
+            <div class="harmony-tip">
+              <span class="tip-icon">💡</span>
+              <p>{{ compatibility()?.tipForHarmony }}</p>
+            </div>
+          </div>
+        }
+
+        <button class="modal-close-btn" (click)="closeCompatibilityModal()">
+          Fermer
+        </button>
+      </div>
+    </div>
+  }
+}
