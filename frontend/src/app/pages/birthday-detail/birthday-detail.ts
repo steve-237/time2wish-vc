@@ -11,13 +11,14 @@ import { WishModalComponent } from '../../components/wish-modal/wish-modal.compo
 import { CardGeneratorComponent } from '../../components/card-generator/card-generator.component';
 import { GiftListModalComponent } from '../../components/gift-list-modal/gift-list-modal.component';
 import { PartyOrganizerModalComponent } from '../../components/party-organizer-modal/party-organizer-modal.component';
+import { AstrologyWidgetComponent } from '../../components/astrology-widget/astrology-widget.component';
 import { AuthService } from '../../services/auth.service';
 import { UiService } from '../../services/ui.service';
 
 @Component({
   selector: 'app-birthday-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterModule, WishModalComponent, CardGeneratorComponent, GiftListModalComponent, PartyOrganizerModalComponent],
+  imports: [CommonModule, FormsModule, RouterLink, RouterModule, WishModalComponent, CardGeneratorComponent, GiftListModalComponent, PartyOrganizerModalComponent, AstrologyWidgetComponent],
   templateUrl: './birthday-detail.html',
   styleUrl: './birthday-detail.scss'
 })

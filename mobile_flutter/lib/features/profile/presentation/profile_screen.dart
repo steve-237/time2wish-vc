@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/birthday_service.dart';
 import '../../../core/services/settings_service.dart';
+import '../../../core/services/device_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/glowing_badge.dart';
@@ -358,6 +359,46 @@ class ProfileScreen extends StatelessWidget {
                   value: isDark,
                   onChanged: (_) => settings.toggleDarkMode(),
                   activeTrackColor: AppColors.primaryCyan,
+                  activeThumbColor: Colors.white,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+            GlassCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Text('✨', style: TextStyle(fontSize: 18)),
+                ),
+                title: Text(
+                  settings.tr('astrology_insights'),
+                  style: TextStyle(
+                    color: isDark ? Colors.white : AppColors.textMainLight,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                subtitle: Text(
+                  settings.tr('astrology_desc'),
+                  style: TextStyle(
+                    color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                    fontSize: 11.5,
+                  ),
+                ),
+                trailing: Switch(
+                  value: settings.showAstrology,
+                  onChanged: (val) {
+                    DeviceService.triggerLightHaptic();
+                    settings.toggleShowAstrology(val);
+                  },
+                  activeTrackColor: const Color(0xFF8B5CF6),
                   activeThumbColor: Colors.white,
                 ),
               ),

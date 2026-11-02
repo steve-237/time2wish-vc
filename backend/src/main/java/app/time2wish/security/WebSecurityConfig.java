@@ -71,6 +71,7 @@ public class WebSecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
                     .requestMatchers("/api/admin/auth/**").permitAll()
                     .requestMatchers("/api/public/**").permitAll()
+                    .requestMatchers("/api/astrology/**").permitAll()
                     .requestMatchers("/error").permitAll()
                     .requestMatchers("/ws/**").permitAll()
                     .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPERADMIN")

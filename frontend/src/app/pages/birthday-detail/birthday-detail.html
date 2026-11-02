@@ -120,6 +120,13 @@
           </div>
         </div>
 
+        @if (birthday()?.birthdate) {
+          <app-astrology-widget
+            [birthdate]="birthday()!.birthdate"
+            [currentBirthday]="birthday()"
+          />
+        }
+
         <!-- Centres d'intérêt -->
         <div class="interests-section">
           <h3 class="section-title">
