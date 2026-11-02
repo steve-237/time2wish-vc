@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile_flutter/core/services/astrology_service.dart';
+import 'package:time2wish_mobile/core/services/astrology_service.dart';
 
 void main() {
   group('AstrologyService Mobile Astronomical Calculations', () {

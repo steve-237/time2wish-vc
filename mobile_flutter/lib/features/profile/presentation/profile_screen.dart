@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/services/auth_service.dart';
 import '../../../core/services/birthday_service.dart';
 import '../../../core/services/settings_service.dart';
+import '../../../core/services/device_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/glowing_badge.dart';

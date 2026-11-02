@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class AstrologyInsight {
   final DateTime birthdate;
   final String westernSign;

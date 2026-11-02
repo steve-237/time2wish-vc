@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/models/birthday_model.dart';
-import '../../../core/models/astrology_model.dart';
 import '../../../core/services/astrology_service.dart';
 import '../../../core/services/settings_service.dart';
-import '../../../core/services/device_service.dart';
 import '../../../core/theme/app_theme.dart';
 import 'zodiac_compatibility_sheet.dart';
 

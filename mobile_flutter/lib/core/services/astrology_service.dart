@@ -1,12 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import '../models/astrology_model.dart';
 import 'api_service.dart';
 
 class AstrologyService extends ChangeNotifier {
-  final ApiService? _apiService;
+  final ApiService? apiService;
 
-  AstrologyService({ApiService? apiService}) : _apiService = apiService;
+  AstrologyService({this.apiService});
 
   /// Retrieves astrology insights for a given birthdate.
   /// Computes locally for immediate response (offline-first),
@@ -16,13 +15,13 @@ class AstrologyService extends ChangeNotifier {
     final localInsight = computeLocalInsights(birthdate, lang: lang);
 
     // 2. Optional remote enhancement if online
-    if (_apiService != null) {
+    final api = apiService;
+    if (api != null) {
       try {
         final dateStr = birthdate.toIso8601String().substring(0, 10);
-        final response = await _apiService!.get('/api/astrology/insights?birthdate=$dateStr&lang=$lang');
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body) as Map<String, dynamic>;
-          return AstrologyInsight.fromJson(data);
+        final response = await api.dio.get('/astrology/insights?birthdate=$dateStr&lang=$lang');
+        if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
+          return AstrologyInsight.fromJson(response.data as Map<String, dynamic>);
         }
       } catch (e) {
         debugPrint('AstrologyService API fallback to local: $e');
@@ -42,14 +41,14 @@ class AstrologyService extends ChangeNotifier {
     final localComp = computeLocalCompatibility(date1, date2, lang: lang);
 
     // 2. Optional remote enhancement if online
-    if (_apiService != null) {
+    final api = apiService;
+    if (api != null) {
       try {
         final d1 = date1.toIso8601String().substring(0, 10);
         final d2 = date2.toIso8601String().substring(0, 10);
-        final response = await _apiService!.get('/api/astrology/compatibility?date1=$d1&date2=$d2&lang=$lang');
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body) as Map<String, dynamic>;
-          return ZodiacCompatibility.fromJson(data);
+        final response = await api.dio.get('/astrology/compatibility?date1=$d1&date2=$d2&lang=$lang');
+        if (response.statusCode == 200 && response.data is Map<String, dynamic>) {
+          return ZodiacCompatibility.fromJson(response.data as Map<String, dynamic>);
         }
       } catch (e) {
         debugPrint('AstrologyService compatibility API fallback: $e');
