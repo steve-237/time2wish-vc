@@ -1548,7 +1548,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                                     ),
                                     onPressed: () {
                                       DeviceService.triggerLightHaptic();
-                                      context.push('/birthdays/add');
+                                      context.push('/birthday/new');
                                     },
                                     icon: const Icon(Icons.add_rounded, size: 18),
                                     label: const Text('Ajouter un contact', style: TextStyle(fontWeight: FontWeight.bold)),

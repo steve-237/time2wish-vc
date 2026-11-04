@@ -5,6 +5,7 @@ export default defineConfig({
     // Utilise jsdom comme environnement pour simuler le DOM du navigateur
     environment: 'jsdom',
     globals: true,
+    fileParallelism: false,
     // Motif de fichiers de test (services et intercepteurs)
     include: ['src/app/services/**/*.spec.ts', 'src/app/interceptors/**/*.spec.ts'],
     coverage: {

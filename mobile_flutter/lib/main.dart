@@ -87,6 +87,10 @@ class _Time2WishAppState extends State<Time2WishApp> {
           builder: (context, state) => const BirthdayFormScreen(),
         ),
         GoRoute(
+          path: '/birthdays/add',
+          builder: (context, state) => const BirthdayFormScreen(),
+        ),
+        GoRoute(
           path: '/birthdays/past',
           builder: (context, state) => const PastBirthdaysScreen(),
         ),
