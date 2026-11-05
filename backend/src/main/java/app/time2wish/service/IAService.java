@@ -80,6 +80,7 @@ public class IAService {
     /**
      * Universal extractor to clean and parse text responses from any AI API (raw string or JSON).
      */
+    @SuppressWarnings("unchecked")
     private String cleanAndExtractText(String raw) {
         if (raw == null || raw.trim().isEmpty()) return null;
         String str = raw.trim();

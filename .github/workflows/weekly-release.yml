@@ -79,21 +79,17 @@ jobs:
       - name: Package Artifacts
         id: prep
         run: |
-          mkdir -p release-assets
+          mkdir -p "$GITHUB_WORKSPACE/release-assets"
 
           # Package Main Angular Web App
-          cd frontend/dist/frontend/browser
-          zip -r ../../../release-assets/Time2Wish-Web.zip .
-          zip -r ../../../release-assets/Time2Wish-Web-Angular.zip .
-          cd ../../..
+          (cd frontend/dist/frontend/browser && zip -r "$GITHUB_WORKSPACE/release-assets/Time2Wish-Web.zip" .)
+          (cd frontend/dist/frontend/browser && zip -r "$GITHUB_WORKSPACE/release-assets/Time2Wish-Web-Angular.zip" .)
 
           # Package Flutter Web App
-          cd mobile_flutter/build/web
-          zip -r ../../../release-assets/Time2Wish-Web-Flutter.zip .
-          cd ../../..
+          (cd mobile_flutter/build/web && zip -r "$GITHUB_WORKSPACE/release-assets/Time2Wish-Web-Flutter.zip" .)
 
           # Package Android APK
-          cp mobile_flutter/build/app/outputs/flutter-apk/app-debug.apk release-assets/Time2Wish-Android.apk
+          cp mobile_flutter/build/app/outputs/flutter-apk/app-debug.apk "$GITHUB_WORKSPACE/release-assets/Time2Wish-Android.apk"
 
           # Date & Tag calculation
           DATE_STR=$(date +'%Y.%m.%d')
