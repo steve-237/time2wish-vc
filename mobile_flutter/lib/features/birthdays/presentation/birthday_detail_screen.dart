@@ -11,6 +11,7 @@ import '../../../core/services/birthday_service.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/services/gift_service.dart';
 import '../../../core/services/device_service.dart';
+import '../../../core/services/quick_action_service.dart';
 import '../../../core/widgets/celebration_effect.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/glass_card.dart';
@@ -344,6 +345,14 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                   ),
                 ),
 
+                const SizedBox(height: 16),
+
+                // 1.b Quick Actions Bar (1-Click Call, SMS, WhatsApp, AI Wish)
+                _staggeredChild(
+                  1,
+                  _buildQuickActionBar(context, birthday, isDark),
+                ),
+
                 const SizedBox(height: 20),
 
                 // 2. Birthdate Details Card
@@ -368,6 +377,28 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
                           DateFormat('dd MMMM yyyy', localeStr).format(birthday.birthdate),
                           style: TextStyle(color: isDark ? AppColors.textLight : AppColors.textMainLight, fontSize: 15, fontWeight: FontWeight.w600),
                         ),
+                        if (birthday.whatsapp != null && birthday.whatsapp!.isNotEmpty) ...[
+                          const SizedBox(height: 14),
+                          Row(
+                            children: [
+                              Icon(Icons.phone_rounded, color: AppColors.primaryIndigo, size: 16),
+                              const SizedBox(width: 8),
+                              Text('Téléphone / WhatsApp : ', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 13)),
+                              Text(birthday.whatsapp!, style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontWeight: FontWeight.bold, fontSize: 13)),
+                            ],
+                          ),
+                        ],
+                        if (birthday.email != null && birthday.email!.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(Icons.alternate_email_rounded, color: AppColors.primaryIndigo, size: 16),
+                              const SizedBox(width: 8),
+                              Text('Email : ', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 13)),
+                              Text(birthday.email!, style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight, fontWeight: FontWeight.bold, fontSize: 13)),
+                            ],
+                          ),
+                        ],
                         if (birthday.notes != null && birthday.notes!.isNotEmpty) ...[
                           const SizedBox(height: 16),
                           Text('Notes & Remarques', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight, fontSize: 12)),
@@ -479,6 +510,133 @@ class _BirthdayDetailScreenState extends State<BirthdayDetailScreen>
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickActionBar(BuildContext context, BirthdayModel birthday, bool isDark) {
+    final hasPhone = birthday.whatsapp != null && birthday.whatsapp!.trim().isNotEmpty;
+    final phone = hasPhone ? birthday.whatsapp!.trim() : '';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          // WhatsApp
+          _buildQuickActionBtn(
+            context: context,
+            icon: Icons.chat_bubble_rounded,
+            color: const Color(0xFF25D366),
+            label: 'WhatsApp',
+            onTap: () {
+              if (hasPhone) {
+                QuickActionService.sendWhatsApp(context, phone);
+              } else {
+                QuickActionService.showQuickActionSheet(context, birthday);
+              }
+            },
+          ),
+          // Call
+          _buildQuickActionBtn(
+            context: context,
+            icon: Icons.phone_rounded,
+            color: const Color(0xFF3B82F6),
+            label: 'Appeler',
+            onTap: () {
+              if (hasPhone) {
+                QuickActionService.makePhoneCall(context, phone);
+              } else {
+                QuickActionService.showQuickActionSheet(context, birthday);
+              }
+            },
+          ),
+          // SMS
+          _buildQuickActionBtn(
+            context: context,
+            icon: Icons.sms_rounded,
+            color: const Color(0xFF8B5CF6),
+            label: 'SMS',
+            onTap: () {
+              if (hasPhone) {
+                QuickActionService.sendSms(context, phone);
+              } else {
+                QuickActionService.showQuickActionSheet(context, birthday);
+              }
+            },
+          ),
+          // AI Wish Generator shortcut
+          _buildQuickActionBtn(
+            context: context,
+            icon: Icons.auto_awesome_rounded,
+            color: AppColors.wishCoinsAmber,
+            label: 'Vœu IA',
+            onTap: () {
+              DeviceService.triggerLightHaptic();
+              final apiService = Provider.of<ApiService>(context, listen: false);
+              AiWishDialog.show(context, birthday.id, apiService);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActionBtn({
+    required BuildContext context,
+    required IconData icon,
+    required Color color,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color.withValues(alpha: isDark ? 0.22 : 0.12),
+                border: Border.all(
+                  color: color.withValues(alpha: 0.35),
+                  width: 1,
+                ),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white70 : AppColors.textMainLight,
+              ),
+            ),
+          ],
         ),
       ),
     );
