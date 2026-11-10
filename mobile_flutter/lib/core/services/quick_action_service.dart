@@ -6,7 +6,7 @@ import '../theme/app_theme.dart';
 import 'device_service.dart';
 
 class QuickActionService {
-  /// Strips formatting characters (spaces, dashes, dots, parentheses) while preserving leading '+'
+  /// Strips formatting characters (spaces, dashes, dots, parentheses) while preserving leading `+`
   static String sanitizePhoneNumber(String rawPhone) {
     var trimmed = rawPhone.trim();
     if (trimmed.isEmpty) return '';
@@ -17,7 +17,7 @@ class QuickActionService {
     return hasPlus ? '+$digits' : digits;
   }
 
-  /// Triggers a native phone call intent (tel:<number>)
+  /// Triggers a native phone call intent (`tel:<number>`)
   static Future<bool> makePhoneCall(BuildContext context, String rawPhone) async {
     final phone = sanitizePhoneNumber(rawPhone);
     if (phone.isEmpty) {
@@ -48,7 +48,7 @@ class QuickActionService {
     }
   }
 
-  /// Triggers native SMS messaging intent (sms:<number>?body=<message>)
+  /// Triggers native SMS messaging intent (`sms:<number>?body=<message>`)
   static Future<bool> sendSms(
     BuildContext context,
     String rawPhone, {
@@ -91,7 +91,7 @@ class QuickActionService {
     }
   }
 
-  /// Triggers WhatsApp chat intent (https://wa.me/<number>?text=<message>)
+  /// Triggers WhatsApp chat intent (`https://wa.me/<number>?text=<message>`)
   static Future<bool> sendWhatsApp(
     BuildContext context,
     String rawPhone, {
@@ -145,7 +145,7 @@ class QuickActionService {
     }
   }
 
-  /// Triggers email client (mailto:<email>?subject=<subject>&body=<body>)
+  /// Triggers email client (`mailto:<email>?subject=<subject>&body=<body>`)
   static Future<bool> sendEmail(
     BuildContext context,
     String rawEmail, {
@@ -206,7 +206,7 @@ class QuickActionService {
       builder: (ctx) => Container(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : Colors.white,
+          color: isDark ? AppColors.darkCard : Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
           boxShadow: [
             BoxShadow(
@@ -344,7 +344,7 @@ class QuickActionService {
                 ),
                 child: Column(
                   children: [
-                    Icon(Icons.info_outline_rounded, color: isDark ? AppColors.amberLight : Colors.amber.shade700, size: 28),
+                    const Icon(Icons.info_outline_rounded, color: AppColors.wishCoinsAmber, size: 28),
                     const SizedBox(height: 8),
                     Text(
                       'Aucun numéro ni email enregistré pour ce contact.',
