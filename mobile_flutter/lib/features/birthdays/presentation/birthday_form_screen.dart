@@ -49,6 +49,8 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
   final _partyLocationController = TextEditingController();
   final _partyDescriptionController = TextEditingController();
   final _interestController = TextEditingController();
+  final _whatsappController = TextEditingController();
+  final _emailController = TextEditingController();
 
   final List<String> _categories = ['AMIS', 'FAMILLE', 'TRAVAIL', 'AUTRE'];
   final List<String> _genders = ['Homme', 'Femme', 'Autre'];
@@ -82,6 +84,8 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
           _notesController.text = _notes;
           if (_partyLocation != null) _partyLocationController.text = _partyLocation!;
           if (_partyDescription != null) _partyDescriptionController.text = _partyDescription!;
+          if (birthday.whatsapp != null) _whatsappController.text = birthday.whatsapp!;
+          if (birthday.email != null) _emailController.text = birthday.email!;
         });
       }
     }
@@ -97,6 +101,8 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
     _partyLocationController.dispose();
     _partyDescriptionController.dispose();
     _interestController.dispose();
+    _whatsappController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
@@ -510,6 +516,8 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
         partyLocation: _partyLocation,
         partyDescription: _partyDescription,
         photoUrl: _photoUrl,
+        whatsapp: _whatsappController.text.trim().isNotEmpty ? _whatsappController.text.trim() : null,
+        email: _emailController.text.trim().isNotEmpty ? _emailController.text.trim() : null,
       );
 
       if (widget.birthdayId == null) {
@@ -536,9 +544,12 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
     }
   }
 
-  InputDecoration _inputDecoration(String label, bool isDark) {
+  InputDecoration _inputDecoration(String label, bool isDark, {Widget? prefixIcon, String? hintText}) {
     return InputDecoration(
       labelText: label,
+      hintText: hintText,
+      prefixIcon: prefixIcon,
+      hintStyle: TextStyle(color: isDark ? AppColors.textMutedDark.withValues(alpha: 0.5) : AppColors.textMutedLight.withValues(alpha: 0.5), fontSize: 13),
       labelStyle: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
       filled: true,
       fillColor: isDark ? const Color(0xFF141B26) : const Color(0xFFF8FAFC),
@@ -750,6 +761,57 @@ class _BirthdayFormScreenState extends State<BirthdayFormScreen> {
                                   ),
                                 ],
                               ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Coordonnées & Actions Rapides
+                        GlassCard(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.flash_on_rounded, color: AppColors.primaryIndigo, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Coordonnées (Appels & WhatsApp)',
+                                      style: TextStyle(
+                                        color: isDark ? Colors.white : AppColors.textMainLight,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 14),
+                                TextFormField(
+                                  controller: _whatsappController,
+                                  keyboardType: TextInputType.phone,
+                                  style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                                  decoration: _inputDecoration(
+                                    'Numéro de téléphone / WhatsApp',
+                                    isDark,
+                                    prefixIcon: Icon(Icons.phone_rounded, size: 18, color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo),
+                                    hintText: '+33 6 12 34 56 78',
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                TextFormField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                                  decoration: _inputDecoration(
+                                    'Email (optionnel)',
+                                    isDark,
+                                    prefixIcon: Icon(Icons.alternate_email_rounded, size: 18, color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo),
+                                    hintText: 'exemple@domaine.com',
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),

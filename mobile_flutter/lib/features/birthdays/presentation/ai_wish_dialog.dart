@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import '../../../core/services/settings_service.dart';
+import '../../../core/services/birthday_service.dart';
+import '../../../core/services/quick_action_service.dart';
 import '../../../core/services/ai_service.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/theme/app_theme.dart';
@@ -261,6 +263,36 @@ class _AiWishDialogState extends State<AiWishDialog> {
               ),
             ],
           ),
+
+          if (_generatedWish.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      DeviceService.triggerLightHaptic();
+                      final birthdayService = Provider.of<BirthdayService>(context, listen: false);
+                      final birthday = birthdayService.getBirthdayById(widget.birthdayId);
+                      Navigator.pop(context);
+                      if (birthday != null) {
+                        QuickActionService.showQuickActionSheet(context, birthday, prefilledMessage: _generatedWish);
+                      }
+                    },
+                    icon: const Icon(Icons.flash_on_rounded, size: 18),
+                    label: const Text('Envoyer en 1 clic (WhatsApp / SMS) 🚀', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF25D366),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );

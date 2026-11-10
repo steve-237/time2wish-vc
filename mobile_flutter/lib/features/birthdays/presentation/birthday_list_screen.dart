@@ -9,6 +9,7 @@ import '../../../core/services/birthday_service.dart';
 import '../../../core/services/sync_service.dart';
 import '../../../core/services/settings_service.dart';
 import '../../../core/services/device_service.dart';
+import '../../../core/services/quick_action_service.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/models/birthday_model.dart';
 import '../../../core/theme/app_theme.dart';
@@ -564,6 +565,26 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Action 1.b: Quick Actions (WhatsApp, Call, SMS)
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF25D366),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                QuickActionService.showQuickActionSheet(context, birthday);
+              },
+              icon: const Icon(Icons.flash_on_rounded, size: 18),
+              label: const Text(
+                'Souhaiter (WhatsApp / Appel / SMS) 💬',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
               ),
             ),
             const SizedBox(height: 10),
