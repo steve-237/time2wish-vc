@@ -142,7 +142,7 @@ class _MonthlyCalendarViewState extends State<MonthlyCalendarView> {
                   onPressed: _jumpToToday,
                   icon: Icon(Icons.today_rounded, size: 14, color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo),
                   label: Text(
-                    settings.tr('today'),
+                    settings.tr('jump_today'),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,

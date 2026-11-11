@@ -35,38 +35,38 @@ void main() {
       await settingsService.setLanguage('fr');
       expect(settingsService.tr('view_list'), equals('Liste'));
       expect(settingsService.tr('view_calendar'), equals('Calendrier'));
-      expect(settingsService.tr('today'), equals("Aujourd'hui"));
+      expect(settingsService.tr('jump_today'), equals("Aujourd'hui"));
       expect(settingsService.tr('no_birthdays_this_month'), equals('Aucun anniversaire ce mois-ci'));
 
       await settingsService.setLanguage('en');
       expect(settingsService.tr('view_list'), equals('List'));
       expect(settingsService.tr('view_calendar'), equals('Calendar'));
-      expect(settingsService.tr('today'), equals('Today'));
+      expect(settingsService.tr('jump_today'), equals('Today'));
       expect(settingsService.tr('no_birthdays_this_month'), equals('No birthdays this month'));
 
       await settingsService.setLanguage('de');
       expect(settingsService.tr('view_list'), equals('Liste'));
       expect(settingsService.tr('view_calendar'), equals('Kalender'));
-      expect(settingsService.tr('today'), equals('Heute'));
+      expect(settingsService.tr('jump_today'), equals('Heute'));
       expect(settingsService.tr('no_birthdays_this_month'), equals('Keine Geburtstage in diesem Monat'));
     });
 
     test('Birthday filtering by month and day operates accurately', () {
       final sampleBirthdays = [
         BirthdayModel(
-          id: '1',
+          id: 1,
           name: 'Alice Wonder',
           birthdate: DateTime(1995, 3, 15),
           category: 'AMIS',
         ),
         BirthdayModel(
-          id: '2',
+          id: 2,
           name: 'Bob Builder',
           birthdate: DateTime(1988, 3, 20),
           category: 'TRAVAIL',
         ),
         BirthdayModel(
-          id: '3',
+          id: 3,
           name: 'Charlie Chaplin',
           birthdate: DateTime(1977, 11, 15),
           category: 'FAMILLE',
