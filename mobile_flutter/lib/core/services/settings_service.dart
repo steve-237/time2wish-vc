@@ -5,10 +5,12 @@ class SettingsService extends ChangeNotifier {
   static const _themeKey = 'app_theme_mode';
   static const _langKey = 'app_language';
   static const _astrologyKey = 'app_show_astrology';
+  static const _viewModeKey = 'app_dashboard_view_mode';
 
   ThemeMode _themeMode = ThemeMode.dark;
   String _language = 'fr'; // 'fr', 'en', or 'de'
   bool _showAstrology = true;
+  String _dashboardViewMode = 'list'; // 'list' or 'calendar'
   bool _isInitialized = false;
 
   SettingsService() {
@@ -21,6 +23,7 @@ class SettingsService extends ChangeNotifier {
   bool get isDarkMode => _themeMode == ThemeMode.dark;
   bool get isInitialized => _isInitialized;
   bool get showAstrology => _showAstrology;
+  String get dashboardViewMode => _dashboardViewMode;
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -37,6 +40,7 @@ class SettingsService extends ChangeNotifier {
 
     _language = prefs.getString(_langKey) ?? 'fr';
     _showAstrology = prefs.getBool(_astrologyKey) ?? true;
+    _dashboardViewMode = prefs.getString(_viewModeKey) ?? 'list';
     _isInitialized = true;
     notifyListeners();
   }
@@ -66,6 +70,14 @@ class SettingsService extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_astrologyKey, value);
+  }
+
+  Future<void> setDashboardViewMode(String mode) async {
+    if (_dashboardViewMode == mode) return;
+    _dashboardViewMode = mode;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_viewModeKey, mode);
   }
 
   Future<void> setLanguage(String lang) async {
@@ -155,6 +167,13 @@ class SettingsService extends ChangeNotifier {
       'upcoming_month': 'ce mois-ci',
       'in_days': 'Dans',
       'in_day': 'Dans 1 jour',
+      'view_list': 'Liste',
+      'view_calendar': 'Calendrier',
+      'jump_today': 'Aujourd\'hui',
+      'no_birthdays_this_day': 'Aucun anniversaire ce jour',
+      'no_birthdays_this_month': 'Aucun anniversaire ce mois-ci',
+      'celebrations_count': 'anniversaire(s)',
+      'celebrations_in_month': 'Anniversaires en',
     },
     'en': {
       'dashboard': 'Dashboard',
@@ -228,6 +247,13 @@ class SettingsService extends ChangeNotifier {
       'upcoming_month': 'this month',
       'in_days': 'In',
       'in_day': 'In 1 day',
+      'view_list': 'List',
+      'view_calendar': 'Calendar',
+      'jump_today': 'Today',
+      'no_birthdays_this_day': 'No birthdays on this day',
+      'no_birthdays_this_month': 'No birthdays this month',
+      'celebrations_count': 'birthday(s)',
+      'celebrations_in_month': 'Birthdays in',
     },
     'de': {
       'dashboard': 'Dashboard',
@@ -293,6 +319,13 @@ class SettingsService extends ChangeNotifier {
       'upcoming_month': 'diesen Monat',
       'in_days': 'In',
       'in_day': 'In 1 Tag',
+      'view_list': 'Liste',
+      'view_calendar': 'Kalender',
+      'jump_today': 'Heute',
+      'no_birthdays_this_day': 'Keine Geburtstage an diesem Tag',
+      'no_birthdays_this_month': 'Keine Geburtstage in diesem Monat',
+      'celebrations_count': 'Geburtstag(e)',
+      'celebrations_in_month': 'Geburtstage im',
     },
   };
 }
