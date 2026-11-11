@@ -19,6 +19,7 @@ import 'ai_wish_dialog.dart';
 import 'ai_gift_sheet.dart';
 import 'reminder_settings_sheet.dart';
 import 'birthday_import_export_sheet.dart';
+import 'monthly_calendar_view.dart';
 
 class BirthdayListScreen extends StatefulWidget {
   const BirthdayListScreen({super.key});
@@ -1011,6 +1012,50 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                             ),
                             const SizedBox(width: 8),
 
+                            // Bascule Vue Liste <-> Vue Calendrier
+                            GestureDetector(
+                              onTap: () {
+                                DeviceService.triggerLightHaptic();
+                                final nextMode = settings.dashboardViewMode == 'calendar' ? 'list' : 'calendar';
+                                settings.setDashboardViewMode(nextMode);
+                              },
+                              child: Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  color: (settings.dashboardViewMode == 'calendar')
+                                      ? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.18)
+                                      : (isDark ? const Color(0xFF161C28) : Colors.white),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: (settings.dashboardViewMode == 'calendar')
+                                        ? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.5)
+                                        : (isDark ? const Color(0xFF222B3E) : AppColors.lightBorder),
+                                    width: 1,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    settings.dashboardViewMode == 'calendar'
+                                        ? Icons.view_agenda_rounded
+                                        : Icons.calendar_month_rounded,
+                                    color: (settings.dashboardViewMode == 'calendar')
+                                        ? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo)
+                                        : (isDark ? Colors.white : AppColors.textMainLight),
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
                             // Cloche de notification (reste accessible directement)
                             GestureDetector(
                               onTap: () {
@@ -1343,6 +1388,118 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                 ),
               ),
 
+            // 4. VIEW MODE TOGGLE PILLS (LISTE / CALENDRIER)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 2, 20, 10),
+              sliver: SliverToBoxAdapter(
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkCard : Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                      width: 1.0,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            if (settings.dashboardViewMode != 'list') {
+                              DeviceService.triggerLightHaptic();
+                              settings.setDashboardViewMode('list');
+                            }
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              gradient: settings.dashboardViewMode == 'list' ? AppColors.primaryGradient : null,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.view_agenda_rounded,
+                                  size: 16,
+                                  color: settings.dashboardViewMode == 'list'
+                                      ? Colors.white
+                                      : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  settings.tr('view_list'),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: settings.dashboardViewMode == 'list'
+                                        ? Colors.white
+                                        : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            if (settings.dashboardViewMode != 'calendar') {
+                              DeviceService.triggerLightHaptic();
+                              settings.setDashboardViewMode('calendar');
+                            }
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              gradient: settings.dashboardViewMode == 'calendar' ? AppColors.primaryGradient : null,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.calendar_month_rounded,
+                                  size: 16,
+                                  color: settings.dashboardViewMode == 'calendar'
+                                      ? Colors.white
+                                      : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  settings.tr('view_calendar'),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: settings.dashboardViewMode == 'calendar'
+                                        ? Colors.white
+                                        : (isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            if (settings.dashboardViewMode == 'calendar')
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 2, 20, 110),
+                sliver: SliverToBoxAdapter(
+                  child: MonthlyCalendarView(birthdays: birthdayService.birthdays),
+                ),
+              )
+            else ...[
             // 5. SEARCH & FILTER SECTION
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
@@ -1616,6 +1773,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                       ),
                     ),
             ),
+            ],
           ],
         ),
       ),
@@ -1689,6 +1847,24 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                 ],
               ),
               const SizedBox(height: 16),
+
+              // 0. Basculer vue Liste / Calendrier
+              _buildActionMenuItem(
+                context: ctx,
+                isDark: isDark,
+                icon: settings.dashboardViewMode == 'calendar' ? Icons.view_agenda_rounded : Icons.calendar_month_rounded,
+                iconColor: const Color(0xFF8B5CF6),
+                title: settings.dashboardViewMode == 'calendar' ? 'Afficher la Vue Liste' : 'Afficher la Vue Calendrier',
+                subtitle: settings.dashboardViewMode == 'calendar'
+                    ? 'Revenir à la liste classique avec recherche'
+                    : 'Visualiser la grille mensuelle avec indicateurs colorés',
+                onTap: () {
+                  Navigator.pop(ctx);
+                  final nextMode = settings.dashboardViewMode == 'calendar' ? 'list' : 'calendar';
+                  settings.setDashboardViewMode(nextMode);
+                },
+              ),
+              const SizedBox(height: 8),
 
               // 1. Anniversaires passés
               _buildActionMenuItem(
