@@ -23,8 +23,9 @@ class BirthdayService extends ChangeNotifier {
   String? get error => _error;
   SyncService? get syncService => _syncService;
 
+  /// List of upcoming birthdays (including today) remaining in the current calendar year
   List<BirthdayModel> get upcoming {
-    final sorted = List<BirthdayModel>.from(_birthdays);
+    final sorted = _birthdays.where((b) => !b.isPastThisYear).toList();
     sorted.sort((a, b) => a.daysRemaining.compareTo(b.daysRemaining));
     return sorted;
   }
@@ -32,7 +33,7 @@ class BirthdayService extends ChangeNotifier {
   int get upcomingThisMonth {
     final now = DateTime.now();
     return _birthdays.where((b) {
-      return b.birthdate.month == now.month;
+      return !b.isPastThisYear && b.birthdate.month == now.month;
     }).length;
   }
 
