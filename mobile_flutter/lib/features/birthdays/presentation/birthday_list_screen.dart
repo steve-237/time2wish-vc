@@ -61,7 +61,8 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
 
       if (!matchesSearch) return false;
 
-      if (_selectedCategory == 'PASSÉS') return b.isPastThisYear;
+      if (_selectedCategory == 'PASSÉS' || _selectedCategory == 'PASSES') return b.isPastThisYear;
+      if (b.isPastThisYear) return false;
       if (_selectedCategory == 'FAVORIS') return b.isFavorite;
       if (_selectedCategory == 'CE_MOIS') return b.birthdate.month == now.month;
       if (_selectedCategory != 'TOUS') return b.category.toUpperCase() == _selectedCategory;
@@ -909,8 +910,8 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
     final filtered = _getFilteredBirthdays(birthdayService.upcoming, allBirthdays: birthdayService.birthdays);
     final BirthdayModel? nextBirthday = birthdayService.upcoming.isNotEmpty ? birthdayService.upcoming.first : null;
 
-    final totalCount = birthdayService.birthdays.length;
-    final urgentCount = birthdayService.birthdays.where((b) => b.daysRemaining <= 7).length;
+    final totalCount = birthdayService.upcoming.length;
+    final urgentCount = birthdayService.upcoming.where((b) => b.daysRemaining <= 7).length;
     final firstName = user?.fullName.split(' ').first ?? 'Ami';
 
     final String langFlag = settings.language == 'en'
@@ -1233,7 +1234,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                         isSelected: _selectedCategory == 'TOUS',
                         icon: Icons.cake_rounded,
                         value: '$totalCount',
-                        label: 'Total',
+                        label: 'À venir',
                         iconColor: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
                         iconBgColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE0F2FE),
                         onTap: () {
@@ -1591,7 +1592,12 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                               break;
                             case 'PASSÉS':
                             case 'PASSES':
-                              label = settings.currentLanguage == 'fr' ? 'Passés' : 'Past';
+                              final baseLabel = settings.currentLanguage == 'fr'
+                                  ? 'Passés'
+                                  : (settings.currentLanguage == 'de' ? 'Vergangen' : 'Past');
+                              label = birthdayService.pastBirthdays.isNotEmpty
+                                  ? '$baseLabel (${birthdayService.pastBirthdays.length})'
+                                  : baseLabel;
                               break;
                             case 'FAVORIS':
                               label = settings.tr('filter_favorites');
@@ -1745,6 +1751,24 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                                     icon: const Icon(Icons.file_upload_outlined, size: 18),
                                     label: const Text('Importer JSON', style: TextStyle(fontWeight: FontWeight.bold)),
                                   ),
+                                  if (birthdayService.pastBirthdays.isNotEmpty)
+                                    OutlinedButton.icon(
+                                      style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                        side: BorderSide(color: (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.5)),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        foregroundColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                                      ),
+                                      onPressed: () {
+                                        DeviceService.triggerLightHaptic();
+                                        setState(() => _selectedCategory = 'PASSÉS');
+                                      },
+                                      icon: const Icon(Icons.history_rounded, size: 18),
+                                      label: Text(
+                                        'Voir les ${birthdayService.pastBirthdays.length} passés',
+                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
                                 ],
                               ),
                             ],
