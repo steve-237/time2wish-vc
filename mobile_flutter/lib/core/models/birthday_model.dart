@@ -107,7 +107,7 @@ class BirthdayModel {
           : int.tryParse(json['id']?.toString() ?? '') ?? 0,
       name: json['name']?.toString() ?? '',
       birthdate: json['birthdate'] != null
-          ? DateTime.parse(json['birthdate'].toString())
+          ? DateTime.parse(json['birthdate'].toString().split('T')[0])
           : DateTime.now(),
       category: json['category']?.toString() ?? 'AMIS',
       photoUrl: json['photoUrl']?.toString(),
