@@ -144,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Définissez un nouveau code d'accès pour déverrouiller votre session locale.',
+                    "Définissez un nouveau code d'accès pour déverrouiller votre session locale.",
                     style: TextStyle(
                       fontSize: 13,
                       color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
