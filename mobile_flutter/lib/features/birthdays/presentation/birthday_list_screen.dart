@@ -1013,49 +1013,7 @@ class _BirthdayListScreenState extends State<BirthdayListScreen> {
                             ),
                             const SizedBox(width: 8),
 
-                            // Bascule Vue Liste <-> Vue Calendrier
-                            GestureDetector(
-                              onTap: () {
-                                DeviceService.triggerLightHaptic();
-                                final nextMode = settings.dashboardViewMode == 'calendar' ? 'list' : 'calendar';
-                                settings.setDashboardViewMode(nextMode);
-                              },
-                              child: Container(
-                                width: 38,
-                                height: 38,
-                                decoration: BoxDecoration(
-                                  color: (settings.dashboardViewMode == 'calendar')
-                                      ? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.18)
-                                      : (isDark ? const Color(0xFF161C28) : Colors.white),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: (settings.dashboardViewMode == 'calendar')
-                                        ? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo).withValues(alpha: 0.5)
-                                        : (isDark ? const Color(0xFF222B3E) : AppColors.lightBorder),
-                                    width: 1,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    settings.dashboardViewMode == 'calendar'
-                                        ? Icons.view_agenda_rounded
-                                        : Icons.calendar_month_rounded,
-                                    color: (settings.dashboardViewMode == 'calendar')
-                                        ? (isDark ? AppColors.indigoLight : AppColors.primaryIndigo)
-                                        : (isDark ? Colors.white : AppColors.textMainLight),
-                                    size: 20,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
+
 
                             // Cloche de notification (reste accessible directement)
                             GestureDetector(
