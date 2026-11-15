@@ -93,6 +93,188 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  void _showResetPinDialog({
+    required BuildContext context,
+    required bool isDark,
+    required AuthService authService,
+    required String currentUsername,
+    required ValueChanged<String> onSuccess,
+  }) async {
+    final nameController = TextEditingController(text: currentUsername);
+    final newPinController = TextEditingController();
+    final confirmPinController = TextEditingController();
+    String? dialogError;
+    bool isSaving = false;
+
+    if (!context.mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          return AlertDialog(
+            backgroundColor: isDark ? AppColors.darkCard : Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.wishCoinsAmber.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.lock_reset_rounded, color: AppColors.wishCoinsAmber, size: 22),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Réinitialiser le PIN',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : AppColors.textMainLight,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Définissez un nouveau code d'accès pour déverrouiller votre session locale.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  TextField(
+                    controller: nameController,
+                    style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                    decoration: InputDecoration(
+                      labelText: 'Nom du compte',
+                      labelStyle: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                      filled: true,
+                      fillColor: isDark ? const Color(0xFF141B26) : const Color(0xFFF1F5F9),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  TextField(
+                    controller: newPinController,
+                    obscureText: true,
+                    style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                    decoration: InputDecoration(
+                      labelText: 'Nouveau code PIN',
+                      labelStyle: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                      filled: true,
+                      fillColor: isDark ? const Color(0xFF141B26) : const Color(0xFFF1F5F9),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  TextField(
+                    controller: confirmPinController,
+                    obscureText: true,
+                    style: TextStyle(color: isDark ? Colors.white : AppColors.textMainLight),
+                    decoration: InputDecoration(
+                      labelText: 'Confirmer le nouveau PIN',
+                      labelStyle: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight),
+                      filled: true,
+                      fillColor: isDark ? const Color(0xFF141B26) : const Color(0xFFF1F5F9),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+
+                  if (dialogError != null) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      dialogError!,
+                      style: const TextStyle(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogCtx),
+                child: Text('Annuler', style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight)),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                onPressed: isSaving
+                    ? null
+                    : () async {
+                        final name = nameController.text.trim();
+                        final newPin = newPinController.text.trim();
+                        final confirmPin = confirmPinController.text.trim();
+
+                        if (name.isEmpty) {
+                          setDialogState(() => dialogError = 'Nom du compte requis.');
+                          return;
+                        }
+                        if (newPin.isEmpty) {
+                          setDialogState(() => dialogError = 'Veuillez saisir un nouveau code PIN.');
+                          return;
+                        }
+                        if (newPin != confirmPin) {
+                          setDialogState(() => dialogError = 'Les codes PIN ne correspondent pas.');
+                          return;
+                        }
+
+                        setDialogState(() {
+                          isSaving = true;
+                          dialogError = null;
+                        });
+
+                        final success = await authService.resetOfflineSecurityCode(
+                          username: name,
+                          newSecurityCode: newPin,
+                        );
+
+                        if (!success) {
+                          setDialogState(() {
+                            isSaving = false;
+                            dialogError = 'Compte hors-ligne introuvable pour ce nom.';
+                          });
+                          return;
+                        }
+
+                        if (context.mounted) {
+                          Navigator.pop(dialogCtx);
+                          onSuccess(newPin);
+                          DeviceService.playSuccessSound();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Code PIN réinitialisé avec succès !'),
+                              backgroundColor: Color(0xFF10B981),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      },
+                child: isSaving
+                    ? const SpinKitRing(color: Colors.white, size: 16, lineWidth: 2)
+                    : const Text('Enregistrer'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   void _showOfflineLoginModal(BuildContext context, bool isDark, AuthService authService) async {
     final savedAccounts = await authService.getSavedOfflineAccounts();
     final usernameController = TextEditingController(
@@ -254,6 +436,38 @@ class _LoginScreenState extends State<LoginScreen>
                         if (modalError != null) setModalState(() => modalError = null);
                       },
                     ),
+                    const SizedBox(height: 4),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        onPressed: () {
+                          _showResetPinDialog(
+                            context: context,
+                            isDark: isDark,
+                            authService: authService,
+                            currentUsername: usernameController.text.trim(),
+                            onSuccess: (newPin) {
+                              pinController.text = newPin;
+                              setModalState(() => modalError = null);
+                            },
+                          );
+                        },
+                        icon: const Icon(Icons.help_outline_rounded, size: 14),
+                        label: Text(
+                          'Code PIN oublié ?',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? AppColors.indigoLight : AppColors.primaryIndigo,
+                          ),
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 12),
 
                     // Security code / PIN input
@@ -360,7 +574,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   DeviceService.triggerErrorHaptic();
                                   setModalState(() {
                                     isSubmitting = false;
-                                    modalError = 'Code de sécurité incorrect pour ce compte.';
+                                    modalError = 'Code de sécurité incorrect. Touchez "Code PIN oublié ?" pour le réinitialiser.';
                                   });
                                   return;
                                 }

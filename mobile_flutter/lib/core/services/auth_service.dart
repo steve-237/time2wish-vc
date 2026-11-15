@@ -342,6 +342,30 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  /// Reset security code / PIN for an offline account
+  Future<bool> resetOfflineSecurityCode({
+    required String username,
+    required String newSecurityCode,
+  }) async {
+    final cleanUsername = username.trim();
+    final cleanPin = newSecurityCode.trim();
+    if (cleanUsername.isEmpty || cleanPin.isEmpty) return false;
+
+    final existing = await _storageService.getOfflineAccountByUsername(cleanUsername);
+    if (existing == null) return false;
+
+    final updated = Map<String, dynamic>.from(existing);
+    updated['securityCode'] = cleanPin;
+    updated['securityCodeUpdatedAt'] = DateTime.now().toIso8601String();
+    await _storageService.saveOfflineAccount(updated);
+
+    if (_currentUser != null && _currentUser!.fullName.toLowerCase() == cleanUsername.toLowerCase()) {
+      _currentUser = UserModel.fromJson(updated);
+      notifyListeners();
+    }
+    return true;
+  }
+
   Future<void> logout() async {
     await _apiService.clearToken();
     await _storageService.clearActiveOfflineSession();

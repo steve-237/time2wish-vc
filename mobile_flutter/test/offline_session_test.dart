@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:time2wish_mobile/core/models/birthday_model.dart';
+import 'package:time2wish_mobile/core/services/api_service.dart';
+import 'package:time2wish_mobile/core/services/auth_service.dart';
 import 'package:time2wish_mobile/core/services/local_storage_service.dart';
 
 void main() {
@@ -8,10 +10,16 @@ void main() {
 
   group('Offline Multi-Account & Scoped Storage Tests', () {
     late LocalStorageService storage;
+    late AuthService authService;
 
     setUp(() {
       SharedPreferences.setMockInitialValues({});
       storage = LocalStorageService();
+      authService = AuthService(ApiService());
+    });
+
+    tearDown(() {
+      authService.dispose();
     });
 
     test('Initial active offline account is null', () async {
@@ -90,6 +98,52 @@ void main() {
     test('A newly created offline user starts with an empty birthday list', () async {
       final list = await storage.loadBirthdays(userId: 2000);
       expect(list, isEmpty);
+    });
+
+    test('Reset offline security code (PIN) allows recovery when credentials are forgotten (#86)', () async {
+      // 1. Create offline account with initial PIN '1111'
+      final createResult = await authService.loginOffline(
+        username: 'Alice Wonderland',
+        securityCode: '1111',
+      );
+      expect(createResult, equals(OfflineAuthResult.success));
+
+      await authService.logout();
+
+      // 2. Try logging in with wrong PIN '9999' -> rejected
+      final wrongLogin = await authService.loginOffline(
+        username: 'Alice Wonderland',
+        securityCode: '9999',
+      );
+      expect(wrongLogin, equals(OfflineAuthResult.invalidPin));
+
+      // 3. Reset PIN to '2222'
+      final resetSuccess = await authService.resetOfflineSecurityCode(
+        username: 'Alice Wonderland',
+        newSecurityCode: '2222',
+      );
+      expect(resetSuccess, isTrue);
+
+      // 4. Verify old PIN '1111' is no longer accepted
+      final oldPinLogin = await authService.loginOffline(
+        username: 'Alice Wonderland',
+        securityCode: '1111',
+      );
+      expect(oldPinLogin, equals(OfflineAuthResult.invalidPin));
+
+      // 5. Verify new PIN '2222' succeeds
+      final newPinLogin = await authService.loginOffline(
+        username: 'Alice Wonderland',
+        securityCode: '2222',
+      );
+      expect(newPinLogin, equals(OfflineAuthResult.success));
+
+      // 6. Reset for unknown username fails
+      final failReset = await authService.resetOfflineSecurityCode(
+        username: 'NonExistentUser',
+        newSecurityCode: '0000',
+      );
+      expect(failReset, isFalse);
     });
   });
 }
