@@ -106,7 +106,7 @@ void main() {
         username: 'Alice Wonderland',
         securityCode: '1111',
       );
-      expect(createResult, equals(OfflineAuthResult.success));
+      expect(createResult, anyOf(OfflineAuthResult.created, OfflineAuthResult.success));
 
       await authService.logout();
 

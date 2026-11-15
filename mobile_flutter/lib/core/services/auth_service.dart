@@ -86,9 +86,23 @@ class AuthService extends ChangeNotifier {
   UserModel? _currentUser;
   bool _isAuthenticated = false;
   bool _isLoading = false;
+  bool _isDisposed = false;
 
   AuthService(this._apiService) {
     checkInitialAuth();
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_isDisposed) {
+      super.notifyListeners();
+    }
   }
 
   UserModel? get currentUser => _currentUser;
